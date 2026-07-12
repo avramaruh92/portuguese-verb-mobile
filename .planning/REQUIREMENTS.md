@@ -9,9 +9,9 @@ Requirements for the v0.0 release. Each maps to roadmap phases.
 
 ### Setup
 
-- [ ] **SETUP-01**: User can select one or more tenses to practice (present indicative, preterite, imperfect, future)
-- [ ] **SETUP-02**: User can toggle "Include irregular verbs" (default off), independent of tense selection
-- [ ] **SETUP-03**: Starting a quiz creates a 10-question session drawn from the local dataset, respecting tense and irregular-toggle filters
+- [x] **SETUP-01**: User can select one or more tenses to practice (present indicative, preterite, imperfect, future)
+- [x] **SETUP-02**: User can toggle "Include irregular verbs" (default off), independent of tense selection
+- [x] **SETUP-03**: Starting a quiz creates a 10-question session drawn from the local dataset, respecting tense and irregular-toggle filters
 
 ### Dataset
 
@@ -21,15 +21,15 @@ Requirements for the v0.0 release. Each maps to roadmap phases.
 
 ### Quiz
 
-- [ ] **QUIZ-01**: Each question shows the infinitive verb, its English translation, the tense, and the subject pronoun (learner-friendly Portuguese label)
-- [ ] **QUIZ-02**: Each question presents 4 answer choices with exactly 1 correct answer
-- [ ] **QUIZ-03**: User gets immediate right/wrong feedback after selecting an answer, then can continue to the next question
+- [x] **QUIZ-01**: Each question shows the infinitive verb, its English translation, the tense, and the subject pronoun (learner-friendly Portuguese label)
+- [x] **QUIZ-02**: Each question presents 4 answer choices with exactly 1 correct answer
+- [x] **QUIZ-03**: User gets immediate right/wrong feedback after selecting an answer, then can continue to the next question
 - [x] **QUIZ-04**: Quiz generation and scoring logic is unit-tested (filtering, randomization, correct-answer selection, score calculation)
 
 ### Results
 
-- [ ] **RSLT-01**: After 10 questions, user sees a results screen with score out of 10
-- [ ] **RSLT-02**: User can open the native iOS share sheet from results with a short score + app name message
+- [x] **RSLT-01**: After 10 questions, user sees a results screen with score out of 10
+- [x] **RSLT-02**: User can open the native iOS share sheet from results with a short score + app name message
 
 ### Feedback
 
@@ -65,18 +65,18 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 4 | Pending |
-| SETUP-02 | Phase 4 | Pending |
-| SETUP-03 | Phase 4 | Pending |
+| SETUP-01 | Phase 4 | Complete |
+| SETUP-02 | Phase 4 | Complete |
+| SETUP-03 | Phase 4 | Complete |
 | DATA-01 | Phase 2 | Complete |
 | DATA-02 | Phase 2 | Complete |
 | DATA-03 | Phase 2 | Complete |
-| QUIZ-01 | Phase 4 | Pending |
-| QUIZ-02 | Phase 4 | Pending |
-| QUIZ-03 | Phase 4 | Pending |
+| QUIZ-01 | Phase 4 | Complete |
+| QUIZ-02 | Phase 4 | Complete |
+| QUIZ-03 | Phase 4 | Complete |
 | QUIZ-04 | Phase 3 | Complete |
-| RSLT-01 | Phase 4 | Pending |
-| RSLT-02 | Phase 4 | Pending |
+| RSLT-01 | Phase 4 | Complete |
+| RSLT-02 | Phase 4 | Complete |
 | FDBK-01 | Phase 5 | Pending |
 | FDBK-02 | Phase 5 | Pending |
 | FDBK-03 | Phase 5 | Pending |
