@@ -24,7 +24,7 @@ plus real-world backend cold-start behavior.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scaffold** - Working Expo Router + TypeScript + Zustand + Jest-expo project skeleton (completed 2026-07-12)
-- [ ] **Phase 2: Dataset & Domain Vocabulary** - Typed, validated local verb dataset with backend-aligned internal vocabulary
+- [x] **Phase 2: Dataset & Domain Vocabulary** - Typed, validated local verb dataset with backend-aligned internal vocabulary (completed 2026-07-12)
 - [ ] **Phase 3: Quiz Engine** - Tested pure-function logic for generating and scoring a quiz session
 - [ ] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score
 - [ ] **Phase 5: Feedback Integration** - Learner can submit in-app feedback tied to a question, handled gracefully end-to-end
@@ -79,7 +79,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-03-PLAN.md — Human-verify checkpoint: user reads the 50-verb dataset for European-Portuguese conjugation accuracy and D-05 flag correctness (D-04)
+- [x] 02-03-PLAN.md — Human-verify checkpoint: user reads the 50-verb dataset for European-Portuguese conjugation accuracy and D-05 flag correctness (D-04)
 
 ### Phase 3: Quiz Engine
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
-| 2. Dataset & Domain Vocabulary | 2/3 | In Progress|  |
+| 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
