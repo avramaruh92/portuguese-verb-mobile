@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Scaffold** - Working Expo Router + TypeScript + Zustand + Jest-expo project skeleton (completed 2026-07-12)
 - [x] **Phase 2: Dataset & Domain Vocabulary** - Typed, validated local verb dataset with backend-aligned internal vocabulary (completed 2026-07-12)
 - [x] **Phase 3: Quiz Engine** - Tested pure-function logic for generating and scoring a quiz session (completed 2026-07-12)
-- [ ] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score
+- [x] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score (completed 2026-07-12)
 - [ ] **Phase 5: Feedback Integration** - Learner can submit in-app feedback tied to a question, handled gracefully end-to-end
 - [ ] **Phase 6: Polish & Verification** - Cross-cutting verification of dataset accuracy, cold-start UX, and edge cases
 
@@ -127,7 +127,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — imports Plan 01's store/labels/share)*
 
-- [ ] 04-02-PLAN.md — Screens: Setup (tense multi-select + irregular toggle + Start Quiz), Quiz (question + answer feedback + progress), Results (score + share + replay) (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-02, QUIZ-03, RSLT-01, RSLT-02)
+- [x] 04-02-PLAN.md — Screens: Setup (tense multi-select + irregular toggle + Start Quiz), Quiz (question + answer feedback + progress), Results (score + share + replay) (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-02, QUIZ-03, RSLT-01, RSLT-02)
 
 ### Phase 5: Feedback Integration
 
@@ -169,6 +169,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
-| 4. Quiz Experience (Setup → Quiz → Results) | 1/2 | In Progress|  |
+| 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
 | 5. Feedback Integration | 0/TBD | Not started | - |
 | 6. Polish & Verification | 0/TBD | Not started | - |
