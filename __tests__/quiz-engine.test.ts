@@ -43,11 +43,27 @@ describe("quiz engine", () => {
       expect(keys.length).toBe(10);
     });
 
-    it("same-verb repeat (D-07): allows the same verb to appear across multiple questions with differing subject/tense", () => {
-      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+    it("same-verb repeat (D-07): sampleTriples does not dedupe by verb alone, only by the full triple", () => {
+      // A pool of exactly 10 unique (verb, tense, subject) triples where "falar" deliberately
+      // repeats across two different subjects. Since pool.length === count, sampleTriples
+      // returns every entry (in shuffled order), proving same-verb repeats are never filtered.
+      const pool: Triple[] = [
+        { verb: "falar", tense: "future", subject: "eu" },
+        { verb: "falar", tense: "future", subject: "tu" },
+        { verb: "comer", tense: "future", subject: "eu" },
+        { verb: "comer", tense: "future", subject: "tu" },
+        { verb: "abrir", tense: "future", subject: "eu" },
+        { verb: "abrir", tense: "future", subject: "tu" },
+        { verb: "beber", tense: "future", subject: "eu" },
+        { verb: "beber", tense: "future", subject: "tu" },
+        { verb: "correr", tense: "future", subject: "eu" },
+        { verb: "correr", tense: "future", subject: "tu" },
+      ];
+      const sampled = sampleTriples(pool, 10, mockRandom([0.1, 0.9, 0.3, 0.7, 0.5]));
+      expect(sampled).toHaveLength(10);
       const verbCounts = new Map<string, number>();
-      session.questions.forEach((q) => {
-        verbCounts.set(q.verb, (verbCounts.get(q.verb) ?? 0) + 1);
+      sampled.forEach((t) => {
+        verbCounts.set(t.verb, (verbCounts.get(t.verb) ?? 0) + 1);
       });
       const hasRepeat = [...verbCounts.values()].some((count) => count > 1);
       expect(hasRepeat).toBe(true);
