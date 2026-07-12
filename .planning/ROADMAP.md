@@ -118,8 +118,16 @@ Plans:
   4. After 10 questions, a results screen shows the score out of 10.
   5. User can open the native iOS share sheet from results with a short score + app name message.
 
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
+Plans:
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Logic layer: display labels (subject/tense), share message builder, full Zustand store state machine with unit test coverage (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-03, RSLT-02)
+
+**Wave 2** *(blocked on Wave 1 — imports Plan 01's store/labels/share)*
+
+- [ ] 04-02-PLAN.md — Screens: Setup (tense multi-select + irregular toggle + Start Quiz), Quiz (question + answer feedback + progress), Results (score + share + replay) (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-02, QUIZ-03, RSLT-01, RSLT-02)
 
 ### Phase 5: Feedback Integration
 
@@ -161,6 +169,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
-| 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
+| 4. Quiz Experience (Setup → Quiz → Results) | 0/2 | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
 | 6. Polish & Verification | 0/TBD | Not started | - |
