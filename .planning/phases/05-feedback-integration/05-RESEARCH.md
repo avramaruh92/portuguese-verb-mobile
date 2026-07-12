@@ -374,7 +374,7 @@ const platform: "ios" | "android" = Platform.OS === "android" ? "android" : "ios
 
 **Note on provenance:** All three assumptions above are flagged because they rely on WebSearch summaries of GitHub issues rather than a full fetch-and-read of the issue threads or official RN release notes. Given they only affect *how conservatively* the timeout is implemented (not whether the core FDBK requirements can be met), the risk is bounded — worst case, the plan includes a slightly more defensive pattern than strictly necessary.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the live backend's cold-start actually resolve within 90 seconds in practice?**
    - What we know: STATE.md's blocker note says cold starts can take "up to ~1 min," and D-09 sets the client timeout at ~90s specifically to give headroom over that documented figure.
