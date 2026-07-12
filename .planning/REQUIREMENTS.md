@@ -24,7 +24,7 @@ Requirements for the v0.0 release. Each maps to roadmap phases.
 - [ ] **QUIZ-01**: Each question shows the infinitive verb, its English translation, the tense, and the subject pronoun (learner-friendly Portuguese label)
 - [ ] **QUIZ-02**: Each question presents 4 answer choices with exactly 1 correct answer
 - [ ] **QUIZ-03**: User gets immediate right/wrong feedback after selecting an answer, then can continue to the next question
-- [ ] **QUIZ-04**: Quiz generation and scoring logic is unit-tested (filtering, randomization, correct-answer selection, score calculation)
+- [x] **QUIZ-04**: Quiz generation and scoring logic is unit-tested (filtering, randomization, correct-answer selection, score calculation)
 
 ### Results
 
@@ -74,7 +74,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | QUIZ-01 | Phase 4 | Pending |
 | QUIZ-02 | Phase 4 | Pending |
 | QUIZ-03 | Phase 4 | Pending |
-| QUIZ-04 | Phase 3 | Pending |
+| QUIZ-04 | Phase 3 | Complete |
 | RSLT-01 | Phase 4 | Pending |
 | RSLT-02 | Phase 4 | Pending |
 | FDBK-01 | Phase 5 | Pending |
