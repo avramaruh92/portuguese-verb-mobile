@@ -67,7 +67,19 @@ Plans:
   2. Running dataset validation reports zero shape/completeness errors across all seeded verbs.
   3. Internal `Tense`/`Subject` vocabulary types have been reviewed once against CLAUDE.md's exact backend enum literals (`present_indicative | preterite | imperfect | future`, `eu | tu | ele_ela | nos | voces | eles_elas`) with no unresolved mismatches.
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Type contracts (Tense/Subject/Verb) + exhaustive Zod validation harness + seeded dataset (3 regular classes + 1 irregular) + green test suite (DATA-01, DATA-03, SC-3 reconciliation)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02-02-PLAN.md — Author full 50-verb European-Portuguese dataset per D-01/D-02/D-05 (~35-40 regular + ~10-15 irregular), tighten count assertion to exactly 50 (DATA-01, DATA-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 02-03-PLAN.md — Human-verify checkpoint: user reads the 50-verb dataset for European-Portuguese conjugation accuracy and D-05 flag correctness (D-04)
 
 ### Phase 3: Quiz Engine
 
@@ -138,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
-| 2. Dataset & Domain Vocabulary | 0/TBD | Not started | - |
+| 2. Dataset & Domain Vocabulary | 0/3 | Not started | - |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
