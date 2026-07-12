@@ -13,17 +13,17 @@ const samplePayload: FeedbackPayload = {
 };
 
 describe("submitFeedback", () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     jest.useRealTimers();
     jest.clearAllMocks();
   });
 
   it("returns success with data on a 201 response", async () => {
     const persistedRow = { id: "abc123", createdAt: "2026-07-13T00:00:00.000Z" };
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       status: 201,
       json: async () => persistedRow,
     }) as unknown as typeof fetch;
@@ -34,7 +34,7 @@ describe("submitFeedback", () => {
   });
 
   it("returns validation-error on a 400 response without carrying fields", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       status: 400,
       json: async () => ({ error: "ValidationError", fields: { message: "required" } }),
     }) as unknown as typeof fetch;
@@ -45,7 +45,7 @@ describe("submitFeedback", () => {
   });
 
   it("returns server-error on a 500 response", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       status: 500,
       json: async () => ({ error: "InternalServerError" }),
     }) as unknown as typeof fetch;
@@ -56,7 +56,7 @@ describe("submitFeedback", () => {
   });
 
   it("returns server-error on any other non-201 status (e.g. 503)", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       status: 503,
       json: async () => ({}),
     }) as unknown as typeof fetch;
@@ -67,7 +67,7 @@ describe("submitFeedback", () => {
   });
 
   it("returns network-error when fetch rejects", async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error("Network request failed"));
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error("Network request failed"));
 
     const result = await submitFeedback(samplePayload);
 
@@ -77,7 +77,7 @@ describe("submitFeedback", () => {
   it("returns network-error when the request never resolves and the 90s timeout fires", async () => {
     jest.useFakeTimers();
 
-    global.fetch = jest.fn().mockImplementation(
+    globalThis.fetch = jest.fn().mockImplementation(
       (_url: string, options?: { signal?: AbortSignal }) =>
         new Promise((_resolve, reject) => {
           options?.signal?.addEventListener("abort", () => {
