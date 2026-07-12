@@ -41,7 +41,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Running the test suite executes and passes a trivial smoke test using the `jest-expo` preset.
   3. TypeScript strict mode compiles with zero errors.
   4. A basic Zustand store scaffold exists and can be imported without runtime error.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold Expo Router + strict TS + jest-expo + Zustand store, stripped to a single root route, green test suite
+- [ ] 01-02-PLAN.md — Human-verify checkpoint: iOS Simulator boots to the empty root screen with no errors (SC-1 visual confirmation)
 
 ### Phase 2: Dataset & Domain Vocabulary
 **Goal**: The app's quiz content is backed by a typed, validated local verb dataset, with internal `Tense`/`Subject` vocabulary reconciled against the backend's locked enum literals before anything else is built on top of it.
@@ -110,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold | 0/TBD | Not started | - |
+| 1. Scaffold | 0/2 | Not started | - |
 | 2. Dataset & Domain Vocabulary | 0/TBD | Not started | - |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
