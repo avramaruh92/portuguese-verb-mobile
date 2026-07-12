@@ -123,7 +123,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — Logic layer: display labels (subject/tense), share message builder, full Zustand store state machine with unit test coverage (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-03, RSLT-02)
+- [x] 04-01-PLAN.md — Logic layer: display labels (subject/tense), share message builder, full Zustand store state machine with unit test coverage (SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-03, RSLT-02)
 
 **Wave 2** *(blocked on Wave 1 — imports Plan 01's store/labels/share)*
 
@@ -169,6 +169,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
-| 4. Quiz Experience (Setup → Quiz → Results) | 0/2 | Not started | - |
+| 4. Quiz Experience (Setup → Quiz → Results) | 1/2 | In Progress|  |
 | 5. Feedback Integration | 0/TBD | Not started | - |
 | 6. Polish & Verification | 0/TBD | Not started | - |
