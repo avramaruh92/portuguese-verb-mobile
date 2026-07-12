@@ -77,9 +77,9 @@ conjugation quiz entirely offline, and see an accurate score. Everything else
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Full 50-verb dataset targeted for v0.0 (not a smaller seed) | User chose full target over a smaller seed set despite added authoring effort | — Pending |
-| Zustand for quiz session state | Nicer ergonomics than raw useState/Context as session logic grows; small added dependency accepted | — Pending |
+| Zustand for quiz session state | Nicer ergonomics than raw useState/Context as session logic grows; small added dependency accepted | ✓ Good — scaffolded in Phase 1 (`src/store/useQuizStore.ts`), importable with no runtime error |
 | "Include irregular verbs" toggle filters the verb pool only | Toggle does not restrict which tenses are eligible — independent axes | — Pending |
-| Jest + Expo preset for testing | Standard, well-supported RN/Expo test tooling | — Pending |
+| Jest + Expo preset for testing | Standard, well-supported RN/Expo test tooling | ✓ Good — `jest-expo` wired in Phase 1, green 2-test suite |
 | Share message includes app name alongside score | Light organic promotion via the native share sheet | — Pending |
 | No backend content-serving API — dataset stays local/offline | Explicitly reconfirmed at project setup; backend v0.0 scope is closed, only `POST /feedback` is used | ✓ Good |
 
@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-12 after initialization*
+*Last updated: 2026-07-12 — Phase 1 (Scaffold) complete: Expo Router + strict TS + jest-expo + Zustand skeleton verified on iOS Simulator, 8/8 must-haves passed*
