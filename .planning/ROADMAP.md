@@ -23,7 +23,7 @@ plus real-world backend cold-start behavior.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Scaffold** - Working Expo Router + TypeScript + Zustand + Jest-expo project skeleton
+- [x] **Phase 1: Scaffold** - Working Expo Router + TypeScript + Zustand + Jest-expo project skeleton (completed 2026-07-12)
 - [ ] **Phase 2: Dataset & Domain Vocabulary** - Typed, validated local verb dataset with backend-aligned internal vocabulary
 - [ ] **Phase 3: Quiz Engine** - Tested pure-function logic for generating and scoring a quiz session
 - [ ] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score
@@ -53,7 +53,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Human-verify checkpoint: iOS Simulator boots to the empty root screen with no errors (SC-1 visual confirmation)
+- [x] 01-02-PLAN.md — Human-verify checkpoint: iOS Simulator boots to the empty root screen with no errors (SC-1 visual confirmation)
 
 ### Phase 2: Dataset & Domain Vocabulary
 
@@ -137,7 +137,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold | 1/2 | In Progress|  |
+| 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
 | 2. Dataset & Domain Vocabulary | 0/TBD | Not started | - |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
