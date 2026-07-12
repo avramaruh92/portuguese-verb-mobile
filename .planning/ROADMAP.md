@@ -147,7 +147,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — TDD: feedback contract layer (Zod schema mirroring backend contract, FeedbackReason/FeedbackPayload/SubmitResult types, reason lookup tables) + pure buildFeedbackPayload mapping + schema/payload tests (FDBK-01, FDBK-04)
+- [x] 05-01-PLAN.md — TDD: feedback contract layer (Zod schema mirroring backend contract, FeedbackReason/FeedbackPayload/SubmitResult types, reason lookup tables) + pure buildFeedbackPayload mapping + schema/payload tests (FDBK-01, FDBK-04)
 
 **Wave 2** *(blocked on Wave 1 — imports schema/types)*
 
@@ -186,5 +186,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
-| 5. Feedback Integration | 0/4 | Planned | - |
+| 5. Feedback Integration | 1/4 | In Progress|  |
 | 6. Polish & Verification | 0/TBD | Not started | - |

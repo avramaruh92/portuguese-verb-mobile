@@ -33,10 +33,10 @@ Requirements for the v0.0 release. Each maps to roadmap phases.
 
 ### Feedback
 
-- [ ] **FDBK-01**: User can submit in-app feedback (message + verb/tense/subject/correctAnswer/selectedAnswer context) via `POST /feedback` to the live backend
+- [x] **FDBK-01**: User can submit in-app feedback (message + verb/tense/subject/correctAnswer/selectedAnswer context) via `POST /feedback` to the live backend
 - [ ] **FDBK-02**: Feedback submission handles success (201), validation error (400), server error (500), and network/cold-start delay gracefully
 - [ ] **FDBK-03**: Feedback submission failure never blocks or interrupts quiz completion
-- [ ] **FDBK-04**: Feedback payload mapping (UI labels → locked backend enum literals for tense/subject/platform) is unit-tested
+- [x] **FDBK-04**: Feedback payload mapping (UI labels → locked backend enum literals for tense/subject/platform) is unit-tested
 
 ## v2 Requirements
 
@@ -77,10 +77,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | QUIZ-04 | Phase 3 | Complete |
 | RSLT-01 | Phase 4 | Complete |
 | RSLT-02 | Phase 4 | Complete |
-| FDBK-01 | Phase 5 | Pending |
+| FDBK-01 | Phase 5 | Complete |
 | FDBK-02 | Phase 5 | Pending |
 | FDBK-03 | Phase 5 | Pending |
-| FDBK-04 | Phase 5 | Pending |
+| FDBK-04 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 16 total
