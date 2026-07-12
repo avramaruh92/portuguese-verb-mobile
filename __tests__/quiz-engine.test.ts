@@ -1,0 +1,263 @@
+import { generate, sampleTriples, buildQuestion, pickDistractors } from "../src/quiz/engine";
+import { InsufficientVerbsError } from "../src/quiz/types";
+import type { Triple } from "../src/quiz/types";
+import { verbs } from "../src/dataset/verbs";
+import type { Verb } from "../src/dataset/types";
+
+function mockRandom(sequence: number[]): () => number {
+  let i = 0;
+  return () => sequence[i++ % sequence.length]!;
+}
+
+describe("quiz engine", () => {
+  describe("generate", () => {
+    it("filter: restricts questions to the requested tense and excludes irregular verbs when toggled off", () => {
+      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("future");
+        const verb = verbs.find((v) => v.verb === q.verb);
+        expect(verb).toBeDefined();
+        expect(verb!.isIrregular).toBe(false);
+      });
+    });
+
+    it("filter (irregular on): allows irregular verbs to appear in the pool", () => {
+      const session = generate(
+        { tenses: ["present_indicative"], includeIrregular: true },
+        Math.random,
+      );
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("present_indicative");
+      });
+    });
+
+    it("duplicate: never produces a duplicate (verb, tense, subject) triple in a session", () => {
+      const session = generate(
+        { tenses: ["present_indicative", "preterite"], includeIrregular: true },
+        Math.random,
+      );
+      const keys = session.questions.map((q) => `${q.verb}|${q.tense}|${q.subject}`);
+      expect(new Set(keys).size).toBe(keys.length);
+      expect(keys.length).toBe(10);
+    });
+
+    it("same-verb repeat (D-07): sampleTriples does not dedupe by verb alone, only by the full triple", () => {
+      // A pool of exactly 10 unique (verb, tense, subject) triples where "falar" deliberately
+      // repeats across two different subjects. Since pool.length === count, sampleTriples
+      // returns every entry (in shuffled order), proving same-verb repeats are never filtered.
+      const pool: Triple[] = [
+        { verb: "falar", tense: "future", subject: "eu" },
+        { verb: "falar", tense: "future", subject: "tu" },
+        { verb: "comer", tense: "future", subject: "eu" },
+        { verb: "comer", tense: "future", subject: "tu" },
+        { verb: "abrir", tense: "future", subject: "eu" },
+        { verb: "abrir", tense: "future", subject: "tu" },
+        { verb: "beber", tense: "future", subject: "eu" },
+        { verb: "beber", tense: "future", subject: "tu" },
+        { verb: "correr", tense: "future", subject: "eu" },
+        { verb: "correr", tense: "future", subject: "tu" },
+      ];
+      const sampled = sampleTriples(pool, 10, mockRandom([0.1, 0.9, 0.3, 0.7, 0.5]));
+      expect(sampled).toHaveLength(10);
+      const verbCounts = new Map<string, number>();
+      sampled.forEach((t) => {
+        verbCounts.set(t.verb, (verbCounts.get(t.verb) ?? 0) + 1);
+      });
+      const hasRepeat = [...verbCounts.values()].some((count) => count > 1);
+      expect(hasRepeat).toBe(true);
+    });
+  });
+
+  describe("sampleTriples", () => {
+    it("InsufficientVerbsError: throws when the eligible pool has fewer than the requested count", () => {
+      const tinyPool: Triple[] = [
+        { verb: "falar", tense: "future", subject: "eu" },
+        { verb: "falar", tense: "future", subject: "tu" },
+      ];
+      expect(() => sampleTriples(tinyPool, 10, mockRandom([0]))).toThrow(InsufficientVerbsError);
+      try {
+        sampleTriples(tinyPool, 10, mockRandom([0]));
+        throw new Error("expected sampleTriples to throw");
+      } catch (err) {
+        expect(err).toBeInstanceOf(InsufficientVerbsError);
+        expect((err as InstanceType<typeof InsufficientVerbsError>).eligibleCount).toBe(2);
+        expect((err as InstanceType<typeof InsufficientVerbsError>).required).toBe(10);
+      }
+    });
+
+    it("does not throw InsufficientVerbsError for a single-tense, irregulars-off boundary pool (~228 triples)", () => {
+      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+      expect(session.questions).toHaveLength(10);
+    });
+  });
+
+  describe("buildQuestion / pickDistractors", () => {
+    const simpleVerbs: Verb[] = [
+      {
+        verb: "falar",
+        translation: "to speak",
+        isIrregular: false,
+        conjugations: {
+          present_indicative: {
+            eu: "falo",
+            tu: "falas",
+            ele_ela: "fala",
+            nos: "falamos",
+            voces: "falam",
+            eles_elas: "falam",
+          },
+          preterite: {
+            eu: "falei",
+            tu: "falaste",
+            ele_ela: "falou",
+            nos: "falámos",
+            voces: "falaram",
+            eles_elas: "falaram",
+          },
+          imperfect: {
+            eu: "falava",
+            tu: "falavas",
+            ele_ela: "falava",
+            nos: "falávamos",
+            voces: "falavam",
+            eles_elas: "falavam",
+          },
+          future: {
+            eu: "falarei",
+            tu: "falarás",
+            ele_ela: "falará",
+            nos: "falaremos",
+            voces: "falarão",
+            eles_elas: "falarão",
+          },
+        },
+      },
+      {
+        verb: "comer",
+        translation: "to eat",
+        isIrregular: false,
+        conjugations: {
+          present_indicative: {
+            eu: "como",
+            tu: "comes",
+            ele_ela: "come",
+            nos: "comemos",
+            voces: "comem",
+            eles_elas: "comem",
+          },
+          preterite: {
+            eu: "comi",
+            tu: "comeste",
+            ele_ela: "comeu",
+            nos: "comemos",
+            voces: "comeram",
+            eles_elas: "comeram",
+          },
+          imperfect: {
+            eu: "comia",
+            tu: "comias",
+            ele_ela: "comia",
+            nos: "comíamos",
+            voces: "comiam",
+            eles_elas: "comiam",
+          },
+          future: {
+            eu: "comerei",
+            tu: "comerás",
+            ele_ela: "comerá",
+            nos: "comeremos",
+            voces: "comerão",
+            eles_elas: "comerão",
+          },
+        },
+      },
+    ];
+
+    it("distractor: buildQuestion returns 4 distinct choices, one matching the correct conjugation", () => {
+      const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
+      const question = buildQuestion(triple, simpleVerbs, Math.random);
+      expect(question.choices).toHaveLength(4);
+      expect(new Set(question.choices).size).toBe(4);
+      expect(question.choices).toContain(question.correctAnswer);
+      expect(question.correctAnswer).toBe("falo");
+    });
+
+    it("distractor dedupe/backfill: pickDistractors returns exactly 3 distinct strings even when same-verb forms collide", () => {
+      // Synthetic verb whose present_indicative forms collide heavily for subject "eu":
+      // tu === ele_ela, and nos === voces === eles_elas, leaving only 2 unique same-verb
+      // distractor candidates (excluding the "eu" correct answer) before backfill.
+      const collidingVerb: Verb = {
+        verb: "colidir",
+        translation: "to collide (synthetic test fixture)",
+        isIrregular: false,
+        conjugations: {
+          present_indicative: {
+            eu: "colidoCorrect",
+            tu: "formaX",
+            ele_ela: "formaX",
+            nos: "formaY",
+            voces: "formaY",
+            eles_elas: "formaY",
+          },
+          preterite: {
+            eu: "x",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          imperfect: {
+            eu: "x",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          future: {
+            eu: "x",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+        },
+      };
+      const allVerbs = [collidingVerb, ...simpleVerbs];
+      const distractors = pickDistractors(
+        collidingVerb,
+        "present_indicative",
+        "eu",
+        allVerbs,
+        Math.random,
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(distractors).not.toContain("colidoCorrect");
+    });
+
+    it("shuffle: buildQuestion places correctAnswer at different indices under different mock RNG sequences, deterministically per sequence", () => {
+      const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
+
+      const rngA = mockRandom([0.1, 0.2, 0.3, 0.4, 0.9]);
+      const questionA1 = buildQuestion(triple, simpleVerbs, mockRandom([0.1, 0.2, 0.3, 0.4, 0.9]));
+      const questionA2 = buildQuestion(triple, simpleVerbs, mockRandom([0.1, 0.2, 0.3, 0.4, 0.9]));
+      expect(questionA1.choices.indexOf(questionA1.correctAnswer)).toBe(
+        questionA2.choices.indexOf(questionA2.correctAnswer),
+      );
+      expect(questionA1.choices).toEqual(questionA2.choices);
+
+      const questionB = buildQuestion(triple, simpleVerbs, mockRandom([0.9, 0.8, 0.7, 0.6, 0.05]));
+      const posA = questionA1.choices.indexOf(questionA1.correctAnswer);
+      const posB = questionB.choices.indexOf(questionB.correctAnswer);
+      expect(posA === posB && questionA1.choices.join(",") === questionB.choices.join(",")).toBe(
+        false,
+      );
+      void rngA;
+    });
+  });
+});
