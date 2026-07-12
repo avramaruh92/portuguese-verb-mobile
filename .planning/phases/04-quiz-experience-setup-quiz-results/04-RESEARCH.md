@@ -551,10 +551,11 @@ are deprecated in the installed SDK 57 / RN 0.86 versions.
 above; both are explicitly within CONTEXT.md's "Claude's Discretion" scope and carry
 no risk to correctness.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `app/index.tsx` redirect straight to `/setup`, or remain a distinct
-   landing screen with a "Start" button?**
+   landing screen with a "Start" button?** — RESOLVED (2026-07-12): Phase 4 plans confirm
+   `app/index.tsx` IS the Setup screen directly, matching the recommendation below.
    - What we know: Phase 1 D-04 deferred setup/quiz/results routes to this phase;
      `app/index.tsx` currently just renders a static heading.
    - What's unclear: Whether the phase's success criteria ("user can open the app,
@@ -564,8 +565,8 @@ no risk to correctness.
      screens (Setup, Quiz, Results) with no separate landing screen mentioned, the
      simplest reading is that `app/index.tsx` becomes (or redirects to) the Setup
      screen directly — avoids an unrequested extra tap before the core loop starts.
-     Flag for planner/user confirmation if a distinct landing/welcome screen is
-     actually wanted.
+   - Outcome: Planner adopted this recommendation; `app/index.tsx` = Setup screen
+     with no intermediate landing page.
 
 ## Environment Availability
 
