@@ -1681,7 +1681,7 @@ export const verbs: Verb[] = [
   {
     verb: "querer",
     translation: "to want",
-    isIrregular: true,
+    isIrregular: false,
     conjugations: {
       present_indicative: {
         eu: "quero",
