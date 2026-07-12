@@ -75,7 +75,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md — Author full 50-verb European-Portuguese dataset per D-01/D-02/D-05 (~35-40 regular + ~10-15 irregular), tighten count assertion to exactly 50 (DATA-01, DATA-02)
+- [x] 02-02-PLAN.md — Author full 50-verb European-Portuguese dataset per D-01/D-02/D-05 (~35-40 regular + ~10-15 irregular), tighten count assertion to exactly 50 (DATA-01, DATA-02)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
-| 2. Dataset & Domain Vocabulary | 1/3 | In Progress|  |
+| 2. Dataset & Domain Vocabulary | 2/3 | In Progress|  |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
