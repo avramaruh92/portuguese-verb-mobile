@@ -17,6 +17,7 @@ plus real-world backend cold-start behavior.
 ## Phases
 
 **Phase Numbering:**
+
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
@@ -32,78 +33,101 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Scaffold
+
 **Goal**: A working Expo Router + TypeScript + Zustand + Jest project exists that runs on the iOS simulator and has a green test suite.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
 **Requirements**: None (infrastructure only)
 **Success Criteria** (what must be TRUE):
+
   1. Running `npx expo start` boots the app on the iOS simulator to an empty root screen with no errors.
   2. Running the test suite executes and passes a trivial smoke test using the `jest-expo` preset.
   3. TypeScript strict mode compiles with zero errors.
   4. A basic Zustand store scaffold exists and can be imported without runtime error.
+
 **Plans**: 2 plans
 Plans:
+**Wave 1**
+
 - [ ] 01-01-PLAN.md — Scaffold Expo Router + strict TS + jest-expo + Zustand store, stripped to a single root route, green test suite
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md — Human-verify checkpoint: iOS Simulator boots to the empty root screen with no errors (SC-1 visual confirmation)
 
 ### Phase 2: Dataset & Domain Vocabulary
+
 **Goal**: The app's quiz content is backed by a typed, validated local verb dataset, with internal `Tense`/`Subject` vocabulary reconciled against the backend's locked enum literals before anything else is built on top of it.
 **Mode:** mvp
 **Depends on**: Phase 1
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Success Criteria** (what must be TRUE):
+
   1. The dataset module exposes typed verbs with English translation, regular/irregular flag, and conjugations for all 4 tenses × 6 subjects for every seeded verb.
   2. Running dataset validation reports zero shape/completeness errors across all seeded verbs.
   3. Internal `Tense`/`Subject` vocabulary types have been reviewed once against CLAUDE.md's exact backend enum literals (`present_indicative | preterite | imperfect | future`, `eu | tu | ele_ela | nos | voces | eles_elas`) with no unresolved mismatches.
+
 **Plans**: TBD
 
 ### Phase 3: Quiz Engine
+
 **Goal**: Correct, independently tested logic exists to generate a quiz session and score it, with no UI involved.
 **Mode:** mvp
 **Depends on**: Phase 2
 **Requirements**: QUIZ-04
 **Success Criteria** (what must be TRUE):
+
   1. Calling the generate function with tense and irregular-verb filters returns a 10-question session drawn only from matching verbs, with no immediate repeats.
   2. Running the engine's automated tests shows passing coverage for filtering, randomization, and score calculation.
   3. Given a completed set of answers, the scoring function returns a correct score out of 10.
+
 **Plans**: TBD
 
 ### Phase 4: Quiz Experience (Setup → Quiz → Results)
+
 **Goal**: A learner can open the app, pick what to practice, complete a 10-question quiz, and see an accurate score — the full core-value loop, end-to-end.
 **Mode:** mvp
 **Depends on**: Phase 3
 **Requirements**: SETUP-01, SETUP-02, SETUP-03, QUIZ-01, QUIZ-02, QUIZ-03, RSLT-01, RSLT-02
 **Success Criteria** (what must be TRUE):
+
   1. User can select one or more tenses to practice and toggle "Include irregular verbs" (default off) on a setup screen, then start a quiz.
   2. Each question displays the infinitive verb, its English translation, the tense, the subject pronoun (learner-friendly Portuguese label), and 4 answer choices with exactly 1 correct.
   3. Selecting an answer shows immediate right/wrong feedback and lets the user continue to the next question.
   4. After 10 questions, a results screen shows the score out of 10.
   5. User can open the native iOS share sheet from results with a short score + app name message.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Feedback Integration
+
 **Goal**: A learner can report a problem with any question directly from the app, and the app handles the backend's real-world success/error/cold-start behavior gracefully without ever interrupting the quiz.
 **Mode:** mvp
 **Depends on**: Phase 4
 **Requirements**: FDBK-01, FDBK-02, FDBK-03, FDBK-04
 **Success Criteria** (what must be TRUE):
+
   1. User can submit feedback (message + verb/tense/subject/correctAnswer/selectedAnswer context) via `POST /feedback` to the live backend.
   2. Submitting feedback shows a clear success state on 201, a validation error on 400, and a generic error on 500 with no internals leaked.
   3. A slow or cold-starting backend response never blocks or interrupts quiz completion.
   4. Automated tests confirm the feedback payload mapping (UI labels → locked backend enum literals) is correct for every tense/subject/platform value.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 6: Polish & Verification
+
 **Goal**: The shipped v0.0 experience holds up under the real-world conditions research flagged as highest-risk — conditions that automated tests structurally cannot cover.
 **Mode:** mvp
 **Depends on**: Phase 5
 **Requirements**: None (cross-cutting verification of already-covered requirements)
 **Success Criteria** (what must be TRUE):
+
   1. The full seeded dataset has been read through against an authoritative European Portuguese source (Ciberdúvidas/Infopédia/Priberam) with no outstanding discrepancies.
   2. A manual test against a genuinely cold live Render backend confirms the feedback flow degrades gracefully (loading state, no crash, no lost quiz progress).
   3. Edge cases (fewer than 10 eligible verbs for a filter combination, share-sheet cancellation, irregular-toggle locked mid-session) are handled without crashes or dead ends.
+
 **Plans**: TBD
 
 ## Progress
