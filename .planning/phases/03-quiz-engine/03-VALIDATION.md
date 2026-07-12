@@ -58,6 +58,7 @@ in the same plan as (and before) its implementation. Coverage mapping:
 | 03-02-F | 02 | 2 | QUIZ-04 | T-03-02 | Insufficient pool throws `InsufficientVerbsError` (D-08) | unit | `npx jest __tests__/quiz-engine.test.ts -t "InsufficientVerbsError"` | ✅ this plan | ⬜ pending |
 | 03-02-F | 02 | 2 | QUIZ-04 | — | Distractors deduped + backfilled to exactly 3 unique wrong answers (D-02/D-03) | unit | `npx jest __tests__/quiz-engine.test.ts -t "distractor"` | ✅ this plan | ⬜ pending |
 | 03-02-F | 02 | 2 | QUIZ-04 | — | Correct-answer position randomized across calls, deterministic under mock RNG (D-04/D-09) | unit | `npx jest __tests__/quiz-engine.test.ts -t "shuffle"` | ✅ this plan | ⬜ pending |
+| 03-02-F | 02 | 2 | QUIZ-04 | — | Same verb CAN repeat with different tense/subject; only full triple must be unique (D-07) | unit | `npx jest __tests__/quiz-engine.test.ts -t "same-verb repeat"` | ✅ this plan | ⬜ pending |
 | 03-03-F | 03 | 2 | QUIZ-04 | T-03-03 | `score()` returns correct `{correct, total}` for known session+answers fixtures (D-10) | unit | `npx jest __tests__/quiz-scoring.test.ts` | ✅ this plan | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*

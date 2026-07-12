@@ -293,12 +293,13 @@ Not applicable — this is stable, decades-old algorithmic territory (Fisher-Yat
 
 *(This is the only assumed claim — everything else in this research is either directly verified against files in this repo (`[VERIFIED: ...]`), cited from CONTEXT.md/PROJECT.md (`[CITED: ...]`), or standard/textbook algorithmic knowledge with no external-fact-checking dependency, e.g. Fisher-Yates correctness.)*
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact `QuizSession`/`Question` field names beyond what D-01–D-10 specify**
+1. **Exact `QuizSession`/`Question` field names beyond what D-01–D-10 specify** — RESOLVED
    - What we know: `Question` must carry verb, tense, subject, the learner-facing prompt data implied by QUIZ-01 (though QUIZ-01 itself is Phase 4's concern for *display*), `correctAnswer`, and 4 `choices`.
    - What's unclear: Whether `Question` should also carry translation/subject-label data now (for Phase 4 convenience) or whether Phase 4 re-derives display strings from `verb`/`subject` via the dataset. CONTEXT.md leaves exact type shapes to discretion.
-   - Recommendation: Keep `Question` minimal (verb, tense, subject, choices, correctAnswer) since QUIZ-01's display concerns (translation, learner-friendly subject label) are Phase 4's responsibility and can be derived by looking up `verb` in the dataset — avoids duplicating dataset data into every question object. Planner should confirm this minimal-shape choice explicitly as a task-level decision.
+   - Recommendation: Keep `Question` minimal (verb, tense, subject, choices, correctAnswer) since QUIZ-01's display concerns (translation, learner-friendly subject label) are Phase 4's responsibility and can be derived by looking up `verb` in the dataset — avoids duplicating dataset data into every question object.
+   - Resolution: 03-01-PLAN.md Task 1 implements exactly this minimal shape (verb/tense/subject/choices/correctAnswer, no denormalized translation/label fields).
 
 ## Environment Availability
 
