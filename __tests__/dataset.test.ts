@@ -18,7 +18,7 @@ describe("dataset validation", () => {
   });
 
   it("has the expected count of seeded verbs with unique infinitives", () => {
-    expect(verbs.length).toBe(4);
+    expect(verbs.length).toBe(50);
     expect(new Set(verbs.map((v) => v.verb)).size).toBe(verbs.length);
   });
 
