@@ -15,9 +15,9 @@ Requirements for the v0.0 release. Each maps to roadmap phases.
 
 ### Dataset
 
-- [ ] **DATA-01**: Local verb dataset includes English translation, regular/irregular flag, and conjugations for all 4 tenses × 6 subject forms
-- [ ] **DATA-02**: Dataset supports up to 50 curated European Portuguese verbs (initial content may seed smaller for velocity, architecture supports full 50)
-- [ ] **DATA-03**: Dataset shape/completeness is automatically validated (every verb has all required cells populated)
+- [x] **DATA-01**: Local verb dataset includes English translation, regular/irregular flag, and conjugations for all 4 tenses × 6 subject forms
+- [x] **DATA-02**: Dataset supports up to 50 curated European Portuguese verbs (initial content may seed smaller for velocity, architecture supports full 50)
+- [x] **DATA-03**: Dataset shape/completeness is automatically validated (every verb has all required cells populated)
 
 ### Quiz
 
@@ -68,9 +68,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | SETUP-01 | Phase 4 | Pending |
 | SETUP-02 | Phase 4 | Pending |
 | SETUP-03 | Phase 4 | Pending |
-| DATA-01 | Phase 2 | Pending |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Complete |
+| DATA-02 | Phase 2 | Complete |
+| DATA-03 | Phase 2 | Complete |
 | QUIZ-01 | Phase 4 | Pending |
 | QUIZ-02 | Phase 4 | Pending |
 | QUIZ-03 | Phase 4 | Pending |
