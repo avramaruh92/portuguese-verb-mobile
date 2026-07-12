@@ -97,7 +97,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Type contracts (Triple/Question/QuizSession/GenerateOptions/InsufficientVerbsError) + injectable-RNG Fisher-Yates shuffle utility + shuffle tests (QUIZ-04)
+- [x] 03-01-PLAN.md — Type contracts (Triple/Question/QuizSession/GenerateOptions/InsufficientVerbsError) + injectable-RNG Fisher-Yates shuffle utility + shuffle tests (QUIZ-04)
 
 **Wave 2** *(blocked on Wave 1; the two plans below run in parallel — no shared files)*
 
@@ -160,7 +160,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
-| 3. Quiz Engine | 0/3 | Not started | - |
+| 3. Quiz Engine | 1/3 | In Progress|  |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
 | 6. Polish & Verification | 0/TBD | Not started | - |
