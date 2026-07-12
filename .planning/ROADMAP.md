@@ -71,7 +71,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Type contracts (Tense/Subject/Verb) + exhaustive Zod validation harness + seeded dataset (3 regular classes + 1 irregular) + green test suite (DATA-01, DATA-03, SC-3 reconciliation)
+- [x] 02-01-PLAN.md — Type contracts (Tense/Subject/Verb) + exhaustive Zod validation harness + seeded dataset (3 regular classes + 1 irregular) + green test suite (DATA-01, DATA-03, SC-3 reconciliation)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -150,7 +150,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold | 2/2 | Complete   | 2026-07-12 |
-| 2. Dataset & Domain Vocabulary | 0/3 | Not started | - |
+| 2. Dataset & Domain Vocabulary | 1/3 | In Progress|  |
 | 3. Quiz Engine | 0/TBD | Not started | - |
 | 4. Quiz Experience (Setup → Quiz → Results) | 0/TBD | Not started | - |
 | 5. Feedback Integration | 0/TBD | Not started | - |
