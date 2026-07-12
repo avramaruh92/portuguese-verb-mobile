@@ -23,6 +23,8 @@ created: 2026-07-12
 | Icon library | none in use anywhere in the app (source: codebase scan). This phase's success state uses a text/emoji checkmark ("✓") — do not introduce an icon library for a single glyph. |
 | Font | System default (no custom font loaded — `app.json`/existing screens use platform default San Francisco on iOS). |
 
+**Focal point:** On the Quiz screen, the "Report a problem" trigger is a low-emphasis secondary text button positioned beneath the answer choices — the primary visual anchor remains the locked answer choice, not the report affordance. Inside the modal, the primary visual anchor is the reason-picker option list, with the "Submit feedback" button as the secondary anchor beneath it.
+
 ---
 
 ## Spacing Scale
@@ -39,7 +41,7 @@ Declared values (must be multiples of 4), extracted from existing screens (sourc
 | 2xl | 48px | Major block separation (`scoreBlock` marginBottom on Results) |
 | 3xl | 64px | Page-level top offset (Results `paddingTop`) |
 
-Exceptions: 44px minimum touch target height on every `Pressable`/button/chip (existing convention, not on the 8-point scale by design — it is Apple's HIG minimum tap target, not a spacing token). The report-problem trigger button and the modal's Submit/Retry/Cancel buttons must all use `minHeight: 44`. The 12px `gap` used between quiz answer choices (`styles.choices`) is an existing exception below 16px — reuse it for the modal's reason-picker option list for visual consistency, do not introduce a new gap value.
+Exceptions: 44px minimum touch target height on every `Pressable`/button/chip (existing convention, not on the 8-point scale by design — it is Apple's HIG minimum tap target, not a spacing token). The report-problem trigger button and the modal's Submit/Retry/dismiss controls must all use `minHeight: 44`. The 12px `gap` used between quiz answer choices (`styles.choices`) is an existing exception below 16px — reuse it for the modal's reason-picker option list for visual consistency, do not introduce a new gap value.
 
 ---
 
@@ -67,10 +69,10 @@ Extracted from existing screens (source: `app/*.tsx` StyleSheet blocks — this 
 | Dominant (60%) | `#FFFFFF` | Screen background, modal sheet background |
 | Secondary (30%) | `#F2F2F7` | Reason-picker option backgrounds (unselected), progress track, secondary/back buttons |
 | Accent (10%) | `#007AFF` | Submit feedback button, selected reason-picker option, "Report a problem" trigger text/icon |
-| Destructive | `#FF3B30` | Error message text (400/500/network), Retry button background |
+| Destructive | `#FF3B30` | Error message text (400/500/network), Retry submission button background |
 | Success | `#34C759` | Success checkmark + success message text on 201 |
 
-Accent (`#007AFF`) reserved for: the "Report a problem" trigger button/label on the Quiz screen, the modal's primary "Submit feedback" button, and the selected state of a reason-picker option. Do not use accent for the modal's Cancel/dismiss control — that should use the Secondary (`#F2F2F7`) background with default text color (`#000000`), matching the existing `backButton` pattern on Results.
+Accent (`#007AFF`) reserved for: the "Report a problem" trigger button/label on the Quiz screen, the modal's primary "Submit feedback" button, and the selected state of a reason-picker option. Do not use accent for the modal's dismiss control — that should use the Secondary (`#F2F2F7`) background with default text color (`#000000`), matching the existing `backButton` pattern on Results.
 
 Additional established tokens in use elsewhere in the app, reusable here: `#000000` (primary text), `#8E8E93` (muted/secondary text — use for the free-text input placeholder and modal helper copy).
 
@@ -89,10 +91,10 @@ Derived from `.planning/phases/05-feedback-integration/05-CONTEXT.md` decisions 
 | Primary CTA (modal submit) | "Submit feedback" |
 | Success state (201, D-05) | "✓ Feedback sent — thank you!" — auto-dismiss after ~1.5s, no user action required |
 | Error state — 400 (D-06) | "Something went wrong. Please try again." — no per-field detail, no Retry button (a 400 here signals an app bug, not a fixable user input); user may edit and re-tap Submit manually |
-| Error state — 500 (D-07) | "Something went wrong. Please try again." + explicit **Retry** button; modal stays open, reason + message text preserved |
-| Error state — network/timeout (D-08) | Identical copy and behavior to 500: "Something went wrong. Please try again." + **Retry** button, modal stays open, input preserved |
-| Retry button label | "Retry" |
-| Cancel/dismiss control | "Cancel" (or system modal swipe-to-dismiss) — no confirmation dialog; an in-flight request that gets dismissed is an implicit cancel from the UI's perspective (D-04), not a destructive action requiring confirmation |
+| Error state — 500 (D-07) | "Something went wrong. Please try again." + explicit **Retry submission** button; modal stays open, reason + message text preserved |
+| Error state — network/timeout (D-08) | Identical copy and behavior to 500: "Something went wrong. Please try again." + **Retry submission** button, modal stays open, input preserved |
+| Retry button label | "Retry submission" |
+| Cancel/dismiss control | No explicit text label — the modal is dismissed only via the system modal swipe-to-dismiss / back-gesture affordance; no confirmation dialog. An in-flight request that gets dismissed is an implicit cancel from the UI's perspective (D-04), not a destructive action requiring confirmation |
 | Destructive confirmation | None in this phase — feedback submission is non-destructive; no delete/irreversible action exists in this flow |
 
 ---
@@ -118,3 +120,4 @@ Not applicable — no shadcn, no component registry of any kind is used in this 
 - [ ] Dimension 6 Registry Safety: PASS
 
 **Approval:** pending
+</content>
