@@ -1,7 +1,11 @@
 import { useQuizStore } from "../src/store/useQuizStore";
 import * as engine from "../src/quiz/engine";
+import type { GenerateOptions } from "../src/quiz/types";
 
-const VALID_OPTIONS = { tenses: ["present_indicative"], includeIrregular: false };
+const VALID_OPTIONS: GenerateOptions = {
+  tenses: ["present_indicative"],
+  includeIrregular: false,
+};
 
 describe("useQuizStore", () => {
   beforeEach(() => {
