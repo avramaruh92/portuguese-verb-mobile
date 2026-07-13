@@ -87,7 +87,19 @@ All 16 v0.0 requirements shipped and independently verified (see
 
 ### Active
 
-(Requirements for v0.1 will be defined in `.planning/REQUIREMENTS.md` in the next step of milestone setup.)
+- [ ] App fetches the verb dataset from a backend content endpoint on app load/quiz-start, mocked for this milestone (FETCH-01)
+- [ ] Fetched payload validated against the existing Zod dataset schema before acceptance (FETCH-02)
+- [ ] Silent fallback to the local dataset on any fetch failure, zero user-facing blocking (FETCH-03)
+- [ ] Dataset source snapshotted at `startQuiz()` — mid-quiz refresh never swaps questions (FETCH-04)
+- [ ] Header exit control on an in-progress quiz (QUIZ-05)
+- [ ] Confirmation dialog with distinct labels before discarding progress (QUIZ-06)
+- [ ] Swipe-back/hardware-back gesture triggers the same confirmation — no bypass (QUIZ-07)
+- [ ] Confirming exit discards progress, returns to Setup, no partial results (QUIZ-08)
+- [ ] Safe-area-correct layout on all 3 screens (UI-01)
+- [ ] Consistent spacing/typography/color across Setup/Quiz/Results (UI-02)
+- [ ] Styled loading/error states for the new fetch step (UI-03)
+
+Full detail in `.planning/REQUIREMENTS.md`.
 
 ### Out of Scope
 
