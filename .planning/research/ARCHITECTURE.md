@@ -1,244 +1,303 @@
 # Architecture Research
 
-**Domain:** Offline-first mobile quiz app (Expo React Native, iOS-first, TypeScript, Expo Router, Zustand)
-**Researched:** 2026-07-12
-**Confidence:** HIGH (Expo Router conventions, Zustand patterns, RN testing — all well-established, verified against current Expo docs) / MEDIUM (quiz-domain-specific module boundaries — synthesized from general state-management and domain-modeling best practice, not a published "quiz app architecture" spec)
+**Domain:** Expo React Native quiz app — integrating async remote-content fetch, quiz abandonment, and safe-area wiring into an existing pure-function quiz engine + Zustand state machine (v0.1 milestone)
+**Researched:** 2026-07-13
+**Confidence:** HIGH (all findings grounded directly in the actual shipped codebase files, not generic patterns)
 
-## Standard Architecture
+> Supersedes the v0.0-era architecture sketch previously in this file (dated 2026-07-12), which
+> described a `src/quiz-engine/`/`src/api/` structure that was never actually adopted — the shipped
+> code uses `src/quiz/` and `src/feedback/`. This revision is grounded in the real, shipped v0.0
+> codebase and scoped specifically to the three v0.1 feature areas.
+
+## Standard Architecture (current, v0.0 shipped)
 
 ### System Overview
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│                        UI Layer (app/)                             │
-│  Expo Router screens — thin, presentational, read/write store only │
-│  ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐    │
-│  │  setup    │   │   quiz    │   │  results  │   │  feedback │    │
-│  │  screen   │   │  screen   │   │  screen   │   │   modal   │    │
-│  └─────┬─────┘   └─────┬─────┘   └─────┬─────┘   └─────┬─────┘    │
-├────────┴───────────────┴───────────────┴───────────────┴──────────┤
-│                 State Layer (src/store/) — Zustand                 │
-│  ┌────────────────────────────────────────────────────────────┐   │
-│  │  useQuizStore: session config, current question index,      │   │
-│  │  answers given, score — calls pure engine functions,         │   │
-│  │  never contains quiz logic itself                            │   │
-│  └────────────────────────────────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────────────────┤
-│           Domain Layer (src/quiz-engine/, src/dataset/)             │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │  dataset.ts  │  │  generate.ts │  │  score.ts    │              │
-│  │  (verbs[])   │  │  (filter +   │  │  (grading    │              │
-│  │  typed, pure │  │  randomize)  │  │  logic)      │              │
-│  │  data, no    │  │  pure fn,    │  │  pure fn      │              │
-│  │  React/store │  │  no React/   │  │  no React/    │              │
-│  │  imports     │  │  store       │  │  store        │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-├─────────────────────────────────────────────────────────────────────┤
-│              Integration Layer (src/api/)                           │
-│  ┌────────────────────────────────────────────────────────────┐   │
-│  │  feedbackClient.ts — maps UI/domain values → locked backend  │   │
-│  │  enum literals, calls fetch(POST /feedback), typed response  │   │
-│  │  handling (201/400/500/network)                              │   │
-│  └────────────────────────────────────────────────────────────┘   │
+│  app/ (Expo Router screens — 3 routes, Stack navigator)             │
+│  ┌───────────┐   ┌───────────┐   ┌───────────┐                     │
+│  │ index.tsx │──▶│ quiz.tsx  │──▶│results.tsx│                     │
+│  │ (Setup)   │   │ (Quiz)    │   │ (Results) │                     │
+│  └─────┬─────┘   └─────┬─────┘   └─────┬─────┘                     │
+├────────┴────────────────┴───────────────┴───────────────────────────┤
+│  src/store/useQuizStore.ts (Zustand — idle/error/in-progress/        │
+│  completed state machine; startQuiz() is currently SYNCHRONOUS)      │
+├───────────────────────────────────────────────────────────────────┤
+│  src/quiz/engine.ts (generate/sampleTriples/buildQuestion/            │
+│  pickDistractors — pure, sync, deterministic-under-injected-RNG,     │
+│  hard-imports `verbs` from src/dataset/verbs.ts at module scope)     │
+├───────────────────────────────────────────────────────────────────┤
+│  src/dataset/verbs.ts (static 50-verb array, sole data source today)  │
+│  src/dataset/types.ts (Verb/Tense/Subject types + TENSES/SUBJECTS)    │
+│  src/dataset/validate.ts (Zod VerbSchema + validateDataset())         │
+├───────────────────────────────────────────────────────────────────┤
+│  src/feedback/ (schema.ts, payload.ts, submit.ts, ReportFeedback-     │
+│  Modal.tsx — modal-local state, zero useQuizStore coupling, only      │
+│  network call in the app today: fetch + manual AbortController)       │
 └───────────────────────────────────────────────────────────────────┘
 ```
 
-### Component Responsibilities
+### Component Responsibilities (current)
 
-| Component | Responsibility | Typical Implementation |
-|-----------|----------------|-------------------------|
-| `dataset/` | Owns the static, typed verb data (50 verbs × 4 tenses × 6 subjects) and dataset-shape validation | Plain TS module exporting a typed array/object; a `validateDataset()` pure function used both at build/test time and optionally at runtime in `__DEV__` |
-| `quiz-engine/generate.ts` | Given dataset + filters (tenses selected, irregular toggle) → produces a randomized 10-question session | Pure function, no side effects, deterministic given a seeded RNG (for testability) |
-| `quiz-engine/score.ts` | Given a completed session's answers → computes score, per-question correctness | Pure function |
-| `store/useQuizStore.ts` (Zustand) | Owns *session state*: config chosen on setup screen, current question, list of answers, current score, session status (idle/in-progress/complete) | Zustand store with actions (`startQuiz`, `answerQuestion`, `resetQuiz`) that call `quiz-engine` pure functions and store the *results* |
-| `app/` (Expo Router screens) | Presentation + navigation only — read from store via hooks, dispatch store actions, never contain quiz logic or dataset filtering inline | Functional components; screens are "dumb" relative to the engine |
-| `api/feedbackClient.ts` | Sole boundary to the outside world — maps internal domain vocabulary (e.g., friendly tense/subject labels) to locked backend enum literals, performs the fetch, normalizes 201/400/500/network-error outcomes into a typed result | Small typed client module; no Zustand/React dependency, callable from a feedback-form component or its own tiny feedback store/hook |
+| Component | Responsibility | Notes |
+|-----------|----------------|-------|
+| `app/index.tsx` | Setup screen — local `useState` for tense/irregular selection, calls `startQuiz()`, then synchronously reads `useQuizStore.getState().status` right after to decide navigation | This synchronous read-immediately-after-call is the exact spot that breaks once `startQuiz` becomes async |
+| `app/quiz.tsx` | Renders current question, imports static `verbs` directly for translation lookup (`verbs.find(v => v.verb === question.verb)`), owns `ReportFeedbackModal` visibility | Also the natural home for the new exit/abandon control |
+| `app/results.tsx` | Reads `score()`, share sheet; "Try Again" button calls `startQuiz(filters)` and does the same synchronous status re-read as `index.tsx` | Needs the same await-fix as `index.tsx` once `startQuiz` is async |
+| `src/store/useQuizStore.ts` | Owns the entire quiz session lifecycle; `startQuiz` calls `generate()` synchronously and wraps `InsufficientVerbsError` into an `"error"` status | No async today; no loading/fetching status exists |
+| `src/quiz/engine.ts` | `generate(options, random)` — imports `verbs` from `../dataset/verbs` at module scope; pure/sync given that fixed import | The module-scope import of `verbs` is the exact coupling point that must be removed for a swappable data source |
+| `src/dataset/verbs.ts` | Static, hand-authored 50-verb dataset | Must stay as-is — it's both today's only source **and** tomorrow's fallback |
+| `src/dataset/validate.ts` | `VerbSchema` (Zod) + `validateDataset()` | Already exists and can be reused as-is to validate any remote payload before trusting it |
+| `react-native-safe-area-context@~5.7.0` | Installed dependency, currently unused | Confirmed in `package.json` — no new install needed for the safe-area fix, only wiring |
 
-## Recommended Project Structure
+## Recommended Project Structure (v0.1 additions)
 
 ```
-app/                          # Expo Router screens — routing + presentation only
-├── _layout.tsx                # Root layout (fonts, providers if any)
-├── index.tsx                  # Setup screen (tense selection, irregular toggle, Start)
-├── quiz.tsx                   # Active quiz screen (question, choices, feedback)
-├── results.tsx                # Results screen (score, share sheet, feedback entry point)
-└── +not-found.tsx
-
 src/
 ├── dataset/
-│   ├── verbs.ts                # Typed verb data (source of truth, hand-authored/reviewed)
-│   ├── types.ts                # Verb, Conjugation, Tense, Subject types
-│   └── validate.ts             # Dataset shape/completeness checks (used in tests)
-├── quiz-engine/
-│   ├── generate.ts             # filterVerbs(), buildQuestion(), generateSession()
-│   ├── score.ts                # scoreSession()
-│   └── types.ts                # Question, Session, Answer types
+│   ├── types.ts             # UNCHANGED
+│   ├── verbs.ts              # UNCHANGED — becomes the local fallback, not the only source
+│   ├── validate.ts           # UNCHANGED — VerbSchema/validateDataset() reused to validate remote payloads
+│   ├── remote.ts             # NEW — fetchRemoteVerbs(): Promise<Verb[]>, mirrors src/feedback/submit.ts's
+│   │                         #        fetch + AbortController timeout pattern; throws on network/timeout/
+│   │                         #        shape-invalid response (validated via existing VerbSchema)
+│   └── source.ts             # NEW — resolveVerbs(): Promise<{ verbs: Verb[]; source: "remote" | "local" }>
+│                              #        orchestrates fetchRemoteVerbs() → catch-all fallback to local `verbs`;
+│                              #        this is the ONLY new module that knows about "remote vs local" —
+│                              #        everything above it just receives a Verb[]
+├── quiz/
+│   ├── engine.ts              # MODIFIED — generate(verbs, options, random) — verbs becomes an explicit
+│   │                          #        parameter instead of a module-scope import; function body otherwise
+│   │                          #        untouched, still 100% pure/sync/deterministic-under-injected-RNG
+│   ├── scoring.ts             # UNCHANGED — score() never touched verbs directly, no change needed
+│   ├── types.ts               # UNCHANGED
+│   ├── labels.ts              # UNCHANGED
+│   └── random.ts              # UNCHANGED
 ├── store/
-│   └── useQuizStore.ts         # Zustand store: session state + actions calling quiz-engine
-├── api/
-│   ├── feedbackClient.ts       # submitFeedback(): maps domain → API enums, fetch, typed result
-│   └── feedbackTypes.ts        # Request/response types mirroring backend contract
-├── components/
-│   ├── QuestionCard.tsx
-│   ├── AnswerChoice.tsx
-│   ├── ScoreSummary.tsx
-│   └── FeedbackForm.tsx
-└── test/
-    └── (or co-located __tests__ next to each module)
+│   └── useQuizStore.ts        # MODIFIED — new "loading" status; startQuiz() becomes async, calls
+│                              #        source.resolveVerbs() then engine.generate(verbs, options, random);
+│                              #        store now also holds the resolved verb list (see below) so quiz.tsx
+│                              #        doesn't need its own static import; new abandonQuiz() action
+└── feedback/                  # UNCHANGED — zero coupling to this milestone's work, confirmed by design
 
-.planning/                     # existing GSD planning docs
+app/
+├── _layout.tsx                # MODIFIED — wrap <Stack> in <SafeAreaProvider>
+├── index.tsx                  # MODIFIED — await startQuiz(), render a loading state while status === "loading"
+├── quiz.tsx                   # MODIFIED — read verb list from store instead of static import; add exit
+│                              #        button + confirmation Alert; apply safe-area insets
+└── results.tsx                # MODIFIED (small) — "Try Again" must also await startQuiz(); safe-area insets pass
 ```
 
 ### Structure Rationale
 
-- **`src/dataset/` and `src/quiz-engine/` contain zero React/Zustand imports.** They are pure TypeScript modules, independently unit-testable without React Native Testing Library or a rendered component tree — this is the single most important boundary in this app, because it lets "quiz generation is correct" be verified with fast, plain Jest tests (no native module mocking needed).
-- **`src/store/` is a thin orchestration layer**, not where logic lives. The store calls `generateSession()`/`scoreSession()` and stores their outputs. This keeps the store swappable (Zustand → something else, if ever needed) without touching quiz logic, and keeps quiz logic testable without mocking Zustand.
-- **`app/` screens stay thin.** Expo Router's convention is that `app/` files are route entry points; per Expo's own guidance, screens can be "thin re-export layers" pointing at feature components. Here, screens read the store via `useQuizStore()` selectors and render `components/`; they should contain no filtering/scoring/randomization code inline.
-- **`src/api/` is isolated** because it is the only module allowed to know about the backend's enum literals and the only module allowed to perform network I/O. Isolating it makes the "cross-repo contract risk" (enum mismatch) a single, easily-testable seam: one mapping function, one set of unit tests asserting internal labels → correct backend literals.
-- **`src/components/` are presentational**, receiving data and callbacks as props; they don't reach into the store directly except where convenience clearly outweighs testability (e.g., a `FeedbackForm` may call `submitFeedback` directly since it's the terminal action, not core quiz logic).
+- **`src/dataset/remote.ts` + `src/dataset/source.ts` as two separate new files**, not one: `remote.ts` owns *how* to fetch (network mechanics — timeout, JSON parse, shape validation via the existing `VerbSchema`), `source.ts` owns *the fallback decision* (try remote, catch anything, return local). This mirrors the existing separation of concerns pattern in `src/feedback/` between `submit.ts` (network mechanics) and the payload/schema modules — keeps the network wrapper unit-testable in isolation from the fallback policy.
+- **`src/dataset/verbs.ts` must NOT be renamed, restructured, or converted into a function.** It is explicitly the fallback source now, and the existing 122 tests / `validateDataset` dataset-shape test still need a static array to assert against. Converting it to fetch-then-cache would conflate "the bundled fallback content" with "the resolved active content for this session" — those are two different concerns that the new `source.ts` module exists to keep separate.
+- **`engine.generate()` gains `verbs` as a parameter rather than the store injecting a global/singleton.** This is the minimal-diff way to preserve the pure-function invariant established in v0.0: `generate` remains pure and synchronous, it just receives its data as an argument instead of importing it at module scope. All existing engine unit tests keep working with a one-line signature update (pass the local `verbs` array explicitly) — no test needs to become async.
+- **Store, not screens, owns the async fetch-then-generate sequencing.** Screens should not orchestrate fetch/fallback/generate themselves — that would duplicate logic across `index.tsx` and `results.tsx`'s "Try Again" (both already call `startQuiz`), and would violate the same "screens are thin, store owns the state machine" convention already established for `startQuiz` in v0.0.
 
 ## Architectural Patterns
 
-### Pattern 1: Pure-function domain core wrapped by a thin state store
+### Pattern 1: Data-source injection into a pure engine (async fetch stays outside the pure boundary)
 
-**What:** All quiz logic (filtering, question generation, randomization, scoring) is expressed as pure functions taking explicit inputs (dataset, filters, RNG) and returning explicit outputs (a `Session`, a `ScoreResult`). Zustand's store holds only *data*, and its actions are one-line calls into these functions.
+**What:** The quiz engine (`generate`/`sampleTriples`/`buildQuestion`/`pickDistractors`) never becomes async and never calls `fetch`. All async/fallback resolution happens one layer up, in the store, which resolves a concrete `Verb[]` *before* calling `generate(verbs, options, random)`.
 
-**When to use:** Any app where "business logic correctness" needs to be tested independently of UI/state-management wiring — true here given the explicit requirement to unit test generation/scoring/dataset logic.
+**When to use:** Any time an existing pure/sync core needs to consume data that might come from an async source. Don't push async into the pure layer — push data resolution above it.
 
-**Trade-offs:** Slightly more indirection (store action calls out to another module) than putting logic inline in the store. Worth it: pure functions are trivial to test with fixed inputs/seeded randomness, whereas testing logic embedded in a Zustand store means instantiating/resetting store state per test.
+**Trade-offs:** Requires the store to sequence two steps (`await resolveVerbs()` then `generate(...)`) instead of one, and requires storing the resolved verb list somewhere consumers (like `quiz.tsx`'s translation lookup) can reach it without re-importing the static file. In exchange, 100% of the existing engine test suite needs zero conceptual changes — only the call sites gain an explicit argument.
 
 **Example:**
 ```typescript
-// quiz-engine/generate.ts — pure, no React/Zustand
-export function generateSession(
-  dataset: Verb[],
-  filters: { tenses: Tense[]; includeIrregular: boolean },
-  rng: () => number = Math.random
-): Session { /* filter, sample, build 4-choice questions */ }
-
-// store/useQuizStore.ts — thin orchestration
-export const useQuizStore = create<QuizState>((set, get) => ({
-  session: null,
-  startQuiz: (filters) =>
-    set({ session: generateSession(verbs, filters), status: 'in-progress' }),
-  answerQuestion: (choice) => {
-    /* record answer, advance index */
-  },
-}));
+// src/quiz/engine.ts — before/after diff is a single parameter addition
+export function generate(
+  verbs: Verb[],                       // NEW — was previously the module-scope import
+  options: GenerateOptions,
+  random: () => number = Math.random,
+): QuizSession {
+  const eligibleVerbs = verbs.filter((v) => options.includeIrregular || !v.isIrregular);
+  // ...unchanged body below
+}
 ```
 
-### Pattern 2: Enum-mapping boundary at the API edge
+```typescript
+// src/store/useQuizStore.ts — startQuiz becomes async, sequences fetch then pure generate
+startQuiz: async (options: GenerateOptions) => {
+  set({ status: "loading" });
+  const { verbs, source } = await resolveVerbs(); // NEW — src/dataset/source.ts
+  try {
+    const session = generate(verbs, options, Math.random); // now takes verbs explicitly
+    set({ status: "in-progress", filters: options, session, datasetVerbs: verbs, ...});
+  } catch (error) {
+    if (error instanceof InsufficientVerbsError) {
+      set({ status: "error", errorMessage: INSUFFICIENT_VERBS_MESSAGE, session: null });
+      return;
+    }
+    throw error;
+  }
+},
+```
 
-**What:** A single, small module (`feedbackClient.ts` + a co-located `mapToFeedbackPayload()`) is the only place internal domain vocabulary (e.g., a `Tense` union used throughout the quiz engine, or friendly subject labels like "nós") gets translated into the backend's locked literal unions (`present_indicative`, `nos`, etc.).
+### Pattern 2: Fetch-with-fallback via a single orchestrating function, mirroring the existing feedback network wrapper
 
-**When to use:** Any time an app's internal model and an external contract are allowed to diverge in *labeling* even though they must agree in *meaning* — exactly the flagged cross-repo risk here (CLAUDE.md D-07/D-08).
+**What:** `src/dataset/source.ts` exposes one function, `resolveVerbs()`, that internally tries `fetchRemoteVerbs()` (`AbortController`-based timeout, same shape as `src/feedback/submit.ts`) and on *any* failure — network error, timeout, non-2xx, or `validateDataset()` shape-validation failure — falls back to the local static `verbs` import. Callers never see a rejected promise; `resolveVerbs()` always resolves.
 
-**Trade-offs:** One extra mapping layer to maintain, but it converts a "silent 400 in production" risk into a single unit-tested pure function (`mapToFeedbackPayload(session, question, answer) → FeedbackRequest`) that can assert literal-for-literal correctness against the backend's Zod schema description.
+**When to use:** Exactly this milestone's stated requirement ("fetch verbs from a backend content endpoint... falling back to the bundled local dataset if unreachable").
 
-### Pattern 3: Route-as-thin-view over Expo Router
+**Trade-offs:** Swallowing all failure modes into a silent fallback means the UI has no way to tell the user "you're on cached/local content" unless `source.ts` also returns which source won (recommended: return `{ verbs, source: "remote" | "local" }` so a future UI affordance — e.g. a small "offline mode" indicator — is possible without a re-plumb). Since the backend endpoint doesn't exist yet, ship `fetchRemoteVerbs()` against a local mock/stub URL (per PROJECT.md's explicit scoping) so the fallback path is exercised in tests today and the real URL is a one-line swap later.
 
-**What:** Expo Router files in `app/` are kept as close to pure "screen wiring" as possible — they read from the Zustand store, render feature components from `src/components/`, and handle navigation (`router.push`, `router.replace`) only. No business logic in route files.
+**Example:**
+```typescript
+// src/dataset/source.ts
+import { verbs as localVerbs } from "./verbs";
+import { fetchRemoteVerbs } from "./remote";
+import type { Verb } from "./types";
 
-**When to use:** Standard for any Expo Router app beyond trivial size; documented as best practice by Expo (routes as thin re-export/wiring layers importing from a `src/` feature layer, distinct from `app/`'s routing responsibility).
+export async function resolveVerbs(): Promise<{ verbs: Verb[]; source: "remote" | "local" }> {
+  try {
+    const remote = await fetchRemoteVerbs(); // throws on network/timeout/invalid-shape
+    return { verbs: remote, source: "remote" };
+  } catch {
+    return { verbs: localVerbs, source: "local" };
+  }
+}
+```
 
-**Trade-offs:** Requires discipline to not "just quickly filter the dataset here" in a screen component during a rushed implementation. Mitigated by having `quiz-engine` functions already exist and be tested before UI phase starts (see build order below).
+### Pattern 3: Abandon-quiz as a reuse of the existing `reset()` primitive, not a new state
+
+**What:** "End quiz early" does not need a 5th status. Exiting mid-quiz is state-equivalent to the existing `reset()` action — it returns the store to `idle`, clearing `session`/`answers`/`currentIndex`/`lockedChoice`. The only genuinely new behavior is a **confirmation dialog**, which is a screen-level UI concern (native `Alert.alert`), not store logic.
+
+**When to use:** Whenever "cancel/abandon an in-progress flow" maps cleanly onto an already-existing "clear everything" action.
+
+**Trade-offs:** Slight ambiguity if `reset()` is ever repurposed for something status-specific later (e.g., "reset" meaning "clear an error" vs. "abandon a live quiz") — mitigate by adding a thin `abandonQuiz` action that's semantically named for call sites even if its body is currently identical to `reset()`, so future divergence (e.g. telemetry, a "did you mean to quit?" analytics event) has a natural home without renaming call sites later.
+
+**Example:**
+```typescript
+// src/store/useQuizStore.ts — thin, semantically-named alias; body may diverge from reset() later
+abandonQuiz: () => {
+  set({ ...initialState });
+},
+```
+
+```typescript
+// app/quiz.tsx — new exit button, confirmation lives at the screen, not the store
+import { Alert } from "react-native";
+
+function handleExit() {
+  Alert.alert(
+    "Exit Quiz?",
+    "Your progress will be lost.",
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Exit",
+        style: "destructive",
+        onPress: () => {
+          abandonQuiz();
+          router.replace("/");
+        },
+      },
+    ],
+  );
+}
+```
+No new `QuizStatus` value is needed — `idle` already means "no active session," which is exactly what an abandoned quiz should look like, and it's the same state `app/index.tsx` already renders correctly.
+
+### Pattern 4: SafeAreaProvider — minimal-diff root wrap, insets applied per-screen (not a rewrite to `SafeAreaView`)
+
+**What:** `react-native-safe-area-context@~5.7.0` is already an installed (but unused) dependency — confirmed in `package.json`. The fix is two-part: (1) wrap the root `<Stack>` in `app/_layout.tsx` with `<SafeAreaProvider>` so `useSafeAreaInsets()` works anywhere below it, and (2) apply insets in each of the 3 screens' existing `StyleSheet` containers.
+
+**When to use:** Exactly the "content renders under the notch/status bar" tech-debt item called out in PROJECT.md's Current State section.
+
+**Trade-offs:** Two implementation choices exist — (a) swap each screen's root `<View style={styles.container}>` for `<SafeAreaView>` from `react-native-safe-area-context` (not the deprecated RN-core one), or (b) keep `View` and manually spread `useSafeAreaInsets()` into the existing `paddingTop`/`paddingHorizontal` style objects. Recommend (a) for `app/quiz.tsx` and `app/results.tsx` (simple full-bleed screens, minimal diff, no reconciliation needed against existing top-padding) but note `results.tsx` already has a hardcoded `paddingTop: 64` that becomes redundant/double-padded once real insets are applied and must be removed, not just supplemented. `app/index.tsx` uses `justifyContent: "center"` for vertical centering — verify this still centers correctly once wrapped in `SafeAreaView`, since it becomes a flex container itself; option (b) (`useSafeAreaInsets()` + spread into existing container style) is the safer choice there if centering behavior shifts unexpectedly.
+
+**Example:**
+```typescript
+// app/_layout.tsx — minimal diff
+import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </SafeAreaProvider>
+  );
+}
+```
 
 ## Data Flow
 
-### Request Flow (quiz session)
+### Request Flow (v0.1, quiz start)
 
 ```
-[User picks tenses + irregular toggle on Setup screen]
+[User taps "Start Quiz" on Setup screen]
     ↓
-[Setup screen] → useQuizStore.startQuiz(filters)
+app/index.tsx: await startQuiz({ tenses, includeIrregular })
     ↓
-[Store action] → quiz-engine.generateSession(dataset, filters, rng)
+useQuizStore.startQuiz (async):
+    set({ status: "loading" })
     ↓
-[Store] holds Session { questions[], currentIndex, answers[] }
-    ↓
-[Quiz screen] reads session.questions[currentIndex] via selector, renders QuestionCard
-    ↓ (user selects an answer)
-[Quiz screen] → useQuizStore.answerQuestion(choice)
-    ↓
-[Store] records answer, advances currentIndex (or marks session complete)
-    ↓ (after 10th question)
-[Store] status → 'complete'; quiz-engine.scoreSession(session) computed (in store or on read)
-    ↓
-[Results screen] reads score + session from store, renders ScoreSummary + Share button
+src/dataset/source.ts: resolveVerbs()
+    ↓ (try)                              ↓ (catch: network/timeout/invalid shape)
+src/dataset/remote.ts:                src/dataset/verbs.ts:
+fetchRemoteVerbs()                    local `verbs` fallback
+    ↓                                     ↓
+    └──────────────┬──────────────────────┘
+                   ↓
+        { verbs, source: "remote"|"local" }
+                   ↓
+src/quiz/engine.ts: generate(verbs, options, Math.random)  ← still pure/sync
+                   ↓
+        set({ status: "in-progress", session, datasetVerbs: verbs })
+                   ↓
+app/index.tsx: status === "in-progress" → router.replace("/quiz")
+                   ↓
+app/quiz.tsx: reads `datasetVerbs` from store (not a static import) for translation lookup
 ```
 
-### Feedback Flow (the single external I/O path)
+### State Management (status machine, v0.1)
 
 ```
-[User taps "give feedback" on a specific question/result, fills message]
-    ↓
-[FeedbackForm] gathers: message + { verb, tense, subject, correctAnswer, selectedAnswer }
-  from the *session/question the user is looking at* (already in Zustand/local state)
-    ↓
-[api/feedbackClient.submitFeedback(payload)]
-    → mapToFeedbackPayload(): internal Tense/Subject → locked backend literals
-    → adds appVersion (from app config/Constants), platform: 'ios'
-    → fetch(POST https://portuguese-verb-api.onrender.com/feedback)
-    ↓
-[Response handling, typed]
-  201 → show success confirmation, do not block/alter quiz state
-  400 → show inline validation error (should not happen if mapping is correct/tested)
-  500 / network / timeout (cold start) → show retry-able error, non-blocking
-    ↓
-[Quiz session state in Zustand is completely unaffected by feedback outcome]
+idle ──(startQuiz, async)──▶ loading ──(resolveVerbs + generate succeed)──▶ in-progress
+  ▲                             │                                              │
+  │                    (InsufficientVerbsError)                        (advance() × 10 / abandonQuiz())
+  │                             ▼                                              │
+  └────────────────────────── error                                    completed / idle
+                                                                                │
+                                                                    (idle if abandonQuiz(); completed if finished)
 ```
 
-### State Management
-
-```
-[useQuizStore (Zustand)]
-    ↓ (selector subscriptions — e.g. useQuizStore(s => s.session?.questions[s.currentIndex]))
-[Screens/components] ←→ [Store actions: startQuiz, answerQuestion, resetQuiz]
-    ↓
-[Store persists nothing across app restarts — v0 has no persistence requirement;
- a fresh store on app launch is correct and simplest]
-```
+Only one new status is needed: `"loading"`. Abandonment reuses the existing `idle` terminus via `reset()`/`abandonQuiz()` — it does not need its own status.
 
 ### Key Data Flows
 
-1. **Setup → Quiz:** Filters chosen on the setup screen are the *only* input to `generateSession`; the store is created/reset per quiz attempt (no stale state bleed between quizzes — `resetQuiz()` or a fresh `startQuiz()` call fully replaces `session`).
-2. **Quiz → Results:** The store is the single source of truth for both the in-progress session and its terminal score; the results screen does not recompute anything, it reads already-computed values (or calls `scoreSession` once on session completion, memoized in store state).
-3. **Any screen → Feedback API:** This is the only flow that crosses the device boundary. It reads from whatever session/question context is currently in state, but writes nowhere back into `useQuizStore` — feedback submission and quiz progression are fully decoupled, which directly satisfies the requirement "must never block or lose quiz completion."
+1. **Dataset resolution:** Happens once per `startQuiz()` call, not once per app launch — each new quiz attempt re-resolves (remote-first, local-fallback), matching PROJECT.md's framing of "fetch verbs... on load/quiz-start." No caching layer is required for v0.1 scope (no persistence library is installed or wanted, per existing STACK.md guidance against `AsyncStorage`); an in-memory module-level cache inside `source.ts` is optional and cheap if repeated fetches during one app session become a concern, but is not a hard requirement.
+2. **Verb lookup for display (`quiz.tsx`'s translation text):** Currently reads the static `verbs` import directly (line: `const currentVerb = verbs.find((v) => v.verb === question.verb)`). Must switch to reading whatever verb list actually produced the active session (`datasetVerbs` in the store) — otherwise if the remote dataset ever diverges from local (e.g. backend adds a 51st verb, or a translation differs), the UI would silently look up the wrong record or fail to find one at all.
+3. **Abandon flow:** Confirmation dialog (screen-local, ephemeral `Alert.alert` state) → store action (`abandonQuiz`/`reset`) → navigation (`router.replace("/")`). No result/partial-score screen is shown, matching the requirement of "no partial results shown."
 
 ## Scaling Considerations
 
-This is a single-user, offline, no-accounts app — "scaling" here means dataset/feature growth, not concurrent users.
-
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| Current (50 verbs, 4 tenses, v0) | Current structure (in-memory array, pure functions, single Zustand store) is entirely sufficient — no persistence, no pagination, no lazy loading needed |
-| Growth (200+ verbs, more tenses/moods, e.g. subjunctive) | Still fine as a static typed array; consider splitting `dataset/verbs.ts` into per-tense or per-verb-group files re-exported from an index, purely for file-size/readability, not performance |
-| Growth (session history, spaced repetition — explicitly out of scope for v0 but flagged as a later milestone) | Would introduce a persistence layer (e.g. `expo-sqlite` or `AsyncStorage`) — this is the first real architectural addition beyond v0's scope, and should be designed as a new module (`src/persistence/`) that the store reads/writes through, not scattered `AsyncStorage.getItem` calls in screens |
-
-### Scaling Priorities
-
-1. **First likely change:** Adding more verbs/tenses/moods in a later milestone — handled by the dataset module's existing typed-array shape; no architectural change needed, just data + `validate.ts` coverage.
-2. **Second likely change:** Adding quiz history/spaced repetition (deferred) — will require introducing a persistence boundary; the current architecture's clean separation (engine has no I/O, store has no persistence today) makes this an additive change rather than a refactor, *provided* the store is not given ad-hoc `AsyncStorage` calls prematurely in v0.
+Not meaningfully applicable at this app's scale (single-user, offline-first, no backend load driven by this repo). The one real scaling axis is dataset size: if the backend-served dataset eventually grows well beyond 50 verbs, `resolveVerbs()`'s in-memory `Verb[]` return shape and `generate()`'s `pool.flatMap` over all eligible triples remain fine into the low thousands of verbs — no architectural change needed for v0.1's stated scope.
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Quiz logic inlined in Expo Router screens
+### Anti-Pattern 1: Making `generate()` itself async or fetch-aware
 
-**What people do:** Filter the dataset, randomize questions, or compute scores directly inside `app/quiz.tsx` using `useEffect`/inline array methods, because "it's faster to just do it here."
-**Why it's wrong:** Makes the explicitly-required unit tests for generation/scoring impossible to write cleanly (would require rendering the screen with RNTL and mocking navigation just to test a filter function). Also tends to duplicate logic across setup/quiz/results screens.
-**Do this instead:** Keep all such logic in `src/quiz-engine/`, tested with plain Jest, called only via store actions.
+**What people do:** Reach for `async function generate(options)` that calls `fetch` internally "since it needs remote data now."
+**Why it's wrong:** Destroys the invariant established in v0.0 that quiz generation is pure/synchronous/deterministic-under-injected-RNG — every existing unit test that calls `generate(options, fixedRandom)` and asserts on the exact returned `QuizSession` would need to become async and would now depend on network mocking to stay deterministic, entirely undermining what made the engine trivially testable.
+**Do this instead:** Resolve the `Verb[]` data source *before* calling `generate`, in the store, and keep passing it into `generate` as a plain synchronous argument.
 
-### Anti-Pattern 2: Zustand store directly building backend payloads
+### Anti-Pattern 2: Adding a new `"loading"`/`"abandoned"` status pair when one suffices
 
-**What people do:** Have the Zustand store (or a screen) construct the `POST /feedback` body inline, using whatever labels happen to be in local state (e.g., passing a friendly "nós" string straight through).
-**Why it's wrong:** This is exactly the flagged cross-repo contract risk — any drift between internal labels and backend literals causes silent 400s in production, and there's no single tested seam to catch it.
-**Do this instead:** Route every feedback submission through one `mapToFeedbackPayload()` function in `src/api/`, unit-tested against the exact enum literals in CLAUDE.md/backend contract.
+**What people do:** Add both a new `loading` status *and* a new `abandoned` status, treating "user quit" as architecturally distinct from "never started."
+**Why it's wrong:** `idle` already means "no active session, ready for Setup" — that is exactly the correct post-abandon state, and `app/index.tsx` already renders correctly for it. Adding a distinct `abandoned` status doubles the number of states every screen's status-switch needs to account for, for zero behavioral gain in this milestone (no "you abandoned last time" messaging is in scope).
+**Do this instead:** Only add the one new state genuinely needed (`loading`, for the async fetch window). Route abandonment back through the existing `idle` terminus.
 
-### Anti-Pattern 3: Reaching into dataset internals from multiple layers
+### Anti-Pattern 3: Letting `app/quiz.tsx` keep its own static `verbs` import after the dataset becomes swappable
 
-**What people do:** Import `dataset/verbs.ts` directly from screens *and* from the engine *and* from the API client, each doing its own ad-hoc lookups/filters.
-**Why it's wrong:** Spreads dataset-shape knowledge across the codebase; a future dataset schema change (e.g., adding a 5th tense) requires hunting down every direct consumer.
-**Do this instead:** Only `quiz-engine/` imports `dataset/verbs.ts` directly. Screens and the API client work with `Question`/`Session`/`Answer` types produced by the engine, never with raw `Verb` records.
+**What people do:** Add the remote-fetch layer for `startQuiz()` but leave `app/quiz.tsx`'s `import { verbs } from "../src/dataset/verbs"` untouched, since "it still compiles."
+**Why it's wrong:** Once the active quiz session might have been generated from a *remote* verb list, a screen that independently re-imports the *local static* list for lookups can silently diverge from the data that actually produced the session (wrong/missing translation, or a lookup miss if the remote dataset adds/removes a verb).
+**Do this instead:** Store the resolved verb list used for the current session in the Zustand store (e.g. `datasetVerbs`) alongside `session`, and have `quiz.tsx` read from there.
 
 ## Integration Points
 
@@ -246,37 +305,32 @@ This is a single-user, offline, no-accounts app — "scaling" here means dataset
 
 | Service | Integration Pattern | Notes |
 |---------|---------------------|-------|
-| `portuguese-verb-api` `POST /feedback` (Render-hosted) | Single typed `fetch` call in `src/api/feedbackClient.ts`; no SDK needed for one endpoint | Must handle Render free-tier cold-start latency (multi-second delay) with a loading/pending UI state and a reasonable timeout; must never throw uncaught — always resolve to a typed `{ ok: true, data } | { ok: false, error }` result so the caller (feedback form) can render inline outcome without crashing the app |
+| Backend content endpoint (does not exist yet — owned by `portuguese-verb-api`) | `fetch` + `AbortController` timeout, same shape as `src/feedback/submit.ts` | Build `fetchRemoteVerbs()` against a local mock/stub URL per PROJECT.md's explicit v0.1 scoping; the real URL swap is a one-line change once the sibling repo ships it. Validate the response shape with the *existing* `VerbSchema`/`validateDataset()` from `src/dataset/validate.ts` before accepting it as "remote success" — a 200 response with malformed data should fall back to local exactly like a network failure would. |
 
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| `app/` (screens) ↔ `store/` | Zustand hooks (`useQuizStore(selector)`) and action calls | Screens never import `quiz-engine` or `dataset` directly — always go through the store for session data |
-| `store/` ↔ `quiz-engine/` | Direct function calls (`generateSession`, `scoreSession`) | One-directional: store depends on engine, engine has zero knowledge of Zustand |
-| `quiz-engine/` ↔ `dataset/` | Direct import of typed data + validation helpers | Engine is the sole consumer of raw dataset records |
-| any screen/form ↔ `api/feedbackClient` | Direct function call (`submitFeedback(payload)`), typically from a `FeedbackForm` component or a small local `useState`-based hook — does not need to live in the global Zustand store | Keeps the one network-calling module decoupled from quiz session state entirely |
+| `src/dataset/source.ts` ↔ `src/quiz/engine.ts` | Plain function argument (`Verb[]` passed into `generate()`) | No shared global/singleton state — keeps `engine.ts` a pure function of its arguments, unchanged from v0.0's design intent. |
+| `useQuizStore` ↔ `app/index.tsx` | `await startQuiz(options)` then read `status` from the store (not a synchronous `useQuizStore.getState().status` read immediately after a fire-and-forget call, as today) | The current code (`app/index.tsx`'s `handleStartQuiz`) reads store state synchronously right after calling `startQuiz` — this **must** become `await startQuiz(options)` before checking `nextStatus`, otherwise the navigation check will race the still-pending fetch and always see the stale pre-call status. The exact same pattern exists in `app/quiz.tsx`'s `handleAdvance` (checks status after `advance()` — `advance()` itself stays synchronous so no change needed there) and `app/results.tsx`'s `handleTryAgain` (calls `startQuiz` and reads status synchronously — needs the identical `await` fix). |
+| `useQuizStore` ↔ `app/quiz.tsx` | New: store exposes `datasetVerbs`; screen reads it instead of statically importing `src/dataset/verbs` | See Anti-Pattern 3 above. |
+| `SafeAreaProvider` ↔ screens | React Context, not props — `useSafeAreaInsets()` hook called independently in each of the 3 screens | No prop-drilling needed; each screen already has its own `StyleSheet`, so insets are applied locally per screen, not centralized. |
 
-## Suggested Build Order (validates/adjusts the roadmap's 6-phase sketch)
+## Suggested Build Order
 
-The user's implied phase order — scaffold → domain model/dataset → quiz engine → UI (setup/quiz/results) → feedback API integration → polish/QA — matches this architecture's dependency graph exactly and is confirmed as correct:
+Given the dependency chain across the three feature areas:
 
-1. **Scaffold** — Expo + Expo Router + TypeScript + Zustand + Jest/Expo preset installed and wired (empty routes, empty store, CI/test runner green on a trivial test). Nothing here depends on domain knowledge.
-2. **Domain model + dataset** — `src/dataset/types.ts` and `verbs.ts` (even partially seeded), plus `validate.ts` and its tests. This must come before the engine because `generateSession`'s signature depends on the `Verb`/`Tense`/`Subject` types being settled — and those types double as the vocabulary the feedback-mapping layer will later need to reconcile against backend enums, so nail this vocabulary early and deliberately (decide internal `Tense`/`Subject` unions now, in a form that maps cleanly to backend literals later).
-3. **Quiz engine** — `generate.ts` + `score.ts`, fully unit tested against the dataset from step 2, with no UI at all. This is the highest-value phase to isolate for testing per the explicit requirement, and de-risks the trickiest logic (randomization without repeats, irregular-toggle filtering, 4-choice distractor generation) before any UI exists to obscure bugs.
-4. **UI (setup → quiz → results)** — Zustand store wired to the now-tested engine; screens are comparatively low-risk once steps 2–3 are solid, since they're "thin" by design.
-5. **Feedback API integration** — Can start in parallel with step 4 on the `feedbackClient.ts`/mapping-function/unit-test side (it needs no UI), but the FeedbackForm UI naturally slots in after results/quiz screens exist to attach it to. Flag: this phase is the one most likely to need extra research/care, given the explicit cross-repo enum-literal risk and cold-start handling — worth a dedicated pitfalls review before implementation (see PITFALLS.md).
-6. **Polish/QA** — Share sheet wording, error-state polish, accessibility, edge cases (e.g., fewer than 10 eligible verbs for a filter combination — the engine's step 3 tests should already surface this edge case, but end-to-end UI behavior needs explicit QA).
-
-**Adjustment worth flagging for the roadmap:** consider explicitly calling out that the internal `Tense`/`Subject` type design (part of phase 2) should be reviewed once against the exact backend literals listed in CLAUDE.md *before* dataset authoring is finalized — cheaper to align the vocabulary at the type-definition stage than to retrofit a mapping layer after 50 verbs' worth of data and UI copy already exist using different labels.
+1. **Dataset fetch/fallback layer first** — `src/dataset/remote.ts` and `src/dataset/source.ts`. Zero dependents yet exist, fully unit-testable in isolation (mock `fetch`, assert fallback-on-failure), and nothing else can proceed meaningfully without it.
+2. **Refactor `engine.generate()` to accept `verbs` as a parameter.** Small, mechanical, independent of step 1 — can happen in parallel. Update existing engine unit tests to pass the local `verbs` array explicitly (one-line change per test file, no test becomes async).
+3. **Update `useQuizStore`** — add `"loading"` status, make `startQuiz` async (sequencing `resolveVerbs()` from step 1 → `generate()` from step 2), add `datasetVerbs` to store state, add `abandonQuiz` action. This step depends on both 1 and 2 being in place.
+4. **Update screens** — `app/index.tsx` (await `startQuiz`, render a loading state, fix the synchronous-status-read race), `app/quiz.tsx` (read `datasetVerbs` from store instead of static import, add exit button + confirmation `Alert`), `app/results.tsx` (fix its own `startQuiz`/"Try Again" call site the same way). Bundle the safe-area insets work into this same pass since these are the same files being touched — avoids a second edit pass over the same screens.
+5. **`SafeAreaProvider` root wrap** (`app/_layout.tsx`) can technically happen at any point — it has zero dependency on 1-4 — but is cheapest to land together with step 4's screen edits rather than as a fully separate pass, purely to avoid re-touching the same files twice.
 
 ## Sources
 
-- [Core concepts of file-based routing — Expo Router docs](https://docs.expo.dev/router/basics/core-concepts/) — HIGH confidence, official docs
-- [How to organize Expo app folder structure for clarity and scalability — Expo blog](https://expo.dev/blog/expo-app-folder-structure-best-practices) — HIGH confidence, official source
-- [Introduction to Expo Router — Expo docs](https://docs.expo.dev/router/introduction/) — HIGH confidence, official docs
-- Zustand "thin store, logic elsewhere" pattern, pure-function domain core, and enum-mapping-boundary pattern are synthesized from general React/RN state-management best practice and this project's explicit constraints (CLAUDE.md cross-repo contract, PROJECT.md requirements) — MEDIUM confidence, not sourced from a single canonical "quiz app" reference architecture
+- Direct reads of the actual shipped codebase (all HIGH confidence, primary source): `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `src/quiz/types.ts`, `src/dataset/verbs.ts`, `src/dataset/types.ts`, `src/dataset/validate.ts`, `src/feedback/submit.ts`, `app/_layout.tsx`, `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`, `package.json`, `.planning/PROJECT.md`
+- `react-native-safe-area-context@~5.7.0` confirmed already present in `package.json` dependencies (not a new install) — HIGH confidence, direct file read
 
 ---
-*Architecture research for: Offline quiz app (Expo/React Native/TypeScript/Zustand)*
-*Researched: 2026-07-12*
+*Architecture research for: Expo React Native quiz app, v0.1 milestone (online content fetch + fallback, quiz abandonment, safe-area wiring)*
+*Researched: 2026-07-13*

@@ -1,167 +1,156 @@
 # Project Research Summary
 
-**Project:** Portuguese Verb Conjugation App — Mobile (`portuguese-verb-mobile`)
-**Domain:** iOS-first Expo React Native offline conjugation-quiz app, single external REST touchpoint (`POST /feedback`)
-**Researched:** 2026-07-12
-**Confidence:** MEDIUM-HIGH
+**Project:** Portuguese Verb Conjugation App — Mobile
+**Domain:** iOS-first Expo React Native offline-first quiz app, v0.1 milestone (online content fetch + offline fallback/caching, end-quiz-early flow, safe-area/UI polish)
+**Researched:** 2026-07-13
+**Confidence:** HIGH (all four research files are grounded in direct reads of the actual shipped v0.0 codebase — `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `app/*.tsx`, `package.json` — not generic ecosystem patterns, with supporting library/version claims verified against npm and official Expo/RN/TS docs)
 
 ## Executive Summary
 
-This is a single-user, offline, no-accounts European Portuguese verb-conjugation quiz app for iOS, built on Expo SDK 57 + Expo Router + TypeScript + Zustand, with a hand-authored local dataset (50 verbs × 4 tenses × 6 subjects) and exactly one external I/O path: an unauthenticated `POST /feedback` call to an already-shipped backend. Competitor research confirms the chosen feature set (tense/irregular filters, multiple-choice questions with translation scaffolding, immediate feedback, fixed 10-question sessions, score screen, native share) matches table-stakes patterns across the conjugation-drill category, while explicitly and correctly deferring account-gated differentiators (streaks, spaced repetition, mastery tracking) that don't fit the locked no-persistence, no-accounts scope. The genuine differentiator is European-Portuguese-specific content in a market otherwise dominated by Spanish/French/English drills.
+This is a small, already-shipped (v0.0) offline-first Expo/React Native quiz app entering its second milestone (v0.1), which adds three loosely-related capabilities: fetching quiz content from a not-yet-built backend endpoint with a bulletproof offline fallback, letting users exit a quiz mid-session with a confirmation, and fixing a known safe-area/visual-polish gap. All four research streams converge on the same architectural thesis: the existing v0.0 design (a pure/synchronous quiz engine, a single Zustand store acting as a state machine, Zod schemas already used for the feedback payload and dataset validation) is sound and should be extended, not replaced. The single highest-leverage move for the whole milestone is a small, mechanical refactor — making `generate()` accept a `Verb[]` parameter instead of importing the static dataset at module scope — because every other v0.1 feature (fetch-with-fallback, dataset snapshotting, exit-flow correctness) depends on that seam existing first.
 
-The recommended architecture separates pure, side-effect-free domain logic (`dataset/`, `quiz-engine/`) from a thin Zustand orchestration layer and thin Expo Router screens, with a single isolated API boundary (`api/feedbackClient.ts`) responsible for mapping internal vocabulary to the backend's locked enum literals. This structure directly serves the project's required unit-test surface (dataset validation, quiz generation, scoring, payload mapping) without needing React Native Testing Library for core logic.
+The recommended approach: keep the engine 100% synchronous and pure (resolve remote-vs-local data *above* it, in the store), reuse the existing Zod validation infrastructure for the fetched payload exactly as it's used for the bundled dataset (never trust fetched JSON on TypeScript types alone), reuse the existing `reset()` primitive for quiz abandonment rather than inventing new store state, and fix the safe-area bug by wrapping `SafeAreaProvider` once at the Expo Router root (`app/_layout.tsx`) plus auditing each screen's existing hardcoded padding for double-padding regressions. Stack-wise, only one genuinely new dependency is needed (`@react-native-async-storage/async-storage`, for caching fetched content across app restarts) — everything else (native `fetch` + `AbortController`, existing Zod schemas, RN core `Alert.alert`, already-installed `react-native-safe-area-context`) is either already in the project or needs zero new install.
 
-The two dominant risks are: (1) the cross-repo enum-literal contract between this app's internal `Tense`/`Subject` vocabulary and the backend's pre-existing Zod schema, which is a best-guess on the backend side and must be reconciled early and tested exhaustively, not retrofitted after dataset authoring; and (2) linguistic accuracy of the hand-authored EP dataset, where automated tests can only verify shape/completeness, not correctness — irregular verbs, "tu" forms, and diacritics need a dedicated human-review pass against an authoritative EP source (Ciberdúvidas/Infopédia/Priberam), not just visual scanning. A secondary but real risk is Render's free-tier cold-start latency (up to ~1 minute) corrupting the "feedback must never block the quiz" requirement if the client is implemented as a naive blocking `await`.
+The key risks are almost all "looks done but isn't" correctness gaps rather than unknowns: (1) skipping runtime `.parse()` validation on fetched content, repeating a debt this project has already flagged once for the feedback payload; (2) a three-tier fallback (fresh fetch → cache → bundled dataset) that's missing the "no cache AND fetch failed" branch, breaking first-launch-no-network — the single worst possible first impression; (3) relying on `gestureEnabled: false` alone to block iOS swipe-back on the Quiz screen, which multiple open Expo/RN GitHub issues confirm is unreliable — a `beforeRemove` navigation listener is required instead; and (4) Zustand async-action stale-closure/race bugs between an in-flight content fetch and a user tapping "Start Quiz," which must never block or falsely error the Start button (the core "open the app, start a quiz" value must not regress).
 
 ## Key Findings
 
 ### Recommended Stack
 
-Expo SDK 57 (bundling React Native 0.86) with Expo Router 6.x and TypeScript 5.x (not yet TS7 — Expo/Metro toolchain compatibility with the new Go-native compiler is unverified) forms the core. Zustand 5.x is the single state store for in-progress quiz session data (no persistence across app restarts by design). Zod 4.x validates both the local dataset's shape and the outbound feedback payload against a single schema mirroring the backend's contract. Native `fetch` (not axios) handles the one external call, and React Native's core `Share` API (not `expo-sharing`) handles the plain-text score share — both are the leaner, correct-fit choices given the single-call, single-share-type scope. `jest-expo` is the required Jest preset; most required tests (dataset validation, quiz generation, scoring, payload mapping) are pure-function tests needing no RN rendering, so `@testing-library/react-native` should only be added if a later phase needs component-interaction testing.
+The v0.0 stack (Expo SDK 57 / RN 0.86, Expo Router 6, TypeScript 5.x — explicitly not 7.x yet, Zustand 5, Zod 4, `jest-expo`, native `fetch`, RN core `Share`) is locked and unchanged. v0.1 adds exactly one new dependency and reuses everything else already installed or already in code.
 
 **Core technologies:**
-- Expo SDK 57 + Expo Router 6.x: managed RN toolchain and file-based navigation — already locked, current stable
-- TypeScript 5.x (strict mode): type safety, especially for enum-literal correctness — stay off TS7 for now
-- Zustand 5.x: quiz session state (index, answers, score) with zero logic embedded — already locked
-- Zod 4.x: single source of truth for dataset shape and feedback payload validation
-- Native `fetch` + RN core `Share`: minimal-dependency choices matching the single-call, single-share-type scope
+- `@react-native-async-storage/async-storage` (via `npx expo install`, never a raw npm pin): persist the last-known-good fetched dataset across app restarts, so there's something to fall back to before the next network attempt — a genuinely new requirement (v0.0's "no persistence" scope was about quiz-session state, not content caching).
+- `react-native-safe-area-context` (already installed, `~5.7.0`): fixes the safe-area bug — this is a wiring gap (`SafeAreaProvider` never mounted at root), not a missing package.
+- Native `fetch` + manual `AbortController` (same pattern as existing `src/feedback/submit.ts`, but a much shorter 2-5s timeout since this fetch is on the critical path to quiz start, unlike the fire-and-forget feedback call).
+- Existing Zod dataset schema (`src/dataset/validate.ts`): reused as-is to validate any fetched payload — do not write a second parallel schema.
+- RN core `Alert.alert()` for the exit-quiz confirmation — a system dialog is the right tool for a plain two-button destructive confirmation; no need for a custom modal.
+
+Explicitly avoid: MSW (over-engineered for one GET endpoint), a standalone mock server process, `react-native-mmkv` (no throughput need at this scale), and a custom `Modal` for exit confirmation (over-scoped for text + two buttons).
 
 ### Expected Features
 
-Competitor analysis (Conjuguemos, Kwiziq, Spanish Verb Conjugator, Irregular Verbs Quiz Game, Bonjour Verbs) confirms the already-locked v0 scope matches category table stakes and correctly defers everything requiring persistence/accounts.
+**Must have (table stakes) for v0.1:**
+- Local bundled dataset always works even if fetch never happens — non-negotiable, this is the app's core value.
+- Cached/local content shown immediately with zero blocking spinner before Setup/Quiz is usable (stale-while-revalidate, not a network gate).
+- Silent, non-blocking fallback on any fetch failure (unreachable, slow/timeout, malformed JSON) — treated identically, validated via the existing Zod schema.
+- Header exit ("X") control on the Quiz screen, with a confirmation dialog before discarding progress, that also intercepts swipe-back/hardware-back (not just the button).
+- Exiting fully discards progress and returns to Setup with no partial results shown (explicit product decision, already recorded).
+- Safe-area-correct layout; legible baseline typography/spacing and clear right/wrong feedback color.
 
-**Must have (table stakes) — all already in scope:**
-- Quiz setup filters (tense multi-select + irregular-verb toggle), independent axes
-- Question context: verb, translation, tense, subject shown together (beginner scaffolding)
-- Multiple-choice answers (4 options) — correctly avoids EU-Portuguese accent-matching complexity of typed input
-- Immediate right/wrong feedback with correct answer shown on mistakes
-- Fixed 10-question, untimed session; randomized order without immediate repeats
-- Score/results screen
+**Should have (cheap differentiators, add if time allows within v0.1):**
+- Question-progress indicator ("Question X of 10") — derives directly from existing store state, no new logic.
+- Distinct exit-dialog button labels ("Quit Quiz"/"Keep Practicing") instead of generic OK/Cancel — free.
+- Subtle answer-selection feedback animation via RN's built-in `Animated`/`LayoutAnimation` (not Reanimated/Lottie).
 
-**Should have (differentiators) — already in scope:**
-- European Portuguese-specific content (the actual market gap vs. Spanish/French/English-dominated competitors)
-- Native share sheet from results (non-blocking, additive only)
-- Structured in-app feedback tied to exact question context (verb/tense/subject/answers) — unusually rigorous vs. competitors who have no feedback mechanism or only app-store reviews
-
-**Defer (v1.x / v2+):**
-- Typed-answer mode with diacritic normalization (v1.x, once multiple choice is validated)
-- On-device (no-account) progress/streak tracking, spaced repetition, backend-served dataset updates — all explicitly deferred; would require a deliberate scope change (persistence design, possibly accounts) not an incremental add
-- Accounts/login, ads/monetization, multiplayer — not planned, contradicts locked product scope
+**Defer (v0.2+):**
+- Full local sync/database layer (SQLite/WatermelonDB) — massive overkill for a ~50-row dataset.
+- Persisting the remote dataset merge/conflict-resolution logic — precedence rule only (remote-if-valid-this-session, else local), no merging.
+- Resume-in-progress / partial-results on abandonment — explicitly excluded by product decision.
+- Theming/dark mode, heavy animation libraries — no signal requested, disproportionate effort.
 
 ### Architecture Approach
 
-The recommended structure is a 4-layer separation: `dataset/` (typed static verb data + shape validation, zero React imports) → `quiz-engine/` (pure functions: filter, generate session, score — no React/Zustand imports, independently unit-testable) → `store/` (thin Zustand orchestration that calls engine functions and stores results, no logic of its own) → `app/` (Expo Router screens, thin presentational wiring only). A separate, isolated `api/feedbackClient.ts` is the sole module allowed to know backend enum literals and perform network I/O, decoupled entirely from quiz session state so feedback submission can never block or corrupt the quiz loop.
+The existing codebase already separates concerns cleanly (`src/dataset/` for data, `src/quiz/engine.ts` for pure quiz generation, `src/store/useQuizStore.ts` as the sole state machine, `src/feedback/` fully decoupled). v0.1 extends this without restructuring: two new files, `src/dataset/remote.ts` (network mechanics, mirrors `submit.ts`'s fetch+AbortController pattern) and `src/dataset/source.ts` (the fallback-decision orchestrator, `resolveVerbs()` that always resolves, never rejects). The engine gains one parameter (`verbs: Verb[]`) instead of a module-scope import, preserving its pure/sync/deterministic-under-injected-RNG contract untouched — no test becomes async. The store gains exactly one new status (`"loading"`) and an `abandonQuiz` action that's semantically a thin alias for the existing `reset()`. Screens become thin consumers: `index.tsx`/`results.tsx` need an `await` fix on `startQuiz` (currently racing a synchronous status read against what will become an async call), and `quiz.tsx` must read the resolved verb list from the store (`datasetVerbs`) rather than re-importing the static dataset, or lookups silently diverge once the active session was generated from remote data.
 
 **Major components:**
-1. `dataset/` — typed verb data (50 verbs × 4 tenses × 6 subjects) + `validate.ts` completeness checks
-2. `quiz-engine/` — `generate.ts` (filter + randomize into a session) and `score.ts` (grading), pure and seedable for deterministic tests
-3. `store/useQuizStore.ts` — Zustand store holding session state and thin actions (`startQuiz`, `answerQuestion`, `resetQuiz`)
-4. `app/` (Expo Router screens) — setup, quiz, results; read/write store only, never contain filtering/scoring logic inline
-5. `api/feedbackClient.ts` — single enum-mapping + fetch boundary, normalizes 201/400/500/network outcomes into a typed result, fully decoupled from quiz state
+1. `src/dataset/source.ts` — orchestrates remote-fetch-then-local-fallback, the only module that knows "remote vs. local" exists.
+2. `src/store/useQuizStore.ts` — owns the entire async fetch → generate → in-progress state machine; screens never orchestrate this themselves.
+3. `src/quiz/engine.ts` — stays pure/sync, now receives `verbs` as an explicit argument rather than importing it.
+4. `app/_layout.tsx` — single root `SafeAreaProvider` wrap; screens consume `useSafeAreaInsets()` individually.
 
 ### Critical Pitfalls
 
-1. **Feedback enum-literal mismatch causing silent 400s** — the backend's `tense`/`subject`/`platform` literals (e.g. `ele_ela`, `nos`) were designed pre-app and don't map 1:1 to natural Portuguese pronouns (e.g. "você" conjugates as `ele_ela`). Avoid by centralizing all UI→backend mapping in one exhaustively-typed function, unit-tested against literals copied verbatim from CLAUDE.md, plus one live round-trip check against the deployed API.
-2. **Feedback cold-start/network handling blocking or corrupting the quiz loop** — Render free tier can take up to ~1 minute to wake from idle. Avoid by making feedback submission fire-and-forget from the UI's perspective (optimistic dismiss/toast), never gating navigation or quiz state on the request, and explicitly testing against a genuinely cold live instance before shipping.
-3. **Hand-authored EP dataset has silent linguistic errors that shape/completeness tests can't catch** — diacritic errors, EU/BP drift (LLM training skews Brazilian), regularized irregulars, "tu"-form weak spots, and mixed pre/post orthographic-reform spelling. Avoid via tense-by-tense reviewable dataset structure, an irregular-verb-specific human review pass against Ciberdúvidas/Infopédia/Priberam, and explicit "tu" spot-checking — never treat passing unit tests as proof of linguistic correctness.
-4. **Share sheet mishandling** — treating `Share.dismissedAction` as an error, or letting results-screen state mutate underneath a presented share sheet. Snapshot score/text at invocation time; treat cancellation as a normal no-op.
-5. **Irregular-toggle mid-quiz confusion** — changing the question pool filter mid-session without resetting confuses learners. Disable/hide the toggle once a session is active; only apply at setup.
+1. **Engine hardcodes the local dataset, no seam for fetched data** — refactor `generate()` to take `verbs` as a parameter *before* writing any fetch code; run the full existing test suite as the safety net for this being additive-only.
+2. **Race between in-flight fetch and "Start Quiz" tap** — never block the Start button on network; add an explicit resolved-pool state the store reads synchronously, never await inside `startQuiz`'s trigger path in a way that risks a false `InsufficientVerbsError` on cold start.
+3. **Mock-to-real-backend contract drift with no runtime validation** — this project already paid down this exact debt once for `POST /feedback`; `.safeParse()` every fetched response against the existing Zod schema and treat validation failure identically to a network failure, never just TypeScript-type-annotate the response.
+4. **Cache masks a working backend / breaks on first launch with no cache and no network** — implement the three-tier fallback (fresh fetch → cache → bundled dataset) as an explicit truth table, and explicitly test the "no cache AND fetch throws" branch, not just the happy paths.
+5. **iOS swipe-back gesture bypasses the exit confirmation** — `gestureEnabled: false` is confirmed unreliable on iOS per multiple open Expo/RN GitHub issues; use React Navigation's `beforeRemove` listener and verify with an actual device/simulator swipe, not just an in-app button tap.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure (this closely validates the implied phase order already anticipated in project docs):
+Based on combined research, the dependency chain across the three feature areas strongly suggests this phase order:
 
-### Phase 1: Scaffold
-**Rationale:** Nothing else can proceed without a working Expo Router + TypeScript + Zustand + Jest-expo project skeleton; this phase carries zero domain risk and should be fast.
-**Delivers:** Empty routes, empty Zustand store, `jest-expo` preset wired, CI green on a trivial test, strict TypeScript config.
-**Addresses:** No FEATURES.md items directly — infrastructure only.
-**Avoids:** N/A (no domain pitfalls apply yet).
+### Phase 1: Dataset seam refactor + fetch/fallback pipeline
+**Rationale:** Nothing else in v0.1 can proceed meaningfully until the engine accepts an injected verb pool; this is the prerequisite for both content-fetching and safe testing of fallback behavior. Fully unit-testable in isolation (mock `fetch`, assert fallback-on-failure) with zero external dependents yet.
+**Delivers:** `generate(verbs, options, random)` parameterized; `src/dataset/remote.ts` + `src/dataset/source.ts`; runtime Zod validation of any fetched payload; a mocked/stubbed swappable backend endpoint per PROJECT.md's explicit scoping.
+**Addresses:** "Local dataset always works" table stakes, "silent non-blocking fallback" table stakes.
+**Avoids:** Pitfall 1 (engine hardcoding), Pitfall 4 (mock-to-real drift with no validation).
 
-### Phase 2: Domain model + dataset
-**Rationale:** `quiz-engine`'s function signatures and the feedback-mapping layer both depend on the internal `Tense`/`Subject` vocabulary being settled first — this vocabulary must be designed with the backend's locked enum literals in mind from the outset, not retrofitted later. This is also where the dataset's linguistic-accuracy risk is highest-leverage to address, since fixing it before 1,200 conjugated forms and UI copy are built around wrong labels is far cheaper than retrofitting.
-**Delivers:** `dataset/types.ts`, `dataset/verbs.ts` (fully or partially seeded), `dataset/validate.ts` with shape/completeness tests; internal `Tense`/`Subject` unions reviewed once against CLAUDE.md's exact backend literals before finalizing.
-**Addresses:** Local verb dataset (P1 feature), foundational to every other quiz feature.
-**Avoids:** Pitfall 1 (enum mismatch — design vocabulary correctly here) and Pitfall 3 (dataset accuracy — build tense-by-tense reviewable structure and do the irregular-verb-specific review pass here, not deferred to polish).
+### Phase 2: Store integration (async startQuiz, loading state, dataset snapshot)
+**Rationale:** Depends on Phase 1's resolved-verbs seam; this is where the race-condition and stale-closure risks live, so it needs its own careful design pass before touching screens.
+**Delivers:** New `"loading"` status; async `startQuiz()` sequencing `resolveVerbs()` → `generate()`; `datasetVerbs` held in store; dataset-source snapshot at `startQuiz()` time (preserving the existing filters-snapshot invariant).
+**Uses:** Zustand 5 (already locked); existing `InsufficientVerbsError` handling extended, not replaced.
+**Implements:** Pattern 1 (data-source injection into a pure engine) and Pattern 2 (fetch-with-fallback via single orchestrator) from ARCHITECTURE.md.
+**Avoids:** Pitfall 2 (race between in-flight fetch and Start tap), Pitfall 3 (stale-closure bugs in async Zustand actions).
 
-### Phase 3: Quiz engine
-**Rationale:** The highest-value phase to isolate for testing per the explicit unit-test requirement; de-risks the trickiest logic (filtering, no-repeat randomization, distractor generation, scoring) entirely before any UI exists to obscure bugs.
-**Delivers:** `quiz-engine/generate.ts` and `score.ts`, fully unit-tested against the Phase 2 dataset, no UI involved.
-**Uses:** Pure-function domain core pattern (Architecture Pattern 1); Zod for any runtime dataset assertions.
-**Implements:** `quiz-engine/` component from the architecture.
+### Phase 3: Persistence/caching layer
+**Rationale:** Only makes sense once the fetch/fallback pipeline (Phase 1-2) exists to cache the output of. Introduces the project's first-ever persistence dependency, so its own Jest-mocking setup must land before any caching business logic is written.
+**Delivers:** `@react-native-async-storage/async-storage` wired via `npx expo install`; three-tier fallback (fresh fetch → cache → bundled dataset); explicit Jest mock (`jest/async-storage-mock`) with assertions on actual call arguments, not just downstream branching.
+**Uses:** AsyncStorage (new dependency, STACK.md).
+**Avoids:** Pitfall 5 (cache masks stale/broken backend, or fails on empty-cache+no-network), Pitfall 6 (AsyncStorage untested/under-mocked in Jest).
 
-### Phase 4: UI (setup → quiz → results)
-**Rationale:** Comparatively low-risk once Phases 2–3 are solid, since screens are designed to be thin by construction; wiring the Zustand store to an already-tested engine is mechanical.
-**Delivers:** Setup screen (filters), quiz screen (question/choices/feedback), results screen (score + share entry point); Zustand store actions (`startQuiz`, `answerQuestion`, `resetQuiz`).
-**Addresses:** Quiz setup filters, multiple-choice presentation, immediate feedback, results screen, native share sheet (all P1 features).
-**Avoids:** Anti-Pattern 1 (logic inlined in screens); Pitfall 5 (irregular-toggle mid-quiz confusion — disable/hide once session is active); Share sheet dismissed-action mishandling.
+### Phase 4: End-quiz-early flow
+**Rationale:** Independent of the fetch/caching work (only lightly touches the same screens), but should follow Phase 2's store changes since the exit action needs to interoperate cleanly with the new `"loading"` status (e.g., can you exit while content is still loading?).
+**Delivers:** Header "X" exit control on Quiz screen; `Alert.alert` confirmation with distinct button labels; `abandonQuiz` action reusing the existing `reset()` primitive; `beforeRemove` navigation listener intercepting swipe-back/hardware-back; exit-control visibility gated strictly on `status === "in-progress"`.
+**Implements:** Pattern 3 (abandon-quiz as reuse of `reset()`) from ARCHITECTURE.md.
+**Avoids:** Pitfall 7 (partial reset corrupting next `startQuiz()`), Pitfall 8 (swipe-back bypass).
 
-### Phase 5: Feedback API integration
-**Rationale:** Can start in parallel with Phase 4 on the client/mapping-function side (needs no UI), but the FeedbackForm naturally attaches once results/quiz screens exist. This is the phase most exposed to the two most severe pitfalls in the research and should be treated with extra care, not as an afterthought.
-**Delivers:** `api/feedbackClient.ts` + `feedbackMapping.ts` (exhaustively-typed enum mapping, unit-tested against literals copied verbatim from CLAUDE.md), fire-and-forget submission wrapper with typed 201/400/500/network-error handling, FeedbackForm UI.
-**Addresses:** In-app feedback submission (P1 feature).
-**Avoids:** Pitfall 1 (enum mismatch — do the live round-trip check here) and Pitfall 2 (cold-start blocking — build fire-and-forget from the start, never `await` in the critical navigation path).
-
-### Phase 6: Polish/QA
-**Rationale:** Final cross-cutting pass once all functional pieces exist; several pitfalls (cold-start, dataset correctness, share-sheet cancellation) can only be truly verified end-to-end against real conditions (a genuinely cold Render instance, a full read-through against an authoritative EP reference), not unit tests alone.
-**Delivers:** Share sheet wording polish, error-state polish, accessibility pass, edge-case handling (e.g., fewer than 10 eligible verbs for a filter combination), final dataset read-through against Ciberdúvidas/Infopédia/Priberam, explicit cold-start manual test against the live Render URL.
-**Addresses:** Cross-cutting quality bar for all P1 features.
-**Avoids:** All three critical pitfalls get their final verification pass here — this phase should not be treated as optional polish but as the last line of defense for the two highest-severity risks (enum mismatch, dataset accuracy) plus the cold-start UX risk.
+### Phase 5: Safe-area fix + baseline visual polish
+**Rationale:** Cheapest to land alongside the screen edits already happening in Phase 4 (same files touched), and should follow the SafeAreaProvider wiring specifically before broader spacing/typography work to avoid rework once real insets are applied — per FEATURES.md's explicit dependency note.
+**Delivers:** `SafeAreaProvider` wrapped once at `app/_layout.tsx` root; per-screen audit removing now-redundant hardcoded padding (e.g., `results.tsx`'s `paddingTop: 64`); consistent spacing/typography/color tokens across Setup/Quiz/Results; styled loading/error states for the new fetch step; optional progress indicator and answer-feedback animation if time allows.
+**Avoids:** Pitfall 9 (SafeAreaProvider wired at wrong layer, or double-padding from leftover manual margins).
 
 ### Phase Ordering Rationale
 
-- Dataset and internal vocabulary (Phase 2) must precede the quiz engine (Phase 3) because engine function signatures depend on finalized `Verb`/`Tense`/`Subject` types — and those same types are the vocabulary the feedback-mapping layer will later need to reconcile against backend enums, so this is the cheapest point to get the enum design right.
-- Quiz engine (Phase 3) must precede UI (Phase 4) so the highest-risk logic (randomization, filtering, scoring) is proven correct via fast pure-function tests before it's wrapped in screens, per the architecture's core "pure domain core, thin store, thin screens" pattern.
-- Feedback integration (Phase 5) is architecturally independent of quiz UI (no shared state, decoupled by design) and can start in parallel with Phase 4, but its two associated pitfalls (enum mismatch, cold-start) are severe enough that it needs dedicated attention rather than being folded into general UI work.
-- Polish/QA (Phase 6) exists specifically because two of the three critical pitfalls (dataset accuracy, cold-start behavior) are only observable through real-world conditions that automated tests structurally cannot cover — this phase is not generic buffer time.
+- The engine/data seam (Phase 1) is a hard prerequisite for everything else touching data flow — landing it first with the existing 122-test suite as a regression guard is the single most de-risking move available.
+- Caching (Phase 3) is scoped as an explicit, separate decision from fetch/fallback (Phase 1-2) because it reopens a previously-closed scope line ("no persistence beyond a single quiz session") — FEATURES.md flags this should not be smuggled in as an implementation detail.
+- End-quiz-early (Phase 4) and safe-area polish (Phase 5) are architecturally independent of the data-fetching work but share the same three screen files, so sequencing them together (rather than as 4 separate screen-touching passes) minimizes redundant edits — this is ARCHITECTURE.md's explicit "Suggested Build Order" recommendation.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 2 (Domain model + dataset):** Needs verification against an authoritative EP conjugation reference (Ciberdúvidas/Infopédia/Priberam) — the pitfalls research flagged EP-specific morphology (você/vocês grouping, "tu"-form scarcity in general sources, orthographic reform) as LOW-MEDIUM confidence, domain-expert judgment rather than verified fact.
-- **Phase 5 (Feedback API integration):** Needs a live round-trip check against the actual deployed `POST /feedback` endpoint — the backend's enum literals are flagged as a best-guess on the backend side too (CLAUDE.md D-07/D-08), so this cannot be fully resolved from docs alone.
+- **Phase 2 (Store integration):** the exact current Expo Router/React Navigation API surface for `beforeRemove`/gesture interception should be re-verified against the SDK-57-bundled version at implementation time — FEATURES.md flags this as an "important finding to verify in codebase," not settled by ecosystem research alone.
+- **Phase 3 (Persistence/caching):** AsyncStorage's Jest mocking wiring and any SDK-57-specific Android/Gradle caveats (irrelevant to iOS-only scope now, but worth a quick sanity check) warrant a focused look before writing caching logic.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Scaffold):** Well-documented Expo/Expo Router/Zustand/jest-expo setup, verified against current official docs — no additional research needed.
-- **Phase 3 (Quiz engine):** Standard pure-function/unit-testing patterns, HIGH confidence architecture guidance.
-- **Phase 4 (UI):** Standard Expo Router "thin screen" conventions, well-documented.
+- **Phase 1 (Dataset seam refactor):** well-documented, standard "parameterize a pure function" refactor with existing tests as the safety net — HIGH confidence, no ecosystem uncertainty.
+- **Phase 4 (End-quiz-early):** the `Alert.alert()` + `reset()` reuse pattern is fully specified in ARCHITECTURE.md with working code examples; the one open question (exact `beforeRemove` API name) is a quick verification, not a research task.
+- **Phase 5 (Safe-area/visual polish):** root cause and fix are already directly confirmed via codebase reads (installed-but-unwired dependency); this is an implementation task, not a research one.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH (core versions), MEDIUM (library-choice rationale) | Versions verified against npm registry dist-tags and official Expo/TS release posts; fetch-vs-axios and share-API choices based on WebSearch synthesis, not a single canonical source |
-| Features | MEDIUM | WebSearch across multiple competitor apps, cross-checked against locked PROJECT.md scope; no official docs applicable to this product-research domain, so all competitor claims are treated as MEDIUM regardless of cross-checking |
-| Architecture | HIGH (Expo Router/Zustand/testing conventions), MEDIUM (quiz-domain-specific module boundaries) | Routing and state-management patterns verified against official Expo docs; the specific dataset/engine/store/API layering is synthesized best practice, not a published "quiz app architecture" spec |
-| Pitfalls | MEDIUM (Expo/RN/Render behaviors HIGH via official docs), LOW-MEDIUM (linguistic dataset pitfalls) | Cold-start and Share API behaviors verified against official docs; EP-specific linguistic pitfalls are domain-expert judgment not independently re-verified against a live conjugator during this research pass |
+| Stack | HIGH | Core versions verified against npm `latest` dist-tags and official Expo changelogs; the one new dependency (AsyncStorage) has a flagged MEDIUM-confidence Android-only caveat that's explicitly irrelevant to this iOS-first milestone. |
+| Features | MEDIUM | Feature landscape and prioritization are well-established (NN/g sources, Duolingo pattern analysis), but two specifics — the exact Expo Router gesture-guard API name and the true safe-area root cause — are flagged as needing codebase-level verification, not just ecosystem research (this was subsequently done directly in ARCHITECTURE.md/PITFALLS.md by reading the actual files). |
+| Architecture | HIGH | Every finding is grounded in direct reads of the actual shipped v0.0 code, not generic patterns — includes concrete before/after code diffs for each proposed change. |
+| Pitfalls | MEDIUM-HIGH | Grounded in direct repo inspection plus verified GitHub issues (gesture-disable unreliability) and official AsyncStorage/Jest docs; a small number of claims (e.g. `beforeRemove` pattern generality) rely on general React Navigation ecosystem knowledge rather than a freshly re-fetched source this session. |
 
-**Overall confidence:** MEDIUM-HIGH
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **EP conjugation accuracy is unverified against a live authoritative source** — flagged explicitly in PITFALLS.md as needing a dedicated pass against Ciberdúvidas/Infopédia/Priberam during Phase 2 dataset authoring; this research pass could not independently re-verify specific verb forms.
-- **Backend enum literals are a best-guess pre-app design (CLAUDE.md D-07/D-08)** — cannot be fully resolved until a live round-trip test is run against the deployed API during Phase 5; treat the current literal list as authoritative-but-unconfirmed until then.
-- **TypeScript 7 (tsgo) compatibility with Expo/Metro tooling** — not yet broadly documented as of SDK 57; low-risk to defer (stay on TS 5.x) but revisit if a later SDK adopts it as default.
-- **Feature research has no official-docs backing** (product/UX space, not a library API) — all competitor findings are WebSearch-sourced and should be read as directional, not verified against current live app behavior.
+- **Exact Expo Router/React Navigation gesture-interception API name and behavior** for the SDK-57-bundled Router version — confirm at Phase 4 implementation time rather than trusting older tutorials (both FEATURES.md and PITFALLS.md flag this).
+- **Safe-area root-cause confirmation** — research suggests Expo Router may auto-wire `SafeAreaProvider` for its own routes in some versions, which would mean the real bug is missing per-screen inset consumption rather than a missing root provider; ARCHITECTURE.md's direct codebase read confirms no provider is wired at all in this project, so this gap is effectively resolved, but worth a final visual-device check during Phase 5.
+- **Real backend content-endpoint shape** does not exist yet; all Phase 1 fetch work is built against a local mock/stub swappable via a one-line URL change. The actual contract-drift risk (mirroring the `POST /feedback` enum-literal cross-repo risk already documented in CLAUDE.md) can only be fully closed once the sibling `portuguese-verb-api` repo ships the real endpoint — track this as an open cross-repo risk, not a gap in this research.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- npm registry `latest` dist-tags (expo, expo-router, zustand, jest-expo, jest, zod, typescript, react-native, expo-sharing, async-storage) — queried directly, 2026-07-12
-- https://docs.expo.dev/router/basics/core-concepts/ — Expo Router file-based routing conventions
-- https://docs.expo.dev/versions/latest/sdk/sharing/ and https://reactnative.dev/docs/share — sharing API behavior including `dismissedAction`
-- https://render.com/docs/free — free-tier spin-down/cold-start timing
-- https://docs.expo.dev/develop/unit-testing/ — jest-expo preset behavior
-- Project-internal: CLAUDE.md and .planning/PROJECT.md — authoritative locked cross-repo contract and scope
+- Direct reads of the shipped codebase: `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `src/quiz/types.ts`, `src/dataset/verbs.ts`, `src/dataset/types.ts`, `src/dataset/validate.ts`, `src/feedback/submit.ts`, `app/_layout.tsx`, `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`, `package.json`, `.planning/PROJECT.md`
+- npm registry `latest` dist-tags (expo, expo-router, zustand, jest-expo, jest, zod, typescript, react-native, expo-sharing, @react-native-async-storage/async-storage)
+- https://docs.expo.dev/versions/latest/sdk/safe-area-context/ and https://docs.expo.dev/develop/user-interface/safe-areas/ — official Expo docs
 
 ### Secondary (MEDIUM confidence)
-- https://expo.dev/changelog/sdk-57, https://expo.dev/changelog/sdk-54 — SDK/Router version context
-- https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/ — TS7 announcement, Expo-specific timing inferred
-- Competitor app research (Conjuguemos, Kwiziq, Spanish Verb Conjugator, Irregular Verbs Quiz Game, Bonjour Verbs) — WebSearch-sourced, cross-checked across sources where possible
-- https://blog.samkiel.dev/your-render-free-tier-is-not-broken-its-just-cold — community corroboration of Render docs
+- https://www.nngroup.com/articles/confirmation-dialog/ and /cancel-vs-close/ — Nielsen Norman Group UX guidance
+- GitHub `expo/expo` issues #31614 and #28052 — iOS swipe-gesture disable unreliability
+- react-native-async-storage.github.io Jest integration docs — explicit mock wiring requirement
+- Duolingo lesson-exit pattern and stale-while-revalidate offline-first pattern — WebSearch synthesis, cross-source consistent
 
 ### Tertiary (LOW confidence)
-- European Portuguese verb morphology domain knowledge (você/vocês 3rd-person grouping, tu-form scarcity in BP-skewed sources, Acordo Ortográfico spelling) — not independently re-verified against a live conjugator; flagged for verification during Phase 2
+- General React Navigation `beforeRemove` ecosystem knowledge — not freshly re-fetched this session, standard/well-established pattern but flagged for re-verification against the exact SDK-57-bundled API surface at implementation time.
 
 ---
-*Research completed: 2026-07-12*
+*Research completed: 2026-07-13*
 *Ready for roadmap: yes*
