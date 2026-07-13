@@ -24,7 +24,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 ### v0.1 Online Quiz, Exit Flow & UI Polish (Phases 7-10)
 
-- [ ] **Phase 7: Dataset Seam & Fetch/Fallback Pipeline** - Quiz engine accepts an injected verb list, and the app can resolve a backend-fetched dataset with a silently-validated local fallback
+- [x] **Phase 7: Dataset Seam & Fetch/Fallback Pipeline** - Quiz engine accepts an injected verb list, and the app can resolve a backend-fetched dataset with a silently-validated local fallback (completed 2026-07-13)
 - [ ] **Phase 8: Async Quiz Start & Dataset Snapshot** - Starting a quiz reliably resolves and snapshots whichever dataset (remote or local) is active, with no race conditions or blocked Start button
 - [ ] **Phase 9: End-Quiz-Early Flow** - A learner can cleanly abandon an in-progress quiz via header control or back gesture, with a confirmation and no partial results
 - [ ] **Phase 10: Safe-Area & Visual Polish** - The app renders correctly under the iOS status bar/notch and presents a consistent, styled visual treatment across all 3 screens, including fetch loading/error states
@@ -44,7 +44,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 Plans:
 - [x] 07-01-PLAN.md — Remote fetch wrapper + silent-fallback resolver with fetch-once memoization (FETCH-01/02/03)
 - [x] 07-02-PLAN.md — Engine injection seam (optional trailing verbs param) + querer.isIrregular reconciliation + full regression
-- [ ] 07-03-PLAN.md — Live endpoint contract smoke check (human-verify)
+- [x] 07-03-PLAN.md — Live endpoint contract smoke check (human-verify)
 
 ### Phase 8: Async Quiz Start & Dataset Snapshot
 **Goal**: Starting a quiz always uses whichever dataset (remote-fetched or local-fallback) is currently resolved, snapshotted at the moment of start so a background refresh can never swap questions mid-session, and the Start button never hangs waiting on network.
@@ -92,7 +92,7 @@ Plans:
 | 4. Quiz Experience (Setup → Quiz → Results) | v0.0 | 2/2 | Complete | 2026-07-12 |
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
-| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 2/3 | In Progress|  |
+| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/? | Not started | - |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
