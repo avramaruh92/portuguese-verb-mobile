@@ -177,9 +177,9 @@ Plans:
 Plans:
 **Wave 1** *(three independent verification streams — no shared files)*
 
-- [ ] 06-01-PLAN.md — Independently re-derive all 50 verbs × 4 tenses × 6 subjects (1,200 cells) and produce a user-reviewable discrepancy list; no verbs.ts edits (SC-1, D-01)
-- [ ] 06-03-PLAN.md — Manual cold-start test against a genuinely idle Render backend (spinner, non-blocking quiz, no lost progress, no premature 90s abort) + inline fix if a defect surfaces (SC-2, D-02/D-04)
-- [ ] 06-04-PLAN.md — On-device verification of three edge cases (insufficient verbs, share-sheet cancel, irregular-toggle mid-session) + inline fix if a defect surfaces (SC-3, D-03/D-04)
+- [x] 06-01-PLAN.md — Independently re-derive all 50 verbs × 4 tenses × 6 subjects (1,200 cells) and produce a user-reviewable discrepancy list; no verbs.ts edits (SC-1, D-01)
+- [x] 06-03-PLAN.md — Manual cold-start test against a genuinely idle Render backend (spinner, non-blocking quiz, no lost progress, no premature 90s abort) + inline fix if a defect surfaces (SC-2, D-02/D-04)
+- [x] 06-04-PLAN.md — On-device verification of three edge cases (insufficient verbs, share-sheet cancel, irregular-toggle mid-session) + inline fix if a defect surfaces (SC-3, D-03/D-04)
 
 **Wave 2** *(blocked on 06-01 — needs the discrepancy list)*
 
@@ -197,4 +197,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
 | 5. Feedback Integration | 4/4 | Complete   | 2026-07-13 |
-| 6. Polish & Verification | 0/4 | Not started | - |
+| 6. Polish & Verification | 3/4 | In Progress|  |
