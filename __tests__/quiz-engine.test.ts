@@ -68,6 +68,138 @@ describe("quiz engine", () => {
       const hasRepeat = [...verbCounts.values()].some((count) => count > 1);
       expect(hasRepeat).toBe(true);
     });
+
+    it("injected verbs (seam): generate() draws exclusively from a custom verbs param, overriding the bundled default", () => {
+      const customVerbs: Verb[] = [
+        {
+          verb: "custarA",
+          translation: "custom verb A",
+          isIrregular: true,
+          conjugations: {
+            present_indicative: {
+              eu: "a1",
+              tu: "a2",
+              ele_ela: "a3",
+              nos: "a4",
+              voces: "a5",
+              eles_elas: "a6",
+            },
+            preterite: {
+              eu: "a1",
+              tu: "a2",
+              ele_ela: "a3",
+              nos: "a4",
+              voces: "a5",
+              eles_elas: "a6",
+            },
+            imperfect: {
+              eu: "a1",
+              tu: "a2",
+              ele_ela: "a3",
+              nos: "a4",
+              voces: "a5",
+              eles_elas: "a6",
+            },
+            future: {
+              eu: "a1",
+              tu: "a2",
+              ele_ela: "a3",
+              nos: "a4",
+              voces: "a5",
+              eles_elas: "a6",
+            },
+          },
+        },
+        {
+          verb: "custarB",
+          translation: "custom verb B",
+          isIrregular: true,
+          conjugations: {
+            present_indicative: {
+              eu: "b1",
+              tu: "b2",
+              ele_ela: "b3",
+              nos: "b4",
+              voces: "b5",
+              eles_elas: "b6",
+            },
+            preterite: {
+              eu: "b1",
+              tu: "b2",
+              ele_ela: "b3",
+              nos: "b4",
+              voces: "b5",
+              eles_elas: "b6",
+            },
+            imperfect: {
+              eu: "b1",
+              tu: "b2",
+              ele_ela: "b3",
+              nos: "b4",
+              voces: "b5",
+              eles_elas: "b6",
+            },
+            future: {
+              eu: "b1",
+              tu: "b2",
+              ele_ela: "b3",
+              nos: "b4",
+              voces: "b5",
+              eles_elas: "b6",
+            },
+          },
+        },
+        {
+          verb: "custarC",
+          translation: "custom verb C",
+          isIrregular: true,
+          conjugations: {
+            present_indicative: {
+              eu: "c1",
+              tu: "c2",
+              ele_ela: "c3",
+              nos: "c4",
+              voces: "c5",
+              eles_elas: "c6",
+            },
+            preterite: {
+              eu: "c1",
+              tu: "c2",
+              ele_ela: "c3",
+              nos: "c4",
+              voces: "c5",
+              eles_elas: "c6",
+            },
+            imperfect: {
+              eu: "c1",
+              tu: "c2",
+              ele_ela: "c3",
+              nos: "c4",
+              voces: "c5",
+              eles_elas: "c6",
+            },
+            future: {
+              eu: "c1",
+              tu: "c2",
+              ele_ela: "c3",
+              nos: "c4",
+              voces: "c5",
+              eles_elas: "c6",
+            },
+          },
+        },
+      ];
+      const session = generate(
+        { tenses: ["present_indicative", "preterite", "imperfect", "future"], includeIrregular: true },
+        Math.random,
+        customVerbs,
+      );
+      expect(session.questions).toHaveLength(10);
+      const customVerbNames = new Set(customVerbs.map((v) => v.verb));
+      session.questions.forEach((q) => {
+        expect(customVerbNames.has(q.verb)).toBe(true);
+      });
+    });
   });
 
   describe("sampleTriples", () => {

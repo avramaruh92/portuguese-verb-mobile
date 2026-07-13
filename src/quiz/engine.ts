@@ -1,6 +1,6 @@
 import type { Verb, Tense, Subject } from "../dataset/types";
 import { SUBJECTS } from "../dataset/types";
-import { verbs } from "../dataset/verbs";
+import { verbs as localVerbs } from "../dataset/verbs";
 import { shuffle } from "./random";
 import type { GenerateOptions, Question, QuizSession, Triple } from "./types";
 import { InsufficientVerbsError } from "./types";
@@ -11,6 +11,7 @@ const DISTRACTOR_COUNT = 3;
 export function generate(
   options: GenerateOptions,
   random: () => number = Math.random,
+  verbs: Verb[] = localVerbs,
 ): QuizSession {
   const eligibleVerbs = verbs.filter((v) => options.includeIrregular || !v.isIrregular);
   const pool: Triple[] = eligibleVerbs.flatMap((v) =>
