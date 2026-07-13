@@ -18,10 +18,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-12)
+See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 05 — feedback-integration
+**Current focus:** Planning next milestone (v0.0 shipped and archived)
 
 ## Current Position
 
@@ -59,21 +59,21 @@ Last activity: 2026-07-13 — Milestone v0.0 completed and archived
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Roadmap: Full 50-verb dataset targeted for v0.0 (Phase 2), Zustand for quiz session state, Jest + jest-expo preset for testing.
-- Roadmap: Phases 1-3 are dependency-ordered (scaffold → dataset/vocabulary → engine) because quiz engine and feedback-mapping both depend on the internal Tense/Subject vocabulary being settled first; Phases 4-6 are framed as user-visible vertical slices per MVP mode.
+Decisions are logged in PROJECT.md Key Decisions table (all v0.0 decisions now show final outcomes).
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Phase 2: Backend enum literals (`tense`/`subject`/`platform`) are a best-guess pre-app design (CLAUDE.md D-07/D-08) — internal vocabulary must be reconciled against these before dataset/quiz UI is built on top of it.
-- Phase 2: Hand-authored EU Portuguese dataset needs a dedicated human-review pass against an authoritative source (Ciberdúvidas/Infopédia/Priberam) — automated tests only catch shape/completeness, not linguistic accuracy. Final verification deferred to Phase 6.
-- Phase 5: Render free-tier cold starts (up to ~1 min) must not block or corrupt quiz completion — build feedback submission as fire-and-forget, never a blocking await. Live round-trip test against deployed API needed during Phase 5, final cold-start manual test in Phase 6.
+None open. All v0.0 blockers resolved and verified during the milestone:
+
+- ✓ Backend enum literal reconciliation (`tense`/`subject`/`platform`) — verified in Phase 5: `src/feedback/schema.ts` imports the literals directly from `src/dataset/types.ts` (no redeclaration), confirmed against the live backend's actual validator.
+- ✓ Hand-authored EU Portuguese dataset accuracy — verified twice: human review in Phase 2, independent AI re-derivation of all 1,200 cells in Phase 6 (zero discrepancies).
+- ✓ Render free-tier cold-start tolerance — verified live in Phase 6 against a genuinely idle instance (45-50s cold start, graceful throughout).
+
+Minor non-blocking tech debt carried forward (see `.planning/milestones/v0.0-MILESTONE-AUDIT.md`): ESLint not installed as a devDependency, no `SafeAreaProvider` wired, `feedbackPayloadSchema` not runtime-parsed client-side before dispatch.
 
 ## Deferred Items
 
@@ -88,9 +88,9 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-13T00:32:56.354Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-polish-verification/06-CONTEXT.md
+Last session: 2026-07-13T12:16:38.364Z
+Stopped at: v0.0 milestone archived, all phase directories moved to .planning/milestones/v0.0-phases/
+Resume file: .planning/milestones/v0.0-phases/06-polish-verification/06-CONTEXT.md (historical reference only)
 
 ## Operator Next Steps
 
