@@ -42,8 +42,8 @@ Full phase details, plan breakdowns, and success criteria archived in
   4. Any fetched payload that fails the existing Zod dataset schema is treated identically to a network failure (rejected, silent fallback), never accepted on type-annotation trust alone.
 **Plans**: 3 plans
 Plans:
-- [ ] 07-01-PLAN.md — Remote fetch wrapper + silent-fallback resolver with fetch-once memoization (FETCH-01/02/03)
-- [ ] 07-02-PLAN.md — Engine injection seam (optional trailing verbs param) + querer.isIrregular reconciliation + full regression
+- [x] 07-01-PLAN.md — Remote fetch wrapper + silent-fallback resolver with fetch-once memoization (FETCH-01/02/03)
+- [x] 07-02-PLAN.md — Engine injection seam (optional trailing verbs param) + querer.isIrregular reconciliation + full regression
 - [ ] 07-03-PLAN.md — Live endpoint contract smoke check (human-verify)
 
 ### Phase 8: Async Quiz Start & Dataset Snapshot
@@ -92,7 +92,7 @@ Plans:
 | 4. Quiz Experience (Setup → Quiz → Results) | v0.0 | 2/2 | Complete | 2026-07-12 |
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
-| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 0/3 | Not started | - |
+| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 2/3 | In Progress|  |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/? | Not started | - |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
