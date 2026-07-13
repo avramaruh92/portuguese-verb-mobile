@@ -155,7 +155,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — imports payload builder + submitFeedback)*
 
-- [ ] 05-03-PLAN.md — Report modal component (reason picker, free-text, spinner, success/error/Retry states per UI-SPEC) + Quiz-screen wiring (lockedChoice-gated trigger), all state modal-local, useQuizStore read-only (FDBK-01, FDBK-03)
+- [x] 05-03-PLAN.md — Report modal component (reason picker, free-text, spinner, success/error/Retry states per UI-SPEC) + Quiz-screen wiring (lockedChoice-gated trigger), all state modal-local, useQuizStore read-only (FDBK-01, FDBK-03)
 
 **Wave 4** *(blocked on Wave 3 — checkpoint, not autonomous)*
 
@@ -186,5 +186,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
-| 5. Feedback Integration | 2/4 | In Progress|  |
+| 5. Feedback Integration | 3/4 | In Progress|  |
 | 6. Polish & Verification | 0/TBD | Not started | - |
