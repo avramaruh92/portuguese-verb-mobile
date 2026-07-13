@@ -1,8 +1,8 @@
 ---
 phase: 7
 slug: dataset-seam-fetch-fallback-pipeline
-status: draft
-nyquist_compliant: false
+status: reviewed
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-07-14
 ---
@@ -41,8 +41,8 @@ created: 2026-07-14
 | 07-01-01 | 01 | 0 | FETCH-01 | V5 | `fetchRemoteVerbs()` performs a GET with a 90s AbortController timeout and resolves with validated `Verb[]` on success | unit | `npx jest __tests__/dataset-remote.test.ts -x` | ❌ W0 | ⬜ pending |
 | 07-01-02 | 01 | 0 | FETCH-02 | V5 | Fetched payload failing `validateDataset()` (even on HTTP 200) causes `fetchRemoteVerbs()` to reject | unit | `npx jest __tests__/dataset-remote.test.ts -x` | ❌ W0 | ⬜ pending |
 | 07-01-03 | 01 | 0 | FETCH-03 | DoS / Tampering | `resolveVerbs()` returns the local bundled dataset (never throws) on network error, timeout, non-2xx, or invalid-shape | unit | `npx jest __tests__/dataset-source.test.ts -x` | ❌ W0 | ⬜ pending |
-| 07-01-04 | 01 | 1 | FETCH-01 | — | `generate()` accepts an optional injected `verbs` parameter overriding the bundled default | unit | `npx jest __tests__/quiz-engine.test.ts -x` | ✅ existing — extend | ⬜ pending |
-| 07-01-05 | 01 | 1 | FETCH-03 | — | Full existing 122-test suite (11 suites) still passes unchanged after the `generate()` signature change and the `querer.isIrregular` dataset edit | regression | `npm test` | ✅ existing suites | ⬜ pending |
+| 07-02-01 | 02 | 1 | FETCH-01 | — | `generate()` accepts an optional injected `verbs` parameter overriding the bundled default | unit | `npx jest __tests__/quiz-engine.test.ts -x` | ✅ existing — extend | ⬜ pending |
+| 07-02-02 | 02 | 1 | FETCH-03 | — | Full existing 122-test suite (11 suites) still passes unchanged after the `generate()` signature change and the `querer.isIrregular` dataset edit | regression | `npm test` | ✅ existing suites | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -70,4 +70,4 @@ created: 2026-07-14
 - [ ] Feedback latency < 30s
 - [ ] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-07-14

@@ -411,14 +411,16 @@ Note on `AbortController` in tests: since `fetchRemoteVerbs()`'s timeout is 90 s
 
 **If this table is empty:** N/A — see rows above; all three are worth planner/execution-time confirmation but none block starting the plan.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where does the prefetch actually get *triggered* from, given `app/_layout.tsx` is off-limits this phase?**
+   - **RESOLVED:** Plan 07-01 builds `prefetch()`/`resolveVerbs()` as a callable, independently-testable entry point but does not wire a call site — `app/_layout.tsx` remains untouched this phase. Actual boot-time invocation is deferred to Phase 8, which already owns `useQuizStore.ts`/the async state machine.
    - What we know: D-03 requires "prefetch on app load," and the resolver module this phase builds must expose *something* callable for that purpose (a `prefetch()` function or equivalent).
    - What's unclear: CONTEXT.md's phase boundary says this phase must not modify `app/*.tsx` screens, but doesn't explicitly say whether `app/_layout.tsx` (the root layout, not a "screen" per se, and where `SafeAreaProvider` wiring is *also* scoped to a later phase per `ARCHITECTURE.md`) may be touched to actually *invoke* the new `prefetch()`/`resolveVerbs()` function on mount — or whether this phase should only build the resolver module and leave the trigger-wiring for Phase 8 to invoke inside `startQuiz`'s async sequencing.
    - Recommendation: Treat this phase's deliverable as "the resolver module exists, exports a callable entry point, and is independently unit-testable" — and treat the actual *trigger* wiring (whether that's `app/_layout.tsx` on mount, or Phase 8's `startQuiz` calling it lazily on first invocation) as Phase 8's responsibility, since Phase 8 already owns `useQuizStore.ts`/the async state machine and D-03 doesn't strictly require the trigger to fire before the store exists to receive the result. If the planner decides Phase 7 should include a minimal `app/_layout.tsx` one-line `prefetch()` call for "prefetch on app load" to be genuinely true in-app before Phase 8 ships, that's a discretionary call to flag explicitly in the plan (a small, clearly-scoped exception to the "don't touch app/*.tsx" boundary) rather than silently deciding it either way.
 
 2. **Does `resolveVerbs()` need to be called once and memoized, or is a fresh call idempotent enough to call multiple times safely?**
+   - **RESOLVED:** Plan 07-01 builds fetch-once memoization directly into `source.ts` via a module-level cached-result guard, regardless of trigger wiring.
    - What we know: D-05 requires "fetch once per app session." CONTEXT.md's Claude's Discretion section explicitly defers the exact API shape (sync getter + fire-and-forget prefetch vs. single memoized async function) to planning.
    - What's unclear: Whether the memoization needs to survive being called from multiple places (e.g. if Phase 8's `startQuiz` calls it on every invocation, does the module need an internal "already resolved, return cached promise" guard, or is it acceptable for Phase 7 to build a naive "always re-fetches" version and let Phase 8 add memoization when it actually wires multiple call sites)?
    - Recommendation: Build the memoization into `source.ts` in this phase regardless of exactly how it's triggered — a module-level `let cachedResult: Promise<{...}> | null` guard is cheap, self-contained, testable in isolation now, and avoids Phase 8 needing to modify this phase's module just to add caching later.
