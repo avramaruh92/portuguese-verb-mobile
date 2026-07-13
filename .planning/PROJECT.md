@@ -1,5 +1,32 @@
 # Portuguese Verb Conjugation App — Mobile
 
+## Current Milestone: v0.1 Online Quiz, Exit Flow & UI Polish
+
+**Goal:** Move quiz content from local-only to backend-served (with local
+fallback), let users cleanly exit a quiz mid-session, and fix the app's
+visual/safe-area polish.
+
+**Target features:**
+- Online quiz content: fetch verbs from a backend content endpoint on
+  load/quiz-start, falling back to the bundled local dataset if unreachable —
+  backend becomes source of truth going forward. Backend endpoint does not
+  exist yet (owned by the sibling `portuguese-verb-api` repo, planned
+  separately); this milestone builds the mobile-side fetch/fallback/caching
+  logic against a local mock/stub, swappable to the real URL later.
+- End-quiz-early: an exit control during an active quiz with a confirmation
+  dialog ("progress will be lost"), discarding progress and returning to
+  Setup — no partial results shown.
+- UI polish: fix safe-area/status-bar overlap (content currently renders
+  under the clock/battery notch — no `SafeAreaProvider` wired, a known v0.0
+  tech-debt item) plus a general visual pass on Setup/Quiz/Results (spacing,
+  typography, color, feedback states) — user describes the current UI as
+  effectively non-existent/unstyled.
+
+**Explicitly out of scope for this milestone:** designing, planning, or
+implementing anything in the `portuguese-verb-api` backend repo itself. This
+milestone covers mobile-side work only, built against an assumed/mocked
+contract.
+
 ## What This Is
 
 An iOS-first Expo React Native app (TypeScript, Expo Router) that lets beginner
@@ -60,19 +87,19 @@ All 16 v0.0 requirements shipped and independently verified (see
 
 ### Active
 
-(None yet for the next milestone — run `/gsd:new-milestone` to define v1 requirements. Deferred candidates already identified during v0.0, tracked below.)
+(Requirements for v0.1 will be defined in `.planning/REQUIREMENTS.md` in the next step of milestone setup.)
 
 ### Out of Scope
 
 - Login, accounts, sessions, user history — v0 has none of these, matches backend, no persistence beyond a single quiz session — deliberate product scope. **Still valid** — no user feedback during v0.0 build suggested this needs revisiting.
 - Spaced repetition — not part of the v0 learning loop. **Still valid**, tracked as v2 candidate `PROG-03` if a future milestone wants it.
-- Backend quiz-content fetching — there is no content-serving API; dataset lives locally in the app by design. **Still valid** — confirmed twice (project setup and Phase 6) that no content-serving API exists or is planned.
+- ~~Backend quiz-content fetching — there is no content-serving API; dataset lives locally in the app by design.~~ **Reversed in v0.1** — backend-served content is now this milestone's primary goal (with local fallback). The reasoning held for exactly one milestone; superseded by explicit user decision at v0.1 kickoff. The actual backend endpoint work remains out of scope *for this repo* — owned separately by `portuguese-verb-api`.
 - Subscriptions, ads — no monetization in v0. **Still valid.**
 - Android release work — platform enum stays compatible (`ios | android`) but no Android build/release effort in this milestone. **Still valid.**
 - Direct Supabase access or credentials in the mobile app — all persistence goes through backend `POST /feedback` only. **Still valid**, confirmed with zero violations across all 6 phases.
 - Typed-answer quiz mode with diacritic normalization — deferred v2 candidate (`PROG-01`), not started.
 - On-device (no-account) progress or streak tracking — deferred v2 candidate (`PROG-02`), not started.
-- Backend-served dataset updates — deferred v2 candidate (`PROG-04`); would require a new content-serving API, an explicit scope change from v0.0's local-only dataset design.
+- ~~Backend-served dataset updates (`PROG-04`)~~ — **promoted into v0.1 scope**, see Current Milestone above.
 
 ## Context
 
@@ -151,4 +178,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-13 after v0.0 milestone — all 6 phases shipped, 16/16 requirements validated, audit passed with 0 blockers*
+*Last updated: 2026-07-13 — v0.1 milestone started: online quiz content (backend-served with local fallback), end-quiz-early flow, and UI/safe-area polish*
