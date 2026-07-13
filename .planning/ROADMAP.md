@@ -32,15 +32,19 @@ Full phase details, plan breakdowns, and success criteria archived in
 ## Phase Details
 
 ### Phase 7: Dataset Seam & Fetch/Fallback Pipeline
-**Goal**: The app can source its verb dataset from a fetched backend payload (mocked/stubbed this milestone) with automatic, validated, silent fallback to the bundled local dataset — and the quiz engine no longer hardcodes which dataset it uses.
+**Goal**: The app can source its verb dataset from the live backend `GET /content/verbs` payload with automatic, validated, silent fallback to the bundled local dataset — and the quiz engine no longer hardcodes which dataset it uses.
 **Depends on**: Nothing (first phase of v0.1; builds on v0.0's shipped engine/dataset code)
 **Requirements**: FETCH-01, FETCH-02, FETCH-03
 **Success Criteria** (what must be TRUE):
   1. The existing full test suite passes unchanged after `generate()` is refactored to accept an injected `verbs` list instead of importing the bundled dataset at module scope.
-  2. A resolver function returns the mocked remote dataset when the stub backend endpoint responds with a valid payload.
-  3. The same resolver returns the bundled local dataset when the stub endpoint is unreachable, slow/timed out, or returns invalid data — covering all three failure modes with tests.
+  2. A resolver function returns the remote dataset when the live backend endpoint responds with a valid payload.
+  3. The same resolver returns the bundled local dataset when the endpoint is unreachable, slow/timed out, or returns invalid data — covering all failure modes with tests.
   4. Any fetched payload that fails the existing Zod dataset schema is treated identically to a network failure (rejected, silent fallback), never accepted on type-annotation trust alone.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 07-01-PLAN.md — Remote fetch wrapper + silent-fallback resolver with fetch-once memoization (FETCH-01/02/03)
+- [ ] 07-02-PLAN.md — Engine injection seam (optional trailing verbs param) + querer.isIrregular reconciliation + full regression
+- [ ] 07-03-PLAN.md — Live endpoint contract smoke check (human-verify)
 
 ### Phase 8: Async Quiz Start & Dataset Snapshot
 **Goal**: Starting a quiz always uses whichever dataset (remote-fetched or local-fallback) is currently resolved, snapshotted at the moment of start so a background refresh can never swap questions mid-session, and the Start button never hangs waiting on network.
@@ -88,11 +92,11 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 4. Quiz Experience (Setup → Quiz → Results) | v0.0 | 2/2 | Complete | 2026-07-12 |
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
-| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 0/? | Not started | - |
+| 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 0/3 | Not started | - |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/? | Not started | - |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 
 ---
 
-*Next: run `/gsd:plan-phase 7` to break Phase 7 into executable plans.*
+*Next: run `/gsd:execute-phase 7` to implement Phase 7.*
