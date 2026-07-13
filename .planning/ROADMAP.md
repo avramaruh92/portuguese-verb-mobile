@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Dataset & Domain Vocabulary** - Typed, validated local verb dataset with backend-aligned internal vocabulary (completed 2026-07-12)
 - [x] **Phase 3: Quiz Engine** - Tested pure-function logic for generating and scoring a quiz session (completed 2026-07-12)
 - [x] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score (completed 2026-07-12)
-- [ ] **Phase 5: Feedback Integration** - Learner can submit in-app feedback tied to a question, handled gracefully end-to-end
+- [x] **Phase 5: Feedback Integration** - Learner can submit in-app feedback tied to a question, handled gracefully end-to-end (completed 2026-07-13)
 - [ ] **Phase 6: Polish & Verification** - Cross-cutting verification of dataset accuracy, cold-start UX, and edge cases
 
 ## Phase Details
@@ -159,7 +159,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 — checkpoint, not autonomous)*
 
-- [ ] 05-04-PLAN.md — Live round-trip against deployed backend (scripted 201 + enum-parity check) + human-verify checkpoint: on-device report flow + quiz non-interruption (FDBK-02, FDBK-03)
+- [x] 05-04-PLAN.md — Live round-trip against deployed backend (scripted 201 + enum-parity check) + human-verify checkpoint: on-device report flow + quiz non-interruption (FDBK-02, FDBK-03)
 
 ### Phase 6: Polish & Verification
 
@@ -186,5 +186,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
-| 5. Feedback Integration | 3/4 | In Progress|  |
+| 5. Feedback Integration | 4/4 | Complete   | 2026-07-13 |
 | 6. Polish & Verification | 0/TBD | Not started | - |
