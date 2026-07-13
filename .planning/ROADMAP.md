@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Quiz Engine** - Tested pure-function logic for generating and scoring a quiz session (completed 2026-07-12)
 - [x] **Phase 4: Quiz Experience (Setup → Quiz → Results)** - Learner can complete a full 10-question quiz and see their score (completed 2026-07-12)
 - [x] **Phase 5: Feedback Integration** - Learner can submit in-app feedback tied to a question, handled gracefully end-to-end (completed 2026-07-13)
-- [ ] **Phase 6: Polish & Verification** - Cross-cutting verification of dataset accuracy, cold-start UX, and edge cases
+- [x] **Phase 6: Polish & Verification** - Cross-cutting verification of dataset accuracy, cold-start UX, and edge cases (completed 2026-07-13)
 
 ## Phase Details
 
@@ -183,7 +183,7 @@ Plans:
 
 **Wave 2** *(blocked on 06-01 — needs the discrepancy list)*
 
-- [ ] 06-02-PLAN.md — Human spot-check of the discrepancy list + apply confirmed conjugation corrections to verbs.ts, keeping validation and suite green (SC-1, D-01/D-04)
+- [x] 06-02-PLAN.md — Human spot-check of the discrepancy list + apply confirmed conjugation corrections to verbs.ts, keeping validation and suite green (SC-1, D-01/D-04)
 
 ## Progress
 
@@ -197,4 +197,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
 | 5. Feedback Integration | 4/4 | Complete   | 2026-07-13 |
-| 6. Polish & Verification | 3/4 | In Progress|  |
+| 6. Polish & Verification | 4/4 | Complete   | 2026-07-13 |
