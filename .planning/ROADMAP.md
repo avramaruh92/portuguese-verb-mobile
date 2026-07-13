@@ -151,7 +151,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — imports schema/types)*
 
-- [ ] 05-02-PLAN.md — TDD: submitFeedback network transport (native fetch, manual 90s setTimeout+AbortController, 201/400/500/network SubmitResult branching) + mocked-fetch/fake-timer tests (FDBK-02)
+- [x] 05-02-PLAN.md — TDD: submitFeedback network transport (native fetch, manual 90s setTimeout+AbortController, 201/400/500/network SubmitResult branching) + mocked-fetch/fake-timer tests (FDBK-02)
 
 **Wave 3** *(blocked on Wave 2 — imports payload builder + submitFeedback)*
 
@@ -186,5 +186,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Dataset & Domain Vocabulary | 3/3 | Complete   | 2026-07-12 |
 | 3. Quiz Engine | 3/3 | Complete   | 2026-07-12 |
 | 4. Quiz Experience (Setup → Quiz → Results) | 2/2 | Complete   | 2026-07-12 |
-| 5. Feedback Integration | 1/4 | In Progress|  |
+| 5. Feedback Integration | 2/4 | In Progress|  |
 | 6. Polish & Verification | 0/TBD | Not started | - |
