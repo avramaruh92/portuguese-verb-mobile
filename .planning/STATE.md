@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Online Quiz, Exit Flow & UI Polish
-status: planning
-last_updated: "2026-07-13T12:45:45.299Z"
+status: roadmapped
+last_updated: "2026-07-13T00:00:00.000Z"
 last_activity: 2026-07-13
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,45 +20,55 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Planning next milestone (v0.0 shipped and archived)
+**Current focus:** v0.1 roadmap created (Phases 7-10) — ready for `/gsd:plan-phase 7`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 7 - Dataset Seam & Fetch/Fallback Pipeline (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-13 — Milestone v0.1 started
+Status: Roadmapped, awaiting phase planning
+Last activity: 2026-07-13 — v0.1 ROADMAP.md created, Phases 7-10 defined, 11/11 requirements mapped
 
 ## Performance Metrics
 
-**Velocity:**
+**Velocity (v0.0):**
 
-- Total plans completed: 7
+- Total plans completed: 18
 - Average duration: - min
-- Total execution time: 0 hours
+- Total execution time: ~1.3 days (2026-07-12 → 2026-07-13)
 
-**By Phase:**
+**By Phase (v0.0):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01 | 2 | - | - |
 | 02 | 3 | - | - |
+| 03 | 3 | - | - |
 | 04 | 2 | - | - |
+| 05 | 4 | - | - |
+| 06 | 4 | - | - |
+
+**v0.1 phases (not yet planned into individual plans):**
+
+| Phase | Requirements | Status |
+|-------|--------------|--------|
+| 7. Dataset Seam & Fetch/Fallback Pipeline | FETCH-01, FETCH-02, FETCH-03 | Not started |
+| 8. Async Quiz Start & Dataset Snapshot | FETCH-04 | Not started |
+| 9. End-Quiz-Early Flow | QUIZ-05, QUIZ-06, QUIZ-07, QUIZ-08 | Not started |
+| 10. Safe-Area & Visual Polish | UI-01, UI-02, UI-03 | Not started |
 
 **Recent Trend:**
 
-- Last 5 plans: none yet
+- Last 5 plans: none yet this milestone
 - Trend: N/A
 
 *Updated after each plan completion*
-| Phase 05 P02 | ~10 min | 1 tasks | 2 files |
-| Phase 05 P03 | ~15 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table (all v0.0 decisions now show final outcomes).
+Decisions are logged in PROJECT.md Key Decisions table (all v0.0 decisions show final outcomes). No new v0.1 decisions logged yet — will accumulate during phase planning/execution.
 
 ### Pending Todos
 
@@ -66,31 +76,36 @@ None.
 
 ### Blockers/Concerns
 
-None open. All v0.0 blockers resolved and verified during the milestone:
+None open. All v0.0 blockers resolved and verified during that milestone (see PROJECT.md Context section).
 
-- ✓ Backend enum literal reconciliation (`tense`/`subject`/`platform`) — verified in Phase 5: `src/feedback/schema.ts` imports the literals directly from `src/dataset/types.ts` (no redeclaration), confirmed against the live backend's actual validator.
-- ✓ Hand-authored EU Portuguese dataset accuracy — verified twice: human review in Phase 2, independent AI re-derivation of all 1,200 cells in Phase 6 (zero discrepancies).
-- ✓ Render free-tier cold-start tolerance — verified live in Phase 6 against a genuinely idle instance (45-50s cold start, graceful throughout).
-
-Minor non-blocking tech debt carried forward (see `.planning/milestones/v0.0-MILESTONE-AUDIT.md`): ESLint not installed as a devDependency, no `SafeAreaProvider` wired, `feedbackPayloadSchema` not runtime-parsed client-side before dispatch.
+v0.1 open risks to track during execution (not blockers, surfaced by research):
+- Exact Expo Router/React Navigation gesture-interception API name (`beforeRemove` or equivalent) must be re-verified against the SDK-57-bundled Router version at Phase 9 implementation time, not assumed from older tutorials.
+- The mocked/stubbed backend content endpoint this milestone builds against will eventually need reconciliation with whatever `portuguese-verb-api` actually ships — tracked as an open cross-repo risk, not a gap in this milestone's scope.
+- Minor non-blocking tech debt carried from v0.0 (see `.planning/milestones/v0.0-MILESTONE-AUDIT.md`): ESLint not installed as a devDependency; `feedbackPayloadSchema` not runtime-parsed client-side before dispatch. Neither blocks v0.1.
 
 ## Deferred Items
 
-Items acknowledged and carried forward from previous milestone close:
+Items acknowledged and carried forward:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | v2 | PROG-01 Typed-answer quiz mode with diacritic normalization | Deferred | Project init |
 | v2 | PROG-02 On-device progress/streak tracking | Deferred | Project init |
 | v2 | PROG-03 Spaced repetition scheduling | Deferred | Project init |
-| v2 | PROG-04 Backend-served dataset updates | Deferred | Project init |
+| v2 | FETCH-05 "Offline/using saved content" indicator | Deferred (P2) | v0.1 requirements definition |
+| v2 | FETCH-06 Dataset staleness/version metadata | Deferred (P3) | v0.1 requirements definition |
+| v2 | QUIZ-09 Question-progress indicator ("Question X of 10") | Deferred (P2) | v0.1 requirements definition |
+| v2 | UI-04 Answer-selection feedback animation | Deferred (P3) | v0.1 requirements definition |
+
+Note: PROG-04 (backend-served dataset updates), previously deferred, was promoted into v0.1 scope as FETCH-01..04 — see PROJECT.md Out of Scope section.
 
 ## Session Continuity
 
-Last session: 2026-07-13T12:16:38.364Z
-Stopped at: v0.0 milestone archived, all phase directories moved to .planning/milestones/v0.0-phases/
-Resume file: .planning/milestones/v0.0-phases/06-polish-verification/06-CONTEXT.md (historical reference only)
+Last session: 2026-07-13T00:00:00.000Z
+Stopped at: v0.1 ROADMAP.md and STATE.md written, REQUIREMENTS.md traceability updated — all 11 v0.1 requirements mapped across Phases 7-10
+Resume file: .planning/ROADMAP.md (Phase Details section)
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Review the v0.1 roadmap draft (Phases 7-10) and approve or request revision
+- Once approved: `/gsd:plan-phase 7` to break Phase 7 into executable plans

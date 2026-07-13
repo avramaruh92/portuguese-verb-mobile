@@ -67,23 +67,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FETCH-01 | TBD | Pending |
-| FETCH-02 | TBD | Pending |
-| FETCH-03 | TBD | Pending |
-| FETCH-04 | TBD | Pending |
-| QUIZ-05 | TBD | Pending |
-| QUIZ-06 | TBD | Pending |
-| QUIZ-07 | TBD | Pending |
-| QUIZ-08 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
+| FETCH-01 | Phase 7 | Pending |
+| FETCH-02 | Phase 7 | Pending |
+| FETCH-03 | Phase 7 | Pending |
+| FETCH-04 | Phase 8 | Pending |
+| QUIZ-05 | Phase 9 | Pending |
+| QUIZ-06 | Phase 9 | Pending |
+| QUIZ-07 | Phase 9 | Pending |
+| QUIZ-08 | Phase 9 | Pending |
+| UI-01 | Phase 10 | Pending |
+| UI-02 | Phase 10 | Pending |
+| UI-03 | Phase 10 | Pending |
 
 **Coverage:**
 - v0.1 requirements: 11 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 11 ⚠️ (will be resolved by `/gsd:new-milestone`'s roadmap step)
+- Mapped to phases: 11/11 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-13*
-*Last updated: 2026-07-13 after initial v0.1 definition*
+*Last updated: 2026-07-13 after v0.1 ROADMAP.md creation (Phases 7-10)*
