@@ -1,8 +1,11 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels } from "../src/quiz/labels";
 import { verbs } from "../src/dataset/verbs";
+import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 
 export default function Quiz() {
   const router = useRouter();
@@ -11,6 +14,10 @@ export default function Quiz() {
   const lockedChoice = useQuizStore((s) => s.lockedChoice);
   const selectAnswer = useQuizStore((s) => s.selectAnswer);
   const advance = useQuizStore((s) => s.advance);
+  const [reportVisible, setReportVisible] = useState(false);
+
+  const appVersion = Constants.expoConfig?.version ?? "unknown";
+  const platform: "ios" | "android" = Platform.OS === "android" ? "android" : "ios";
 
   if (!session) return null;
 
@@ -88,6 +95,26 @@ export default function Quiz() {
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </Pressable>
+
+      <Pressable
+        onPress={() => setReportVisible(true)}
+        style={[styles.reportButton, lockedChoice === null && styles.reportButtonHidden]}
+        pointerEvents={lockedChoice === null ? "none" : "auto"}
+      >
+        <Text style={styles.reportButtonText}>Report a problem</Text>
+      </Pressable>
+
+      <ReportFeedbackModal
+        visible={reportVisible}
+        verb={question.verb}
+        tense={question.tense}
+        subject={question.subject}
+        correctAnswer={question.correctAnswer}
+        selectedAnswer={lockedChoice ?? ""}
+        appVersion={appVersion}
+        platform={platform}
+        onClose={() => setReportVisible(false)}
+      />
     </ScrollView>
   );
 }
@@ -179,5 +206,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
+  },
+  reportButton: {
+    minHeight: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  reportButtonHidden: {
+    opacity: 0,
+  },
+  reportButtonText: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#007AFF",
   },
 });
