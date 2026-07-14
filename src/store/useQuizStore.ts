@@ -33,12 +33,19 @@ const initialState = {
   errorMessage: null,
 };
 
+// Incrementing call token so that a stale (superseded) startQuiz call
+// cannot overwrite state after a newer call has already started/finished —
+// e.g. a double-tap where the first call's resolveVerbs() resolves last.
+let startToken = 0;
+
 export const useQuizStore = create<QuizStoreState>((set, get) => ({
   ...initialState,
 
   startQuiz: async (options: GenerateOptions) => {
+    const token = ++startToken;
     try {
       const { verbs } = await resolveVerbs();
+      if (token !== startToken) return; // superseded by a newer call
       const session = generate(options, undefined, verbs);
       set({
         status: "in-progress",
@@ -50,6 +57,7 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
         errorMessage: null,
       });
     } catch (error) {
+      if (token !== startToken) return; // superseded by a newer call
       if (error instanceof InsufficientVerbsError) {
         set({
           status: "error",
