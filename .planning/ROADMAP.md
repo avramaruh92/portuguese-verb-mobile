@@ -108,7 +108,20 @@ Plans:
   3. While the app resolves remote content, the learner sees a styled loading indicator, not a bare default spinner.
   4. Any user-visible error/fallback state from the fetch step renders with the app's own styling, not raw or unstyled text.
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — Foundation: shared tokens module + SafeAreaProvider/native-header root wiring (UI-01/UI-02)
+
+**Wave 2** *(blocked on Wave 1; 10-02 and 10-03 run in parallel — no file overlap)*
+
+- [ ] 10-02-PLAN.md — Setup + Results polish: headers, tokens, bottom insets, ActivityIndicator loading, styled error text (UI-01/UI-02/UI-03)
+- [ ] 10-03-PLAN.md — Quiz polish: tokens + bottom safe-area inset (header/Exit preserved) (UI-01/UI-02)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 10-04-PLAN.md — On-device human-verify of safe-area, consistent visuals, loading + error states across all 3 screens (UI-01/UI-02/UI-03)
 **UI hint**: yes
 
 ## Progress
@@ -124,8 +137,8 @@ Plans:
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
+| 10. Safe-Area & Visual Polish | v0.1 | 0/4 | Planned | - |
 
 ---
 
-*Next: run `/gsd:execute-phase 7` to implement Phase 7.*
+*Next: run `/gsd:execute-phase 10` to implement Phase 10.*
