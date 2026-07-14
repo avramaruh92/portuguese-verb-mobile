@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Online Quiz, Exit Flow & UI Polish
-status: completed
-stopped_at: Phase 10 UI-SPEC approved
-last_updated: "2026-07-14T21:30:31.433Z"
+status: Phase 10.1 not planned yet
+stopped_at: Phase 10.1 context gathered
+last_updated: "2026-07-14T22:29:17.102Z"
 last_activity: 2026-07-14 -- Phase 10 marked complete
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
   total_plans: 11
   completed_plans: 11
-  percent: 100
+  percent: 80
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 10 — safe-area-visual-polish
+**Current focus:** Phase 10.1 — close-gap-ui-03
 
 ## Current Position
 
-Phase: 10 — COMPLETE
+Phase: 10.1
 Plan: 1 of 4
-Status: Phase 10 complete
+Status: Phase 10.1 not planned yet
 Last activity: 2026-07-14 -- Phase 10 marked complete
 
 ## Performance Metrics
@@ -68,6 +68,10 @@ Last activity: 2026-07-14 -- Phase 10 marked complete
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 10.1 inserted after Phase 10: Close gap: UI-03 — surface non-blocking 'offline content' indicator when dataset source is local (URGENT)
+
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table (all v0.0 decisions show final outcomes). No new v0.1 decisions logged yet — will accumulate during phase planning/execution.
@@ -104,9 +108,9 @@ Note: PROG-04 (backend-served dataset updates), previously deferred, was promote
 
 ## Session Continuity
 
-Last session: 2026-07-14T18:44:56.426Z
-Stopped at: Phase 10 UI-SPEC approved
-Resume file: .planning/phases/10-safe-area-visual-polish/10-UI-SPEC.md
+Last session: 2026-07-14T22:29:17.093Z
+Stopped at: Phase 10.1 context gathered
+Resume file: .planning/phases/10.1-close-gap-ui-03-surface-non-blocking-offline-content-indicat/10.1-CONTEXT.md
 
 ## Operator Next Steps
 
