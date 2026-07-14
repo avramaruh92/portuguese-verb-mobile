@@ -116,8 +116,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1; 10-02 and 10-03 run in parallel — no file overlap)*
 
-- [ ] 10-02-PLAN.md — Setup + Results polish: headers, tokens, bottom insets, ActivityIndicator loading, styled error text (UI-01/UI-02/UI-03)
-- [ ] 10-03-PLAN.md — Quiz polish: tokens + bottom safe-area inset (header/Exit preserved) (UI-01/UI-02)
+- [x] 10-02-PLAN.md — Setup + Results polish: headers, tokens, bottom insets, ActivityIndicator loading, styled error text (UI-01/UI-02/UI-03)
+- [x] 10-03-PLAN.md — Quiz polish: tokens + bottom safe-area inset (header/Exit preserved) (UI-01/UI-02)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -137,7 +137,7 @@ Plans:
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 10. Safe-Area & Visual Polish | v0.1 | 1/4 | In Progress|  |
+| 10. Safe-Area & Visual Polish | v0.1 | 3/4 | In Progress|  |
 
 ---
 
