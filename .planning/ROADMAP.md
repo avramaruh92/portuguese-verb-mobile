@@ -55,7 +55,10 @@ Plans:
   2. A learner can complete an in-progress quiz normally even if a background dataset refresh finishes mid-session — the active quiz's questions never change.
   3. The Setup screen's Start control is never stuck disabled or hung waiting on a network call that isn't required to begin the quiz.
   4. Both the Setup screen's start flow and the Results screen's "Try Again" flow correctly await the now-async quiz-start action before reading quiz status — no stale-status race condition.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 08-01-PLAN.md — Async startQuiz snapshot: await resolveVerbs, feed snapshot to generate, prove background-refresh isolation (FETCH-04)
+- [ ] 08-02-PLAN.md — App wiring: root-layout prefetch + await async start on Setup Start & Results Try Again with loading flags (FETCH-04)
 
 ### Phase 9: End-Quiz-Early Flow
 **Goal**: A learner can cleanly exit an in-progress quiz at any time — via a visible control or a back gesture — with a clear confirmation, discarding progress with no partial results shown.
@@ -93,7 +96,7 @@ Plans:
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
-| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/? | Not started | - |
+| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/2 | Not started | - |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 
