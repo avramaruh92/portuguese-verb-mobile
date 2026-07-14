@@ -183,6 +183,33 @@ describe("useQuizStore", () => {
     expect(state.errorMessage).toBeNull();
   });
 
+  it("reset() after an in-progress, mutated quiz restores every field to a fresh initialState (end-quiz-early full-state-equality guard)", async () => {
+    await useQuizStore.getState().startQuiz(VALID_OPTIONS);
+    // Mutate session state so currentIndex/answers/lockedChoice diverge from initialState
+    // before exiting — this is the "in-progress, abandoned mid-quiz" scenario.
+    useQuizStore.getState().selectAnswer("choice-0");
+    useQuizStore.getState().advance();
+    useQuizStore.getState().selectAnswer("choice-1");
+
+    const inProgressState = useQuizStore.getState();
+    expect(inProgressState.status).toBe("in-progress");
+    expect(inProgressState.session).not.toBeNull();
+    expect(inProgressState.currentIndex).toBe(1);
+    expect(inProgressState.answers).toEqual(["choice-0"]);
+    expect(inProgressState.lockedChoice).toBe("choice-1");
+
+    useQuizStore.getState().reset();
+
+    const freshState = useQuizStore.getState();
+    expect(freshState.status).toBe("idle");
+    expect(freshState.filters).toBeNull();
+    expect(freshState.session).toBeNull();
+    expect(freshState.currentIndex).toBe(0);
+    expect(freshState.answers).toEqual([]);
+    expect(freshState.lockedChoice).toBeNull();
+    expect(freshState.errorMessage).toBeNull();
+  });
+
   describe("startQuiz dataset snapshot (FETCH-04)", () => {
     it("keeps an in-progress session's questions unchanged after resolveVerbs is re-pointed to a different dataset", async () => {
       mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
