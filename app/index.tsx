@@ -15,6 +15,7 @@ export default function Index() {
   const [selectedTenses, setSelectedTenses] = useState<Tense[]>([]);
   const [includeIrregular, setIncludeIrregular] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
 
   const allSelected = selectedTenses.length === TENSES.length;
   const canStart = selectedTenses.length > 0;
@@ -32,12 +33,17 @@ export default function Index() {
   async function handleStartQuiz() {
     if (!canStart || starting) return;
     setStarting(true);
+    setUnexpectedError(null);
     try {
       await startQuiz({ tenses: selectedTenses, includeIrregular });
       const nextStatus = useQuizStore.getState().status;
       if (nextStatus === "in-progress") {
         router.replace("/quiz");
       }
+    } catch (error) {
+      // surface unexpected errors instead of letting them become
+      // unhandled promise rejections
+      setUnexpectedError(String(error));
     } finally {
       setStarting(false);
     }
@@ -82,6 +88,9 @@ export default function Index() {
 
       {status === "error" && errorMessage ? (
         <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : null}
+      {unexpectedError ? (
+        <Text style={styles.errorText}>{unexpectedError}</Text>
       ) : null}
 
       <Pressable
