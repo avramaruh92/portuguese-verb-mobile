@@ -66,7 +66,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 08-01-PLAN.md — Async startQuiz snapshot: await resolveVerbs, feed snapshot to generate, prove background-refresh isolation (FETCH-04)
+- [x] 08-01-PLAN.md — Async startQuiz snapshot: await resolveVerbs, feed snapshot to generate, prove background-refresh isolation (FETCH-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -114,7 +114,7 @@ Plans:
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
-| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 0/2 | Not started | - |
+| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 1/2 | In Progress|  |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 

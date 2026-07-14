@@ -4,8 +4,8 @@ milestone: v0.1
 milestone_name: Online Quiz, Exit Flow & UI Polish
 status: executing
 stopped_at: Phase 8 context gathered
-last_updated: "2026-07-14T12:13:20.589Z"
-last_activity: 2026-07-14 -- Phase 08 planning complete
+last_updated: "2026-07-14T13:34:49.239Z"
+last_activity: 2026-07-14 -- Phase 08 execution started
 progress:
   total_phases: 4
   completed_phases: 1
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-13)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 07 — dataset-seam-fetch-fallback-pipeline
+**Current focus:** Phase 08 — async-quiz-start-dataset-snapshot
 
 ## Current Position
 
-Phase: 07 (dataset-seam-fetch-fallback-pipeline) — EXECUTING
-Plan: 1 of 3
-Status: Ready to execute
-Last activity: 2026-07-14 -- Phase 08 planning complete
+Phase: 08 (async-quiz-start-dataset-snapshot) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 08
+Last activity: 2026-07-14 -- Phase 08 execution started
 
 ## Performance Metrics
 
