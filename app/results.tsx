@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pressable, Share, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useQuizStore } from "../src/store/useQuizStore";
@@ -10,6 +11,7 @@ export default function Results() {
   const answers = useQuizStore((s) => s.answers);
   const filters = useQuizStore((s) => s.filters);
   const startQuiz = useQuizStore((s) => s.startQuiz);
+  const [starting, setStarting] = useState(false);
 
   if (!session) return null;
 
@@ -23,15 +25,21 @@ export default function Results() {
     }
   }
 
-  function handleTryAgain() {
+  async function handleTryAgain() {
     if (!filters) {
       router.replace("/");
       return;
     }
-    startQuiz(filters);
-    const nextStatus = useQuizStore.getState().status;
-    if (nextStatus === "in-progress") {
-      router.replace("/quiz");
+    if (starting) return;
+    setStarting(true);
+    try {
+      await startQuiz(filters);
+      const nextStatus = useQuizStore.getState().status;
+      if (nextStatus === "in-progress") {
+        router.replace("/quiz");
+      }
+    } finally {
+      setStarting(false);
     }
   }
 
@@ -53,8 +61,14 @@ export default function Results() {
           <Text style={styles.shareButtonText}>Share Score</Text>
         </Pressable>
 
-        <Pressable onPress={handleTryAgain} style={styles.tryAgainButton}>
-          <Text style={styles.tryAgainButtonText}>Try Again</Text>
+        <Pressable
+          onPress={handleTryAgain}
+          disabled={starting}
+          style={styles.tryAgainButton}
+        >
+          <Text style={styles.tryAgainButtonText}>
+            {starting ? "Starting…" : "Try Again"}
+          </Text>
         </Pressable>
 
         <Pressable onPress={handleBackToSetup} style={styles.backButton}>
