@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { tenseLabels } from "../src/quiz/labels";
 import { TENSES } from "../src/dataset/types";
 import type { Tense } from "../src/dataset/types";
+import { colors, radius, spacing, typography } from "../src/theme/tokens";
 
 export default function Index() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const startQuiz = useQuizStore((s) => s.startQuiz);
   const status = useQuizStore((s) => s.status);
   const errorMessage = useQuizStore((s) => s.errorMessage);
@@ -50,7 +53,9 @@ export default function Index() {
   }
 
   return (
-    <View style={styles.container}>
+    <>
+      <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
+      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <Text style={styles.heading}>Portuguese Verb Quiz</Text>
 
       <View style={styles.section}>
@@ -87,10 +92,14 @@ export default function Index() {
       </View>
 
       {status === "error" && errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <View style={styles.errorBlock}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
       ) : null}
       {unexpectedError ? (
-        <Text style={styles.errorText}>{unexpectedError}</Text>
+        <View style={styles.errorBlock}>
+          <Text style={styles.errorText}>{unexpectedError}</Text>
+        </View>
       ) : null}
 
       <Pressable
@@ -98,11 +107,13 @@ export default function Index() {
         disabled={!canStart || starting}
         style={[styles.startButton, (!canStart || starting) && styles.startButtonDisabled]}
       >
+        {starting ? <ActivityIndicator size="small" color={colors.background} /> : null}
         <Text style={styles.startButtonText}>
           {starting ? "Starting…" : "Start Quiz"}
         </Text>
       </Pressable>
-    </View>
+      </View>
+    </>
   );
 }
 
@@ -110,48 +121,45 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 16,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.background,
   },
   heading: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#000000",
-    marginBottom: 24,
+    ...typography.heading,
+    color: colors.text,
+    marginBottom: spacing.lg,
     textAlign: "center",
   },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#000000",
-    marginBottom: 8,
+    ...typography.caption,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   chipRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.sm,
   },
   chip: {
     minHeight: 44,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 12,
-    backgroundColor: "#F2F2F7",
+    borderRadius: radius.control,
+    backgroundColor: colors.secondary,
   },
   chipSelected: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.accent,
   },
   chipText: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#000000",
+    ...typography.body,
+    color: colors.text,
   },
   chipTextSelected: {
-    color: "#FFFFFF",
+    color: colors.background,
   },
   toggleRow: {
     flexDirection: "row",
@@ -160,20 +168,22 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   toggleLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#000000",
+    ...typography.caption,
+    color: colors.text,
+  },
+  errorBlock: {
+    marginBottom: spacing.lg,
   },
   errorText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#FF3B30",
-    marginBottom: 24,
+    ...typography.caption,
+    color: colors.error,
   },
   startButton: {
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: "#007AFF",
+    borderRadius: radius.control,
+    backgroundColor: colors.accent,
+    flexDirection: "row",
+    gap: spacing.sm,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -181,8 +191,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   startButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...typography.bodyStrong,
+    color: colors.background,
   },
 });
