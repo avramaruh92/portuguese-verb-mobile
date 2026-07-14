@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { prefetch } from "../src/dataset/source";
 
 export default function RootLayout() {
@@ -7,5 +8,9 @@ export default function RootLayout() {
     prefetch();
   }, []);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <SafeAreaProvider>
+      <Stack screenOptions={{ headerShown: true }} />
+    </SafeAreaProvider>
+  );
 }
