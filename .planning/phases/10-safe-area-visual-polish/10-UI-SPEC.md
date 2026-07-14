@@ -1,10 +1,11 @@
 ---
 phase: 10
 slug: safe-area-visual-polish
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-07-14
+reviewed_at: 2026-07-14
 ---
 
 # Phase 10 — UI Design Contract
