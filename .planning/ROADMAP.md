@@ -112,7 +112,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 10-01-PLAN.md — Foundation: shared tokens module + SafeAreaProvider/native-header root wiring (UI-01/UI-02)
+- [x] 10-01-PLAN.md — Foundation: shared tokens module + SafeAreaProvider/native-header root wiring (UI-01/UI-02)
 
 **Wave 2** *(blocked on Wave 1; 10-02 and 10-03 run in parallel — no file overlap)*
 
@@ -137,7 +137,7 @@ Plans:
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 10. Safe-Area & Visual Polish | v0.1 | 0/4 | Planned | - |
+| 10. Safe-Area & Visual Polish | v0.1 | 1/4 | In Progress|  |
 
 ---
 
