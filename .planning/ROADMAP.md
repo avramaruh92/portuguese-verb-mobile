@@ -85,7 +85,15 @@ Plans:
   4. Confirming exit returns the learner to the Setup screen with progress discarded and no partial score or results shown.
   5. Declining the exit prompt ("Keep Practicing") returns the learner to the exact in-progress question they were on, with no state lost.
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 09-01-PLAN.md — Header Exit control + shared Alert.alert confirmation + beforeRemove gesture guard in app/quiz.tsx, plus full-state-equality reset test (QUIZ-05/06/07/08)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 09-02-PLAN.md — On-device human-verify of all exit paths: swipe-back, hardware back, header button, decline-resumes, confirm-discards (QUIZ-05/06/07/08)
 **UI hint**: yes
 
 ### Phase 10: Safe-Area & Visual Polish
@@ -115,7 +123,7 @@ Plans:
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
+| 9. End-Quiz-Early Flow | v0.1 | 0/2 | Planned | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 
 ---
