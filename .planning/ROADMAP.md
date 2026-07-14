@@ -89,7 +89,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 09-01-PLAN.md — Header Exit control + shared Alert.alert confirmation + beforeRemove gesture guard in app/quiz.tsx, plus full-state-equality reset test (QUIZ-05/06/07/08)
+- [x] 09-01-PLAN.md — Header Exit control + shared Alert.alert confirmation + beforeRemove gesture guard in app/quiz.tsx, plus full-state-equality reset test (QUIZ-05/06/07/08)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -123,7 +123,7 @@ Plans:
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 9. End-Quiz-Early Flow | v0.1 | 0/2 | Planned | - |
+| 9. End-Quiz-Early Flow | v0.1 | 1/2 | In Progress|  |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 
 ---
