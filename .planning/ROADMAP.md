@@ -25,7 +25,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 ### v0.1 Online Quiz, Exit Flow & UI Polish (Phases 7-10)
 
 - [x] **Phase 7: Dataset Seam & Fetch/Fallback Pipeline** - Quiz engine accepts an injected verb list, and the app can resolve a backend-fetched dataset with a silently-validated local fallback (completed 2026-07-13)
-- [ ] **Phase 8: Async Quiz Start & Dataset Snapshot** - Starting a quiz reliably resolves and snapshots whichever dataset (remote or local) is active, with no race conditions or blocked Start button
+- [x] **Phase 8: Async Quiz Start & Dataset Snapshot** - Starting a quiz reliably resolves and snapshots whichever dataset (remote or local) is active, with no race conditions or blocked Start button (completed 2026-07-14)
 - [ ] **Phase 9: End-Quiz-Early Flow** - A learner can cleanly abandon an in-progress quiz via header control or back gesture, with a confirmation and no partial results
 - [ ] **Phase 10: Safe-Area & Visual Polish** - The app renders correctly under the iOS status bar/notch and presents a consistent, styled visual treatment across all 3 screens, including fetch loading/error states
 
@@ -70,7 +70,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02-PLAN.md — App wiring: root-layout prefetch + await async start on Setup Start & Results Try Again with loading flags (FETCH-04)
+- [x] 08-02-PLAN.md — App wiring: root-layout prefetch + await async start on Setup Start & Results Try Again with loading flags (FETCH-04)
 
 ### Phase 9: End-Quiz-Early Flow
 
@@ -114,7 +114,7 @@ Plans:
 | 5. Feedback Integration | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 6. Polish & Verification | v0.0 | 4/4 | Complete | 2026-07-13 |
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
-| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 1/2 | In Progress|  |
+| 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 0/? | Not started | - |
 | 10. Safe-Area & Visual Polish | v0.1 | 0/? | Not started | - |
 
