@@ -182,4 +182,32 @@ describe("useQuizStore", () => {
     expect(state.lockedChoice).toBeNull();
     expect(state.errorMessage).toBeNull();
   });
+
+  describe("startQuiz dataset snapshot (FETCH-04)", () => {
+    it("keeps an in-progress session's questions unchanged after resolveVerbs is re-pointed to a different dataset", async () => {
+      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
+      await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
+      const snapshotQuestions = useQuizStore.getState().session?.questions;
+      expect(snapshotQuestions).toBeDefined();
+
+      // Simulate a background refresh completing with a different dataset —
+      // no new startQuiz call, so the in-progress session must be untouched.
+      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote" });
+
+      expect(useQuizStore.getState().session?.questions).toEqual(snapshotQuestions);
+    });
+
+    it("snapshots the dataset at call time — two startQuiz calls under different mocked datasets produce sessions drawn from their respective snapshots", async () => {
+      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
+      await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
+      const sessionA = useQuizStore.getState().session;
+
+      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote" });
+      await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
+      const sessionB = useQuizStore.getState().session;
+
+      expect(sessionA?.questions).not.toEqual(sessionB?.questions);
+      expect(sessionB?.questions.every((q) => q.verb === "beber")).toBe(true);
+    });
+  });
 });
