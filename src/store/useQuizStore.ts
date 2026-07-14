@@ -55,6 +55,10 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
           status: "error",
           errorMessage: INSUFFICIENT_VERBS_MESSAGE,
           session: null,
+          filters: options,
+          currentIndex: 0,
+          answers: [],
+          lockedChoice: null,
         });
         return;
       }
