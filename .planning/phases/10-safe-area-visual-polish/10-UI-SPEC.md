@@ -29,20 +29,19 @@ created: 2026-07-14
 
 ## Spacing Scale
 
-Declared values (existing app-wide scale, source: `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx` — confirmed in 10-CONTEXT.md D-03, all multiples of 4):
+Declared values (existing app-wide scale, source: `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx` — confirmed in 10-CONTEXT.md D-03, standard-set members are multiples of 4):
 
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | not currently used — reserved, no exception needed |
 | sm | 8px | `sectionLabel`/`progressText` bottom margin, chip row gap |
-| — | 12px | Choice-list gap on Quiz (`choices.gap`), border radius on buttons/chips/choice tiles |
 | md | 16px | Screen horizontal padding (all 3 screens), default element spacing, action-stack gap on Results |
 | lg | 24px | Section margin-bottom (Setup sections, Quiz content padding/question block/choices), error-text margin |
 | 2xl | 48px | Results score-block bottom margin |
 | 3xl | 64px | Results container top padding (legacy manual notch offset — see Safe-Area Contract below, this phase replaces this literal with a real inset) |
 
 Exceptions:
-- 12px is used for both spacing (choice gap) and border-radius (all buttons/chips/tiles) — keep as-is, it is an established app-wide value, not a new one-off.
+- **12px (choice-list gap on Quiz, `choices.gap`, also shared with border-radius on buttons/chips/choice tiles) is NOT a member of the standard 8-point scale (4/8/16/24/32/48/64), and is retained unchanged as a documented exception, not tokenized away.** Justification: 10-CONTEXT.md D-03 explicitly locks this phase to "a **pure tokenization pass, not a redesign**... extract these exact values (plus the existing spacing scale: 8/12/16/24/48/64 and font sizes: 14/16/20/56) into a shared tokens module all 3 screens import from, with **zero visible color/spacing change to the end user**." Since 12px is one of the pre-existing, already-shipped values D-03 names verbatim and mandates preserving exactly, snapping it to 8px or 16px during this phase would violate that locked decision (it would be a visible spacing change, which D-03 forbids). This value must be centralized into the shared tokens module (e.g. `spacing.choiceGap = 12` and/or `radius.control = 12`) exactly as-is — do not introduce it as a new one-off value elsewhere, and do not use 12px for any new spacing decision this phase.
 - Touch targets: all interactive elements (buttons, chips, choices) already use `minHeight: 44` — the iOS minimum tappable target. Preserve this exactly; do not shrink it when adding the loading-indicator glyph to the Start/Try Again buttons.
 
 ---
@@ -133,3 +132,5 @@ This phase's core work is layout/chrome, not new visual style — captured here 
 - [ ] Dimension 6 Registry Safety: PASS
 
 **Approval:** pending
+</content>
+</invoke>
