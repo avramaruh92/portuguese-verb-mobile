@@ -27,7 +27,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 - [x] **Phase 7: Dataset Seam & Fetch/Fallback Pipeline** - Quiz engine accepts an injected verb list, and the app can resolve a backend-fetched dataset with a silently-validated local fallback (completed 2026-07-13)
 - [x] **Phase 8: Async Quiz Start & Dataset Snapshot** - Starting a quiz reliably resolves and snapshots whichever dataset (remote or local) is active, with no race conditions or blocked Start button (completed 2026-07-14)
 - [x] **Phase 9: End-Quiz-Early Flow** - A learner can cleanly abandon an in-progress quiz via header control or back gesture, with a confirmation and no partial results (completed 2026-07-14)
-- [ ] **Phase 10: Safe-Area & Visual Polish** - The app renders correctly under the iOS status bar/notch and presents a consistent, styled visual treatment across all 3 screens, including fetch loading/error states
+- [x] **Phase 10: Safe-Area & Visual Polish** - The app renders correctly under the iOS status bar/notch and presents a consistent, styled visual treatment across all 3 screens, including fetch loading/error states (completed 2026-07-14)
 
 ## Phase Details
 
@@ -121,7 +121,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 10-04-PLAN.md — On-device human-verify of safe-area, consistent visuals, loading + error states across all 3 screens (UI-01/UI-02/UI-03)
+- [x] 10-04-PLAN.md — On-device human-verify of safe-area, consistent visuals, loading + error states across all 3 screens (UI-01/UI-02/UI-03)
 **UI hint**: yes
 
 ## Progress
@@ -137,7 +137,7 @@ Plans:
 | 7. Dataset Seam & Fetch/Fallback Pipeline | v0.1 | 3/3 | Complete   | 2026-07-13 |
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
-| 10. Safe-Area & Visual Polish | v0.1 | 3/4 | In Progress|  |
+| 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete   | 2026-07-14 |
 
 ---
 
