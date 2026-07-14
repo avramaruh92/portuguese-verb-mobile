@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { generate } from "../quiz/engine";
 import type { GenerateOptions, QuizSession } from "../quiz/types";
 import { InsufficientVerbsError } from "../quiz/types";
+import { resolveVerbs } from "../dataset/source";
 
 type QuizStatus = "idle" | "error" | "in-progress" | "completed";
 
@@ -16,7 +17,7 @@ interface QuizStoreState {
   answers: (string | null)[];
   lockedChoice: string | null;
   errorMessage: string | null;
-  startQuiz: (options: GenerateOptions) => void;
+  startQuiz: (options: GenerateOptions) => Promise<void>;
   selectAnswer: (choice: string) => void;
   advance: () => void;
   reset: () => void;
@@ -35,9 +36,10 @@ const initialState = {
 export const useQuizStore = create<QuizStoreState>((set, get) => ({
   ...initialState,
 
-  startQuiz: (options: GenerateOptions) => {
+  startQuiz: async (options: GenerateOptions) => {
     try {
-      const session = generate(options);
+      const { verbs } = await resolveVerbs();
+      const session = generate(options, undefined, verbs);
       set({
         status: "in-progress",
         filters: options,
