@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { Stack, useNavigation, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels } from "../src/quiz/labels";
 import { verbs } from "../src/dataset/verbs";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
+import { colors, spacing, radius, typography } from "../src/theme/tokens";
 
 export default function Quiz() {
   const router = useRouter();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const session = useQuizStore((s) => s.session);
   const currentIndex = useQuizStore((s) => s.currentIndex);
   const lockedChoice = useQuizStore((s) => s.lockedChoice);
@@ -97,7 +100,10 @@ export default function Quiz() {
           ),
         }}
       />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom }]}
+      >
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>
             {currentIndex + 1} / {total}
@@ -164,86 +170,81 @@ export default function Quiz() {
 
 const styles = StyleSheet.create({
   exitButtonText: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#007AFF",
+    ...typography.body,
+    color: colors.accent,
   },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
   content: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.lg,
   },
   progressRow: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   progressText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#000000",
-    marginBottom: 8,
+    ...typography.caption,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   progressTrack: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#F2F2F7",
+    backgroundColor: colors.secondary,
     overflow: "hidden",
   },
   progressFill: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.accent,
   },
   questionBlock: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   verbHeading: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#000000",
-    marginBottom: 8,
+    ...typography.heading,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   metaRow: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#000000",
+    ...typography.body,
+    color: colors.text,
   },
   choices: {
-    gap: 12,
-    marginBottom: 24,
+    gap: spacing.choiceGap,
+    marginBottom: spacing.lg,
   },
   choice: {
     minHeight: 44,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
     justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: "#F2F2F7",
+    borderRadius: radius.control,
+    backgroundColor: colors.secondary,
   },
   choiceDefault: {
-    backgroundColor: "#F2F2F7",
+    backgroundColor: colors.secondary,
   },
   choiceCorrect: {
-    backgroundColor: "#34C759",
+    backgroundColor: colors.success,
   },
   choiceWrong: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: colors.error,
   },
   choiceText: {
-    fontSize: 16,
-    fontWeight: "400",
+    ...typography.body,
   },
   choiceTextDefault: {
-    color: "#000000",
+    color: colors.text,
   },
   choiceTextOnColor: {
-    color: "#FFFFFF",
+    color: colors.background,
   },
   nextButton: {
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: "#007AFF",
+    borderRadius: radius.control,
+    backgroundColor: colors.accent,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -251,22 +252,20 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
   nextButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...typography.bodyStrong,
+    color: colors.background,
   },
   reportButton: {
     minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 16,
+    marginTop: spacing.md,
   },
   reportButtonHidden: {
     opacity: 0,
   },
   reportButtonText: {
-    fontSize: 16,
-    fontWeight: "400",
-    color: "#007AFF",
+    ...typography.body,
+    color: colors.accent,
   },
 });
