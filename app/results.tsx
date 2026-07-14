@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Pressable, Share, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { ActivityIndicator, Pressable, Share, StyleSheet, Text, View } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { score } from "../src/quiz/scoring";
 import { buildShareMessage } from "../src/quiz/share";
+import { colors, radius, spacing, typography } from "../src/theme/tokens";
 
 export default function Results() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const session = useQuizStore((s) => s.session);
   const status = useQuizStore((s) => s.status);
   const errorMessage = useQuizStore((s) => s.errorMessage);
@@ -20,12 +23,17 @@ export default function Results() {
     // No completed session to show (fresh state, or Try Again failed) —
     // never render a blank screen, always give the user a way forward.
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+        <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
         {status === "error" && errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
+          <View style={styles.errorBlock}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
         ) : null}
         {unexpectedError ? (
-          <Text style={styles.errorText}>{unexpectedError}</Text>
+          <View style={styles.errorBlock}>
+            <Text style={styles.errorText}>{unexpectedError}</Text>
+          </View>
         ) : null}
         <Pressable onPress={() => router.replace("/")} style={styles.backButton}>
           <Text style={styles.backButtonText}>Back to Setup</Text>
@@ -74,7 +82,8 @@ export default function Results() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
       <View style={styles.scoreBlock}>
         <Text style={styles.scoreText}>
           {correct}/{total}
@@ -92,6 +101,7 @@ export default function Results() {
           disabled={starting}
           style={styles.tryAgainButton}
         >
+          {starting ? <ActivityIndicator size="small" color={colors.background} /> : null}
           <Text style={styles.tryAgainButtonText}>
             {starting ? "Starting…" : "Try Again"}
           </Text>
@@ -109,71 +119,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 16,
-    paddingTop: 64,
-    backgroundColor: "#FFFFFF",
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+    backgroundColor: colors.background,
   },
   scoreBlock: {
     alignItems: "center",
-    marginBottom: 48,
+    marginBottom: spacing.xl2,
   },
   scoreText: {
-    fontSize: 56,
-    fontWeight: "600",
-    lineHeight: 62,
-    color: "#000000",
+    ...typography.display,
+    color: colors.text,
     textAlign: "center",
   },
   scoreCaption: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#8E8E93",
-    marginTop: 8,
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
+  },
+  errorBlock: {
+    marginBottom: spacing.lg,
   },
   errorText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#FF3B30",
-    marginBottom: 24,
+    ...typography.caption,
+    color: colors.error,
     textAlign: "center",
   },
   actions: {
-    gap: 16,
+    gap: spacing.md,
   },
   shareButton: {
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: "#007AFF",
+    borderRadius: radius.control,
+    backgroundColor: colors.accent,
     justifyContent: "center",
     alignItems: "center",
   },
   shareButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...typography.bodyStrong,
+    color: colors.background,
   },
   tryAgainButton: {
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: "#007AFF",
+    borderRadius: radius.control,
+    backgroundColor: colors.accent,
+    flexDirection: "row",
+    gap: spacing.sm,
     justifyContent: "center",
     alignItems: "center",
   },
   tryAgainButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    ...typography.bodyStrong,
+    color: colors.background,
   },
   backButton: {
     minHeight: 44,
-    borderRadius: 12,
-    backgroundColor: "#F2F2F7",
+    borderRadius: radius.control,
+    backgroundColor: colors.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
   backButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#007AFF",
+    ...typography.bodyStrong,
+    color: colors.accent,
   },
 });
