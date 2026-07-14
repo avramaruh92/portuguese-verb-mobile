@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
-import { useRouter } from "expo-router";
+import { Stack, useNavigation, useRouter } from "expo-router";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels } from "../src/quiz/labels";
 import { verbs } from "../src/dataset/verbs";
@@ -9,12 +9,42 @@ import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 
 export default function Quiz() {
   const router = useRouter();
+  const navigation = useNavigation();
   const session = useQuizStore((s) => s.session);
   const currentIndex = useQuizStore((s) => s.currentIndex);
   const lockedChoice = useQuizStore((s) => s.lockedChoice);
+  const status = useQuizStore((s) => s.status);
   const selectAnswer = useQuizStore((s) => s.selectAnswer);
   const advance = useQuizStore((s) => s.advance);
+  const reset = useQuizStore((s) => s.reset);
   const [reportVisible, setReportVisible] = useState(false);
+
+  function confirmExit(onConfirm: () => void) {
+    Alert.alert("Quit Quiz?", "Your progress will be lost.", [
+      { text: "Keep Practicing", style: "cancel" },
+      { text: "Quit Quiz", style: "destructive", onPress: onConfirm },
+    ]);
+  }
+
+  function onConfirm() {
+    reset();
+    router.replace("/");
+  }
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      if (status !== "in-progress") return;
+      e.preventDefault();
+      confirmExit(onConfirm);
+    });
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, status, reset, router]);
+
+  function handleExitPress() {
+    if (status !== "in-progress") return;
+    confirmExit(onConfirm);
+  }
 
   const appVersion = Constants.expoConfig?.version ?? "unknown";
   const platform: "ios" | "android" = Platform.OS === "android" ? "android" : "ios";
@@ -55,71 +85,89 @@ export default function Quiz() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.progressRow}>
-        <Text style={styles.progressText}>
-          {currentIndex + 1} / {total}
-        </Text>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
-        </View>
-      </View>
-
-      <View style={styles.questionBlock}>
-        <Text style={styles.verbHeading}>{question.verb}</Text>
-        <Text style={styles.metaRow}>
-          {currentVerb?.translation ?? ""} · {tenseLabels[question.tense]} ·{" "}
-          {subjectLabels[question.subject]}
-        </Text>
-      </View>
-
-      <View style={styles.choices}>
-        {question.choices.map((choice) => {
-          const style = choiceStyle(choice, question.correctAnswer);
-          return (
-            <Pressable
-              key={choice}
-              onPress={() => selectAnswer(choice)}
-              style={[styles.choice, style.container]}
-            >
-              <Text style={[styles.choiceText, style.text]}>{choice}</Text>
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerLeft: () => (
+            <Pressable onPress={handleExitPress}>
+              <Text style={styles.exitButtonText}>Exit</Text>
             </Pressable>
-          );
-        })}
-      </View>
-
-      <Pressable
-        onPress={handleAdvance}
-        style={[styles.nextButton, lockedChoice === null && styles.nextButtonHidden]}
-        pointerEvents={lockedChoice === null ? "none" : "auto"}
-      >
-        <Text style={styles.nextButtonText}>Next</Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() => setReportVisible(true)}
-        style={[styles.reportButton, lockedChoice === null && styles.reportButtonHidden]}
-        pointerEvents={lockedChoice === null ? "none" : "auto"}
-      >
-        <Text style={styles.reportButtonText}>Report a problem</Text>
-      </Pressable>
-
-      <ReportFeedbackModal
-        visible={reportVisible}
-        verb={question.verb}
-        tense={question.tense}
-        subject={question.subject}
-        correctAnswer={question.correctAnswer}
-        selectedAnswer={lockedChoice ?? ""}
-        appVersion={appVersion}
-        platform={platform}
-        onClose={() => setReportVisible(false)}
+          ),
+        }}
       />
-    </ScrollView>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <View style={styles.progressRow}>
+          <Text style={styles.progressText}>
+            {currentIndex + 1} / {total}
+          </Text>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+          </View>
+        </View>
+
+        <View style={styles.questionBlock}>
+          <Text style={styles.verbHeading}>{question.verb}</Text>
+          <Text style={styles.metaRow}>
+            {currentVerb?.translation ?? ""} · {tenseLabels[question.tense]} ·{" "}
+            {subjectLabels[question.subject]}
+          </Text>
+        </View>
+
+        <View style={styles.choices}>
+          {question.choices.map((choice) => {
+            const style = choiceStyle(choice, question.correctAnswer);
+            return (
+              <Pressable
+                key={choice}
+                onPress={() => selectAnswer(choice)}
+                style={[styles.choice, style.container]}
+              >
+                <Text style={[styles.choiceText, style.text]}>{choice}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Pressable
+          onPress={handleAdvance}
+          style={[styles.nextButton, lockedChoice === null && styles.nextButtonHidden]}
+          pointerEvents={lockedChoice === null ? "none" : "auto"}
+        >
+          <Text style={styles.nextButtonText}>Next</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => setReportVisible(true)}
+          style={[styles.reportButton, lockedChoice === null && styles.reportButtonHidden]}
+          pointerEvents={lockedChoice === null ? "none" : "auto"}
+        >
+          <Text style={styles.reportButtonText}>Report a problem</Text>
+        </Pressable>
+
+        <ReportFeedbackModal
+          visible={reportVisible}
+          verb={question.verb}
+          tense={question.tense}
+          subject={question.subject}
+          correctAnswer={question.correctAnswer}
+          selectedAnswer={lockedChoice ?? ""}
+          appVersion={appVersion}
+          platform={platform}
+          onClose={() => setReportVisible(false)}
+        />
+      </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  exitButtonText: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#007AFF",
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
