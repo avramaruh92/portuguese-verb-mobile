@@ -14,6 +14,7 @@ export default function Index() {
 
   const [selectedTenses, setSelectedTenses] = useState<Tense[]>([]);
   const [includeIrregular, setIncludeIrregular] = useState(false);
+  const [starting, setStarting] = useState(false);
 
   const allSelected = selectedTenses.length === TENSES.length;
   const canStart = selectedTenses.length > 0;
@@ -28,12 +29,17 @@ export default function Index() {
     setSelectedTenses(allSelected ? [] : [...TENSES]);
   }
 
-  function handleStartQuiz() {
-    if (!canStart) return;
-    startQuiz({ tenses: selectedTenses, includeIrregular });
-    const nextStatus = useQuizStore.getState().status;
-    if (nextStatus === "in-progress") {
-      router.replace("/quiz");
+  async function handleStartQuiz() {
+    if (!canStart || starting) return;
+    setStarting(true);
+    try {
+      await startQuiz({ tenses: selectedTenses, includeIrregular });
+      const nextStatus = useQuizStore.getState().status;
+      if (nextStatus === "in-progress") {
+        router.replace("/quiz");
+      }
+    } finally {
+      setStarting(false);
     }
   }
 
@@ -80,10 +86,12 @@ export default function Index() {
 
       <Pressable
         onPress={handleStartQuiz}
-        disabled={!canStart}
-        style={[styles.startButton, !canStart && styles.startButtonDisabled]}
+        disabled={!canStart || starting}
+        style={[styles.startButton, (!canStart || starting) && styles.startButtonDisabled]}
       >
-        <Text style={styles.startButtonText}>Start Quiz</Text>
+        <Text style={styles.startButtonText}>
+          {starting ? "Starting…" : "Start Quiz"}
+        </Text>
       </Pressable>
     </View>
   );
