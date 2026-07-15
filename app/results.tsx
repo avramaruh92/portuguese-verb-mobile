@@ -6,6 +6,7 @@ import { useQuizStore } from "../src/store/useQuizStore";
 import { score } from "../src/quiz/scoring";
 import { buildShareMessage } from "../src/quiz/share";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
+import { OfflinePill } from "../src/components/OfflinePill";
 
 export default function Results() {
   const router = useRouter();
@@ -84,6 +85,7 @@ export default function Results() {
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
+      <OfflinePill />
       <View style={styles.scoreBlock}>
         <Text style={styles.scoreText}>
           {correct}/{total}

@@ -8,6 +8,7 @@ import { subjectLabels, tenseLabels } from "../src/quiz/labels";
 import { verbs } from "../src/dataset/verbs";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
+import { OfflinePill } from "../src/components/OfflinePill";
 
 export default function Quiz() {
   const router = useRouter();
@@ -104,6 +105,7 @@ export default function Quiz() {
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom }]}
       >
+        <OfflinePill />
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>
             {currentIndex + 1} / {total}

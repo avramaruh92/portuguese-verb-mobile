@@ -7,6 +7,7 @@ import { tenseLabels } from "../src/quiz/labels";
 import { TENSES } from "../src/dataset/types";
 import type { Tense } from "../src/dataset/types";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
+import { OfflinePill } from "../src/components/OfflinePill";
 
 export default function Index() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export default function Index() {
     <>
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <OfflinePill />
       <Text style={styles.heading}>Portuguese Verb Quiz</Text>
 
       <View style={styles.section}>
