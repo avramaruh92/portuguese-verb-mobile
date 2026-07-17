@@ -28,6 +28,10 @@ numbering from v0.0's REQ-IDs (SETUP/DATA/QUIZ/RSLT/FDBK).
 - [ ] **UI-02**: Setup, Quiz, and Results screens share consistent spacing/typography/color treatment (shared style tokens, not ad hoc per-screen styling)
 - [ ] **UI-03**: The new online-fetch step has styled loading and error states (no default/unstyled spinners or bare error text)
 
+### Pulled Forward from v2 (milestone audit gap closure)
+
+- [ ] **FETCH-05**: Small, non-blocking "using saved content" indicator when running on the local fallback — originally deferred to v2/P2, pulled forward into v0.1 via Phase 10.1 to close the milestone audit's UI-03 gap (see `.planning/phases/10.1-close-gap-ui-03-surface-non-blocking-offline-content-indicat/10.1-CONTEXT.md`)
+
 ## v2 Requirements (Deferred)
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -40,7 +44,6 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Fetch/UI Enhancements (identified during v0.1 research, deferred as P2/P3)
 
-- **FETCH-05**: Small "offline/using saved content" indicator when running on the local fallback
 - **FETCH-06**: Dataset staleness/version metadata driving smarter background-refresh decisions — depends on what the real backend ships, premature to build against a mock
 - **QUIZ-09**: Question-progress indicator ("Question X of 10") during an active quiz
 - **UI-04**: Subtle answer-selection feedback animation (color/scale transition on tap)
@@ -78,10 +81,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-01 | Phase 10 | Pending |
 | UI-02 | Phase 10 | Pending |
 | UI-03 | Phase 10 | Pending |
+| FETCH-05 | Phase 10.1 | Pending |
 
 **Coverage:**
-- v0.1 requirements: 11 total
-- Mapped to phases: 11/11 ✓
+- v0.1 requirements: 12 total (11 original + FETCH-05 pulled forward via Phase 10.1)
+- Mapped to phases: 12/12 ✓
 - Unmapped: 0
 
 ---
