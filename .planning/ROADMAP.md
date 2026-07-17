@@ -138,7 +138,7 @@ Plans:
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete   | 2026-07-14 |
-| 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete   | 2026-07-17 |
+| 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete    | 2026-07-17 |
 
 ---
 
