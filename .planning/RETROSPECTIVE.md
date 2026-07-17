@@ -45,6 +45,47 @@
 
 ---
 
+## Milestone: v0.1 — Online Quiz, Exit Flow & UI Polish
+
+**Shipped:** 2026-07-17
+**Phases:** 5 (7, 8, 9, 10, and inserted 10.1) | **Plans:** 13
+
+### What Was Built
+- Live backend content fetch (`GET /content/verbs`) with Zod validation and fully silent fallback to the bundled local dataset on any failure — zero user-facing blocking or error, confirmed live against the real endpoint, not just a mock
+- Async, race-safe quiz start: dataset source (remote or local) is resolved and snapshotted at the moment `startQuiz()` is called, so a background refresh completing mid-quiz can never swap an in-progress session's questions
+- Clean end-quiz-early flow: a single shared confirmation routes both the header Exit control and the native swipe-back/hardware-back gesture, with no bypass path and a full-state reset on confirm
+- App-wide visual polish: a shared design-tokens module (`src/theme/tokens.ts`) driving consistent spacing/typography/color across Setup/Quiz/Results, safe-area-correct layout verified on a real notched device
+- A milestone-audit-driven gap closure (Phase 10.1, inserted): pulled the deferred FETCH-05 requirement forward to add a small, non-blocking "Using saved content" indicator, giving the local-fallback signal a real, visible surface without reopening the fetch step's silent-failure contract — human-verified on a physical iPhone under a genuine Airplane Mode network failure
+
+### What Worked
+- **Milestone-audit-driven gap closure as an inserted decimal phase** (10.1) worked cleanly end-to-end: the original audit found a genuine cross-phase requirements tension (FETCH-03's silence vs. UI-03's error-state framing), proposed three options, and the user picked the lowest-risk one (pull FETCH-05 forward) rather than reopening a locked contract. The full discuss → plan → execute → verify → re-audit cycle for a single-requirement gap closure took about as long as a normal small phase, not longer.
+- **Insisting on a Release build (not the Debug dev-client) for on-device network-fallback testing** was the right call once discovered — a Debug dev-client requires live Metro connectivity at every launch, so testing "Airplane Mode fallback" against it would have actually tested "does the JS bundle fail to load," not the app's own fetch/fallback logic. This is a reusable lesson for any future on-device test involving simulated network loss.
+- **Pattern-mapper + plan-checker before execution** caught the exact right integration point (`resolveVerbs()`'s existing memoization) ahead of time, so the executor never had to guess between "add a store field" vs. "read directly" — the plan itself specified the discretion call and its rationale, and the code review confirmed it was followed faithfully.
+- **Re-running the milestone audit after a late-inserted gap-closure phase**, rather than trusting the original (now-stale) audit, correctly upgraded the milestone status from `gaps_found` to `tech_debt` and caught a real, separate documentation gap (FETCH-05 was still listed under "v2 Requirements (Deferred)" in REQUIREMENTS.md even after Phase 10.1 shipped it) before archiving.
+
+### What Was Inefficient
+- Getting a build onto a physical iPhone for the human-verify checkpoint took far longer than the actual verification: Expo Go's SDK 57 incompatibility (no compatible Expo Go build published yet), an unaccepted Apple Developer Program License Agreement, and a macOS Keychain signing-key authorization prompt (mistaken at first for an Apple ID password rather than the Mac login password) all had to be resolved serially before the first successful on-device build. None of this is specific to this project — it's generic Expo/Xcode/Apple-account friction — but it consumed roughly as much wall-clock time as the rest of Phase 10.1's execution combined.
+- The iOS Simulator's Airplane Mode toggle was tried first and doesn't actually cut network for the simulator process (it shares the host Mac's network stack) — this was discovered only after already being deep into simulator-based verification, costing a detour before switching to a physical device.
+- `expo run:ios` incidentally modified `app.json` (added a `bundleIdentifier`) and `package.json` (changed `ios`/`android` npm scripts from `expo start --ios/--android` to `expo run:ios/android`) as prebuild side effects of getting a device build working — these had to be manually reverted via `git checkout` before committing the actual verification SUMMARY.md, since they were tooling side effects unrelated to the plan's scope, not deliberate project changes.
+
+### Patterns Established
+- **On-device network-fallback verification requires a Release build**, not a Debug dev-client — document this as a standing convention for any future phase whose human-verify checkpoint involves simulating network loss on a physical device.
+- **Milestone-audit gap closure as an inserted decimal phase** (e.g., `10.1`) is now a proven pattern for this project: a small, single-requirement fix gets the full discuss/plan/execute/verify treatment rather than being handled as an ad hoc patch, and the milestone audit gets re-run afterward rather than trusting the stale original.
+- **REQUIREMENTS.md's deferred/v2 section needs an explicit "pulled forward" edit** whenever a gap-closure phase promotes a previously-deferred requirement — otherwise the traceability table and the deferred-items list silently disagree about a requirement's status (caught this milestone before the audit re-run, but only by manual inspection, not automatically).
+
+### Key Lessons
+1. Before attempting on-device human-verify of any network-dependent behavior (fallback, offline mode, timeout handling), confirm upfront whether the test needs a Release/standalone build vs. a Debug dev-client — a dev-client's own Metro dependency can make network-loss testing test the wrong thing.
+2. Getting first-time physical-device signing working (Apple PLA acceptance, Keychain authorization, provisioning profiles) is generic cross-project friction, not something to debug from first principles each time — recognize the error classes quickly (PLA update available, keychain access prompt, missing provisioning profile) and route to the standard fix rather than re-deriving it.
+3. When a gap-closure phase (or any phase) promotes a requirement across sections of REQUIREMENTS.md (e.g., v2-deferred → active milestone), update both the deferred list and the traceability table in the same edit — a re-audit will catch the mismatch, but it's cheaper to get it right the first time.
+4. `expo run:ios`/`expo prebuild` can silently modify `app.json`/`package.json` as a side effect of getting a one-off device build working — check `git status` after any manual device-build detour and revert incidental changes before committing planned work.
+
+### Cost Observations
+- Model mix: mix of direct orchestrator work and spawned `gsd-planner`/`gsd-executor`/`gsd-plan-checker`/`gsd-verifier`/`gsd-code-reviewer`/`gsd-integration-checker`/`gsd-pattern-mapper` subagents (opus for planning, sonnet for research/checking/execution/verification).
+- Sessions: ~2 (a planning/execution session for Phases 7-10, then a longer session covering Phase 10.1's plan → execute → on-device-verify → code-review → phase-verify → milestone-audit-re-run → complete-milestone chain, interrupted mid-flow by physical-device build troubleshooting)
+- Notable: Phase 10.1 was the smallest phase by code diff (5 files, ~160 lines) but had the longest wall-clock time of any single phase in the milestone, entirely due to first-time physical-device build setup — a one-time cost that should not recur for future phases needing device verification on this same machine/account.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -52,14 +93,18 @@
 | Milestone | Sessions | Phases | Key Change |
 |-----------|----------|--------|------------|
 | v0.0 | ~2 | 6 | First milestone — bottom-up dependency-ordered roadmap (foundation phases before vertical slices), closed with a dedicated verification-only polish phase |
+| v0.1 | ~2 | 5 (incl. 1 inserted gap-closure phase) | First milestone to use an inserted decimal phase (10.1) for milestone-audit-driven gap closure, and the first to require on-device physical-hardware verification with fresh Apple developer signing setup |
 
 ### Cumulative Quality
 
 | Milestone | Tests | Coverage | Zero-Dep Additions |
 |-----------|-------|----------|-------------------|
 | v0.0 | 122 | Not measured via coverage tool this milestone | 0 (native `fetch`/`Share` used instead of axios/expo-sharing/react-native-share by design) |
+| v0.1 | 150 | Not measured via coverage tool this milestone | 0 (no new npm packages added across all 5 phases, including Phase 10.1) |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Grep before asking — verify whether a field/flag is functionally load-bearing before presenting a user-facing decision about it.
 2. Verification-only phases at milestone end are worth budgeting for when the app has hand-authored content or environment-dependent behavior automated tests can't reach.
+3. On-device network-fallback testing needs a Release/standalone build, not a Debug dev-client — the dev-client's own Metro dependency can make the wrong thing get tested.
+4. Milestone-audit-driven gap closure works best as a properly-planned inserted decimal phase (discuss/plan/execute/verify), with the milestone audit re-run afterward rather than trusted stale.
