@@ -138,7 +138,7 @@ Plans:
 | 8. Async Quiz Start & Dataset Snapshot | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete   | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete   | 2026-07-14 |
-| 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 1/2 | In Progress|  |
+| 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete   | 2026-07-17 |
 
 ---
 
@@ -149,12 +149,12 @@ Plans:
 **Goal:** Surface a small, non-blocking, session-wide "Using saved content" pill on all 3 screens (Setup, Quiz, Results) whenever the dataset source resolved by Phase 7's `resolveVerbs()` is `"local"` — making the already-computed-but-never-read local-fallback signal visible without re-opening FETCH-03's silent-fallback behavior (no new error state, no blocking).
 **Requirements**: FETCH-05
 **Depends on:** Phase 10
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
 - [x] 10.1-01-PLAN.md — OfflinePill component (pure source gate + locked "Using saved content" copy + unit test) wired into all 3 screens at UI-SPEC placements (FETCH-05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 10.1-02-PLAN.md — On-device human-verify: pill present under airplane-mode fallback on all 3 screens (neutral, non-interactive), absent when network restored (FETCH-05)
+- [x] 10.1-02-PLAN.md — On-device human-verify: pill present under airplane-mode fallback on all 3 screens (neutral, non-interactive), absent when network restored (FETCH-05)
 **UI hint**: yes
