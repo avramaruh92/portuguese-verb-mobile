@@ -1,5 +1,25 @@
 # Milestones
 
+## v0.1 Online Quiz, Exit Flow & UI Polish (Shipped: 2026-07-17)
+
+**Phases completed:** 5 phases, 13 plans, 16 tasks
+
+**Key accomplishments:**
+
+- `src/dataset/remote.ts`
+- Opened an injection seam in `generate()` via an optional trailing `verbs` parameter (defaulting to the bundled dataset) and reconciled `querer.isIrregular` to `true`, keeping the full 123-test suite green throughout.
+- The live backend's `GET /content/verbs` returns 50 verbs in the exact shape the app expects, verified by running the actual payload through `validateDataset()`.
+- `useQuizStore.startQuiz()` is now async, awaits Phase 7's `resolveVerbs()`, and feeds the resolved snapshot into `generate()` so an in-progress quiz's questions are immune to any later background dataset refresh.
+- Root layout now fires `prefetch()` once at app mount, and both quiz-start call sites (`app/index.tsx` Start, `app/results.tsx` Try Again) correctly `await` the now-async `startQuiz` before reading status, with a local `starting` flag keeping each button inert and labeled "Starting…" during the await.
+- Native header "Exit" control and beforeRemove gesture guard added to app/quiz.tsx, both routed through one shared Alert.alert confirmation that calls the existing reset() before returning to Setup.
+- All 8 manual verification checks passed on an iOS simulator — the exit flow built in 09-01 has no bypass path.
+- 1. [Rule 4-adjacent, documented not auto-fixed] `headerTitle: ""` appears twice in `app/results.tsx`, not once
+- Quiz screen (`app/quiz.tsx`) now draws all colors/spacing/radius/typography from `src/theme/tokens` and applies `useSafeAreaInsets().bottom` to its ScrollView content so the Next/Report buttons clear the iOS home indicator, while the existing titleless header, `headerLeft` Exit control, and `beforeRemove` exit guard remain untouched.
+- Approved.
+- Human-verified on a physical iPhone: "Using saved content" pill renders correctly on Setup, Quiz, and Results under a real Airplane Mode fallback, and is absent when the network is restored.
+
+---
+
 ## v0.0 Offline Quiz MVP (Shipped: 2026-07-13)
 
 **Phases completed:** 6 phases, 18 plans, 25 tasks

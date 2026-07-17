@@ -1,56 +1,61 @@
 # Portuguese Verb Conjugation App — Mobile
 
-## Current Milestone: v0.1 Online Quiz, Exit Flow & UI Polish
-
-**Goal:** Move quiz content from local-only to backend-served (with local
-fallback), let users cleanly exit a quiz mid-session, and fix the app's
-visual/safe-area polish.
-
-**Target features:**
-- Online quiz content: fetch verbs from a backend content endpoint on
-  load/quiz-start, falling back to the bundled local dataset if unreachable —
-  backend becomes source of truth going forward. Backend endpoint does not
-  exist yet (owned by the sibling `portuguese-verb-api` repo, planned
-  separately); this milestone builds the mobile-side fetch/fallback/caching
-  logic against a local mock/stub, swappable to the real URL later.
-- End-quiz-early: an exit control during an active quiz with a confirmation
-  dialog ("progress will be lost"), discarding progress and returning to
-  Setup — no partial results shown.
-- UI polish: fix safe-area/status-bar overlap (content currently renders
-  under the clock/battery notch — no `SafeAreaProvider` wired, a known v0.0
-  tech-debt item) plus a general visual pass on Setup/Quiz/Results (spacing,
-  typography, color, feedback states) — user describes the current UI as
-  effectively non-existent/unstyled.
-
-**Explicitly out of scope for this milestone:** designing, planning, or
-implementing anything in the `portuguese-verb-api` backend repo itself. This
-milestone covers mobile-side work only, built against an assumed/mocked
-contract.
-
 ## What This Is
 
 An iOS-first Expo React Native app (TypeScript, Expo Router) that lets beginner
-(A1-A2) learners of European Portuguese practice verb conjugation through short,
-offline quizzes. It is the companion mobile client to the already-shipped
-`portuguese-verb-api` backend, but ships as its own independent sibling repo,
-not a monorepo package.
+(A1-A2) learners of European Portuguese practice verb conjugation through short
+quizzes, now backend-served with a silent local fallback. It is the companion
+mobile client to the already-shipped `portuguese-verb-api` backend, but ships
+as its own independent sibling repo, not a monorepo package.
 
-**Shipped in v0.0:** the full core loop is live — pick tenses + irregular-verb
-toggle, complete a 10-question offline quiz against a hand-verified 50-verb
-European Portuguese dataset, see a score, share it, and optionally report a
-problem with any question straight to the live backend.
+**Shipped in v0.0:** the full core loop — pick tenses + irregular-verb toggle,
+complete a 10-question quiz against a hand-verified 50-verb European Portuguese
+dataset, see a score, share it, and optionally report a problem with any
+question straight to the live backend.
 
-## Current State (v0.0 shipped)
+**Shipped in v0.1:** quiz content now fetches from the live backend
+(`GET /content/verbs`) with automatic, validated, silent fallback to the
+bundled local dataset on any failure — the dataset source is snapshotted at
+quiz-start so a background refresh can never swap questions mid-session. A
+learner can cleanly exit an in-progress quiz via a header control or native
+back gesture, both routed through one shared confirmation with no bypass. All
+3 screens (Setup, Quiz, Results) share a consistent, safe-area-aware visual
+language via a tokens module, verified on a real notched device. A small
+"Using saved content" indicator (pulled forward from v2 to close a milestone
+audit gap) makes the local-fallback signal visible to the learner without
+reopening the fetch step's zero-blocking guarantee.
 
-- Setup → Quiz → Results loop fully implemented (Expo Router, 3 screens) over
-  a Zustand store
+## Current State (v0.1 shipped)
+
+- Setup → Quiz → Results loop, now backed by a live-fetched dataset with
+  silent local fallback, snapshotted per session (Zustand store)
 - 50-verb European Portuguese dataset (37 regular / 13 irregular), typed,
-  Zod-validated, independently re-derived cell-by-cell in Phase 6 with zero
-  discrepancies found
-- Pure, deterministic, fully unit-tested quiz generation + scoring engine
+  Zod-validated
+- Pure, deterministic, fully unit-tested quiz generation + scoring engine,
+  now accepting an injected verb list (`generate()` seam from Phase 7)
+- Clean exit-quiz flow (header control + swipe-back/hardware-back), single
+  shared confirmation, full-state reset, no bypass path
+- Shared design tokens (`src/theme/tokens.ts`) driving consistent
+  spacing/typography/color across all 3 screens, safe-area-correct layout
+  (no notch/home-indicator overlap), verified on a real device
+- Non-blocking "Using saved content" indicator (`OfflinePill`) surfacing the
+  local-fallback signal on all 3 screens without any new error state
 - In-app "Report a problem" feedback flow wired to the live `POST /feedback`
   backend, cold-start-tolerant (90s timeout), verified never to block the quiz
-- 122 tests passing, strict TypeScript clean, zero known blockers
+- 150 tests passing across 15 suites, strict TypeScript clean, zero known
+  blockers (see v0.1 audit for non-blocking tech debt)
+
+## Next Milestone Goals
+
+Not yet defined — run `/gsd:new-milestone` to scope the next milestone. Candidates
+carried over from v0.1's deferred/tech-debt list (not yet committed):
+- Deferred v2 requirements: PROG-01 (typed-answer mode), PROG-02 (progress/streak
+  tracking), PROG-03 (spaced repetition), FETCH-06 (dataset staleness metadata),
+  QUIZ-09 (question-progress indicator), UI-04 (answer-selection animation)
+- Tech debt from the v0.1 audit: `OfflinePill` not shown on Results' no-session
+  fallback branch; `handleBackToSetup()` inconsistent `reset()` contract vs the
+  Phase 9 exit path; a few code-review quality items (test coverage, a11y) —
+  see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`
 
 ## Core Value
 
@@ -83,23 +88,30 @@ firmly secondary to the offline quiz loop throughout, exactly as scoped.
 - ✓ Feedback payload mapping (UI labels → locked backend enum literals) is unit-tested — v0.0 (FDBK-04)
 
 All 16 v0.0 requirements shipped and independently verified (see
-`.planning/milestones/v0.0-MILESTONE-AUDIT.md` after archiving).
+`.planning/milestones/v0.0-MILESTONE-AUDIT.md`).
+
+- ✓ App fetches the verb dataset from a live backend content endpoint on app load/quiz-start — v0.1 (FETCH-01)
+- ✓ Fetched payload validated against the existing Zod dataset schema before acceptance — v0.1 (FETCH-02)
+- ✓ Silent fallback to the local dataset on any fetch failure, zero user-facing blocking — v0.1 (FETCH-03)
+- ✓ Dataset source snapshotted at `startQuiz()` — mid-quiz refresh never swaps questions — v0.1 (FETCH-04)
+- ✓ Header exit control on an in-progress quiz — v0.1 (QUIZ-05)
+- ✓ Confirmation dialog with distinct labels before discarding progress — v0.1 (QUIZ-06)
+- ✓ Swipe-back/hardware-back gesture triggers the same confirmation — no bypass — v0.1 (QUIZ-07)
+- ✓ Confirming exit discards progress, returns to Setup, no partial results — v0.1 (QUIZ-08)
+- ✓ Safe-area-correct layout on all 3 screens — v0.1 (UI-01)
+- ✓ Consistent spacing/typography/color across Setup/Quiz/Results — v0.1 (UI-02)
+- ✓ Styled loading/error states for the fetch step — v0.1 (UI-03, error-state half compensated for by FETCH-05 rather than directly triggerable — see v0.1 audit)
+- ✓ Non-blocking "using saved content" indicator on local fallback, pulled forward from v2 — v0.1 via inserted Phase 10.1 (FETCH-05)
+
+All 12 v0.1 requirements shipped and independently verified (see
+`.planning/milestones/v0.1-MILESTONE-AUDIT.md`).
 
 ### Active
 
-- [ ] App fetches the verb dataset from a backend content endpoint on app load/quiz-start, mocked for this milestone (FETCH-01)
-- [ ] Fetched payload validated against the existing Zod dataset schema before acceptance (FETCH-02)
-- [ ] Silent fallback to the local dataset on any fetch failure, zero user-facing blocking (FETCH-03)
-- [ ] Dataset source snapshotted at `startQuiz()` — mid-quiz refresh never swaps questions (FETCH-04)
-- [ ] Header exit control on an in-progress quiz (QUIZ-05)
-- [ ] Confirmation dialog with distinct labels before discarding progress (QUIZ-06)
-- [ ] Swipe-back/hardware-back gesture triggers the same confirmation — no bypass (QUIZ-07)
-- [ ] Confirming exit discards progress, returns to Setup, no partial results (QUIZ-08)
-- [ ] Safe-area-correct layout on all 3 screens (UI-01)
-- [ ] Consistent spacing/typography/color across Setup/Quiz/Results (UI-02)
-- [ ] Styled loading/error states for the new fetch step (UI-03)
+Not yet defined for the next milestone — run `/gsd:new-milestone` to scope new
+requirements. See "Next Milestone Goals" above for carried-over candidates.
 
-Full detail in `.planning/REQUIREMENTS.md`.
+Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
 
 ### Out of Scope
 
@@ -111,7 +123,16 @@ Full detail in `.planning/REQUIREMENTS.md`.
 - Direct Supabase access or credentials in the mobile app — all persistence goes through backend `POST /feedback` only. **Still valid**, confirmed with zero violations across all 6 phases.
 - Typed-answer quiz mode with diacritic normalization — deferred v2 candidate (`PROG-01`), not started.
 - On-device (no-account) progress or streak tracking — deferred v2 candidate (`PROG-02`), not started.
-- ~~Backend-served dataset updates (`PROG-04`)~~ — **promoted into v0.1 scope**, see Current Milestone above.
+- ~~Backend-served dataset updates (`PROG-04`)~~ — **promoted into v0.1**, shipped.
+- Persistent on-disk caching of the fetched dataset across app restarts — would reopen the no-persistence-beyond-session scope decision. **Still valid** after v0.1 — the fetched dataset stays in-memory only for the session.
+- Resume-in-progress / save-and-continue-later on quiz exit — contradicts no-persistence-beyond-session. **Still valid**, confirmed by Phase 9's always-discard exit contract.
+- Partial-results screen on early exit — muddies score semantics. **Still valid**, confirmed by Phase 9.
+- Full theming engine / dark mode toggle — disproportionate for a single visual pass. **Still valid** after Phase 10's single-token-file approach.
+- Heavy animation libraries (Reanimated, Lottie) — not requested. **Still valid**; deferred `UI-04` (subtle tap feedback) could use built-in `Animated` if pursued later.
+- Continuous polling / websocket live content updates — fetch-once-per-session is sufficient. **Still valid.**
+- Merge/conflict-resolution logic between local and remote datasets — simple remote-if-fetched-else-local precedence is sufficient. **Still valid**, confirmed by Phase 7's implementation.
+- Dataset staleness/version metadata (`FETCH-06`) — depends on what the real backend ships; deferred v2 candidate, not started.
+- Question-progress indicator ("Question X of 10") (`QUIZ-09`) — deferred v2 candidate, not started.
 
 ## Context
 
@@ -141,14 +162,18 @@ Full detail in `.planning/REQUIREMENTS.md`.
   during project setup after a clarifying question about whether the backend
   could serve verb data. It cannot/should not for this milestone.
 
-**Current codebase state (end of v0.0):**
-- ~4,051 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
-- 122 tests passing across 11 suites; strict TypeScript (`tsc --noEmit`) clean
-- 6 phases, 18 plans, 128 commits, built over ~1.3 days (2026-07-12 → 2026-07-13)
-- Known non-blocking tech debt (see `.planning/milestones/v0.0-MILESTONE-AUDIT.md`
-  after archiving for full detail): ESLint not yet installed as a devDependency;
-  no `SafeAreaProvider` wired; `feedbackPayloadSchema` not runtime-parsed
-  client-side before dispatch (server-side validation is the only check today).
+**Current codebase state (end of v0.1):**
+- ~4,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
+- 150 tests passing across 15 suites; strict TypeScript (`tsc --noEmit`) clean
+- 11 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1), 31 plans, 35
+  `feat()` commits in v0.1 alone, v0.1 built over 6 days (2026-07-12 → 2026-07-18)
+- Known non-blocking tech debt (see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`
+  for full detail): `OfflinePill` not rendered on Results' no-session fallback
+  branch (deliberate scope choice, low impact); `app/results.tsx`'s
+  `handleBackToSetup()` doesn't call `reset()` before navigating (inconsistent
+  with Phase 9's exit path, currently harmless); `07-01-SUMMARY.md`
+  frontmatter omits FETCH-02 (doc-hygiene only); ESLint still not installed as
+  a devDependency (carried over from v0.0, `expo lint` currently a no-op).
 
 ## Constraints
 
@@ -171,6 +196,13 @@ Full detail in `.planning/REQUIREMENTS.md`.
 | Manual `AbortController` (not `AbortSignal.timeout`) for the 90s feedback timeout | `AbortSignal.timeout` is unimplemented on Hermes (Phase 5 research finding) | ✓ Good — avoided a runtime crash; verified working via a real 45-50s cold-start round-trip in Phase 6 |
 | `querer` stays `isIrregular: false` despite a Phase 6 classification-boundary argument for `true` | Flag is functionally load-bearing (gates the quiz engine's `includeIrregular` filter) — flipping it would remove `querer` from the default quiz pool, a real behavior change with no conjugation-accuracy upside | ✓ Good — deliberate, discussed decision; documented in `portuguese-verb-memory` so it isn't mistaken for an oversight later |
 | Feedback payload validated with Zod only for `z.infer` typing, never `.parse()`'d at runtime before dispatch | Lower priority than shipping the core loop; call site is fully typed so risk was assessed as low for v0.0 | ⚠️ Revisit — integration audit flagged this as defense-in-depth debt; a future refactor loosening types could silently send an invalid payload with no client-side signal |
+| Backend content fetch reverses v0.0's "no content-serving API" stance | Explicit user decision at v0.1 kickoff — backend became source of truth, mobile still owns fetch/fallback/caching logic against a mock/real URL | ✓ Good — shipped with full silent-fallback contract (FETCH-01/02/03), zero blocking on failure |
+| `generate()` takes an optional trailing `verbs` param instead of a new function | Minimal seam, keeps the 123-test v0.0 suite green with a default-bundled-dataset fallback | ✓ Good — zero regressions across the seam change |
+| Manual `AbortController`-style single-flight memoization for `resolveVerbs()` (never a second fetch) | Avoids duplicate network calls when multiple screens/components need the resolved dataset | ✓ Good — confirmed by Phase 10.1's `OfflinePill` reusing the same memoized result with zero new fetches |
+| Shared `confirmExit()` used by both the header Exit button and the `beforeRemove` gesture guard | Single code path guarantees no bypass between the two exit triggers | ✓ Good — verified via both call sites in Phase 9's on-device human-verify |
+| Single `src/theme/tokens.ts` module (not per-screen styling) for the v0.1 visual pass | Establishes one style/token file so all 3 screens share spacing/typography/color, disproportionate to build a full theming engine | ✓ Good — verified consistent across Setup/Quiz/Results, reused directly by Phase 10.1's `OfflinePill` |
+| Pull FETCH-05 forward from v2 (Phase 10.1, inserted) rather than reopening FETCH-03's silent-fallback contract | Milestone audit found UI-03's fetch-error UI unreachable by design; a non-blocking indicator gives the local-fallback signal a real surface without violating FETCH-03 | ✓ Good — closed the audit gap; human-verified on a physical device under real Airplane Mode fallback |
+| `OfflinePill` self-resolves `source` via its own `useEffect` + `resolveVerbs()`, not a new `useQuizStore` field | Avoids a `reset()`-clears-the-flag edge case a store field would introduce; the memoized `cachedResult` is already constant for the session | ✓ Good, ⚠️ minor debt — each screen instance re-reads independently rather than sharing one store value; safe today only because of the underlying memoization (code-review WARNING, non-blocking) |
 
 ## Evolution
 
@@ -190,4 +222,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-13 — v0.1 milestone started: online quiz content (backend-served with local fallback), end-quiz-early flow, and UI/safe-area polish*
+*Last updated: 2026-07-17 after v0.1 milestone (Online Quiz, Exit Flow & UI Polish)*

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Online Quiz, Exit Flow & UI Polish
-status: milestone_complete
-stopped_at: Milestone complete (Phase 10.1 was final phase)
-last_updated: 2026-07-17T23:33:13.303Z
-last_activity: 2026-07-15 -- Phase 10.1 execution started
+status: Awaiting next milestone
+stopped_at: Phase 10.1 UI-SPEC approved
+last_updated: "2026-07-17T23:45:14.654Z"
+last_activity: 2026-07-17 — Milestone v0.1 completed and archived
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
   completed_plans: 13
-  percent: 80
+  percent: 100
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-13)
 
 ## Current Position
 
-Phase: 10.1
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-07-17
+Phase: Milestone v0.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-17 — Milestone v0.1 completed and archived
 
 ## Performance Metrics
 
@@ -115,5 +115,4 @@ Resume file: .planning/phases/10.1-close-gap-ui-03-surface-non-blocking-offline-
 
 ## Operator Next Steps
 
-- Review the v0.1 roadmap draft (Phases 7-10) and approve or request revision
-- Once approved: `/gsd:plan-phase 7` to break Phase 7 into executable plans
+- Start the next milestone with /gsd-new-milestone
