@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   shareButton: {
     minHeight: 44,
     borderRadius: radius.control,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   tryAgainButton: {
     minHeight: 44,
     borderRadius: radius.control,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     flexDirection: "row",
     gap: spacing.sm,
     justifyContent: "center",
@@ -177,12 +177,12 @@ const styles = StyleSheet.create({
   backButton: {
     minHeight: 44,
     borderRadius: radius.control,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.surface,
     justifyContent: "center",
     alignItems: "center",
   },
   backButtonText: {
     ...typography.bodyStrong,
-    color: colors.accent,
+    color: colors.primary,
   },
 });
