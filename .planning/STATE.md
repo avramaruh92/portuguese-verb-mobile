@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Learning Quality Upgrade
 status: planning
-last_updated: "2026-07-19T23:51:56.653Z"
-last_activity: 2026-07-19
+last_updated: "2026-07-20T00:00:00.000Z"
+last_activity: 2026-07-20
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Planning next milestone
+**Current focus:** Phase 13 — Verb Mode Selection
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-19 — Milestone v0.3 started
+Phase: 13 of 16 (Verb Mode Selection)
+Plan: — (not yet broken down)
+Status: Roadmap approved, ready to plan
+Last activity: 2026-07-20 — v0.3 ROADMAP.md created (Phases 13-16)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -36,12 +38,14 @@ Last activity: 2026-07-19 — Milestone v0.3 started
 - Total plans completed: 42 (v0.0: 22, v0.1: 13, v0.2: 4)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days (kickoff to ship, most work same-day 2026-07-19)
 
-**v0.2 phases (shipped):**
+**v0.3 phases (planned):**
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 11. Lafa Design Tokens & Brand Identity | BRAND-01, BRAND-02, BRAND-03, BRAND-04, TEST-02 | Complete |
-| 12. Tense Label Refresh | LABEL-01, LABEL-02, LABEL-03, TEST-01 | Complete |
+| 13. Verb Mode Selection | MODE-01, MODE-02, MODE-03, TEST-03 | Not started |
+| 14. Smarter Distractor Generation | DIST-01, DIST-02, DIST-03, DIST-04, TEST-04 | Not started |
+| 15. Learning Content & Explanation Engine | EXPL-01, TEST-05 | Not started |
+| 16. Explanation Panel UI | EXPL-02, EXPL-03, EXPL-04 | Not started |
 
 *Updated after each plan completion*
 
@@ -49,7 +53,7 @@ Last activity: 2026-07-19 — Milestone v0.3 started
 
 ### Roadmap Evolution
 
-- v0.2 roadmap created 2026-07-19: 2 phases derived from the 9 v0.2 requirements (BRAND-01..04, LABEL-01..03, TEST-01..02). Phase 11 covers tokens/rebrand/component migration (dependency-first — screens and shared components need the new token set before label secondary-text styling can lean on it); Phase 12 covers the tense-label copy refresh, which depends on Phase 11's typography tokens for secondary/help-text styling.
+- v0.3 roadmap created 2026-07-20: 4 phases derived from the 14 v0.3 requirements (MODE-01..03, DIST-01..04, EXPL-01..04, TEST-03..05), continuing numbering from v0.2's Phase 12. Phase 13 (verb mode selector) is the most independent, touching Setup UI + store + engine filter. Phase 14 (distractor strategy) is a pure `quiz/engine.ts` change with no dataset dependency, sequenced after 13 for numbering continuity but not blocked by it. Phase 15 (learning-content parsing + pure explanation-selection logic) must land before Phase 16 (Quiz-screen explanation panel UI) since the UI consumes Phase 15's dataset types and explanation function. TEST-03/04/05 are satisfied inside their corresponding implementation phase, matching this project's existing testing convention.
 - v0.2 shipped 2026-07-19 — both phases complete, milestone audit passed, archived to `.planning/milestones/v0.2-*`.
 
 ### Decisions
@@ -62,11 +66,11 @@ None.
 
 ### Blockers/Concerns
 
-None open. All v0.0, v0.1, and v0.2 blockers resolved and verified (see PROJECT.md Context section and `.planning/v0.2-MILESTONE-AUDIT.md` for non-blocking tech debt, none of which blocks the next milestone).
+None open. All v0.0, v0.1, and v0.2 blockers resolved and verified (see PROJECT.md Context section and `.planning/v0.2-MILESTONE-AUDIT.md` for non-blocking tech debt, none of which blocks this milestone).
 
 ## Deferred Items
 
-Items acknowledged and carried forward to v2 (unchanged by v0.2):
+Items acknowledged and carried forward to v2 (unchanged by v0.3 roadmap creation):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -77,7 +81,7 @@ Items acknowledged and carried forward to v2 (unchanged by v0.2):
 | v2 | QUIZ-09 Question-progress indicator ("Question X of 10") | Deferred (P2) | v0.1 requirements definition |
 | v2 | UI-04 Answer-selection feedback animation | Deferred (P3) | v0.1 requirements definition |
 
-Known non-blocking tech debt from the v0.2 audit (see `.planning/milestones/v0.2-MILESTONE-AUDIT.md`) — none block the next milestone:
+Known non-blocking tech debt from the v0.2 audit (see `.planning/milestones/v0.2-MILESTONE-AUDIT.md`) — none block this milestone:
 
 - Locked Lafa palette computes below WCAG AA 4.5:1 contrast on several text/background pairings — user reviewed on-device in Expo Go and accepted as-is
 - LABEL-02's Portuguese grammar name renders in the primary text color/size rather than visually de-emphasized (documented implementer discretion)
@@ -87,10 +91,11 @@ Known non-blocking tech debt from the v0.2 audit (see `.planning/milestones/v0.2
 
 ## Session Continuity
 
-Last session: 2026-07-19T14:53:00.000Z
-Stopped at: v0.2 milestone completed and archived
-Resume file: none — awaiting next milestone
+Last session: 2026-07-20T00:00:00.000Z
+Stopped at: v0.3 ROADMAP.md and STATE.md created, REQUIREMENTS.md traceability filled in
+Resume file: none — ready for `/gsd:plan-phase 13`
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd:new-milestone
+- Review and approve the v0.3 roadmap
+- Run `/gsd:plan-phase 13` to begin Phase 13 (Verb Mode Selection)

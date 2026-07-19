@@ -47,4 +47,21 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 
 ## Traceability
 
-_Filled in by the roadmapper when phases are created._
+| Requirement | Phase | Status |
+|--------------|-------|--------|
+| MODE-01 | Phase 13 | Pending |
+| MODE-02 | Phase 13 | Pending |
+| MODE-03 | Phase 13 | Pending |
+| TEST-03 | Phase 13 | Pending |
+| DIST-01 | Phase 14 | Pending |
+| DIST-02 | Phase 14 | Pending |
+| DIST-03 | Phase 14 | Pending |
+| DIST-04 | Phase 14 | Pending |
+| TEST-04 | Phase 14 | Pending |
+| EXPL-01 | Phase 15 | Pending |
+| TEST-05 | Phase 15 | Pending |
+| EXPL-02 | Phase 16 | Pending |
+| EXPL-03 | Phase 16 | Pending |
+| EXPL-04 | Phase 16 | Pending |
+
+Coverage: 14/14 v0.3 requirements mapped, no orphans.
