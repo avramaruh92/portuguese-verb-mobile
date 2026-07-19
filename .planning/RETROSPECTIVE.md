@@ -86,6 +86,44 @@
 
 ---
 
+## Milestone: v0.2 — Lafa Design System + Tense Label Refresh
+
+**Shipped:** 2026-07-19
+**Phases:** 2 (11, 12) | **Plans:** 4
+
+### What Was Built
+- App-wide rebrand from "Portuguese Verb Quiz" to "Lafa": `src/theme/tokens.ts` rewritten with the Lafa palette (colors, typography, spacing, radius incl. a new `pill` radius), consumed by all 3 screens and both shared components (`OfflinePill`, `ReportFeedbackModal`) with zero hardcoded hex remaining anywhere
+- Setup heading, `app.json` `expo.name`, and the native share message all read "Lafa"
+- Displayed tense labels refreshed for A1-A2 clarity — `preterite` → "Completed past", `imperfect` → "Imperfect past" — with the exact Portuguese grammar term shown inline-parenthesized on the Quiz screen's meta row only, gated to preterite/imperfect
+- Internal enum literals and the `POST /feedback` payload left byte-for-byte unchanged throughout — independently verified via grep that `src/feedback/` has zero references to any label map
+- A pending human-verification item (WCAG contrast on the locked palette, flagged by Phase 11's own code review) was resolved via on-device review in Expo Go rather than left open — user accepted the palette as-is
+
+### What Worked
+- **User-driven "skip research" calls on small, well-scoped phases paid off cleanly.** Phase 12 skipped research, VALIDATION.md, and UI-SPEC.md entirely — CONTEXT.md already locked exact wording/placement/format from discuss-phase, so research would have mostly restated known decisions. Both the plan-checker and verifier passed clean with zero rework, confirming the judgment call was right-sized to the task.
+- **Pattern-mapper flagging a genuinely new sub-pattern early** (Phase 12's `tenseGrammarNames` as a novel partial-map shape with no existing analog in the codebase) let the planner write explicit, unambiguous instructions (D-08: must NOT overload `tenseLabels`) rather than leaving the executor to guess at a shape from a vague "add secondary labels" instruction.
+- **Deferring a human-judgment verification item to milestone-audit time, rather than blocking phase completion on it,** kept Phase 11 moving (marked `human_needed`, not blocked) while still surfacing the WCAG contrast question for an explicit accept/reject decision before the milestone shipped — the audit step is exactly the right checkpoint for this kind of design-value call, not phase-verify.
+- **Integration checker catching a real but non-blocking wiring nuance** (LABEL-02's grammar-name text not using `colors.textSecondary`/`typography.caption` despite the milestone brief expecting that reuse) surfaced a documentation/expectation mismatch worth logging as tech debt, without incorrectly treating an explicit implementer-discretion decision (D-07 in `12-CONTEXT.md`) as a defect.
+
+### What Was Inefficient
+- Running `npm run lint` during the integration-check step auto-scaffolded ESLint config (`eslint`/`eslint-config-expo` + `eslint.config.js`) as an unplanned side effect — this was flagged as carried-over tech debt since v0.0 ("ESLint not installed"), so it was a welcome resolution, but it landed as a surprise mid-audit rather than a deliberate phase task, and needed a separate confirm-and-commit step to avoid silently bundling it into the milestone-audit commit.
+- Phase 11's `11-HUMAN-UAT.md` sat in `status: partial` / `result: pending` through phase-verify and into milestone-audit — the human-verification loop for on-device checks isn't yet wired to prompt automatically at a natural checkpoint (e.g., right after the user confirms they've seen the build running), so it required an explicit question during `/gsd:complete-milestone` to close out rather than being resolved earlier in the flow.
+
+### Patterns Established
+- **Small, well-scoped display/copy-only phases can legitimately skip research, VALIDATION.md, and UI-SPEC.md** when CONTEXT.md from discuss-phase already locks exact wording, placement, and format — treat this as a deliberate scope call to make explicit (and log in Key Decisions), not silently skip.
+- **Milestone audit is the right checkpoint for open human-judgment items from phase verification**, not phase completion itself — a phase can legitimately ship as `human_needed` and get its open item resolved (accept/reject/follow-up) explicitly at the next milestone boundary rather than blocking on it mid-phase.
+
+### Key Lessons
+1. When a phase's CONTEXT.md already locks exact copy/wording/placement from discuss-phase, treat research/VALIDATION.md/UI-SPEC.md as optional rather than default — ask explicitly rather than defaulting to always-run, and log the skip decision in Key Decisions so it's traceable later.
+2. A `human_needed` VERIFICATION.md status is not a blocker — it's a deferred decision. Surface it explicitly at milestone-audit time with the original evidence (contrast ratios, code-review findings) rather than re-deriving it, and record the resolution in both the phase's HUMAN-UAT.md and VERIFICATION.md so the audit trail is complete.
+3. Side effects from diagnostic commands run during an audit (e.g., `npm run lint` auto-scaffolding config) should be surfaced and confirmed with the user before committing, even when they resolve pre-existing tech debt — don't silently fold unplanned dependency/config changes into an audit or archive commit.
+
+### Cost Observations
+- Model mix: opus for planning (`gsd-planner`), sonnet for research-skip decisions, pattern-mapping, plan-checking, execution, verification, and integration-checking across both phases.
+- Sessions: ~3 (Phase 11 plan+execute, Phase 12 plan+execute as a separate `/gsd:plan-phase`+`/gsd:execute-phase` cycle, then a milestone-audit + complete-milestone session)
+- Notable: Phase 12 (1 plan, 3 tasks, 3 files) was the smallest phase of any v0.2/v0.1/v0.0 phase by scope and shipped with zero deviations and zero rework — the smallest phase yet was also one of the cleanest executions, likely because CONTEXT.md's decisions were unusually exhaustive (D-01 through D-10) relative to the phase's actual size.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -94,6 +132,7 @@
 |-----------|----------|--------|------------|
 | v0.0 | ~2 | 6 | First milestone — bottom-up dependency-ordered roadmap (foundation phases before vertical slices), closed with a dedicated verification-only polish phase |
 | v0.1 | ~2 | 5 (incl. 1 inserted gap-closure phase) | First milestone to use an inserted decimal phase (10.1) for milestone-audit-driven gap closure, and the first to require on-device physical-hardware verification with fresh Apple developer signing setup |
+| v0.2 | ~3 | 2 | First milestone to deliberately skip research/VALIDATION.md/UI-SPEC.md on well-scoped phases, and first to resolve an open `human_needed` verification item at milestone-audit time rather than mid-phase |
 
 ### Cumulative Quality
 
@@ -101,6 +140,7 @@
 |-----------|-------|----------|-------------------|
 | v0.0 | 122 | Not measured via coverage tool this milestone | 0 (native `fetch`/`Share` used instead of axios/expo-sharing/react-native-share by design) |
 | v0.1 | 150 | Not measured via coverage tool this milestone | 0 (no new npm packages added across all 5 phases, including Phase 10.1) |
+| v0.2 | 155 | Not measured via coverage tool this milestone | 1 (eslint/eslint-config-expo — resolves carried-over v0.0 tech debt, auto-scaffolded during milestone audit, confirmed with user before committing) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -108,3 +148,5 @@
 2. Verification-only phases at milestone end are worth budgeting for when the app has hand-authored content or environment-dependent behavior automated tests can't reach.
 3. On-device network-fallback testing needs a Release/standalone build, not a Debug dev-client — the dev-client's own Metro dependency can make the wrong thing get tested.
 4. Milestone-audit-driven gap closure works best as a properly-planned inserted decimal phase (discuss/plan/execute/verify), with the milestone audit re-run afterward rather than trusted stale.
+5. Research/VALIDATION.md/UI-SPEC.md are optional, not default, when a phase's CONTEXT.md already locks exact copy/wording/placement — ask explicitly and log the skip as a Key Decision rather than defaulting to always-run or silently skipping.
+6. A `human_needed` phase-verification status is a deferred decision, not a blocker — resolve it explicitly at the next milestone-audit checkpoint with the original evidence, and record the resolution in both HUMAN-UAT.md and VERIFICATION.md.
