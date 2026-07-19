@@ -68,12 +68,12 @@ Filled in during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | TBD | Pending |
-| BRAND-02 | TBD | Pending |
-| BRAND-03 | TBD | Pending |
-| BRAND-04 | TBD | Pending |
-| LABEL-01 | TBD | Pending |
-| LABEL-02 | TBD | Pending |
-| LABEL-03 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
+| BRAND-01 | Phase 11 | Pending |
+| BRAND-02 | Phase 11 | Pending |
+| BRAND-03 | Phase 11 | Pending |
+| BRAND-04 | Phase 11 | Pending |
+| LABEL-01 | Phase 12 | Pending |
+| LABEL-02 | Phase 12 | Pending |
+| LABEL-03 | Phase 12 | Pending |
+| TEST-01 | Phase 12 | Pending |
+| TEST-02 | Phase 11 | Pending |

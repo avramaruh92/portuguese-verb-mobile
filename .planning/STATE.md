@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Lafa Design System + Tense Label Refresh
-status: planning
-last_updated: "2026-07-19T11:25:55.734Z"
+status: roadmap_drafted
+last_updated: "2026-07-19T00:00:00.000Z"
 last_activity: 2026-07-19
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,53 +17,33 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-17)
+See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Planning next milestone
+**Current focus:** v0.2 Lafa Design System + Tense Label Refresh — Phase 11 (Lafa Design Tokens & Brand Identity)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-07-19 — Milestone v0.2 started
+Phase: 11 of 12 (Lafa Design Tokens & Brand Identity)
+Plan: — (roadmap drafted, not yet planned)
+Status: Roadmap drafted, awaiting approval
+Last activity: 2026-07-19 — v0.2 ROADMAP.md created (Phases 11-12), 100% requirement coverage validated
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
-**Velocity (v0.0):**
+**Velocity (v0.0 + v0.1, shipped):**
 
-- Total plans completed: 22
-- Average duration: - min
-- Total execution time: ~1.3 days (2026-07-12 → 2026-07-13)
+- Total plans completed: 35 (v0.0: 22, v0.1: 13)
+- Total execution time: v0.0 ~1.3 days, v0.1 ~6 days
 
-**By Phase (v0.0):**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01 | 2 | - | - |
-| 02 | 3 | - | - |
-| 03 | 3 | - | - |
-| 04 | 2 | - | - |
-| 05 | 4 | - | - |
-| 06 | 4 | - | - |
-| 08 | 2 | - | - |
-| 10.1 | 2 | - | - |
-
-**v0.1 phases (all shipped):**
+**v0.2 phases (this milestone):**
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 7. Dataset Seam & Fetch/Fallback Pipeline | FETCH-01, FETCH-02, FETCH-03 | Complete |
-| 8. Async Quiz Start & Dataset Snapshot | FETCH-04 | Complete |
-| 9. End-Quiz-Early Flow | QUIZ-05, QUIZ-06, QUIZ-07, QUIZ-08 | Complete |
-| 10. Safe-Area & Visual Polish | UI-01, UI-02, UI-03 | Complete |
-| 10.1. Close gap: UI-03 — Offline Content Indicator (INSERTED) | FETCH-05 | Complete |
-
-**Recent Trend:**
-
-- Last 5 plans: 10-02, 10-03, 10-04, 10.1-01, 10.1-02 — all complete
-- Trend: v0.1 shipped in full, no incomplete plans remaining
+| 11. Lafa Design Tokens & Brand Identity | BRAND-01, BRAND-02, BRAND-03, BRAND-04, TEST-02 | Not started |
+| 12. Tense Label Refresh | LABEL-01, LABEL-02, LABEL-03, TEST-01 | Not started |
 
 *Updated after each plan completion*
 
@@ -71,11 +51,11 @@ Last activity: 2026-07-19 — Milestone v0.2 started
 
 ### Roadmap Evolution
 
-- Phase 10.1 inserted after Phase 10: Close gap: UI-03 — surface non-blocking 'offline content' indicator when dataset source is local (URGENT)
+- v0.2 roadmap created 2026-07-19: 2 phases derived from the 9 v0.2 requirements (BRAND-01..04, LABEL-01..03, TEST-01..02). Phase 11 covers tokens/rebrand/component migration (dependency-first — screens and shared components need the new token set before label secondary-text styling can lean on it); Phase 12 covers the tense-label copy refresh, which depends on Phase 11's typography tokens for secondary/help-text styling.
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table (v0.0 and v0.1 decisions both show final outcomes).
+Decisions are logged in PROJECT.md Key Decisions table (v0.0 and v0.1 decisions both show final outcomes). No new v0.2 decisions yet.
 
 ### Pending Todos
 
@@ -83,11 +63,11 @@ None.
 
 ### Blockers/Concerns
 
-None open. All v0.0 and v0.1 blockers resolved and verified (see PROJECT.md Context section and `.planning/milestones/v0.1-MILESTONE-AUDIT.md` for non-blocking tech debt).
+None open. All v0.0 and v0.1 blockers resolved and verified (see PROJECT.md Context section and `.planning/milestones/v0.1-MILESTONE-AUDIT.md` for non-blocking tech debt, none of which blocks v0.2).
 
 ## Deferred Items
 
-Items acknowledged and carried forward to the next milestone:
+Items acknowledged and carried forward to v2 (unchanged by v0.2 planning):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -98,20 +78,20 @@ Items acknowledged and carried forward to the next milestone:
 | v2 | QUIZ-09 Question-progress indicator ("Question X of 10") | Deferred (P2) | v0.1 requirements definition |
 | v2 | UI-04 Answer-selection feedback animation | Deferred (P3) | v0.1 requirements definition |
 
-Note: FETCH-05 ("using saved content" indicator), previously deferred, was pulled forward and shipped in v0.1 via inserted Phase 10.1 — see PROJECT.md Requirements/Validated section.
-
-Known non-blocking tech debt from the v0.1 audit (see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`):
+Known non-blocking tech debt from the v0.1 audit (see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`) — none block v0.2:
 
 - `OfflinePill` not rendered on Results' no-session fallback branch (deliberate scope choice, low impact)
 - `app/results.tsx`'s `handleBackToSetup()` doesn't call `reset()` before navigating (inconsistent with Phase 9's exit path, currently harmless)
 - `07-01-SUMMARY.md` frontmatter omits FETCH-02 (doc-hygiene only)
+- ESLint still not installed as a devDependency (`expo lint` currently a no-op)
 
 ## Session Continuity
 
-Last session: 2026-07-17T23:45:14.654Z
-Stopped at: v0.1 milestone completed and archived
-Resume file: none — ready for /gsd:new-milestone
+Last session: 2026-07-19
+Stopped at: v0.2 ROADMAP.md and STATE.md written, REQUIREMENTS.md traceability updated — awaiting roadmap approval
+Resume file: none
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd:new-milestone
+- Review and approve the v0.2 roadmap (Phases 11-12)
+- Once approved: `/gsd:plan-phase 11`
