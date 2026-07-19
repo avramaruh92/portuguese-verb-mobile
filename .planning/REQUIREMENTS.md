@@ -21,13 +21,13 @@ contract, dataset key, or navigation changes. Source: Codex-authored
 
 ### Tense Label Refresh
 
-- [ ] **LABEL-01**: Displayed tense labels updated — `preterite` → "Completed past", `imperfect` → "Imperfect past" (`present_indicative` → "Present", `future` → "Future" unchanged in meaning) — internal enum literals (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged everywhere in code and API payloads
-- [ ] **LABEL-02**: Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito") shown only as secondary/help text where space allows, never as the primary label — "Perfect past" is never used as a label (avoids confusion with English perfect tenses)
-- [ ] **LABEL-03**: `POST /feedback` payload continues to send the exact locked backend enum literals — the label change is display-only, zero payload impact
+- [x] **LABEL-01**: Displayed tense labels updated — `preterite` → "Completed past", `imperfect` → "Imperfect past" (`present_indicative` → "Present", `future` → "Future" unchanged in meaning) — internal enum literals (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged everywhere in code and API payloads
+- [x] **LABEL-02**: Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito") shown only as secondary/help text where space allows, never as the primary label — "Perfect past" is never used as a label (avoids confusion with English perfect tenses)
+- [x] **LABEL-03**: `POST /feedback` payload continues to send the exact locked backend enum literals — the label change is display-only, zero payload impact
 
 ### Testing
 
-- [ ] **TEST-01**: `__tests__/quiz-labels.test.ts` updated to assert the new displayed labels while confirming internal literals unchanged
+- [x] **TEST-01**: `__tests__/quiz-labels.test.ts` updated to assert the new displayed labels while confirming internal literals unchanged
 - [x] **TEST-02**: A token-completeness test confirms required Lafa token keys exist in `src/theme/tokens.ts`
 
 ## Future Requirements
@@ -72,8 +72,8 @@ Filled in during roadmap creation.
 | BRAND-02 | Phase 11 | Complete |
 | BRAND-03 | Phase 11 | Complete |
 | BRAND-04 | Phase 11 | Complete |
-| LABEL-01 | Phase 12 | Pending |
-| LABEL-02 | Phase 12 | Pending |
-| LABEL-03 | Phase 12 | Pending |
-| TEST-01 | Phase 12 | Pending |
+| LABEL-01 | Phase 12 | Complete |
+| LABEL-02 | Phase 12 | Complete |
+| LABEL-03 | Phase 12 | Complete |
+| TEST-01 | Phase 12 | Complete |
 | TEST-02 | Phase 11 | Complete |
