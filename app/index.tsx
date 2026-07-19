@@ -58,7 +58,7 @@ export default function Index() {
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <OfflinePill />
-      <Text style={styles.heading}>Portuguese Verb Quiz</Text>
+      <Text style={styles.heading}>Lafa</Text>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Select tenses</Text>
@@ -151,10 +151,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: radius.control,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.surface,
   },
   chipSelected: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
   },
   chipText: {
     ...typography.body,
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   startButton: {
     minHeight: 44,
     borderRadius: radius.control,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     flexDirection: "row",
     gap: spacing.sm,
     justifyContent: "center",
