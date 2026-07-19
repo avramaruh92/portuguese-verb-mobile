@@ -180,7 +180,7 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
 - **Tech stack**: Expo (React Native) + TypeScript + Expo Router — iOS-first — locked by CLAUDE.md and confirmed at project setup
 - **State management**: Zustand for quiz session state — chosen over plain React state for nicer ergonomics as quiz logic grows; app remains small so no heavier state library needed
 - **Testing**: Jest with the Expo preset — standard for Expo/RN, works out of the box with TypeScript
-- **Backend contract**: Mobile only ever calls `POST /feedback` on the live backend; never connects to Supabase directly or stores credentials — locked cross-repo constraint
+- **Backend contract**: Mobile only ever calls `POST /feedback` (submit) and `GET /content/verbs` (dataset fetch, with local fallback) on the live backend; never connects to Supabase directly or stores credentials — locked cross-repo constraint
 - **Dataset authoring**: Full 50-verb target dataset (4 tenses × 6 subjects each) is significant hand-authored content; drafted by the assistant and reviewed by the user for conjugation accuracy before it ships
 
 ## Key Decisions
