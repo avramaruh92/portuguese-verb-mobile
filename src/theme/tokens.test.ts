@@ -1,16 +1,22 @@
 import { colors, spacing, radius, typography } from "./tokens";
 
-describe("theme tokens (D-03 verbatim-value guard)", () => {
-  it("colors export exact verbatim iOS-system palette", () => {
+describe("theme tokens (Lafa palette + token completeness)", () => {
+  it("colors export the exact Lafa palette", () => {
     expect(colors).toEqual({
+      primary: "#E8663D",
+      primarySoft: "#FCE4DA",
+      success: "#2FA84F",
+      error: "#D64545",
       background: "#FFFFFF",
-      secondary: "#F2F2F7",
-      accent: "#007AFF",
-      error: "#FF3B30",
-      success: "#34C759",
-      text: "#000000",
-      textSecondary: "#8E8E93",
+      text: "#1C1B1A",
+      textSecondary: "#6B6560",
+      surface: "#F2F2F1",
     });
+  });
+
+  it("colors no longer export the old accent/secondary keys", () => {
+    expect((colors as Record<string, unknown>).accent).toBeUndefined();
+    expect((colors as Record<string, unknown>).secondary).toBeUndefined();
   });
 
   it("spacing exports exact verbatim scale, including the 12px choiceGap exception", () => {
@@ -24,8 +30,8 @@ describe("theme tokens (D-03 verbatim-value guard)", () => {
     });
   });
 
-  it("radius exports exact verbatim control radius", () => {
-    expect(radius).toEqual({ control: 12 });
+  it("radius exports control and the new pill radius", () => {
+    expect(radius).toEqual({ control: 12, pill: 999 });
   });
 
   it("typography.display matches exact verbatim size/weight/lineHeight", () => {
