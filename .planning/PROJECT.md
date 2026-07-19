@@ -1,6 +1,13 @@
-# Portuguese Verb Conjugation App — Mobile
+# Lafa — Portuguese Verb Conjugation App (Mobile)
 
 ## What This Is
+
+**Lafa** is the product/brand name for this app (adopted at v0.2 kickoff,
+2026-07-19 — see "Current Milestone" below). The repo, slug, and backend
+sibling repo name remain unchanged (`portuguese-verb-mobile`); "Lafa" is the
+user-facing identity only. **In-app, the display name is still
+"Portuguese Verb Quiz" until Phase 11 ships the rebrand** — do not assume
+`app.json`/UI copy already say "Lafa" until that phase is marked complete.
 
 An iOS-first Expo React Native app (TypeScript, Expo Router) that lets beginner
 (A1-A2) learners of European Portuguese practice verb conjugation through short
