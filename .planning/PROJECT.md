@@ -45,10 +45,34 @@ reopening the fetch step's zero-blocking guarantee.
 - 150 tests passing across 15 suites, strict TypeScript clean, zero known
   blockers (see v0.1 audit for non-blocking tech debt)
 
-## Next Milestone Goals
+## Current Milestone: v0.2 Lafa Design System + Tense Label Refresh
 
-Not yet defined — run `/gsd:new-milestone` to scope the next milestone. Candidates
-carried over from v0.1's deferred/tech-debt list (not yet committed):
+**Goal:** Apply the Lafa brand identity (colors, typography, tense-label
+copy) to the shipped app without changing quiz logic, backend contracts,
+dataset keys, or navigation.
+
+**Target features:**
+- Rebrand visible app identity from "Portuguese Verb Quiz" to "Lafa"
+- Replace the default iOS-blue token set with the Lafa palette,
+  typography scale, spacing, and radius tokens in `src/theme/tokens.ts`
+- Update displayed tense labels — `preterite` → "Completed past",
+  `imperfect` → "Imperfect past" — while keeping internal enum literals
+  (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged
+- Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito")
+  as secondary/help text only, where space allows — never the primary label
+- Bring `ReportFeedbackModal` and `OfflinePill` fully onto shared tokens,
+  removing remaining hardcoded iOS colors
+- Update/add tests: `quiz-labels.test.ts` assertions for the new labels,
+  plus a token-completeness test
+
+**Key context:** Visual/copy-only refresh — no quiz logic changes, no
+backend contract changes, no custom fonts/dark mode/animation library
+this pass. Source design doc: Codex-authored
+"Lafa v0.1 Design System + Tense Label Refresh" (external, not
+version-controlled in this repo).
+
+Carried-over candidates from v0.1's deferred/tech-debt list (not in this
+milestone's scope):
 - Deferred v2 requirements: PROG-01 (typed-answer mode), PROG-02 (progress/streak
   tracking), PROG-03 (spaced repetition), FETCH-06 (dataset staleness metadata),
   QUIZ-09 (question-progress indicator), UI-04 (answer-selection animation)
@@ -108,8 +132,8 @@ All 12 v0.1 requirements shipped and independently verified (see
 
 ### Active
 
-Not yet defined for the next milestone — run `/gsd:new-milestone` to scope new
-requirements. See "Next Milestone Goals" above for carried-over candidates.
+Defined in `.planning/REQUIREMENTS.md` for milestone v0.2 (Lafa Design System +
+Tense Label Refresh).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
 
@@ -158,9 +182,9 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
   flow must tolerate gracefully (loading state, doesn't block quiz completion).
   **Verified in Phase 6** against a genuinely idle instance: 45-50s cold
   start, spinner held throughout, quiz stayed interactive, resolved to success.
-- No content-serving API exists or is planned for v0 — confirmed explicitly
-  during project setup after a clarifying question about whether the backend
-  could serve verb data. It cannot/should not for this milestone.
+- ~~No content-serving API exists or is planned for v0~~ — **reversed in v0.1**:
+  the backend now serves `GET /content/verbs` and the app is remote-first with
+  local fallback (see "Shipped in v0.1" above and Constraints below).
 
 **Current codebase state (end of v0.1):**
 - ~4,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
@@ -222,4 +246,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-17 after v0.1 milestone (Online Quiz, Exit Flow & UI Polish)*
+*Last updated: 2026-07-19 — milestone v0.2 (Lafa Design System + Tense Label Refresh) started*

@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.1
-milestone_name: Online Quiz, Exit Flow & UI Polish
-status: Awaiting next milestone
-stopped_at: Phase 10.1 UI-SPEC approved
-last_updated: "2026-07-17T23:45:14.654Z"
-last_activity: 2026-07-17 — Milestone v0.1 completed and archived
+milestone: v0.2
+milestone_name: Lafa Design System + Tense Label Refresh
+status: planning
+last_updated: "2026-07-19T11:25:55.734Z"
+last_activity: 2026-07-19
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-17)
 
 ## Current Position
 
-Phase: Milestone v0.1 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-17 — Milestone v0.1 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-19 — Milestone v0.2 started
 
 ## Performance Metrics
 
@@ -102,6 +101,7 @@ Items acknowledged and carried forward to the next milestone:
 Note: FETCH-05 ("using saved content" indicator), previously deferred, was pulled forward and shipped in v0.1 via inserted Phase 10.1 — see PROJECT.md Requirements/Validated section.
 
 Known non-blocking tech debt from the v0.1 audit (see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`):
+
 - `OfflinePill` not rendered on Results' no-session fallback branch (deliberate scope choice, low impact)
 - `app/results.tsx`'s `handleBackToSetup()` doesn't call `reset()` before navigating (inconsistent with Phase 9's exit path, currently harmless)
 - `07-01-SUMMARY.md` frontmatter omits FETCH-02 (doc-hygiene only)
