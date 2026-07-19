@@ -86,7 +86,12 @@ Plans:
   3. The `POST /feedback` payload continues to send the exact locked backend enum literals (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged — the label change is display-only
   4. `__tests__/quiz-labels.test.ts` passes, asserting the new displayed labels while confirming internal literals are unchanged
 
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 12-01-PLAN.md — Update tenseLabels display values, add tenseGrammarNames map, render inline Portuguese term on the Quiz meta row, update quiz-labels.test.ts [Wave 1]
+
 **UI hint**: yes
 
 ## Progress
@@ -105,8 +110,8 @@ Plans:
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete    | 2026-07-19 |
-| 12. Tense Label Refresh | v0.2 | 0/TBD | Not started | - |
+| 12. Tense Label Refresh | v0.2 | 0/1 | Not started | - |
 
 ---
 
-*Milestones v0.0 and v0.1 shipped. v0.2 roadmap drafted — awaiting approval. Run `/gsd:plan-phase 11` once approved.*
+*Milestones v0.0 and v0.1 shipped. v0.2 Phase 11 complete. Phase 12 planned — run `/gsd:execute-phase 12`.*
