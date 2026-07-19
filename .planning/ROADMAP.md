@@ -43,7 +43,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 tense-label copy) to the shipped app without changing quiz logic, backend
 contracts, dataset keys, or navigation.
 
-- [ ] **Phase 11: Lafa Design Tokens & Brand Identity** - Rebrand app name, restyle all screens and shared components onto the new Lafa token set
+- [x] **Phase 11: Lafa Design Tokens & Brand Identity** - Rebrand app name, restyle all screens and shared components onto the new Lafa token set (completed 2026-07-19)
 - [ ] **Phase 12: Tense Label Refresh** - Update displayed tense labels to friendly English names, keep internal enum literals and payloads locked
 
 ## Phase Details
@@ -69,8 +69,8 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 11-02-PLAN.md — Migrate Setup/Quiz/Results screens to Lafa tokens, "Lafa" heading, answer-choice success/error styling [Wave 2]
-- [ ] 11-03-PLAN.md — Migrate OfflinePill + ReportFeedbackModal to tokens, brand-name copy in app.json + share message [Wave 2]
+- [x] 11-02-PLAN.md — Migrate Setup/Quiz/Results screens to Lafa tokens, "Lafa" heading, answer-choice success/error styling [Wave 2]
+- [x] 11-03-PLAN.md — Migrate OfflinePill + ReportFeedbackModal to tokens, brand-name copy in app.json + share message [Wave 2]
 
 **UI hint**: yes
 
@@ -104,7 +104,7 @@ Plans:
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
-| 11. Lafa Design Tokens & Brand Identity | v0.2 | 1/3 | In Progress|  |
+| 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete   | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 0/TBD | Not started | - |
 
 ---
