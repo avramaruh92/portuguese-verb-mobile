@@ -44,7 +44,7 @@ tense-label copy) to the shipped app without changing quiz logic, backend
 contracts, dataset keys, or navigation.
 
 - [x] **Phase 11: Lafa Design Tokens & Brand Identity** - Rebrand app name, restyle all screens and shared components onto the new Lafa token set (completed 2026-07-19)
-- [ ] **Phase 12: Tense Label Refresh** - Update displayed tense labels to friendly English names, keep internal enum literals and payloads locked
+- [x] **Phase 12: Tense Label Refresh** - Update displayed tense labels to friendly English names, keep internal enum literals and payloads locked (completed 2026-07-19)
 
 ## Phase Details
 
@@ -90,7 +90,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 12-01-PLAN.md — Update tenseLabels display values, add tenseGrammarNames map, render inline Portuguese term on the Quiz meta row, update quiz-labels.test.ts [Wave 1]
+- [x] 12-01-PLAN.md — Update tenseLabels display values, add tenseGrammarNames map, render inline Portuguese term on the Quiz meta row, update quiz-labels.test.ts [Wave 1]
 
 **UI hint**: yes
 
@@ -110,7 +110,7 @@ Plans:
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete    | 2026-07-19 |
-| 12. Tense Label Refresh | v0.2 | 0/1 | Not started | - |
+| 12. Tense Label Refresh | v0.2 | 1/1 | Complete   | 2026-07-19 |
 
 ---
 
