@@ -58,7 +58,11 @@ contracts, dataset keys, or navigation.
   3. Answer-choice states (default/selected-correct/selected-wrong) keep existing selection behavior, now styled with Lafa `success`/`error` tokens and white text on colored choices
   4. `OfflinePill` displays with `primarySoft` background, `primary` text, and `pill` radius, with its "Using saved content" copy unchanged
   5. A token-completeness Jest test passes, confirming all required Lafa token keys exist in `src/theme/tokens.ts`
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md — Rewrite tokens.ts with the Lafa palette + radius.pill, update tokens.test.ts (TEST-02) [Wave 1]
+- [ ] 11-02-PLAN.md — Migrate Setup/Quiz/Results screens to Lafa tokens, "Lafa" heading, answer-choice success/error styling [Wave 2]
+- [ ] 11-03-PLAN.md — Migrate OfflinePill + ReportFeedbackModal to tokens, brand-name copy in app.json + share message [Wave 2]
 **UI hint**: yes
 
 ### Phase 12: Tense Label Refresh
@@ -88,7 +92,7 @@ contracts, dataset keys, or navigation.
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
-| 11. Lafa Design Tokens & Brand Identity | v0.2 | 0/TBD | Not started | - |
+| 11. Lafa Design Tokens & Brand Identity | v0.2 | 0/3 | Not started | - |
 | 12. Tense Label Refresh | v0.2 | 0/TBD | Not started | - |
 
 ---
