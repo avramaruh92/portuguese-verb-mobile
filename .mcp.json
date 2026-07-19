@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "portuguese-verb-memory": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/avi/portuguese-verb-memory-mcp/dist/server.js"
+      ],
+      "env": {}
+    }
+  }
+}

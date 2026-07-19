@@ -1,0 +1,3 @@
+[mcp_servers.portuguese-verb-memory]
+command = "node"
+args = ["/Users/avi/portuguese-verb-memory-mcp/dist/server.js"]
