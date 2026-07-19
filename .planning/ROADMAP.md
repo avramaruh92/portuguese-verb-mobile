@@ -65,7 +65,7 @@ contracts, dataset keys, or navigation.
 Plans:
 **Wave 1**
 
-- [ ] 11-01-PLAN.md — Rewrite tokens.ts with the Lafa palette + radius.pill, update tokens.test.ts (TEST-02) [Wave 1]
+- [x] 11-01-PLAN.md — Rewrite tokens.ts with the Lafa palette + radius.pill, update tokens.test.ts (TEST-02) [Wave 1]
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -104,7 +104,7 @@ Plans:
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
-| 11. Lafa Design Tokens & Brand Identity | v0.2 | 0/3 | Not started | - |
+| 11. Lafa Design Tokens & Brand Identity | v0.2 | 1/3 | In Progress|  |
 | 12. Tense Label Refresh | v0.2 | 0/TBD | Not started | - |
 
 ---
