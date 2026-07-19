@@ -1,0 +1,79 @@
+# Requirements: Portuguese Verb Conjugation App — Mobile
+
+**Defined:** 2026-07-19
+**Milestone:** v0.2 Lafa Design System + Tense Label Refresh
+**Core Value:** A learner can open the app, pick what to practice, complete a
+10-question conjugation quiz entirely offline, and see an accurate score.
+Everything else (sharing, feedback) supports that loop but must never block it.
+
+## v0.2 Requirements
+
+Visual/copy-only rebrand of the shipped app — no quiz logic, backend
+contract, dataset key, or navigation changes. Source: Codex-authored
+"Lafa v0.1 Design System + Tense Label Refresh" design doc.
+
+### Branding & Visual Identity
+
+- [ ] **BRAND-01**: App displays "Lafa" as its name (Setup screen heading, `app.json` `expo.name`) instead of "Portuguese Verb Quiz"
+- [ ] **BRAND-02**: All screens (Setup, Quiz, Results) and shared components (`OfflinePill`, `ReportFeedbackModal`) render using the Lafa design tokens (colors, typography, spacing, radius) defined in `src/theme/tokens.ts` — no default iOS-blue or hardcoded hex values remain
+- [ ] **BRAND-03**: Answer-choice visual states (default/selected-correct/selected-wrong) keep their existing behavior, restyled with Lafa `success`/`error` tokens, white text on colored choices
+- [ ] **BRAND-04**: `OfflinePill` uses `primarySoft` background, `primary` text, `pill` radius; copy unchanged ("Using saved content")
+
+### Tense Label Refresh
+
+- [ ] **LABEL-01**: Displayed tense labels updated — `preterite` → "Completed past", `imperfect` → "Imperfect past" (`present_indicative` → "Present", `future` → "Future" unchanged in meaning) — internal enum literals (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged everywhere in code and API payloads
+- [ ] **LABEL-02**: Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito") shown only as secondary/help text where space allows, never as the primary label — "Perfect past" is never used as a label (avoids confusion with English perfect tenses)
+- [ ] **LABEL-03**: `POST /feedback` payload continues to send the exact locked backend enum literals — the label change is display-only, zero payload impact
+
+### Testing
+
+- [ ] **TEST-01**: `__tests__/quiz-labels.test.ts` updated to assert the new displayed labels while confirming internal literals unchanged
+- [ ] **TEST-02**: A token-completeness test confirms required Lafa token keys exist in `src/theme/tokens.ts`
+
+## Future Requirements
+
+Deferred, not in this milestone's scope. Carried over from v0.1:
+
+### Progress & Practice
+
+- **PROG-01**: Typed-answer quiz mode with diacritic normalization
+- **PROG-02**: On-device (no-account) progress/streak tracking
+- **PROG-03**: Spaced repetition scheduling
+
+### Dataset & UI
+
+- **FETCH-06**: Dataset staleness/version metadata
+- **QUIZ-09**: Question-progress indicator ("Question X of 10")
+- **UI-04**: Answer-selection feedback animation
+
+## Out of Scope
+
+Explicitly excluded from v0.2. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| App icon / splash screen redesign | Not mentioned in the source design doc; doc scopes to in-app screens and components only |
+| Custom fonts | Explicit assumption in source doc — typography stays system-font |
+| Dark mode | Explicit assumption in source doc — out of scope for this pass |
+| Animation library (Reanimated, Lottie, etc.) | Explicit assumption in source doc — no animation library this pass |
+| Mascot / illustration system | Explicit assumption in source doc |
+| Quiz logic changes | Explicit assumption in source doc — visual/copy refresh only |
+| Backend contract changes | Explicit assumption in source doc — `tense`/`subject`/`platform` enum literals and endpoints unchanged |
+| Dataset key/schema changes | Rebrand does not touch `Tense`/`Subject`/`Verb` types or the dataset itself |
+| Navigation changes | Explicit assumption in source doc |
+
+## Traceability
+
+Filled in during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BRAND-01 | TBD | Pending |
+| BRAND-02 | TBD | Pending |
+| BRAND-03 | TBD | Pending |
+| BRAND-04 | TBD | Pending |
+| LABEL-01 | TBD | Pending |
+| LABEL-02 | TBD | Pending |
+| LABEL-03 | TBD | Pending |
+| TEST-01 | TBD | Pending |
+| TEST-02 | TBD | Pending |
