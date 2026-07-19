@@ -49,31 +49,43 @@ contracts, dataset keys, or navigation.
 ## Phase Details
 
 ### Phase 11: Lafa Design Tokens & Brand Identity
+
 **Goal**: The app displays as "Lafa" and every screen and shared component renders using the new Lafa design tokens (colors, typography, spacing, radius) — no default iOS-blue or hardcoded hex values remain anywhere.
 **Depends on**: Nothing (first phase of v0.2)
 **Requirements**: BRAND-01, BRAND-02, BRAND-03, BRAND-04, TEST-02
 **Success Criteria** (what must be TRUE):
+
   1. App displays "Lafa" as its name — Setup screen heading and `app.json`'s `expo.name` both read "Lafa" instead of "Portuguese Verb Quiz"
   2. Setup, Quiz, and Results screens, plus `OfflinePill` and `ReportFeedbackModal`, all render using tokens from `src/theme/tokens.ts` — no default iOS-blue or hardcoded hex values remain in any of these files
   3. Answer-choice states (default/selected-correct/selected-wrong) keep existing selection behavior, now styled with Lafa `success`/`error` tokens and white text on colored choices
   4. `OfflinePill` displays with `primarySoft` background, `primary` text, and `pill` radius, with its "Using saved content" copy unchanged
   5. A token-completeness Jest test passes, confirming all required Lafa token keys exist in `src/theme/tokens.ts`
+
 **Plans**: 3 plans
 Plans:
+**Wave 1**
+
 - [ ] 11-01-PLAN.md — Rewrite tokens.ts with the Lafa palette + radius.pill, update tokens.test.ts (TEST-02) [Wave 1]
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 11-02-PLAN.md — Migrate Setup/Quiz/Results screens to Lafa tokens, "Lafa" heading, answer-choice success/error styling [Wave 2]
 - [ ] 11-03-PLAN.md — Migrate OfflinePill + ReportFeedbackModal to tokens, brand-name copy in app.json + share message [Wave 2]
+
 **UI hint**: yes
 
 ### Phase 12: Tense Label Refresh
+
 **Goal**: Displayed tense labels read as friendly English names ("Completed past", "Imperfect past") while every internal enum literal and outbound `POST /feedback` payload remains exactly as locked by the backend contract.
 **Depends on**: Phase 11 (reuses the Lafa typography/spacing system for secondary/help-text styling)
 **Requirements**: LABEL-01, LABEL-02, LABEL-03, TEST-01
 **Success Criteria** (what must be TRUE):
+
   1. Displayed tense labels read "Completed past" for `preterite` and "Imperfect past" for `imperfect`; `present_indicative` still reads "Present" and `future` still reads "Future"
   2. Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito") appear only as secondary/help text where space allows, never as the primary label, and "Perfect past" is never used anywhere in the UI
   3. The `POST /feedback` payload continues to send the exact locked backend enum literals (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged — the label change is display-only
   4. `__tests__/quiz-labels.test.ts` passes, asserting the new displayed labels while confirming internal literals are unchanged
+
 **Plans**: TBD
 **UI hint**: yes
 
