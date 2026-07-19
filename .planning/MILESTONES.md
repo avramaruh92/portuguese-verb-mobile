@@ -1,5 +1,15 @@
 # Milestones
 
+## v0.2 Lafa Design System + Tense Label Refresh (Shipped: 2026-07-19)
+
+**Phases completed:** 2 phases, 4 plans, 3 tasks
+
+**Key accomplishments:**
+
+- Displayed tense labels for preterite/imperfect changed to "Completed past"/"Imperfect past" with inline Portuguese grammar names, zero backend-contract impact
+
+---
+
 ## v0.1 Online Quiz, Exit Flow & UI Polish (Shipped: 2026-07-17)
 
 **Phases completed:** 5 phases, 13 plans, 16 tasks

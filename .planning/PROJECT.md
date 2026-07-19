@@ -2,12 +2,11 @@
 
 ## What This Is
 
-**Lafa** is the product/brand name for this app (adopted at v0.2 kickoff,
-2026-07-19 — see "Current Milestone" below). The repo, slug, and backend
-sibling repo name remain unchanged (`portuguese-verb-mobile`); "Lafa" is the
-user-facing identity only. **In-app, the display name is still
-"Portuguese Verb Quiz" until Phase 11 ships the rebrand** — do not assume
-`app.json`/UI copy already say "Lafa" until that phase is marked complete.
+**Lafa** is the product/brand name for this app, and as of v0.2
+(shipped 2026-07-19) the in-app display name genuinely says "Lafa" —
+Setup screen heading, `app.json` `expo.name`, and the native share
+message all read "Lafa". The repo, slug, and backend sibling repo name
+remain unchanged (`portuguese-verb-mobile`).
 
 An iOS-first Expo React Native app (TypeScript, Expo Router) that lets beginner
 (A1-A2) learners of European Portuguese practice verb conjugation through short
@@ -32,73 +31,40 @@ language via a tokens module, verified on a real notched device. A small
 audit gap) makes the local-fallback signal visible to the learner without
 reopening the fetch step's zero-blocking guarantee.
 
-## Current State (v0.1 shipped)
+**Shipped in v0.2:** the app is visually and verbally rebranded as Lafa —
+`src/theme/tokens.ts` carries the Lafa palette (colors, typography, spacing,
+radius incl. a new `pill` radius), consumed by all 3 screens and both shared
+components (`OfflinePill`, `ReportFeedbackModal`) with zero hardcoded hex
+remaining anywhere. Displayed tense labels are friendlier for A1-A2 learners
+— `preterite` → "Completed past", `imperfect` → "Imperfect past" — with the
+exact Portuguese grammar term ("Pretérito perfeito"/"Pretérito imperfeito")
+shown inline-parenthesized on the Quiz screen only, never as the primary
+label. Internal enum literals and the `POST /feedback` payload are
+byte-for-byte unchanged — this was a display/copy-only pass, independently
+verified (`src/feedback/` has zero references to any label map).
 
-- Setup → Quiz → Results loop, now backed by a live-fetched dataset with
-  silent local fallback, snapshotted per session (Zustand store)
+## Current State (v0.2 shipped)
+
+- Setup → Quiz → Results loop, backed by a live-fetched dataset with silent
+  local fallback, snapshotted per session (Zustand store) — unchanged since
+  v0.1, rebranded on top
 - 50-verb European Portuguese dataset (37 regular / 13 irregular), typed,
   Zod-validated
 - Pure, deterministic, fully unit-tested quiz generation + scoring engine,
-  now accepting an injected verb list (`generate()` seam from Phase 7)
+  accepting an injected verb list (`generate()` seam from Phase 7)
 - Clean exit-quiz flow (header control + swipe-back/hardware-back), single
   shared confirmation, full-state reset, no bypass path
-- Shared design tokens (`src/theme/tokens.ts`) driving consistent
-  spacing/typography/color across all 3 screens, safe-area-correct layout
-  (no notch/home-indicator overlap), verified on a real device
+- Lafa design tokens (`src/theme/tokens.ts`) driving every screen and shared
+  component — no default iOS-blue or hardcoded hex anywhere in `app/`/`src/`
+- Friendly, A1-A2-appropriate tense labels ("Completed past"/"Imperfect
+  past") with Portuguese grammar names as inline secondary text on the Quiz
+  meta row; internal enum literals and backend payload untouched
 - Non-blocking "Using saved content" indicator (`OfflinePill`) surfacing the
   local-fallback signal on all 3 screens without any new error state
 - In-app "Report a problem" feedback flow wired to the live `POST /feedback`
   backend, cold-start-tolerant (90s timeout), verified never to block the quiz
-- 150 tests passing across 15 suites, strict TypeScript clean, zero known
-  blockers (see v0.1 audit for non-blocking tech debt)
-
-## Current Milestone: v0.2 Lafa Design System + Tense Label Refresh
-
-**Goal:** Apply the Lafa brand identity (colors, typography, tense-label
-copy) to the shipped app without changing quiz logic, backend contracts,
-dataset keys, or navigation.
-
-**Target features:**
-- Rebrand visible app identity from "Portuguese Verb Quiz" to "Lafa"
-- Replace the default iOS-blue token set with the Lafa palette,
-  typography scale, spacing, and radius tokens in `src/theme/tokens.ts`
-- Update displayed tense labels — `preterite` → "Completed past",
-  `imperfect` → "Imperfect past" — while keeping internal enum literals
-  (`present_indicative`/`preterite`/`imperfect`/`future`) unchanged
-- Portuguese grammar names ("Pretérito perfeito"/"Pretérito imperfeito")
-  as secondary/help text only, where space allows — never the primary label
-- Bring `ReportFeedbackModal` and `OfflinePill` fully onto shared tokens,
-  removing remaining hardcoded iOS colors
-- Update/add tests: `quiz-labels.test.ts` assertions for the new labels,
-  plus a token-completeness test
-
-**Key context:** Visual/copy-only refresh — no quiz logic changes, no
-backend contract changes, no custom fonts/dark mode/animation library
-this pass. Source design doc: Codex-authored
-"Lafa v0.1 Design System + Tense Label Refresh" (external, not
-version-controlled in this repo).
-
-**Phase 11 complete (2026-07-19):** BRAND-01–04 and TEST-02 shipped — app
-displays as "Lafa" (Setup heading, `app.json` `expo.name`), all 3 screens
-and both shared components (`OfflinePill`, `ReportFeedbackModal`) render
-from the Lafa token set with zero hardcoded hex remaining, a
-token-completeness test guards the palette. 151/151 tests passing,
-typecheck clean. One item flagged for human follow-up (not a phase-goal
-gap): several token pairings (white-on-`primary`/`success`/`error`,
-`primary`-on-`primarySoft`) fall below WCAG AA 4.5:1 text contrast per
-`11-REVIEW.md` — user reviewed and approved proceeding as-is; tracked in
-`11-HUMAN-UAT.md` if revisited. Phase 12 (Tense Label Refresh) is the
-remaining v0.2 work.
-
-Carried-over candidates from v0.1's deferred/tech-debt list (not in this
-milestone's scope):
-- Deferred v2 requirements: PROG-01 (typed-answer mode), PROG-02 (progress/streak
-  tracking), PROG-03 (spaced repetition), FETCH-06 (dataset staleness metadata),
-  QUIZ-09 (question-progress indicator), UI-04 (answer-selection animation)
-- Tech debt from the v0.1 audit: `OfflinePill` not shown on Results' no-session
-  fallback branch; `handleBackToSetup()` inconsistent `reset()` contract vs the
-  Phase 9 exit path; a few code-review quality items (test coverage, a11y) —
-  see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`
+- 155 tests passing across 15 suites, strict TypeScript clean, zero blocking
+  gaps (see `.planning/v0.2-MILESTONE-AUDIT.md` for non-blocking tech debt)
 
 ## Core Value
 
@@ -149,12 +115,25 @@ All 16 v0.0 requirements shipped and independently verified (see
 All 12 v0.1 requirements shipped and independently verified (see
 `.planning/milestones/v0.1-MILESTONE-AUDIT.md`).
 
+- ✓ App displays "Lafa" as its name (Setup heading, `app.json` `expo.name`) — v0.2 (BRAND-01)
+- ✓ All screens + shared components render using Lafa design tokens, no hardcoded hex — v0.2 (BRAND-02)
+- ✓ Answer-choice visual states restyled with `success`/`error` tokens, white text on colored choices — v0.2 (BRAND-03)
+- ✓ `OfflinePill` uses `primarySoft`/`primary`/`pill` tokens, copy unchanged — v0.2 (BRAND-04)
+- ✓ Displayed tense labels updated to friendly English (`preterite` → "Completed past", `imperfect` → "Imperfect past"), internal enum literals unchanged — v0.2 (LABEL-01)
+- ✓ Portuguese grammar names shown only as secondary/inline text, never the primary label; "Perfect past" never used — v0.2 (LABEL-02)
+- ✓ `POST /feedback` payload continues to send the exact locked backend enum literals, zero payload impact — v0.2 (LABEL-03)
+- ✓ `quiz-labels.test.ts` asserts the new displayed labels while confirming internal literals unchanged — v0.2 (TEST-01)
+- ✓ Token-completeness test confirms required Lafa token keys exist — v0.2 (TEST-02)
+
+All 9 v0.2 requirements shipped and independently verified (see
+`.planning/v0.2-MILESTONE-AUDIT.md`).
+
 ### Active
 
-Defined in `.planning/REQUIREMENTS.md` for milestone v0.2 (Lafa Design System +
-Tense Label Refresh).
+None yet — next milestone's requirements will be defined via `/gsd:new-milestone`.
 
-Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
+Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` and
+`.planning/milestones/v0.2-REQUIREMENTS.md`.
 
 ### Out of Scope
 
@@ -205,18 +184,27 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
   the backend now serves `GET /content/verbs` and the app is remote-first with
   local fallback (see "Shipped in v0.1" above and Constraints below).
 
-**Current codebase state (end of v0.1):**
-- ~4,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
-- 150 tests passing across 15 suites; strict TypeScript (`tsc --noEmit`) clean
-- 11 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1), 31 plans, 35
-  `feat()` commits in v0.1 alone, v0.1 built over 6 days (2026-07-12 → 2026-07-18)
-- Known non-blocking tech debt (see `.planning/milestones/v0.1-MILESTONE-AUDIT.md`
-  for full detail): `OfflinePill` not rendered on Results' no-session fallback
-  branch (deliberate scope choice, low impact); `app/results.tsx`'s
-  `handleBackToSetup()` doesn't call `reset()` before navigating (inconsistent
-  with Phase 9's exit path, currently harmless); `07-01-SUMMARY.md`
-  frontmatter omits FETCH-02 (doc-hygiene only); ESLint still not installed as
-  a devDependency (carried over from v0.0, `expo lint` currently a no-op).
+**Current codebase state (end of v0.2):**
+- ~4,930 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
+- 155 tests passing across 15 suites; strict TypeScript (`tsc --noEmit`) clean
+- 13 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2), 35
+  plans, v0.2 built over 7 days (2026-07-12 kickoff → 2026-07-19 ship, most
+  work landed same-day 2026-07-19)
+- ESLint now installed (`eslint` + `eslint-config-expo`, auto-scaffolded by
+  `expo lint`'s first-run behavior during v0.2's milestone audit) — resolves
+  the v0.1-carried "ESLint not installed" tech debt item; one pre-existing,
+  unrelated `react-hooks/set-state-in-effect` lint finding remains in
+  `ReportFeedbackModal.tsx` (predates v0.1/v0.2, not touched by either)
+- Known non-blocking tech debt (see `.planning/v0.2-MILESTONE-AUDIT.md` for
+  full detail): locked Lafa palette computes below WCAG AA 4.5:1 contrast on
+  several text/background pairings (white-on-`primary`/`success`,
+  `primary`-on-`primarySoft`) — user reviewed on-device in Expo Go and
+  accepted as-is; LABEL-02's Portuguese grammar name renders in the primary
+  text color/size rather than visually de-emphasized (documented implementer
+  discretion, satisfies the requirement's letter); `OfflinePill` not rendered
+  on Results' no-session fallback branch (carried from v0.1, deliberate scope
+  choice); `app/results.tsx`'s `handleBackToSetup()` doesn't call `reset()`
+  before navigating (carried from v0.1, currently harmless).
 
 ## Constraints
 
@@ -246,6 +234,10 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`.
 | Single `src/theme/tokens.ts` module (not per-screen styling) for the v0.1 visual pass | Establishes one style/token file so all 3 screens share spacing/typography/color, disproportionate to build a full theming engine | ✓ Good — verified consistent across Setup/Quiz/Results, reused directly by Phase 10.1's `OfflinePill` |
 | Pull FETCH-05 forward from v2 (Phase 10.1, inserted) rather than reopening FETCH-03's silent-fallback contract | Milestone audit found UI-03's fetch-error UI unreachable by design; a non-blocking indicator gives the local-fallback signal a real surface without violating FETCH-03 | ✓ Good — closed the audit gap; human-verified on a physical device under real Airplane Mode fallback |
 | `OfflinePill` self-resolves `source` via its own `useEffect` + `resolveVerbs()`, not a new `useQuizStore` field | Avoids a `reset()`-clears-the-flag edge case a store field would introduce; the memoized `cachedResult` is already constant for the session | ✓ Good, ⚠️ minor debt — each screen instance re-reads independently rather than sharing one store value; safe today only because of the underlying memoization (code-review WARNING, non-blocking) |
+| Lafa palette values locked pre-Phase-11 (D-01/D-02) accepted as-is despite sub-WCAG-AA contrast on several pairings | Contrast/legibility is a visual-perception judgment call, not a wiring defect; user reviewed on a real device (Expo Go) rather than trusting computed ratios alone | ✓ Good — user explicitly approved after live device review; tracked as informational tech debt, not reopened |
+| `tenseGrammarNames` added as a separate `Partial<Record<Tense, string>>` export rather than overloading `tenseLabels` | `tenseLabels` is the primary-label contract asserted by `quiz-labels.test.ts`; a partial map keeps the full/partial shapes distinct | ✓ Good — zero test regressions, `present_indicative`/`future` correctly have no grammar-name entry |
+| Portuguese grammar name rendered inline-parenthesized in the primary text color, not a nested de-emphasized `<Text>` | User's explicit placement/format choice (D-04) over a caption-sized secondary row; styling treatment (D-07) left to implementer discretion | ✓ Good, ⚠️ minor debt — satisfies LABEL-02's letter (never the primary label) but not a strict visual-secondary treatment; flagged non-blocking by the integration checker |
+| Both v0.2 phases (11, 12) skipped formal research/VALIDATION.md at plan-phase time | User judgment call — small, well-scoped, display-only changes with wording/placement already locked in each phase's CONTEXT.md; research adds little value for changes this narrow | ✓ Good — both phases shipped clean, zero rework, plan-checker and verifier both passed without needing research artifacts |
 
 ## Evolution
 
@@ -265,4 +257,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-19 — Phase 11 (Lafa Design Tokens & Brand Identity) complete*
+*Last updated: 2026-07-19 after v0.2 milestone*
