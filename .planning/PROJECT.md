@@ -78,6 +78,18 @@ this pass. Source design doc: Codex-authored
 "Lafa v0.1 Design System + Tense Label Refresh" (external, not
 version-controlled in this repo).
 
+**Phase 11 complete (2026-07-19):** BRAND-01–04 and TEST-02 shipped — app
+displays as "Lafa" (Setup heading, `app.json` `expo.name`), all 3 screens
+and both shared components (`OfflinePill`, `ReportFeedbackModal`) render
+from the Lafa token set with zero hardcoded hex remaining, a
+token-completeness test guards the palette. 151/151 tests passing,
+typecheck clean. One item flagged for human follow-up (not a phase-goal
+gap): several token pairings (white-on-`primary`/`success`/`error`,
+`primary`-on-`primarySoft`) fall below WCAG AA 4.5:1 text contrast per
+`11-REVIEW.md` — user reviewed and approved proceeding as-is; tracked in
+`11-HUMAN-UAT.md` if revisited. Phase 12 (Tense Label Refresh) is the
+remaining v0.2 work.
+
 Carried-over candidates from v0.1's deferred/tech-debt list (not in this
 milestone's scope):
 - Deferred v2 requirements: PROG-01 (typed-answer mode), PROG-02 (progress/streak
@@ -253,4 +265,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-19 — milestone v0.2 (Lafa Design System + Tense Label Refresh) started*
+*Last updated: 2026-07-19 — Phase 11 (Lafa Design Tokens & Brand Identity) complete*
