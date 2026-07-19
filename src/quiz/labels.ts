@@ -11,7 +11,12 @@ export const subjectLabels: Record<Subject, string> = {
 
 export const tenseLabels: Record<Tense, string> = {
   present_indicative: "Present",
-  preterite: "Preterite",
-  imperfect: "Imperfect",
+  preterite: "Completed past",
+  imperfect: "Imperfect past",
   future: "Future",
+};
+
+export const tenseGrammarNames: Partial<Record<Tense, string>> = {
+  preterite: "Pretérito perfeito",
+  imperfect: "Pretérito imperfeito",
 };

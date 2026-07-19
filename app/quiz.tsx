@@ -4,7 +4,7 @@ import Constants from "expo-constants";
 import { Stack, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
-import { subjectLabels, tenseLabels } from "../src/quiz/labels";
+import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/labels";
 import { verbs } from "../src/dataset/verbs";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
@@ -118,8 +118,11 @@ export default function Quiz() {
         <View style={styles.questionBlock}>
           <Text style={styles.verbHeading}>{question.verb}</Text>
           <Text style={styles.metaRow}>
-            {currentVerb?.translation ?? ""} · {tenseLabels[question.tense]} ·{" "}
-            {subjectLabels[question.subject]}
+            {currentVerb?.translation ?? ""} · {tenseLabels[question.tense]}
+            {tenseGrammarNames[question.tense]
+              ? ` (${tenseGrammarNames[question.tense]})`
+              : ""}{" "}
+            · {subjectLabels[question.subject]}
           </Text>
         </View>
 

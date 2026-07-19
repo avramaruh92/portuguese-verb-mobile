@@ -1,4 +1,4 @@
-import { subjectLabels, tenseLabels } from "../src/quiz/labels";
+import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/labels";
 import { SUBJECTS, TENSES } from "../src/dataset/types";
 
 describe("subjectLabels", () => {
@@ -24,5 +24,25 @@ describe("tenseLabels", () => {
 
   it("maps present_indicative to the exact expected label", () => {
     expect(tenseLabels.present_indicative).toBe("Present");
+  });
+
+  it("maps preterite to the exact expected label", () => {
+    expect(tenseLabels.preterite).toBe("Completed past");
+  });
+
+  it("maps imperfect to the exact expected label", () => {
+    expect(tenseLabels.imperfect).toBe("Imperfect past");
+  });
+});
+
+describe("tenseGrammarNames", () => {
+  it("maps preterite and imperfect to their Portuguese grammar names", () => {
+    expect(tenseGrammarNames.preterite).toBe("Pretérito perfeito");
+    expect(tenseGrammarNames.imperfect).toBe("Pretérito imperfeito");
+  });
+
+  it("has no entry for present_indicative or future", () => {
+    expect(tenseGrammarNames.present_indicative).toBeUndefined();
+    expect(tenseGrammarNames.future).toBeUndefined();
   });
 });
