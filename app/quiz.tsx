@@ -173,7 +173,7 @@ export default function Quiz() {
 const styles = StyleSheet.create({
   exitButtonText: {
     ...typography.body,
-    color: colors.accent,
+    color: colors.primary,
   },
   container: {
     flex: 1,
@@ -194,13 +194,13 @@ const styles = StyleSheet.create({
   progressTrack: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.surface,
     overflow: "hidden",
   },
   progressFill: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
   },
   questionBlock: {
     marginBottom: spacing.lg,
@@ -223,10 +223,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     justifyContent: "center",
     borderRadius: radius.control,
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.surface,
   },
   choiceDefault: {
-    backgroundColor: colors.secondary,
+    backgroundColor: colors.surface,
   },
   choiceCorrect: {
     backgroundColor: colors.success,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   nextButton: {
     minHeight: 44,
     borderRadius: radius.control,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -268,6 +268,6 @@ const styles = StyleSheet.create({
   },
   reportButtonText: {
     ...typography.body,
-    color: colors.accent,
+    color: colors.primary,
   },
 });
