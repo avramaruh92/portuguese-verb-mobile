@@ -14,10 +14,10 @@ contract, dataset key, or navigation changes. Source: Codex-authored
 
 ### Branding & Visual Identity
 
-- [ ] **BRAND-01**: App displays "Lafa" as its name (Setup screen heading, `app.json` `expo.name`) instead of "Portuguese Verb Quiz"
-- [ ] **BRAND-02**: All screens (Setup, Quiz, Results) and shared components (`OfflinePill`, `ReportFeedbackModal`) render using the Lafa design tokens (colors, typography, spacing, radius) defined in `src/theme/tokens.ts` — no default iOS-blue or hardcoded hex values remain
-- [ ] **BRAND-03**: Answer-choice visual states (default/selected-correct/selected-wrong) keep their existing behavior, restyled with Lafa `success`/`error` tokens, white text on colored choices
-- [ ] **BRAND-04**: `OfflinePill` uses `primarySoft` background, `primary` text, `pill` radius; copy unchanged ("Using saved content")
+- [x] **BRAND-01**: App displays "Lafa" as its name (Setup screen heading, `app.json` `expo.name`) instead of "Portuguese Verb Quiz"
+- [x] **BRAND-02**: All screens (Setup, Quiz, Results) and shared components (`OfflinePill`, `ReportFeedbackModal`) render using the Lafa design tokens (colors, typography, spacing, radius) defined in `src/theme/tokens.ts` — no default iOS-blue or hardcoded hex values remain
+- [x] **BRAND-03**: Answer-choice visual states (default/selected-correct/selected-wrong) keep their existing behavior, restyled with Lafa `success`/`error` tokens, white text on colored choices
+- [x] **BRAND-04**: `OfflinePill` uses `primarySoft` background, `primary` text, `pill` radius; copy unchanged ("Using saved content")
 
 ### Tense Label Refresh
 
@@ -28,7 +28,7 @@ contract, dataset key, or navigation changes. Source: Codex-authored
 ### Testing
 
 - [ ] **TEST-01**: `__tests__/quiz-labels.test.ts` updated to assert the new displayed labels while confirming internal literals unchanged
-- [ ] **TEST-02**: A token-completeness test confirms required Lafa token keys exist in `src/theme/tokens.ts`
+- [x] **TEST-02**: A token-completeness test confirms required Lafa token keys exist in `src/theme/tokens.ts`
 
 ## Future Requirements
 
@@ -68,12 +68,12 @@ Filled in during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | Phase 11 | Pending |
-| BRAND-02 | Phase 11 | Pending |
-| BRAND-03 | Phase 11 | Pending |
-| BRAND-04 | Phase 11 | Pending |
+| BRAND-01 | Phase 11 | Complete |
+| BRAND-02 | Phase 11 | Complete |
+| BRAND-03 | Phase 11 | Complete |
+| BRAND-04 | Phase 11 | Complete |
 | LABEL-01 | Phase 12 | Pending |
 | LABEL-02 | Phase 12 | Pending |
 | LABEL-03 | Phase 12 | Pending |
 | TEST-01 | Phase 12 | Pending |
-| TEST-02 | Phase 11 | Pending |
+| TEST-02 | Phase 11 | Complete |

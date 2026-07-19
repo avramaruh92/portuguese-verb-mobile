@@ -104,7 +104,7 @@ Plans:
 | 9. End-Quiz-Early Flow | v0.1 | 2/2 | Complete | 2026-07-14 |
 | 10. Safe-Area & Visual Polish | v0.1 | 4/4 | Complete | 2026-07-14 |
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
-| 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete   | 2026-07-19 |
+| 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete    | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 0/TBD | Not started | - |
 
 ---
