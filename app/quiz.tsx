@@ -8,6 +8,8 @@ import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/label
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
+import { ExplanationPanel } from "../src/components/ExplanationPanel";
+import { selectExplanation } from "../src/learning/explain";
 
 export default function Quiz() {
   const router = useRouter();
@@ -60,6 +62,10 @@ export default function Quiz() {
   if (!question) return null;
 
   const currentVerb = verbs.find((v) => v.verb === question.verb);
+  const explanation =
+    lockedChoice !== null && lockedChoice !== question.correctAnswer && currentVerb
+      ? selectExplanation(currentVerb, lockedChoice, question, learning)
+      : undefined;
   const total = session.questions.length;
   const progress = (currentIndex + 1) / total;
 
@@ -141,6 +147,8 @@ export default function Quiz() {
             );
           })}
         </View>
+
+        {explanation && <ExplanationPanel text={explanation} />}
 
         <Pressable
           onPress={handleAdvance}
