@@ -22,9 +22,9 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 ### Explanations
 
 - [ ] **EXPL-01**: App parses the optional `learning` block and per-verb `formIndex` from `GET /content/verbs`, Zod-validated, without breaking on payloads that omit `learning` (backend fail-closed-omits it independently of `verbs`).
-- [ ] **EXPL-02**: After an incorrect answer, the Quiz screen shows a short (1-2 sentence) explanation panel, placed between the answer choices and the Next button, built by resolving the selected answer's actual `{tense, subject}` slot via `formIndex` and filling the matching backend template (`wrongTense` / `wrongSubject` / `wrongTenseAndSubject` / `generic`).
-- [ ] **EXPL-03**: No explanation panel is shown when learning content is unavailable for that verb/answer (missing `learning` block, missing verb entry, or an answer with no `formIndex` match) — never fabricated/unreviewed grammar prose.
-- [ ] **EXPL-04**: Explanation rendering never changes `correctAnswer`, scoring, or the `POST /feedback` payload's `selectedAnswer` string; the panel never blocks advancing to the next question.
+- [x] **EXPL-02**: After an incorrect answer, the Quiz screen shows a short (1-2 sentence) explanation panel, placed between the answer choices and the Next button, built by resolving the selected answer's actual `{tense, subject}` slot via `formIndex` and filling the matching backend template (`wrongTense` / `wrongSubject` / `wrongTenseAndSubject` / `generic`).
+- [x] **EXPL-03**: No explanation panel is shown when learning content is unavailable for that verb/answer (missing `learning` block, missing verb entry, or an answer with no `formIndex` match) — never fabricated/unreviewed grammar prose.
+- [x] **EXPL-04**: Explanation rendering never changes `correctAnswer`, scoring, or the `POST /feedback` payload's `selectedAnswer` string; the panel never blocks advancing to the next question.
 
 ### Testing
 
@@ -60,8 +60,8 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 | TEST-04 | Phase 14 | Complete |
 | EXPL-01 | Phase 15 | Pending |
 | TEST-05 | Phase 15 | Pending |
-| EXPL-02 | Phase 16 | Pending |
-| EXPL-03 | Phase 16 | Pending |
-| EXPL-04 | Phase 16 | Pending |
+| EXPL-02 | Phase 16 | Complete |
+| EXPL-03 | Phase 16 | Complete |
+| EXPL-04 | Phase 16 | Complete |
 
 Coverage: 14/14 v0.3 requirements mapped, no orphans.
