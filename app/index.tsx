@@ -1,13 +1,20 @@
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { tenseLabels } from "../src/quiz/labels";
 import { TENSES } from "../src/dataset/types";
 import type { Tense } from "../src/dataset/types";
+import type { VerbMode } from "../src/quiz/types";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
+
+const VERB_MODE_OPTIONS: { value: VerbMode; label: string }[] = [
+  { value: "regular_only", label: "Regular only" },
+  { value: "mixed", label: "Mixed" },
+  { value: "irregular_only", label: "Irregular only" },
+];
 
 export default function Index() {
   const router = useRouter();
@@ -17,7 +24,7 @@ export default function Index() {
   const errorMessage = useQuizStore((s) => s.errorMessage);
 
   const [selectedTenses, setSelectedTenses] = useState<Tense[]>([]);
-  const [includeIrregular, setIncludeIrregular] = useState(false);
+  const [verbMode, setVerbMode] = useState<VerbMode>("regular_only");
   const [starting, setStarting] = useState(false);
   const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
 
@@ -39,7 +46,7 @@ export default function Index() {
     setStarting(true);
     setUnexpectedError(null);
     try {
-      await startQuiz({ tenses: selectedTenses, includeIrregular });
+      await startQuiz({ tenses: selectedTenses, verbMode });
       const nextStatus = useQuizStore.getState().status;
       if (nextStatus === "in-progress") {
         router.replace("/quiz");
@@ -88,9 +95,24 @@ export default function Index() {
         </View>
       </View>
 
-      <View style={[styles.section, styles.toggleRow]}>
-        <Text style={styles.toggleLabel}>Include irregular verbs</Text>
-        <Switch value={includeIrregular} onValueChange={setIncludeIrregular} />
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>Verb mode</Text>
+        <View style={styles.chipRow}>
+          {VERB_MODE_OPTIONS.map((opt) => {
+            const selected = verbMode === opt.value;
+            return (
+              <Pressable
+                key={opt.value}
+                onPress={() => setVerbMode(opt.value)}
+                style={[styles.chip, selected && styles.chipSelected]}
+              >
+                <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                  {opt.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       {status === "error" && errorMessage ? (
@@ -162,16 +184,6 @@ const styles = StyleSheet.create({
   },
   chipTextSelected: {
     color: colors.background,
-  },
-  toggleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    minHeight: 44,
-  },
-  toggleLabel: {
-    ...typography.caption,
-    color: colors.text,
   },
   errorBlock: {
     marginBottom: spacing.lg,
