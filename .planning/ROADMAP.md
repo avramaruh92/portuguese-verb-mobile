@@ -79,7 +79,7 @@ backend-authored wrong-answer explanations — consuming the `learning`/
 Plans:
 **Wave 1**
 
-- [ ] 13-01-PLAN.md — VerbMode type, 3-way engine pool filter, insufficient-verbs message, and per-mode unit tests (MODE-02, MODE-03, TEST-03)
+- [x] 13-01-PLAN.md — VerbMode type, 3-way engine pool filter, insufficient-verbs message, and per-mode unit tests (MODE-02, MODE-03, TEST-03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -151,7 +151,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
-| 13. Verb Mode Selection | v0.3 | 0/2 | Not started | - |
+| 13. Verb Mode Selection | v0.3 | 1/2 | In Progress|  |
 | 14. Smarter Distractor Generation | v0.3 | 0/? | Not started | - |
 | 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
