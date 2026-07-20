@@ -99,13 +99,19 @@ export function pickDistractors(
     }
   }
 
+  // Tier 3: cross-verb fallback, preferring same-conjugation-class verbs
+  // (matching infinitive ending) before any other verb (D-04/D-05).
   if (chosen.length < DISTRACTOR_COUNT) {
     const exclude = new Set([correctAnswer, ...chosen]);
-    const otherVerbForms = allVerbs
-      .filter((v) => v.verb !== verb.verb)
-      .map((v) => v.conjugations[tense][subject]);
-    const shuffledOtherForms = shuffle(otherVerbForms, random);
-    for (const form of shuffledOtherForms) {
+    const ownClass = verb.verb.slice(-2);
+    const otherVerbs = allVerbs.filter((v) => v.verb !== verb.verb);
+    const sameClassVerbs = otherVerbs.filter((v) => v.verb.slice(-2) === ownClass);
+    const otherClassVerbs = otherVerbs.filter((v) => v.verb.slice(-2) !== ownClass);
+    const orderedForms = [
+      ...shuffle(sameClassVerbs, random),
+      ...shuffle(otherClassVerbs, random),
+    ].map((v) => v.conjugations[tense][subject]);
+    for (const form of orderedForms) {
       if (chosen.length >= DISTRACTOR_COUNT) break;
       if (exclude.has(form)) continue;
       chosen.push(form);

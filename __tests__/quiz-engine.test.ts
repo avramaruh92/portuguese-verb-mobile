@@ -585,6 +585,92 @@ describe("quiz engine", () => {
       expect(distractors).toContain("newTier2Form");
     });
 
+    function allCollisionVerb(name: string, correctForm: string): Verb {
+      const allSubjects = {
+        eu: correctForm,
+        tu: correctForm,
+        ele_ela: correctForm,
+        nos: correctForm,
+        voces: correctForm,
+        eles_elas: correctForm,
+      };
+      return {
+        verb: name,
+        translation: `synthetic tier-3 fixture (${name})`,
+        isIrregular: false,
+        conjugations: {
+          present_indicative: allSubjects,
+          preterite: allSubjects,
+          imperfect: allSubjects,
+          future: allSubjects,
+        },
+      };
+    }
+
+    it("tier 3: same-conjugation-class cross-verb forms are consumed before other-class forms (D-04/D-05)", () => {
+      // Source verb "falar" (class "ar") collides on all its own forms so tiers 1+2
+      // are fully exhausted; the cross-verb pool has 2 same-class ("ar") verbs and
+      // 2 other-class ("er") verbs with distinguishable literal forms.
+      const source = allCollisionVerb("falar", "sourceCorrect");
+      const sameClassA: Verb = { ...allCollisionVerb("andar", "sameA"), verb: "andar" };
+      const sameClassB: Verb = { ...allCollisionVerb("nadar", "sameB"), verb: "nadar" };
+      const otherClassA: Verb = { ...allCollisionVerb("comer", "otherA"), verb: "comer" };
+      const otherClassB: Verb = { ...allCollisionVerb("beber", "otherB"), verb: "beber" };
+      const allVerbsPool = [source, sameClassA, sameClassB, otherClassA, otherClassB];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      // Both same-class forms must be present (consumed first); only one other-class form fills the 3rd slot.
+      expect(distractors).toContain("sameA");
+      expect(distractors).toContain("sameB");
+      const otherClassCount = distractors.filter((d) => d === "otherA" || d === "otherB").length;
+      expect(otherClassCount).toBe(1);
+    });
+
+    it("tier 3: a source verb with an unmatched conjugation class (pôr, ending 'ôr') still returns 3 valid distractors (Pitfall 1/4)", () => {
+      const source = allCollisionVerb("pôr", "sourceCorrect");
+      const otherA = allCollisionVerb("falar", "formA");
+      const otherB = allCollisionVerb("comer", "formB");
+      const otherC = allCollisionVerb("abrir", "formC");
+      const allVerbsPool = [source, otherA, otherB, otherC];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(distractors).not.toContain("sourceCorrect");
+    });
+
+    it("tier 3: a small irregular_only-sized pool (4 verbs, mixed classes) still satisfies the 3-distractor invariant (Pitfall 3)", () => {
+      const source = allCollisionVerb("ser", "sourceCorrect");
+      const other1 = allCollisionVerb("estar", "form1");
+      const other2 = allCollisionVerb("ter", "form2");
+      const other3 = allCollisionVerb("ir", "form3");
+      const allVerbsPool = [source, other1, other2, other3];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
     it("shuffle: buildQuestion places correctAnswer at different indices under different mock RNG sequences, deterministically per sequence", () => {
       const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
 
