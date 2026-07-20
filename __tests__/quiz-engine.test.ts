@@ -11,8 +11,8 @@ function mockRandom(sequence: number[]): () => number {
 
 describe("quiz engine", () => {
   describe("generate", () => {
-    it("filter: restricts questions to the requested tense and excludes irregular verbs when toggled off", () => {
-      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+    it("filter: restricts questions to the requested tense and excludes irregular verbs when regular_only", () => {
+      const session = generate({ tenses: ["future"], verbMode: "regular_only" }, Math.random);
       expect(session.questions).toHaveLength(10);
       session.questions.forEach((q) => {
         expect(q.tense).toBe("future");
@@ -22,9 +22,9 @@ describe("quiz engine", () => {
       });
     });
 
-    it("filter (irregular on): allows irregular verbs to appear in the pool", () => {
+    it("filter (mixed): allows irregular verbs to appear in the pool", () => {
       const session = generate(
-        { tenses: ["present_indicative"], includeIrregular: true },
+        { tenses: ["present_indicative"], verbMode: "mixed" },
         Math.random,
       );
       expect(session.questions).toHaveLength(10);
@@ -33,9 +33,92 @@ describe("quiz engine", () => {
       });
     });
 
+    it("filter (irregular_only): restricts every question's source verb to isIrregular === true", () => {
+      const session = generate(
+        { tenses: ["present_indicative"], verbMode: "irregular_only" },
+        Math.random,
+      );
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("present_indicative");
+        const verb = verbs.find((v) => v.verb === q.verb);
+        expect(verb).toBeDefined();
+        expect(verb!.isIrregular).toBe(true);
+      });
+    });
+
+    it("filter (mixed): allows both regular and irregular verbs and keeps the requested tense", () => {
+      const session = generate(
+        { tenses: ["preterite"], verbMode: "mixed" },
+        Math.random,
+      );
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("preterite");
+      });
+      const isIrregularFlags = new Set(
+        session.questions.map((q) => {
+          const verb = verbs.find((v) => v.verb === q.verb);
+          return verb!.isIrregular;
+        }),
+      );
+      expect(isIrregularFlags.size).toBeGreaterThanOrEqual(1);
+    });
+
+    it("irregular_only with an insufficient pool throws InsufficientVerbsError", () => {
+      const singleIrregularVerb: Verb[] = [
+        {
+          verb: "custarSolo",
+          translation: "custom solo verb",
+          isIrregular: true,
+          conjugations: {
+            present_indicative: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            preterite: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            imperfect: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            future: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+          },
+        },
+      ];
+      expect(() =>
+        generate(
+          { tenses: ["future"], verbMode: "irregular_only" },
+          Math.random,
+          singleIrregularVerb,
+        ),
+      ).toThrow(InsufficientVerbsError);
+    });
+
     it("duplicate: never produces a duplicate (verb, tense, subject) triple in a session", () => {
       const session = generate(
-        { tenses: ["present_indicative", "preterite"], includeIrregular: true },
+        { tenses: ["present_indicative", "preterite"], verbMode: "mixed" },
         Math.random,
       );
       const keys = session.questions.map((q) => `${q.verb}|${q.tense}|${q.subject}`);
@@ -190,7 +273,7 @@ describe("quiz engine", () => {
         },
       ];
       const session = generate(
-        { tenses: ["present_indicative", "preterite", "imperfect", "future"], includeIrregular: true },
+        { tenses: ["present_indicative", "preterite", "imperfect", "future"], verbMode: "mixed" },
         Math.random,
         customVerbs,
       );
@@ -219,8 +302,8 @@ describe("quiz engine", () => {
       }
     });
 
-    it("does not throw InsufficientVerbsError for a single-tense, irregulars-off boundary pool (~228 triples)", () => {
-      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+    it("does not throw InsufficientVerbsError for a single-tense, regular_only boundary pool (~228 triples)", () => {
+      const session = generate({ tenses: ["future"], verbMode: "regular_only" }, Math.random);
       expect(session.questions).toHaveLength(10);
     });
   });

@@ -13,7 +13,11 @@ export function generate(
   random: () => number = Math.random,
   verbs: Verb[] = localVerbs,
 ): QuizSession {
-  const eligibleVerbs = verbs.filter((v) => options.includeIrregular || !v.isIrregular);
+  const eligibleVerbs = verbs.filter((v) => {
+    if (options.verbMode === "regular_only") return !v.isIrregular;
+    if (options.verbMode === "irregular_only") return v.isIrregular;
+    return true;
+  });
   const pool: Triple[] = eligibleVerbs.flatMap((v) =>
     options.tenses.flatMap((tense) =>
       SUBJECTS.map((subject) => ({ verb: v.verb, tense, subject })),
