@@ -72,7 +72,10 @@ backend-authored wrong-answer explanations — consuming the `learning`/
   2. Starting a quiz in "Regular only" mode only draws questions from verbs where `isIrregular` is `false`; "Irregular only" only from `isIrregular === true`; "Mixed" draws from all eligible verbs.
   3. Selecting "Irregular only" with a tense combination that has too few eligible verbs shows the existing insufficient-verbs error message pattern, without crashing.
   4. Unit tests verify pool filtering and the existing 10-question/no-duplicate-triple guarantee under all three modes.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 13-01-PLAN.md — VerbMode type, 3-way engine pool filter, insufficient-verbs message, and per-mode unit tests (MODE-02, MODE-03, TEST-03)
+- [ ] 13-02-PLAN.md — Setup screen single-select verb-mode chip row replacing the irregular Switch (MODE-01)
 **UI hint**: yes
 
 ### Phase 14: Smarter Distractor Generation
@@ -130,7 +133,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
-| 13. Verb Mode Selection | v0.3 | 0/? | Not started | - |
+| 13. Verb Mode Selection | v0.3 | 0/2 | Not started | - |
 | 14. Smarter Distractor Generation | v0.3 | 0/? | Not started | - |
 | 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
