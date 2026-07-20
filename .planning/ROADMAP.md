@@ -141,7 +141,16 @@ Plans:
   3. Correct-answer questions never show the explanation panel.
   4. Advancing to the next question, scoring, and the `POST /feedback` payload's `selectedAnswer` string are unaffected by the panel's presence — verified unchanged.
 
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+**Wave 1**
+
+- [ ] 16-01-PLAN.md — Extend useQuizStore with verbs/learning snapshot + point quiz.tsx currentVerb at the session snapshot (EXPL-02)
+
+**Wave 2** *(depends on 16-01)*
+
+- [ ] 16-02-PLAN.md — ExplanationPanel component (per UI-SPEC) + conditional wrong-answer render in quiz.tsx + human-verify checkpoint (EXPL-02, EXPL-03, EXPL-04)
+
 **UI hint**: yes
 
 ## Progress
@@ -167,7 +176,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete   | 2026-07-20 |
 | 15. Learning Content & Explanation Engine | v0.3 | 3/3 | Complete   | 2026-07-20 |
-| 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
+| 16. Explanation Panel UI | v0.3 | 0/2 | Planned | - |
 
 ---
 
