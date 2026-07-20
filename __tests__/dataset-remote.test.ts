@@ -1,5 +1,22 @@
 import { fetchRemoteVerbs } from "../src/dataset/remote";
 import type { Verb } from "../src/dataset/types";
+import type { LearningContent } from "../src/learning/types";
+
+const sampleLearningContent: LearningContent = {
+  version: 1,
+  templates: {
+    wrongTense: "wrong tense template",
+    wrongSubject: "wrong subject template",
+    wrongTenseAndSubject: "wrong tense and subject template",
+    correctAnswerReveal: "correct answer reveal template",
+    generic: "generic template",
+  },
+  verbs: {
+    falar: {
+      irregularTenses: [],
+    },
+  },
+};
 
 const sampleVerb: Verb = {
   verb: "falar",
@@ -50,7 +67,7 @@ describe("fetchRemoteVerbs", () => {
     jest.clearAllMocks();
   });
 
-  it("resolves the unwrapped Verb[] when payload.verbs passes validation on a well-shaped 200", async () => {
+  it("resolves { verbs, learning: undefined } when payload.verbs passes validation on a well-shaped 200", async () => {
     globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -59,7 +76,43 @@ describe("fetchRemoteVerbs", () => {
 
     const result = await fetchRemoteVerbs();
 
-    expect(result).toEqual([sampleVerb]);
+    expect(result).toEqual({ verbs: [sampleVerb], learning: undefined });
+  });
+
+  it("resolves { verbs, learning: <parsed> } when payload.learning is present and valid", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ verbs: [sampleVerb], learning: sampleLearningContent }),
+    }) as unknown as typeof fetch;
+
+    const result = await fetchRemoteVerbs();
+
+    expect(result).toEqual({ verbs: [sampleVerb], learning: sampleLearningContent });
+  });
+
+  it("resolves { verbs, learning: undefined } when payload.learning is present but malformed, without throwing", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ verbs: [sampleVerb], learning: { version: 1 } }),
+    }) as unknown as typeof fetch;
+
+    const result = await fetchRemoteVerbs();
+
+    expect(result).toEqual({ verbs: [sampleVerb], learning: undefined });
+  });
+
+  it("resolves { verbs, learning: undefined } when payload.learning is absent", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ verbs: [sampleVerb] }),
+    }) as unknown as typeof fetch;
+
+    const result = await fetchRemoteVerbs();
+
+    expect(result).toEqual({ verbs: [sampleVerb], learning: undefined });
   });
 
   it("rejects when response.ok is false (e.g. HTTP 500)", async () => {

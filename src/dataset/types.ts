@@ -1,3 +1,5 @@
+import type { FormMatch } from "../learning/types";
+
 export type Tense =
   | "present_indicative"
   | "preterite"
@@ -33,4 +35,5 @@ export interface Verb {
   translation: string;
   isIrregular: boolean;
   conjugations: Record<Tense, Record<Subject, string>>;
+  formIndex?: Record<string, FormMatch[]>;
 }

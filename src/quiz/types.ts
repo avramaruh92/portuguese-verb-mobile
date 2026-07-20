@@ -15,9 +15,11 @@ export interface QuizSession {
   questions: Question[];
 }
 
+export type VerbMode = "regular_only" | "mixed" | "irregular_only";
+
 export interface GenerateOptions {
   tenses: Tense[];
-  includeIrregular: boolean;
+  verbMode: VerbMode;
 }
 
 export class InsufficientVerbsError extends Error {

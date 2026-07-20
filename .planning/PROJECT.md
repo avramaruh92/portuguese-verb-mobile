@@ -130,10 +130,59 @@ All 9 v0.2 requirements shipped and independently verified (see
 
 ### Active
 
-None yet — next milestone's requirements will be defined via `/gsd:new-milestone`.
+To be defined in `.planning/REQUIREMENTS.md` for v0.3 (this milestone).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` and
 `.planning/milestones/v0.2-REQUIREMENTS.md`.
+
+## Current Milestone: v0.3 Learning Quality Upgrade
+
+**Goal:** Turn the quiz from an answer-checker into a learning loop by adding
+irregular-only practice, smarter diagnostic distractors, and backend-authored
+wrong-answer explanations — consuming the `learning`/`formIndex` contract the
+backend already shipped in its own v0.3, not building anything backend-side.
+
+**Target features:**
+- Replace the boolean "Include irregular verbs" toggle with a 3-option verb
+  mode selector (`regular_only` default / `mixed` / `irregular_only`)
+- Smarter distractor generation: prefer same-verb-wrong-subject, same-verb
+  wrong-tense (especially Completed past vs. Imperfect past), and
+  same-subject/tense-from-another-verb, over arbitrary wrong forms
+- Wrong-answer explanation panel on the Quiz screen, populated from the
+  backend's `learning` block (templates + per-verb `tenseNotes`/
+  `subjectHints`) and each verb's `formIndex` reverse lookup, shown only
+  after an incorrect answer, never blocking advance
+- No explanation panel (not invented prose) when `learning` content is
+  unavailable — remote payloads without it, and the local fallback dataset,
+  must keep working exactly as today
+
+**Key context:**
+- The backend's `GET /content/verbs` already returns
+  `{ verbs: ContentVerb[], learning?: LearningContent }` as of its own
+  already-shipped v0.3 (2026-07-19) — `ContentVerb.formIndex` maps every
+  conjugated form string to its `{tense, subject}` slot(s) (ties preserved,
+  never collapsed), and `learning.verbs[verb]` carries
+  `irregularTenses`/`tenseNotes`/`subjectHints` plus shared
+  `learning.templates` (`wrongTense`/`wrongSubject`/`wrongTenseAndSubject`/
+  `correctAnswerReveal`/`generic`) with a closed interpolation-variable set
+  (`{verb}`, `{selectedAnswer}`, `{correctAnswer}`, `{tenseLabel}`,
+  `{subjectLabel}`, `{selectedTenseLabel}`, `{selectedSubjectLabel}`).
+- Backend's `isIrregular` on each `ContentVerb` is now derived from
+  `learning.verbs[verb].irregularTenses.length > 0` when a learning entry
+  exists (falling back to the DB/local value otherwise) — mobile should keep
+  treating `isIrregular` as the source-of-truth verb-mode filter flag, not
+  reclassify verbs itself.
+- Backend validates `learning` independently of `verbs` and fail-closed-omits
+  just the `learning` key on any authoring/shape problem — mobile's dataset
+  layer must treat `learning` as always-optional even on a 200 response, and
+  must not throw or degrade the core quiz loop if it's missing.
+- `POST /feedback`'s contract (enum literals, payload shape) is unchanged by
+  this milestone — `selectedAnswer` stays the raw selected choice string.
+- Prepositions are explicitly out of scope for this milestone on both sides
+  (deferred as a future cross-repo milestone).
+- Source doc: `/Users/avi/Downloads/v0.3 Learning Quality Upgrade.md`
+  (codex-authored plan, reconciled against the backend's actual shipped
+  contract during `/gsd:new-milestone`).
 
 ### Out of Scope
 

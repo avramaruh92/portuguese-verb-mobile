@@ -2,7 +2,7 @@ import { generate, sampleTriples, buildQuestion, pickDistractors } from "../src/
 import { InsufficientVerbsError } from "../src/quiz/types";
 import type { Triple } from "../src/quiz/types";
 import { verbs } from "../src/dataset/verbs";
-import type { Verb } from "../src/dataset/types";
+import type { Verb, Tense } from "../src/dataset/types";
 
 function mockRandom(sequence: number[]): () => number {
   let i = 0;
@@ -11,8 +11,8 @@ function mockRandom(sequence: number[]): () => number {
 
 describe("quiz engine", () => {
   describe("generate", () => {
-    it("filter: restricts questions to the requested tense and excludes irregular verbs when toggled off", () => {
-      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+    it("filter: restricts questions to the requested tense and excludes irregular verbs when regular_only", () => {
+      const session = generate({ tenses: ["future"], verbMode: "regular_only" }, Math.random);
       expect(session.questions).toHaveLength(10);
       session.questions.forEach((q) => {
         expect(q.tense).toBe("future");
@@ -22,9 +22,9 @@ describe("quiz engine", () => {
       });
     });
 
-    it("filter (irregular on): allows irregular verbs to appear in the pool", () => {
+    it("filter (mixed): allows irregular verbs to appear in the pool", () => {
       const session = generate(
-        { tenses: ["present_indicative"], includeIrregular: true },
+        { tenses: ["present_indicative"], verbMode: "mixed" },
         Math.random,
       );
       expect(session.questions).toHaveLength(10);
@@ -33,9 +33,92 @@ describe("quiz engine", () => {
       });
     });
 
+    it("filter (irregular_only): restricts every question's source verb to isIrregular === true", () => {
+      const session = generate(
+        { tenses: ["present_indicative"], verbMode: "irregular_only" },
+        Math.random,
+      );
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("present_indicative");
+        const verb = verbs.find((v) => v.verb === q.verb);
+        expect(verb).toBeDefined();
+        expect(verb!.isIrregular).toBe(true);
+      });
+    });
+
+    it("filter (mixed): allows both regular and irregular verbs and keeps the requested tense", () => {
+      const session = generate(
+        { tenses: ["preterite"], verbMode: "mixed" },
+        Math.random,
+      );
+      expect(session.questions).toHaveLength(10);
+      session.questions.forEach((q) => {
+        expect(q.tense).toBe("preterite");
+      });
+      const isIrregularFlags = new Set(
+        session.questions.map((q) => {
+          const verb = verbs.find((v) => v.verb === q.verb);
+          return verb!.isIrregular;
+        }),
+      );
+      expect(isIrregularFlags.size).toBeGreaterThanOrEqual(1);
+    });
+
+    it("irregular_only with an insufficient pool throws InsufficientVerbsError", () => {
+      const singleIrregularVerb: Verb[] = [
+        {
+          verb: "custarSolo",
+          translation: "custom solo verb",
+          isIrregular: true,
+          conjugations: {
+            present_indicative: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            preterite: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            imperfect: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+            future: {
+              eu: "s1",
+              tu: "s2",
+              ele_ela: "s3",
+              nos: "s4",
+              voces: "s5",
+              eles_elas: "s6",
+            },
+          },
+        },
+      ];
+      expect(() =>
+        generate(
+          { tenses: ["future"], verbMode: "irregular_only" },
+          Math.random,
+          singleIrregularVerb,
+        ),
+      ).toThrow(InsufficientVerbsError);
+    });
+
     it("duplicate: never produces a duplicate (verb, tense, subject) triple in a session", () => {
       const session = generate(
-        { tenses: ["present_indicative", "preterite"], includeIrregular: true },
+        { tenses: ["present_indicative", "preterite"], verbMode: "mixed" },
         Math.random,
       );
       const keys = session.questions.map((q) => `${q.verb}|${q.tense}|${q.subject}`);
@@ -190,7 +273,7 @@ describe("quiz engine", () => {
         },
       ];
       const session = generate(
-        { tenses: ["present_indicative", "preterite", "imperfect", "future"], includeIrregular: true },
+        { tenses: ["present_indicative", "preterite", "imperfect", "future"], verbMode: "mixed" },
         Math.random,
         customVerbs,
       );
@@ -219,8 +302,8 @@ describe("quiz engine", () => {
       }
     });
 
-    it("does not throw InsufficientVerbsError for a single-tense, irregulars-off boundary pool (~228 triples)", () => {
-      const session = generate({ tenses: ["future"], includeIrregular: false }, Math.random);
+    it("does not throw InsufficientVerbsError for a single-tense, regular_only boundary pool (~228 triples)", () => {
+      const session = generate({ tenses: ["future"], verbMode: "regular_only" }, Math.random);
       expect(session.questions).toHaveLength(10);
     });
   });
@@ -372,6 +455,222 @@ describe("quiz engine", () => {
       expect(distractors).not.toContain("colidoCorrect");
     });
 
+    const collidingVerbForTier2 = (): Verb => ({
+      verb: "colidir",
+      translation: "to collide (synthetic test fixture, tier 2)",
+      isIrregular: false,
+      conjugations: {
+        present_indicative: {
+          eu: "presCorrect",
+          tu: "presCorrect",
+          ele_ela: "presCorrect",
+          nos: "presCorrect",
+          voces: "presCorrect",
+          eles_elas: "presCorrect",
+        },
+        preterite: {
+          eu: "preteriteForm",
+          tu: "preteriteForm",
+          ele_ela: "preteriteForm",
+          nos: "preteriteForm",
+          voces: "preteriteForm",
+          eles_elas: "preteriteForm",
+        },
+        imperfect: {
+          eu: "imperfectForm",
+          tu: "imperfectForm",
+          ele_ela: "imperfectForm",
+          nos: "imperfectForm",
+          voces: "imperfectForm",
+          eles_elas: "imperfectForm",
+        },
+        future: {
+          eu: "futureForm",
+          tu: "futureForm",
+          ele_ela: "futureForm",
+          nos: "futureForm",
+          voces: "futureForm",
+          eles_elas: "futureForm",
+        },
+      },
+    });
+
+    it("tier 2: preterite question prioritizes the same-verb imperfect form as the first tier-2 candidate consumed (D-01)", () => {
+      const verb = collidingVerbForTier2();
+      // Tier 1: all other-subject present... wait, tense is preterite so tier-1 candidates
+      // are other-subject preterite forms, which all collide to "preteriteForm" (filtered as
+      // correctAnswer) leaving 0 unique tier-1 candidates — tier 2 must supply all 3.
+      const distractors = pickDistractors(verb, "preterite", "eu", [verb], mockRandom([0.5]));
+      expect(distractors[0]).toBe("imperfectForm");
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
+    it("tier 2: imperfect question prioritizes the same-verb preterite form as the first tier-2 candidate consumed (D-01)", () => {
+      const verb = collidingVerbForTier2();
+      const distractors = pickDistractors(verb, "imperfect", "eu", [verb], mockRandom([0.5]));
+      expect(distractors[0]).toBe("preteriteForm");
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
+    it("tier 2: present_indicative question has no forced pair ordering among other-tense forms (D-02)", () => {
+      const verb = collidingVerbForTier2();
+      const distractors = pickDistractors(
+        verb,
+        "present_indicative",
+        "eu",
+        [verb],
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(new Set(distractors)).toEqual(
+        new Set(["preteriteForm", "imperfectForm", "futureForm"]),
+      );
+    });
+
+    it("tier 2: candidates are deduped against the correct answer and already-chosen tier-1 forms (D-03)", () => {
+      // Tier-1 fills 2 of 3 slots ("formaX", "formaY"); tier 2 must supply exactly 1 more
+      // and never repeat the correct answer or the two tier-1 picks already chosen.
+      const collidingVerb: Verb = {
+        verb: "colidir2",
+        translation: "to collide (synthetic test fixture, tier 2 dedupe)",
+        isIrregular: false,
+        conjugations: {
+          present_indicative: {
+            eu: "colidoCorrect",
+            tu: "formaX",
+            ele_ela: "formaX",
+            nos: "formaY",
+            voces: "formaY",
+            eles_elas: "formaY",
+          },
+          preterite: {
+            eu: "colidoCorrect",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          imperfect: {
+            eu: "formaX",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          future: {
+            eu: "newTier2Form",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+        },
+      };
+      const distractors = pickDistractors(
+        collidingVerb,
+        "present_indicative",
+        "eu",
+        [collidingVerb],
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(distractors).not.toContain("colidoCorrect");
+      expect(distractors).toContain("newTier2Form");
+    });
+
+    function allCollisionVerb(name: string, correctForm: string): Verb {
+      const allSubjects = {
+        eu: correctForm,
+        tu: correctForm,
+        ele_ela: correctForm,
+        nos: correctForm,
+        voces: correctForm,
+        eles_elas: correctForm,
+      };
+      return {
+        verb: name,
+        translation: `synthetic tier-3 fixture (${name})`,
+        isIrregular: false,
+        conjugations: {
+          present_indicative: allSubjects,
+          preterite: allSubjects,
+          imperfect: allSubjects,
+          future: allSubjects,
+        },
+      };
+    }
+
+    it("tier 3: same-conjugation-class cross-verb forms are consumed before other-class forms (D-04/D-05)", () => {
+      // Source verb "falar" (class "ar") collides on all its own forms so tiers 1+2
+      // are fully exhausted; the cross-verb pool has 2 same-class ("ar") verbs and
+      // 2 other-class ("er") verbs with distinguishable literal forms.
+      const source = allCollisionVerb("falar", "sourceCorrect");
+      const sameClassA: Verb = { ...allCollisionVerb("andar", "sameA"), verb: "andar" };
+      const sameClassB: Verb = { ...allCollisionVerb("nadar", "sameB"), verb: "nadar" };
+      const otherClassA: Verb = { ...allCollisionVerb("comer", "otherA"), verb: "comer" };
+      const otherClassB: Verb = { ...allCollisionVerb("beber", "otherB"), verb: "beber" };
+      const allVerbsPool = [source, sameClassA, sameClassB, otherClassA, otherClassB];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      // Both same-class forms must be present (consumed first); only one other-class form fills the 3rd slot.
+      expect(distractors).toContain("sameA");
+      expect(distractors).toContain("sameB");
+      const otherClassCount = distractors.filter((d) => d === "otherA" || d === "otherB").length;
+      expect(otherClassCount).toBe(1);
+    });
+
+    it("tier 3: a source verb with an unmatched conjugation class (pôr, ending 'ôr') still returns 3 valid distractors (Pitfall 1/4)", () => {
+      const source = allCollisionVerb("pôr", "sourceCorrect");
+      const otherA = allCollisionVerb("falar", "formA");
+      const otherB = allCollisionVerb("comer", "formB");
+      const otherC = allCollisionVerb("abrir", "formC");
+      const allVerbsPool = [source, otherA, otherB, otherC];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(distractors).not.toContain("sourceCorrect");
+    });
+
+    it("tier 3: a small irregular_only-sized pool (4 verbs, mixed classes) still satisfies the 3-distractor invariant (Pitfall 3)", () => {
+      const source = allCollisionVerb("ser", "sourceCorrect");
+      const other1 = allCollisionVerb("estar", "form1");
+      const other2 = allCollisionVerb("ter", "form2");
+      const other3 = allCollisionVerb("ir", "form3");
+      const allVerbsPool = [source, other1, other2, other3];
+
+      const distractors = pickDistractors(
+        source,
+        "present_indicative",
+        "eu",
+        allVerbsPool,
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
     it("shuffle: buildQuestion places correctAnswer at different indices under different mock RNG sequences, deterministically per sequence", () => {
       const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
 
@@ -390,6 +689,45 @@ describe("quiz engine", () => {
         false,
       );
       void rngA;
+    });
+
+    it("distractor: tier-1 priority — with 3+ unique same-verb wrong-subject forms, all 3 distractors are same-verb, same-tense, other-subject forms (DIST-01)", () => {
+      const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
+      const question = buildQuestion(triple, simpleVerbs, Math.random);
+      const falarForms = new Set(
+        Object.values(simpleVerbs.find((v) => v.verb === "falar")!.conjugations.present_indicative),
+      );
+      const comerForms = new Set(
+        Object.values(simpleVerbs.find((v) => v.verb === "comer")!.conjugations.present_indicative),
+      );
+      const distractors = question.choices.filter((c) => c !== question.correctAnswer);
+      expect(distractors).toHaveLength(3);
+      distractors.forEach((d) => {
+        expect(falarForms.has(d)).toBe(true);
+        expect(comerForms.has(d)).toBe(false);
+      });
+    });
+
+    it("invariant: every tense (present_indicative, preterite, imperfect, future) yields 4 unique choices with exactly 1 correct answer (DIST-04)", () => {
+      const TENSES_UNDER_TEST: Tense[] = ["present_indicative", "preterite", "imperfect", "future"];
+      TENSES_UNDER_TEST.forEach((tense) => {
+        const triple: Triple = { verb: "falar", tense, subject: "eu" };
+        const question = buildQuestion(triple, verbs, Math.random);
+        expect(question.choices).toHaveLength(4);
+        expect(new Set(question.choices).size).toBe(4);
+        expect(question.choices).toContain(question.correctAnswer);
+      });
+    });
+
+    it("invariant: the 4-unique/1-correct invariant holds under irregular_only and mixed mode-shaped pools (DIST-04)", () => {
+      (["irregular_only", "mixed", "regular_only"] as const).forEach((verbMode) => {
+        const session = generate({ tenses: ["present_indicative"], verbMode }, Math.random);
+        session.questions.forEach((q) => {
+          expect(q.choices).toHaveLength(4);
+          expect(new Set(q.choices).size).toBe(4);
+          expect(q.choices).toContain(q.correctAnswer);
+        });
+      });
     });
   });
 });
