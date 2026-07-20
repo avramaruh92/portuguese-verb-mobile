@@ -100,7 +100,11 @@ Plans:
   4. Every question still shows exactly 4 unique choices with exactly 1 correct answer under the new strategy, across tense/mode combinations.
   5. Unit tests cover each distractor-priority case (wrong-subject, wrong-tense pair, cross-verb fallback) and the 4-unique/1-correct invariant.
 
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+**Wave 1**
+
+- [ ] 14-01-PLAN.md — 3-tier pickDistractors (same-verb wrong-subject → same-verb wrong-tense w/preterite-imperfect pair → cross-verb same-class fallback) + tier-2/tier-3/invariant unit tests (DIST-01..04, TEST-04)
 
 ### Phase 15: Learning Content & Explanation Engine
 
@@ -152,7 +156,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
-| 14. Smarter Distractor Generation | v0.3 | 0/? | Not started | - |
+| 14. Smarter Distractor Generation | v0.3 | 0/1 | Not started | - |
 | 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
 
