@@ -1,5 +1,20 @@
 # Milestones
 
+## v0.3 Learning Quality Upgrade (Shipped: 2026-07-20)
+
+**Phases completed:** 4 phases, 8 plans, 16 tasks
+
+**Key accomplishments:**
+
+- Replaced the boolean `includeIrregular` quiz-engine contract with a 3-way `VerbMode` union (`regular_only`/`mixed`/`irregular_only`), added a 3-branch pool filter in `generate()`, and covered all three modes plus the insufficient-pool path with new unit tests.
+- Replaced the "Include irregular verbs" `Switch` on the Setup screen with a single-select 3-chip "Verb mode" row (Regular only/Mixed/Irregular only, default Regular only), wiring the selected `verbMode` into `startQuiz`.
+- 3-tier pickDistractors strategy (same-verb wrong-subject → same-verb wrong-tense with preterite/imperfect pair prioritization → cross-verb same-conjugation-class preference) replacing the prior 2-tier same-verb/cross-verb fallback in src/quiz/engine.ts.
+- Built a Zod-validated `learning`/`formIndex` parser (`src/learning/`) and a pure `selectExplanation` function that resolves a wrong answer's exact `{tense, subject}` slot to a backend-authored explanation template, fail-closed on any missing data.
+- Wired explanations into the Quiz screen via a new `ExplanationPanel` component, fixing two pre-existing wiring gaps (`useQuizStore` discarding `learning`, `quiz.tsx` reading the bundled dataset instead of the session snapshot) along the way.
+- All 14 v0.3 requirements verified end-to-end including on-device confirmation of the verb-mode chip UI and the explanation panel; 192/192 tests passing, 0 broken cross-phase flows.
+
+---
+
 ## v0.2 Lafa Design System + Tense Label Refresh (Shipped: 2026-07-19)
 
 **Phases completed:** 2 phases, 4 plans, 3 tasks

@@ -43,7 +43,22 @@ label. Internal enum literals and the `POST /feedback` payload are
 byte-for-byte unchanged — this was a display/copy-only pass, independently
 verified (`src/feedback/` has zero references to any label map).
 
-## Current State (v0.2 shipped)
+**Shipped in v0.3:** the quiz becomes a genuine learning loop instead of a
+plain answer-checker. A 3-way verb-mode selector (Regular only / Mixed /
+Irregular only) replaces the old boolean toggle on Setup, filtering both the
+question pool and the distractor pool. Wrong-answer distractors now follow a
+pedagogical 3-tier strategy (same-verb wrong-subject → same-verb wrong-tense,
+prioritizing the Completed-past/Imperfect-past confusion pair → cross-verb
+same-conjugation-class fallback) instead of arbitrary wrong forms. After an
+incorrect answer, a short backend-authored explanation appears in a new
+`ExplanationPanel` between the choices and the Next button — built by
+Zod-validated parsing of the backend's optional `learning`/`formIndex`
+content and a pure `selectExplanation` resolver, fail-closed (no panel, no
+crash) whenever content is unavailable or a cross-verb distractor's form
+doesn't resolve. Scoring, `correctAnswer`, and the `POST /feedback` payload
+are untouched by the panel's presence.
+
+## Current State (v0.3 shipped)
 
 - Setup → Quiz → Results loop, backed by a live-fetched dataset with silent
   local fallback, snapshotted per session (Zustand store) — unchanged since
@@ -63,8 +78,17 @@ verified (`src/feedback/` has zero references to any label map).
   local-fallback signal on all 3 screens without any new error state
 - In-app "Report a problem" feedback flow wired to the live `POST /feedback`
   backend, cold-start-tolerant (90s timeout), verified never to block the quiz
-- 155 tests passing across 15 suites, strict TypeScript clean, zero blocking
-  gaps (see `.planning/v0.2-MILESTONE-AUDIT.md` for non-blocking tech debt)
+- 3-way verb-mode selector (Regular only / Mixed / Irregular only) filtering
+  both the quiz pool and the distractor pool, replacing the old boolean toggle
+- 3-tier pedagogical distractor strategy (same-verb wrong-subject → same-verb
+  wrong-tense with Completed/Imperfect-past priority → cross-verb same-class
+  fallback), still guaranteeing exactly 4 unique choices / 1 correct answer
+- Wrong-answer explanation panel (`ExplanationPanel`) on the Quiz screen,
+  populated from the backend's optional `learning`/`formIndex` content via a
+  pure `selectExplanation` resolver, fail-closed when content is unavailable
+  — never affects scoring, `correctAnswer`, or the feedback payload
+- 192 tests passing across 17 suites, strict TypeScript clean, zero blocking
+  gaps (see `.planning/v0.3-MILESTONE-AUDIT.md` for non-blocking tech debt)
 
 ## Core Value
 
@@ -75,6 +99,13 @@ conjugation quiz entirely offline, and see an accurate score. Everything else
 **Still the right priority after shipping v0.0** — nothing during development
 surfaced a different core value; the feedback and share features stayed
 firmly secondary to the offline quiz loop throughout, exactly as scoped.
+
+**Still the right priority after shipping v0.3** — verb mode, smarter
+distractors, and the explanation panel all deepen the *quality* of the
+existing quiz loop (more meaningful practice, better wrong-answer feedback)
+rather than introducing a competing feature; none of them add friction or a
+new blocking step to "pick what to practice → complete 10 questions → see a
+score."
 
 ## Requirements
 
@@ -128,61 +159,38 @@ All 12 v0.1 requirements shipped and independently verified (see
 All 9 v0.2 requirements shipped and independently verified (see
 `.planning/v0.2-MILESTONE-AUDIT.md`).
 
+- ✓ User can select verb mode (Regular only / Mixed / Irregular only) on Setup, replacing the boolean toggle, default Regular only — v0.3 (MODE-01)
+- ✓ Quiz generation filters the eligible verb pool by `isIrregular` per selected mode — v0.3 (MODE-02)
+- ✓ Insufficient-eligible-verbs error path still triggers under Irregular-only's smaller pool — v0.3 (MODE-03)
+- ✓ Distractor selection prefers same-verb wrong-subject forms — v0.3 (DIST-01)
+- ✓ Distractor selection adds same-verb wrong-tense forms, prioritizing Completed-past/Imperfect-past — v0.3 (DIST-02)
+- ✓ Distractor selection falls back to cross-verb same-class forms when same-verb options run out — v0.3 (DIST-03)
+- ✓ Every question keeps exactly 4 unique choices / 1 correct answer under the new strategy — v0.3 (DIST-04)
+- ✓ App parses the optional `learning`/`formIndex` block, Zod-validated, fail-closed on omission — v0.3 (EXPL-01)
+- ✓ Explanation panel shown after an incorrect answer, correctly placed and template-resolved — v0.3 (EXPL-02)
+- ✓ No explanation panel when learning content is unavailable — never fabricated prose — v0.3 (EXPL-03)
+- ✓ Explanation rendering never mutates `correctAnswer`, scoring, or the feedback payload, never blocks advance — v0.3 (EXPL-04)
+- ✓ Verb-mode filter unit tests (all 3 modes + insufficient-pool path) — v0.3 (TEST-03)
+- ✓ Distractor-strategy unit tests (wrong-subject/wrong-tense/cross-verb + invariant) — v0.3 (TEST-04)
+- ✓ Explanation-selection unit tests (template choice, fail-closed fallback, purity) — v0.3 (TEST-05)
+
+All 14 v0.3 requirements shipped and independently verified, including
+on-device confirmation of both the verb-mode chip UI and the explanation
+panel (see `.planning/milestones/v0.3-MILESTONE-AUDIT.md`).
+
 ### Active
 
-To be defined in `.planning/REQUIREMENTS.md` for v0.3 (this milestone).
+To be defined in `.planning/REQUIREMENTS.md` for the next milestone.
 
-Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` and
-`.planning/milestones/v0.2-REQUIREMENTS.md`.
+Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
+`.planning/milestones/v0.2-REQUIREMENTS.md`, and
+`.planning/milestones/v0.3-REQUIREMENTS.md`.
 
-## Current Milestone: v0.3 Learning Quality Upgrade
+## Current Milestone
 
-**Goal:** Turn the quiz from an answer-checker into a learning loop by adding
-irregular-only practice, smarter diagnostic distractors, and backend-authored
-wrong-answer explanations — consuming the `learning`/`formIndex` contract the
-backend already shipped in its own v0.3, not building anything backend-side.
-
-**Target features:**
-- Replace the boolean "Include irregular verbs" toggle with a 3-option verb
-  mode selector (`regular_only` default / `mixed` / `irregular_only`)
-- Smarter distractor generation: prefer same-verb-wrong-subject, same-verb
-  wrong-tense (especially Completed past vs. Imperfect past), and
-  same-subject/tense-from-another-verb, over arbitrary wrong forms
-- Wrong-answer explanation panel on the Quiz screen, populated from the
-  backend's `learning` block (templates + per-verb `tenseNotes`/
-  `subjectHints`) and each verb's `formIndex` reverse lookup, shown only
-  after an incorrect answer, never blocking advance
-- No explanation panel (not invented prose) when `learning` content is
-  unavailable — remote payloads without it, and the local fallback dataset,
-  must keep working exactly as today
-
-**Key context:**
-- The backend's `GET /content/verbs` already returns
-  `{ verbs: ContentVerb[], learning?: LearningContent }` as of its own
-  already-shipped v0.3 (2026-07-19) — `ContentVerb.formIndex` maps every
-  conjugated form string to its `{tense, subject}` slot(s) (ties preserved,
-  never collapsed), and `learning.verbs[verb]` carries
-  `irregularTenses`/`tenseNotes`/`subjectHints` plus shared
-  `learning.templates` (`wrongTense`/`wrongSubject`/`wrongTenseAndSubject`/
-  `correctAnswerReveal`/`generic`) with a closed interpolation-variable set
-  (`{verb}`, `{selectedAnswer}`, `{correctAnswer}`, `{tenseLabel}`,
-  `{subjectLabel}`, `{selectedTenseLabel}`, `{selectedSubjectLabel}`).
-- Backend's `isIrregular` on each `ContentVerb` is now derived from
-  `learning.verbs[verb].irregularTenses.length > 0` when a learning entry
-  exists (falling back to the DB/local value otherwise) — mobile should keep
-  treating `isIrregular` as the source-of-truth verb-mode filter flag, not
-  reclassify verbs itself.
-- Backend validates `learning` independently of `verbs` and fail-closed-omits
-  just the `learning` key on any authoring/shape problem — mobile's dataset
-  layer must treat `learning` as always-optional even on a 200 response, and
-  must not throw or degrade the core quiz loop if it's missing.
-- `POST /feedback`'s contract (enum literals, payload shape) is unchanged by
-  this milestone — `selectedAnswer` stays the raw selected choice string.
-- Prepositions are explicitly out of scope for this milestone on both sides
-  (deferred as a future cross-repo milestone).
-- Source doc: `/Users/avi/Downloads/v0.3 Learning Quality Upgrade.md`
-  (codex-authored plan, reconciled against the backend's actual shipped
-  contract during `/gsd:new-milestone`).
+Planning not yet started for the next milestone — run `/gsd:new-milestone`.
+Full v0.3 goal/scope detail archived at
+`.planning/milestones/v0.3-ROADMAP.md`.
 
 ### Out of Scope
 
@@ -204,6 +212,8 @@ backend already shipped in its own v0.3, not building anything backend-side.
 - Merge/conflict-resolution logic between local and remote datasets — simple remote-if-fetched-else-local precedence is sufficient. **Still valid**, confirmed by Phase 7's implementation.
 - Dataset staleness/version metadata (`FETCH-06`) — depends on what the real backend ships; deferred v2 candidate, not started.
 - Question-progress indicator ("Question X of 10") (`QUIZ-09`) — deferred v2 candidate, not started.
+- Prepositions quiz type / verb-preposition mappings — explicitly deferred to a future cross-repo milestone in v0.3; backend owns canonical data, mobile should not invent it. **Still valid.**
+- Fixing the cross-verb distractor formIndex-miss gap (a Phase-14 cross-verb wrong answer's conjugation string is looked up against the *question's own verb's* `formIndex`, which rarely matches, so no explanation renders for that specific wrong answer) — explicitly deferred in both Phase 15 and 16 CONTEXT.md as out of scope for v0.3. Degrades gracefully (fail-closed per EXPL-03, no crash), just an occasional silent absence of an explanation. **Still valid** — candidate for a future phase if a broader per-verb-pair data shape is worth the backend investment.
 
 ## Context
 
@@ -233,27 +243,24 @@ backend already shipped in its own v0.3, not building anything backend-side.
   the backend now serves `GET /content/verbs` and the app is remote-first with
   local fallback (see "Shipped in v0.1" above and Constraints below).
 
-**Current codebase state (end of v0.2):**
-- ~4,930 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
-- 155 tests passing across 15 suites; strict TypeScript (`tsc --noEmit`) clean
-- 13 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2), 35
-  plans, v0.2 built over 7 days (2026-07-12 kickoff → 2026-07-19 ship, most
-  work landed same-day 2026-07-19)
-- ESLint now installed (`eslint` + `eslint-config-expo`, auto-scaffolded by
-  `expo lint`'s first-run behavior during v0.2's milestone audit) — resolves
-  the v0.1-carried "ESLint not installed" tech debt item; one pre-existing,
-  unrelated `react-hooks/set-state-in-effect` lint finding remains in
-  `ReportFeedbackModal.tsx` (predates v0.1/v0.2, not touched by either)
-- Known non-blocking tech debt (see `.planning/v0.2-MILESTONE-AUDIT.md` for
-  full detail): locked Lafa palette computes below WCAG AA 4.5:1 contrast on
-  several text/background pairings (white-on-`primary`/`success`,
-  `primary`-on-`primarySoft`) — user reviewed on-device in Expo Go and
-  accepted as-is; LABEL-02's Portuguese grammar name renders in the primary
-  text color/size rather than visually de-emphasized (documented implementer
-  discretion, satisfies the requirement's letter); `OfflinePill` not rendered
-  on Results' no-session fallback branch (carried from v0.1, deliberate scope
-  choice); `app/results.tsx`'s `handleBackToSetup()` doesn't call `reset()`
-  before navigating (carried from v0.1, currently harmless).
+**Current codebase state (end of v0.3):**
+- ~5,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
+- 192 tests passing across 17 suites; strict TypeScript (`tsc --noEmit`) clean
+- 16 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
+  v0.3), 43 plans, v0.3 built in ~1 day (2026-07-20 kickoff → 2026-07-21 ship)
+- New `src/learning/` domain module (types, Zod schema, pure
+  `selectExplanation` resolver) added in v0.3, following the same
+  types.ts + logic-file convention as `dataset/`/`quiz/`/`feedback/`
+- Known non-blocking tech debt (see `.planning/milestones/v0.3-MILESTONE-AUDIT.md`
+  for full detail): a Phase-14 cross-verb distractor's wrong-answer form
+  occasionally doesn't resolve in Phase 15/16's `formIndex` lookup, so no
+  explanation shows for that specific wrong answer (fail-closed, not a crash,
+  explicitly accepted scope limit — see Out of Scope above); Phase 15's
+  `VALIDATION.md` metadata wasn't flipped to `nyquist_compliant: true` after
+  the phase's tests passed (cosmetic doc-sync gap only); carried-forward v0.2
+  tech debt (WCAG contrast, `OfflinePill` on Results' no-session fallback,
+  `handleBackToSetup()` not calling `reset()`) all still present, unrelated
+  to v0.3's scope.
 
 ## Constraints
 
@@ -287,6 +294,12 @@ backend already shipped in its own v0.3, not building anything backend-side.
 | `tenseGrammarNames` added as a separate `Partial<Record<Tense, string>>` export rather than overloading `tenseLabels` | `tenseLabels` is the primary-label contract asserted by `quiz-labels.test.ts`; a partial map keeps the full/partial shapes distinct | ✓ Good — zero test regressions, `present_indicative`/`future` correctly have no grammar-name entry |
 | Portuguese grammar name rendered inline-parenthesized in the primary text color, not a nested de-emphasized `<Text>` | User's explicit placement/format choice (D-04) over a caption-sized secondary row; styling treatment (D-07) left to implementer discretion | ✓ Good, ⚠️ minor debt — satisfies LABEL-02's letter (never the primary label) but not a strict visual-secondary treatment; flagged non-blocking by the integration checker |
 | Both v0.2 phases (11, 12) skipped formal research/VALIDATION.md at plan-phase time | User judgment call — small, well-scoped, display-only changes with wording/placement already locked in each phase's CONTEXT.md; research adds little value for changes this narrow | ✓ Good — both phases shipped clean, zero rework, plan-checker and verifier both passed without needing research artifacts |
+| `VerbMode` replaces `GenerateOptions.includeIrregular: boolean` outright (not additive) | A 3-way union properly models `regular_only`/`mixed`/`irregular_only`; keeping a redundant boolean alongside it would let the two disagree | ✓ Good — single source of truth, zero drift risk, all call sites updated same-phase |
+| Distractor tier 2 (same-verb wrong-tense) prioritizes the Completed-past/Imperfect-past confusion pair specifically | That's the single highest-value pedagogical confusion for A1-A2 European Portuguese learners, per user's domain knowledge | ✓ Good — tier ordering verified by dedicated unit tests, no regressions to the 4-unique/1-correct invariant |
+| Tier 3 cross-verb distractors are not excluded from the explanation-selection pipeline, even though their `formIndex` lookup often misses | Excluding them would mean irregular-only mode (smaller same-verb pool, more tier-3 usage) systematically shows fewer explanations — worse for exactly the learners who need them most | ✓ Good, ⚠️ known gap — fail-closed (no crash, no fabricated content) per EXPL-03; explanation coverage is uneven across distractor tiers, logged as accepted limitation, not reopened this milestone |
+| `selectExplanation` is a pure function taking `(verb, selectedAnswer, question, learning)`, never throws | Matches this project's established pattern (`generate()`, `score()`) of pure, framework-free, unit-testable domain logic with fail-closed `undefined` returns instead of exceptions | ✓ Good — 11/11 unit tests including an explicit purity assertion, zero UI coupling until Phase 16 |
+| `useQuizStore` gained `verbs`/`learning` fields rather than Phase 16 re-fetching or re-deriving them | The session-snapshot `resolveVerbs()` result already had both fields threaded through since Phase 15 — the store was the only layer silently discarding them | ✓ Good — closed two real wiring bugs (store discarding `learning`, `quiz.tsx` reading the bundled dataset instead of the session snapshot) that pre-dated Phase 16's own scope |
+| Conditional mount (no reserved space) for `ExplanationPanel`, unlike the opacity-0 pattern used elsewhere in `quiz.tsx` | User's explicit choice (D-02) — matches EXPL-03's literal "no panel is shown" requirement; accepted tradeoff of choices/Next button shifting position slightly | ✓ Good — user-approved, on-device confirmed, zero complaints about layout shift |
 
 ## Evolution
 
@@ -306,4 +319,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-19 after v0.2 milestone*
+*Last updated: 2026-07-21 after v0.3 milestone*
