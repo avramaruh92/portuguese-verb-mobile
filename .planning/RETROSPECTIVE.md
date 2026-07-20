@@ -124,6 +124,48 @@
 
 ---
 
+## Milestone: v0.3 — Learning Quality Upgrade
+
+**Shipped:** 2026-07-21
+**Phases:** 4 (13, 14, 15, 16) | **Plans:** 8 | **Sessions:** ~1 (planning + execution + audit + completion, spread over parts of two calendar days)
+
+### What Was Built
+- A 3-way `VerbMode` union (`regular_only`/`mixed`/`irregular_only`) replacing the boolean `includeIrregular` toggle outright — filters both the quiz-question pool and the distractor pool from a single source of truth
+- A 3-tier pedagogical distractor strategy (same-verb wrong-subject → same-verb wrong-tense with Completed-past/Imperfect-past priority → cross-verb same-conjugation-class fallback), still guaranteeing exactly 4 unique choices / 1 correct answer
+- A new `src/learning/` domain module: Zod-validated parsing of the backend's optional `learning`/`formIndex` content, plus a pure `selectExplanation` function resolving a wrong answer's exact `{tense, subject}` slot to a backend-authored template string
+- A new `ExplanationPanel` component wired into the Quiz screen between the answer choices and the Next button, fail-closed (no panel, no crash) whenever content is unavailable
+- Two pre-existing wiring bugs found and fixed along the way (not part of the original scope): `useQuizStore` was silently discarding `resolveVerbs()`'s `learning` field, and `quiz.tsx`'s `currentVerb` lookup read from the bundled local dataset instead of the session's resolved/fetched snapshot — meaning `formIndex` was never available even on a successful remote fetch until Phase 16 fixed both
+
+### What Worked
+- **Spawning the plan-checker with a concrete, one-line-fixable blocker** (a YAML `depends_on` ID format mismatch) let the orchestrator patch it directly rather than re-spawning the planner — cheaper than a full revision-loop iteration for a mechanical fix, and the same applied to closing 4 metadata-only warnings (RESEARCH.md heading format, VALIDATION.md/UI-SPEC.md sign-off checkboxes).
+- **Reading the actual live backend response directly** (`curl` + a small Node parse script), rather than trusting `learning`/`formIndex` presence from CONTEXT.md's prior-session notes, caught a real problem fast: the deployed Render instance was stale and hadn't picked up the backend repo's own already-shipped v0.3 code. This was diagnosed and confirmed within minutes once the human-verify checkpoint showed no panel appearing, rather than being misdiagnosed as a mobile-side bug.
+- **Worktree-isolated executor agents caught their own merge gaps.** Both Phase 16 plans' worktrees had been forked before their dependencies (Phase 15's `src/learning/` module, Plan 16-01's store fields) landed on `main`; each executor detected this via a failing `typecheck`/`test` run and self-corrected by merging `main` into its own worktree branch before continuing — the orchestrator never had to intervene mid-execution.
+- **The "not seeing it" debugging loop resolved in two clean diagnostic passes**, not guesswork: first confirming the live backend genuinely lacked `learning`/`formIndex` (a cross-repo deploy gap the user then fixed independently), then — after the user still didn't see it — confirming the wave-2 worktree's code had simply never been merged into the `main` checkout the user was running from. Each diagnosis was made by direct inspection (curl'ing the live endpoint; `git log`/`grep` on the running checkout) rather than assumption.
+- **Unrelated native-tooling failures (Expo Go incompatibility, CocoaPods stale-podspec-cache errors, a USB device-pairing red herring) were each diagnosed from their actual error output** rather than treated as blockers requiring a workflow pause — `pod install`'s "changed dependency version" message pointed straight at deleting `ios/Pods`/`Podfile.lock` and reinstalling; `xcrun devicectl` (not the stale `xctrace` listing) confirmed the physical device was actually connected.
+
+### What Was Inefficient
+- The physical-device verification path for Phase 16's checkpoint took several back-and-forth turns before landing: Expo Go incompatibility → simulator-only `npm run ios` → USB device offline in `xctrace` (but not in `devicectl`) → CocoaPods stale-podspec-cache failure after switching to `expo run:ios --device`. None of this was specific to the plan's own code, but it consumed real wall-clock time before the actual MODE-01/EXPL-02/03/04 checks could run — this is the same class of "generic Expo/Xcode/device friction" flagged in v0.1's retrospective, still recurring.
+- `REQUIREMENTS.md`'s traceability table and checkboxes drifted stale for 6 of 14 requirements (MODE-02/03, TEST-03, EXPL-01, TEST-05, plus MODE-01 legitimately pending) despite their phases' own VERIFICATION.md files marking them SATISFIED — caught only during the milestone audit's 3-source cross-reference, not incrementally as each phase closed. This is the same "requirements doc-sync" gap noted informally in earlier milestones' audits, now confirmed as a recurring pattern rather than a one-off.
+- Two SUMMARY.md one-liner extractions during `/gsd:complete-milestone` (Phase 15's two plans, Phase 16's plan 02) returned `null` or a garbled deviations-log fragment instead of the actual one-liner — required manually reading the SUMMARY.md files and writing MILESTONES.md's accomplishments by hand rather than trusting the automated extraction, the same failure mode flagged in v0.0's retrospective.
+
+### Patterns Established
+- **When a human-verify checkpoint reports unexpected behavior ("I don't see it"), diagnose by direct inspection before assuming the plan's code is wrong** — check the live external dependency first (curl the actual endpoint), then check whether the code under test is actually the code the user is running (worktree vs. `main`, stale build, wrong branch) before re-opening the plan itself.
+- **Worktree-isolated executors that hard-depend on another in-flight plan's output should expect to self-heal via a `main`-merge-into-worktree** when dispatched before the dependency lands — this is now observed twice (Phase 16-01 and 16-02 both did it independently) and should be treated as expected executor behavior, not a deviation to flag as risky.
+- **Requirements-doc staleness is now a confirmed recurring pattern, not incidental** — worth treating `REQUIREMENTS.md`'s traceability table as needing an explicit sync check at every phase close, not just at milestone-audit time.
+
+### Key Lessons
+1. When on-device verification shows nothing where something is expected, check the live external dependency (API response shape) before assuming the plan's mobile-side code is broken — a `curl` + small parse script is often faster than re-reading the diff.
+2. Also confirm the code under test is actually merged into the checkout the human is running — an unmerged worktree branch produces the exact same symptom ("I don't see it") as a genuine code bug, and is easy to rule out first with `git log`/`grep` on the running directory.
+3. Physical-device build friction (Expo Go SDK incompatibility, CocoaPods podspec-cache drift, USB pairing/`xctrace` staleness vs. `devicectl`) is now a 3-milestone-recurring cost class (v0.1, and now v0.3) — worth a short standing runbook so future sessions recognize the error signatures immediately rather than re-diagnosing from scratch each time.
+4. Requirements-doc sync (checkboxes + traceability table) should be checked at each phase's own close, not deferred entirely to milestone-audit — 6 of 14 v0.3 requirements needed correction in the same audit pass, a pattern also seen (in smaller form) in prior milestones.
+
+### Cost Observations
+- Model mix: opus for planning (`gsd-planner`), sonnet for research, pattern-mapping, plan-checking, execution (worktree-isolated), phase verification, integration-checking, and milestone audit.
+- Sessions: ~1 continuous session spanning plan-phase 16 → execute-phase 16 → audit-milestone v0.3 → complete-milestone v0.3, with real-world interruptions for on-device debugging (backend redeploy, worktree merge, physical-device build troubleshooting) handled inline rather than requiring separate sessions.
+- Notable: this was the fastest milestone from kickoff to ship (~1 day, 2026-07-20 → 2026-07-21) despite being tied for the most phases (4) of any milestone so far — the two debugging detours (backend staleness, unmerged worktree) were resolved in minutes each once diagnosed correctly, not multi-turn investigations.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -133,6 +175,7 @@
 | v0.0 | ~2 | 6 | First milestone — bottom-up dependency-ordered roadmap (foundation phases before vertical slices), closed with a dedicated verification-only polish phase |
 | v0.1 | ~2 | 5 (incl. 1 inserted gap-closure phase) | First milestone to use an inserted decimal phase (10.1) for milestone-audit-driven gap closure, and the first to require on-device physical-hardware verification with fresh Apple developer signing setup |
 | v0.2 | ~3 | 2 | First milestone to deliberately skip research/VALIDATION.md/UI-SPEC.md on well-scoped phases, and first to resolve an open `human_needed` verification item at milestone-audit time rather than mid-phase |
+| v0.3 | ~1 | 4 | Fastest milestone yet (~1 day); first to have executor agents self-heal a worktree-vs-main dependency gap independently, and first where a human-verify "not seeing it" report was correctly diagnosed as an external (backend deploy) then internal (unmerged worktree) issue rather than the plan's own code |
 
 ### Cumulative Quality
 
@@ -141,6 +184,7 @@
 | v0.0 | 122 | Not measured via coverage tool this milestone | 0 (native `fetch`/`Share` used instead of axios/expo-sharing/react-native-share by design) |
 | v0.1 | 150 | Not measured via coverage tool this milestone | 0 (no new npm packages added across all 5 phases, including Phase 10.1) |
 | v0.2 | 155 | Not measured via coverage tool this milestone | 1 (eslint/eslint-config-expo — resolves carried-over v0.0 tech debt, auto-scaffolded during milestone audit, confirmed with user before committing) |
+| v0.3 | 192 | Not measured via coverage tool this milestone | 0 (new `src/learning/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -150,3 +194,6 @@
 4. Milestone-audit-driven gap closure works best as a properly-planned inserted decimal phase (discuss/plan/execute/verify), with the milestone audit re-run afterward rather than trusted stale.
 5. Research/VALIDATION.md/UI-SPEC.md are optional, not default, when a phase's CONTEXT.md already locks exact copy/wording/placement — ask explicitly and log the skip as a Key Decision rather than defaulting to always-run or silently skipping.
 6. A `human_needed` phase-verification status is a deferred decision, not a blocker — resolve it explicitly at the next milestone-audit checkpoint with the original evidence, and record the resolution in both HUMAN-UAT.md and VERIFICATION.md.
+7. When a human-verify checkpoint reports unexpected behavior, diagnose the live external dependency and whether the code under test is actually merged/running before assuming the plan's own code is broken — both are faster to rule out than re-reading the diff.
+8. Physical-device build friction (Expo Go incompatibility, CocoaPods podspec-cache drift, stale device-pairing tools) is a recurring, generic cost class across milestones (v0.1, v0.3) — worth a standing runbook rather than re-diagnosing each time.
+9. Requirements-doc sync (checkboxes + traceability table) drifts stale incrementally across phases, not just at milestone end — worth an explicit check at each phase's own close.
