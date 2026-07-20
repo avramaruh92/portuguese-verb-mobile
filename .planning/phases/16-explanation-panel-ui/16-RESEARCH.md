@@ -472,7 +472,7 @@ source files** (`src/store/useQuizStore.ts`, `app/quiz.tsx`,
 verbatim from the already-approved `16-UI-SPEC.md` — no user confirmation
 needed beyond the one architectural judgment call (A1) above.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 None blocking. The one discretionary item (A1, Option A vs. B for Gap 2) is
 explicitly flagged as the planner/executor's implementation choice per
