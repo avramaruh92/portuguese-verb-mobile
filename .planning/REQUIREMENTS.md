@@ -8,7 +8,7 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 
 ### Verb Mode
 
-- [ ] **MODE-01**: User can select verb mode (Regular only / Mixed / Irregular only) on the Setup screen, replacing the boolean "Include irregular verbs" toggle. Default: Regular only. *(code/wiring verified; on-device visual/interaction check still outstanding — see 13-HUMAN-UAT.md)*
+- [x] **MODE-01**: User can select verb mode (Regular only / Mixed / Irregular only) on the Setup screen, replacing the boolean "Include irregular verbs" toggle. Default: Regular only.
 - [x] **MODE-02**: Quiz generation filters the eligible verb pool by `isIrregular` per the selected mode — `regular_only`: `isIrregular === false` only; `mixed`: all verbs; `irregular_only`: `isIrregular === true` only.
 - [x] **MODE-03**: The existing insufficient-eligible-verbs error path still triggers correctly under Irregular-only's smaller pool (no crash, same user-facing message pattern as today).
 
@@ -49,7 +49,7 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 
 | Requirement | Phase | Status |
 |--------------|-------|--------|
-| MODE-01 | Phase 13 | Partial (code verified, on-device check outstanding) |
+| MODE-01 | Phase 13 | Complete |
 | MODE-02 | Phase 13 | Complete |
 | MODE-03 | Phase 13 | Complete |
 | TEST-03 | Phase 13 | Complete |
@@ -64,4 +64,4 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 | EXPL-03 | Phase 16 | Complete |
 | EXPL-04 | Phase 16 | Complete |
 
-Coverage: 14/14 v0.3 requirements mapped, no orphans. 13/14 fully complete; MODE-01 pending on-device confirmation (see 13-HUMAN-UAT.md).
+Coverage: 14/14 v0.3 requirements mapped, no orphans. 14/14 fully complete.

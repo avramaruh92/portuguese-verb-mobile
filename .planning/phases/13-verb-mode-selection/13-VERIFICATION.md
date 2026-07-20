@@ -1,19 +1,10 @@
 ---
 phase: 13-verb-mode-selection
 verified: 2026-07-20T14:11:46Z
-status: human_needed
-score: 8/8 must-haves verified (automated); 1 checkpoint deferred to human verification
+human_verified: 2026-07-21T00:00:00Z
+status: passed
+score: 8/8 must-haves verified (automated); 3/3 human-verify checkpoints confirmed on-device (see 13-HUMAN-UAT.md)
 overrides_applied: 0
-human_verification:
-  - test: "Open Setup screen and inspect the Verb mode chip row"
-    expected: "A 'Verb mode' label with three chips — 'Regular only', 'Mixed', 'Irregular only' — appears below the tense chips, where the old toggle used to be. 'Regular only' is highlighted by default. No 'Include irregular verbs' switch remains."
-    why_human: "Visual rendering and default-highlight state cannot be confirmed by static analysis alone; requires on-device/simulator rendering."
-  - test: "Tap each of the three verb-mode chips in turn"
-    expected: "Exactly one chip is highlighted at a time (tapping one deselects the others) — single-select radio behavior."
-    why_human: "Interactive tap behavior and highlight-state transitions require live UI interaction, not just code inspection."
-  - test: "Select some tenses + 'Irregular only' and tap Start Quiz"
-    expected: "The quiz starts normally, or (for a too-small tense selection) the insufficient-verbs error message appears — no crash either way."
-    why_human: "End-to-end runtime behavior on a real device/simulator; code-level trace confirms wiring but not actual runtime behavior under Metro/Hermes."
 ---
 
 # Phase 13: Verb Mode Selection Verification Report
