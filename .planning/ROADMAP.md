@@ -58,7 +58,7 @@ backend-authored wrong-answer explanations — consuming the `learning`/
 
 - [x] **Phase 13: Verb Mode Selection** - Replace the boolean irregular toggle with a 3-option verb mode selector that correctly filters the quiz pool (completed 2026-07-20)
 - [x] **Phase 14: Smarter Distractor Generation** - Wrong-choice options become pedagogically meaningful (same-verb wrong-subject/wrong-tense, cross-verb fallback) (completed 2026-07-20)
-- [ ] **Phase 15: Learning Content & Explanation Engine** - Parse the backend's optional `learning`/`formIndex` data and derive explanation text via pure logic
+- [x] **Phase 15: Learning Content & Explanation Engine** - Parse the backend's optional `learning`/`formIndex` data and derive explanation text via pure logic (completed 2026-07-20)
 - [ ] **Phase 16: Explanation Panel UI** - Show the derived explanation on the Quiz screen after a wrong answer, without affecting scoring or feedback
 
 ## Phase Details
@@ -126,8 +126,8 @@ Plans:
 
 **Wave 2** *(depends on 15-01; run in parallel)*
 
-- [ ] 15-02-PLAN.md — Thread learning/formIndex through fetchRemoteVerbs/resolveVerbs snapshot (breaking, atomic) + caller/test updates (EXPL-01)
-- [ ] 15-03-PLAN.md — Pure selectExplanation engine (tie-break classify + interpolation) + TEST-05 unit suite (TEST-05)
+- [x] 15-02-PLAN.md — Thread learning/formIndex through fetchRemoteVerbs/resolveVerbs snapshot (breaking, atomic) + caller/test updates (EXPL-01)
+- [x] 15-03-PLAN.md — Pure selectExplanation engine (tie-break classify + interpolation) + TEST-05 unit suite (TEST-05)
 
 ### Phase 16: Explanation Panel UI
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete   | 2026-07-20 |
-| 15. Learning Content & Explanation Engine | v0.3 | 1/3 | In Progress|  |
+| 15. Learning Content & Explanation Engine | v0.3 | 3/3 | Complete   | 2026-07-20 |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
 
 ---
