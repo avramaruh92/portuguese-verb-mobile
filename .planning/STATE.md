@@ -4,12 +4,12 @@ milestone: v0.3
 milestone_name: Learning Quality Upgrade
 status: executing
 stopped_at: Phase 15 context gathered
-last_updated: "2026-07-20T17:56:52.683Z"
-last_activity: 2026-07-20 -- Phase 14 execution started
+last_updated: "2026-07-20T18:16:31.679Z"
+last_activity: 2026-07-20 -- Phase 15 execution started
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 3
+  total_plans: 6
   completed_plans: 3
   percent: 50
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-19)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 14 — smarter-distractor-generation
+**Current focus:** Phase 15 — learning-content-explanation-engine
 
 ## Current Position
 
-Phase: 14 (smarter-distractor-generation) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 14
-Last activity: 2026-07-20 -- Phase 14 execution started
+Phase: 15 (learning-content-explanation-engine) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 15
+Last activity: 2026-07-20 -- Phase 15 execution started
 
 Progress: [░░░░░░░░░░] 0%
 

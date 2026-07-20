@@ -122,7 +122,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 15-01-PLAN.md — Learning-content contract: src/learning/{types,schema}.ts + optional Verb.formIndex + schema tests (EXPL-01)
+- [x] 15-01-PLAN.md — Learning-content contract: src/learning/{types,schema}.ts + optional Verb.formIndex + schema tests (EXPL-01)
 
 **Wave 2** *(depends on 15-01; run in parallel)*
 
@@ -166,7 +166,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete   | 2026-07-20 |
-| 15. Learning Content & Explanation Engine | v0.3 | 0/3 | Not started | - |
+| 15. Learning Content & Explanation Engine | v0.3 | 1/3 | In Progress|  |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
 
 ---
