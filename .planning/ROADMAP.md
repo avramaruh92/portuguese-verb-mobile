@@ -64,52 +64,70 @@ backend-authored wrong-answer explanations — consuming the `learning`/
 ## Phase Details
 
 ### Phase 13: Verb Mode Selection
+
 **Goal**: Learner can choose among three verb-difficulty scopes (Regular only / Mixed / Irregular only) and the quiz reliably respects that choice, including graceful failure when the eligible pool is too small.
 **Depends on**: Phase 12 (v0.2, shipped)
 **Requirements**: MODE-01, MODE-02, MODE-03, TEST-03
 **Success Criteria** (what must be TRUE):
+
   1. Setup screen shows a 3-option verb mode selector (Regular only / Mixed / Irregular only) replacing the old "Include irregular verbs" boolean toggle, defaulting to Regular only.
   2. Starting a quiz in "Regular only" mode only draws questions from verbs where `isIrregular` is `false`; "Irregular only" only from `isIrregular === true`; "Mixed" draws from all eligible verbs.
   3. Selecting "Irregular only" with a tense combination that has too few eligible verbs shows the existing insufficient-verbs error message pattern, without crashing.
   4. Unit tests verify pool filtering and the existing 10-question/no-duplicate-triple guarantee under all three modes.
+
 **Plans**: 2 plans
 Plans:
+**Wave 1**
+
 - [ ] 13-01-PLAN.md — VerbMode type, 3-way engine pool filter, insufficient-verbs message, and per-mode unit tests (MODE-02, MODE-03, TEST-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 13-02-PLAN.md — Setup screen single-select verb-mode chip row replacing the irregular Switch (MODE-01)
+
 **UI hint**: yes
 
 ### Phase 14: Smarter Distractor Generation
+
 **Goal**: Wrong-answer choices are pedagogically meaningful confusions (same-verb, tense-pair, cross-verb) rather than arbitrary wrong forms.
 **Depends on**: Phase 13
 **Requirements**: DIST-01, DIST-02, DIST-03, DIST-04, TEST-04
 **Success Criteria** (what must be TRUE):
+
   1. When available, a question's wrong-choice options preferentially include same-verb, wrong-subject forms.
   2. Same-verb wrong-tense forms are included next, prioritizing the Completed-past vs. Imperfect-past confusion pair when both are eligible.
   3. When same-verb options are exhausted, distractors fall back to same-subject/tense forms drawn from another verb.
   4. Every question still shows exactly 4 unique choices with exactly 1 correct answer under the new strategy, across tense/mode combinations.
   5. Unit tests cover each distractor-priority case (wrong-subject, wrong-tense pair, cross-verb fallback) and the 4-unique/1-correct invariant.
+
 **Plans**: TBD
 
 ### Phase 15: Learning Content & Explanation Engine
+
 **Goal**: The app can parse the backend's optional `learning` block and per-verb `formIndex`, and a pure function can derive the correct explanation string for an incorrect answer — independent of any Quiz-screen UI.
 **Depends on**: Phase 13
 **Requirements**: EXPL-01, TEST-05
 **Success Criteria** (what must be TRUE):
+
   1. `GET /content/verbs` responses that include a `learning` block are Zod-validated and parsed into typed learning content without altering existing `verbs`/`formIndex` handling.
   2. Responses that omit `learning` (backend's fail-closed omission) resolve the dataset exactly as before — no error, no missing-field crash, `verbs` unaffected.
   3. A pure explanation-selection function, given a verb, selected answer, correct answer, and the parsed learning content, resolves the selected answer's `{tense, subject}` slot via `formIndex` and returns the correctly-templated explanation string, or `undefined` when no match exists.
   4. Unit tests cover correct template selection per mismatch type (`wrongTense` / `wrongSubject` / `wrongTenseAndSubject` / `generic`) and the missing-content fallback (no throw, `undefined` result).
+
 **Plans**: TBD
 
 ### Phase 16: Explanation Panel UI
+
 **Goal**: A learner who answers incorrectly sees a short, backend-authored explanation on the Quiz screen without ever losing the ability to advance or affecting their score or feedback data.
 **Depends on**: Phase 15
 **Requirements**: EXPL-02, EXPL-03, EXPL-04
 **Success Criteria** (what must be TRUE):
+
   1. After selecting an incorrect answer, an explanation panel appears between the answer choices and the Next button whenever Phase 15's explanation logic resolves a string.
   2. When learning content is unavailable for that verb/answer (missing `learning` block, missing verb entry, or no `formIndex` match), no panel is shown — never fabricated or unreviewed grammar prose.
   3. Correct-answer questions never show the explanation panel.
   4. Advancing to the next question, scoring, and the `POST /feedback` payload's `selectedAnswer` string are unaffected by the panel's presence — verified unchanged.
+
 **Plans**: TBD
 **UI hint**: yes
 
