@@ -455,6 +455,136 @@ describe("quiz engine", () => {
       expect(distractors).not.toContain("colidoCorrect");
     });
 
+    const collidingVerbForTier2 = (): Verb => ({
+      verb: "colidir",
+      translation: "to collide (synthetic test fixture, tier 2)",
+      isIrregular: false,
+      conjugations: {
+        present_indicative: {
+          eu: "presCorrect",
+          tu: "presCorrect",
+          ele_ela: "presCorrect",
+          nos: "presCorrect",
+          voces: "presCorrect",
+          eles_elas: "presCorrect",
+        },
+        preterite: {
+          eu: "preteriteForm",
+          tu: "preteriteForm",
+          ele_ela: "preteriteForm",
+          nos: "preteriteForm",
+          voces: "preteriteForm",
+          eles_elas: "preteriteForm",
+        },
+        imperfect: {
+          eu: "imperfectForm",
+          tu: "imperfectForm",
+          ele_ela: "imperfectForm",
+          nos: "imperfectForm",
+          voces: "imperfectForm",
+          eles_elas: "imperfectForm",
+        },
+        future: {
+          eu: "futureForm",
+          tu: "futureForm",
+          ele_ela: "futureForm",
+          nos: "futureForm",
+          voces: "futureForm",
+          eles_elas: "futureForm",
+        },
+      },
+    });
+
+    it("tier 2: preterite question prioritizes the same-verb imperfect form as the first tier-2 candidate consumed (D-01)", () => {
+      const verb = collidingVerbForTier2();
+      // Tier 1: all other-subject present... wait, tense is preterite so tier-1 candidates
+      // are other-subject preterite forms, which all collide to "preteriteForm" (filtered as
+      // correctAnswer) leaving 0 unique tier-1 candidates — tier 2 must supply all 3.
+      const distractors = pickDistractors(verb, "preterite", "eu", [verb], mockRandom([0.5]));
+      expect(distractors[0]).toBe("imperfectForm");
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
+    it("tier 2: imperfect question prioritizes the same-verb preterite form as the first tier-2 candidate consumed (D-01)", () => {
+      const verb = collidingVerbForTier2();
+      const distractors = pickDistractors(verb, "imperfect", "eu", [verb], mockRandom([0.5]));
+      expect(distractors[0]).toBe("preteriteForm");
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+    });
+
+    it("tier 2: present_indicative question has no forced pair ordering among other-tense forms (D-02)", () => {
+      const verb = collidingVerbForTier2();
+      const distractors = pickDistractors(
+        verb,
+        "present_indicative",
+        "eu",
+        [verb],
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(new Set(distractors)).toEqual(
+        new Set(["preteriteForm", "imperfectForm", "futureForm"]),
+      );
+    });
+
+    it("tier 2: candidates are deduped against the correct answer and already-chosen tier-1 forms (D-03)", () => {
+      // Tier-1 fills 2 of 3 slots ("formaX", "formaY"); tier 2 must supply exactly 1 more
+      // and never repeat the correct answer or the two tier-1 picks already chosen.
+      const collidingVerb: Verb = {
+        verb: "colidir2",
+        translation: "to collide (synthetic test fixture, tier 2 dedupe)",
+        isIrregular: false,
+        conjugations: {
+          present_indicative: {
+            eu: "colidoCorrect",
+            tu: "formaX",
+            ele_ela: "formaX",
+            nos: "formaY",
+            voces: "formaY",
+            eles_elas: "formaY",
+          },
+          preterite: {
+            eu: "colidoCorrect",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          imperfect: {
+            eu: "formaX",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+          future: {
+            eu: "newTier2Form",
+            tu: "x",
+            ele_ela: "x",
+            nos: "x",
+            voces: "x",
+            eles_elas: "x",
+          },
+        },
+      };
+      const distractors = pickDistractors(
+        collidingVerb,
+        "present_indicative",
+        "eu",
+        [collidingVerb],
+        mockRandom([0.5]),
+      );
+      expect(distractors).toHaveLength(3);
+      expect(new Set(distractors).size).toBe(3);
+      expect(distractors).not.toContain("colidoCorrect");
+      expect(distractors).toContain("newTier2Form");
+    });
+
     it("shuffle: buildQuestion places correctAnswer at different indices under different mock RNG sequences, deterministically per sequence", () => {
       const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
 
