@@ -57,7 +57,7 @@ backend-authored wrong-answer explanations — consuming the `learning`/
 `formIndex` contract the backend already shipped in its own v0.3.
 
 - [x] **Phase 13: Verb Mode Selection** - Replace the boolean irregular toggle with a 3-option verb mode selector that correctly filters the quiz pool (completed 2026-07-20)
-- [ ] **Phase 14: Smarter Distractor Generation** - Wrong-choice options become pedagogically meaningful (same-verb wrong-subject/wrong-tense, cross-verb fallback)
+- [x] **Phase 14: Smarter Distractor Generation** - Wrong-choice options become pedagogically meaningful (same-verb wrong-subject/wrong-tense, cross-verb fallback) (completed 2026-07-20)
 - [ ] **Phase 15: Learning Content & Explanation Engine** - Parse the backend's optional `learning`/`formIndex` data and derive explanation text via pure logic
 - [ ] **Phase 16: Explanation Panel UI** - Show the derived explanation on the Quiz screen after a wrong answer, without affecting scoring or feedback
 
@@ -104,7 +104,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 14-01-PLAN.md — 3-tier pickDistractors (same-verb wrong-subject → same-verb wrong-tense w/preterite-imperfect pair → cross-verb same-class fallback) + tier-2/tier-3/invariant unit tests (DIST-01..04, TEST-04)
+- [x] 14-01-PLAN.md — 3-tier pickDistractors (same-verb wrong-subject → same-verb wrong-tense w/preterite-imperfect pair → cross-verb same-class fallback) + tier-2/tier-3/invariant unit tests (DIST-01..04, TEST-04)
 
 ### Phase 15: Learning Content & Explanation Engine
 
@@ -156,7 +156,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
-| 14. Smarter Distractor Generation | v0.3 | 0/1 | Not started | - |
+| 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete   | 2026-07-20 |
 | 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
 
