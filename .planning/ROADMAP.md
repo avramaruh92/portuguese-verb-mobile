@@ -56,7 +56,7 @@ adding irregular-only practice, smarter diagnostic distractors, and
 backend-authored wrong-answer explanations — consuming the `learning`/
 `formIndex` contract the backend already shipped in its own v0.3.
 
-- [ ] **Phase 13: Verb Mode Selection** - Replace the boolean irregular toggle with a 3-option verb mode selector that correctly filters the quiz pool
+- [x] **Phase 13: Verb Mode Selection** - Replace the boolean irregular toggle with a 3-option verb mode selector that correctly filters the quiz pool (completed 2026-07-20)
 - [ ] **Phase 14: Smarter Distractor Generation** - Wrong-choice options become pedagogically meaningful (same-verb wrong-subject/wrong-tense, cross-verb fallback)
 - [ ] **Phase 15: Learning Content & Explanation Engine** - Parse the backend's optional `learning`/`formIndex` data and derive explanation text via pure logic
 - [ ] **Phase 16: Explanation Panel UI** - Show the derived explanation on the Quiz screen after a wrong answer, without affecting scoring or feedback
@@ -83,7 +83,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 13-02-PLAN.md — Setup screen single-select verb-mode chip row replacing the irregular Switch (MODE-01)
+- [x] 13-02-PLAN.md — Setup screen single-select verb-mode chip row replacing the irregular Switch (MODE-01)
 
 **UI hint**: yes
 
@@ -151,7 +151,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 10.1. Close gap: UI-03 — Offline Content Indicator | v0.1 | 2/2 | Complete | 2026-07-17 |
 | 11. Lafa Design Tokens & Brand Identity | v0.2 | 3/3 | Complete | 2026-07-19 |
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
-| 13. Verb Mode Selection | v0.3 | 1/2 | In Progress|  |
+| 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
 | 14. Smarter Distractor Generation | v0.3 | 0/? | Not started | - |
 | 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
