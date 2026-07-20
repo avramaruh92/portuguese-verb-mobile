@@ -63,7 +63,7 @@ describe("useQuizStore", () => {
   beforeEach(() => {
     useQuizStore.getState().reset();
     mockedResolveVerbs.mockReset();
-    mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
+    mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: undefined });
   });
 
   it("has the correct initial state", () => {
@@ -112,7 +112,7 @@ describe("useQuizStore", () => {
   });
 
   it("startQuiz awaits resolveVerbs and feeds the resolved snapshot into generate", async () => {
-    mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote" });
+    mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
     const spy = jest.spyOn(engine, "generate");
     await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
     expect(spy).toHaveBeenCalledWith(ALL_TENSES_OPTIONS, undefined, [sampleRemoteVerb]);
@@ -212,24 +212,24 @@ describe("useQuizStore", () => {
 
   describe("startQuiz dataset snapshot (FETCH-04)", () => {
     it("keeps an in-progress session's questions unchanged after resolveVerbs is re-pointed to a different dataset", async () => {
-      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
+      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: undefined });
       await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
       const snapshotQuestions = useQuizStore.getState().session?.questions;
       expect(snapshotQuestions).toBeDefined();
 
       // Simulate a background refresh completing with a different dataset —
       // no new startQuiz call, so the in-progress session must be untouched.
-      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote" });
+      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
 
       expect(useQuizStore.getState().session?.questions).toEqual(snapshotQuestions);
     });
 
     it("snapshots the dataset at call time — two startQuiz calls under different mocked datasets produce sessions drawn from their respective snapshots", async () => {
-      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local" });
+      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: undefined });
       await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
       const sessionA = useQuizStore.getState().session;
 
-      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote" });
+      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
       await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
       const sessionB = useQuizStore.getState().session;
 
