@@ -2,7 +2,7 @@ import { generate, sampleTriples, buildQuestion, pickDistractors } from "../src/
 import { InsufficientVerbsError } from "../src/quiz/types";
 import type { Triple } from "../src/quiz/types";
 import { verbs } from "../src/dataset/verbs";
-import type { Verb } from "../src/dataset/types";
+import type { Verb, Tense } from "../src/dataset/types";
 
 function mockRandom(sequence: number[]): () => number {
   let i = 0;
@@ -689,6 +689,45 @@ describe("quiz engine", () => {
         false,
       );
       void rngA;
+    });
+
+    it("distractor: tier-1 priority — with 3+ unique same-verb wrong-subject forms, all 3 distractors are same-verb, same-tense, other-subject forms (DIST-01)", () => {
+      const triple: Triple = { verb: "falar", tense: "present_indicative", subject: "eu" };
+      const question = buildQuestion(triple, simpleVerbs, Math.random);
+      const falarForms = new Set(
+        Object.values(simpleVerbs.find((v) => v.verb === "falar")!.conjugations.present_indicative),
+      );
+      const comerForms = new Set(
+        Object.values(simpleVerbs.find((v) => v.verb === "comer")!.conjugations.present_indicative),
+      );
+      const distractors = question.choices.filter((c) => c !== question.correctAnswer);
+      expect(distractors).toHaveLength(3);
+      distractors.forEach((d) => {
+        expect(falarForms.has(d)).toBe(true);
+        expect(comerForms.has(d)).toBe(false);
+      });
+    });
+
+    it("invariant: every tense (present_indicative, preterite, imperfect, future) yields 4 unique choices with exactly 1 correct answer (DIST-04)", () => {
+      const TENSES_UNDER_TEST: Tense[] = ["present_indicative", "preterite", "imperfect", "future"];
+      TENSES_UNDER_TEST.forEach((tense) => {
+        const triple: Triple = { verb: "falar", tense, subject: "eu" };
+        const question = buildQuestion(triple, verbs, Math.random);
+        expect(question.choices).toHaveLength(4);
+        expect(new Set(question.choices).size).toBe(4);
+        expect(question.choices).toContain(question.correctAnswer);
+      });
+    });
+
+    it("invariant: the 4-unique/1-correct invariant holds under irregular_only and mixed mode-shaped pools (DIST-04)", () => {
+      (["irregular_only", "mixed", "regular_only"] as const).forEach((verbMode) => {
+        const session = generate({ tenses: ["present_indicative"], verbMode }, Math.random);
+        session.questions.forEach((q) => {
+          expect(q.choices).toHaveLength(4);
+          expect(new Set(q.choices).size).toBe(4);
+          expect(q.choices).toContain(q.correctAnswer);
+        });
+      });
     });
   });
 });
