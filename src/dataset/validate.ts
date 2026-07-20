@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { FormMatchSchema } from "../learning/schema";
+
 const SubjectConjugationsSchema = z.object({
   eu: z.string().min(1),
   tu: z.string().min(1),
@@ -21,6 +23,7 @@ export const VerbSchema = z.object({
   translation: z.string().min(1),
   isIrregular: z.boolean(),
   conjugations: TenseConjugationsSchema,
+  formIndex: z.record(z.string(), z.array(FormMatchSchema)).optional(),
 });
 
 export function validateDataset(verbs: unknown[]): {

@@ -1,10 +1,15 @@
 import type { Verb } from "./types";
 import { validateDataset } from "./validate";
+import { LearningContentSchema } from "../learning/schema";
+import type { LearningContent } from "../learning/types";
 
 const CONTENT_ENDPOINT = "https://portuguese-verb-api.onrender.com/content/verbs";
 const TIMEOUT_MS = 90_000;
 
-export async function fetchRemoteVerbs(): Promise<Verb[]> {
+export async function fetchRemoteVerbs(): Promise<{
+  verbs: Verb[];
+  learning: LearningContent | undefined;
+}> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -28,7 +33,10 @@ export async function fetchRemoteVerbs(): Promise<Verb[]> {
       throw new Error(`invalid remote dataset shape: ${errors.join("; ")}`);
     }
 
-    return payload.verbs as Verb[];
+    const learningResult = LearningContentSchema.safeParse(payload.learning);
+    const learning = learningResult.success ? learningResult.data : undefined;
+
+    return { verbs: payload.verbs as Verb[], learning };
   } finally {
     clearTimeout(timeoutId);
   }
