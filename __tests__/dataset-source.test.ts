@@ -51,13 +51,13 @@ describe("resolveVerbs / prefetch", () => {
 
   it("resolves { verbs: <remote>, source: 'remote' } when fetchRemoteVerbs resolves", async () => {
     const { fetchRemoteVerbs } = require("../src/dataset/remote");
-    fetchRemoteVerbs.mockResolvedValue([sampleRemoteVerb]);
+    fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: undefined });
 
     const { resolveVerbs } = require("../src/dataset/source");
 
     const result = await resolveVerbs();
 
-    expect(result).toEqual({ verbs: [sampleRemoteVerb], source: "remote" });
+    expect(result).toEqual({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
   });
 
   it("resolves { verbs: localVerbs, source: 'local' } when fetchRemoteVerbs rejects", async () => {
@@ -68,7 +68,7 @@ describe("resolveVerbs / prefetch", () => {
 
     const result = await resolveVerbs();
 
-    expect(result).toEqual({ verbs: localVerbs, source: "local" });
+    expect(result).toEqual({ verbs: localVerbs, source: "local", learning: undefined });
   });
 
   it("never rejects regardless of the fetchRemoteVerbs failure mode", async () => {
@@ -82,7 +82,7 @@ describe("resolveVerbs / prefetch", () => {
 
   it("invokes fetchRemoteVerbs at most once across multiple resolveVerbs() calls", async () => {
     const { fetchRemoteVerbs } = require("../src/dataset/remote");
-    fetchRemoteVerbs.mockResolvedValue([sampleRemoteVerb]);
+    fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: undefined });
 
     const { resolveVerbs } = require("../src/dataset/source");
 
@@ -95,7 +95,7 @@ describe("resolveVerbs / prefetch", () => {
 
   it("prefetch() triggers resolution once without requiring the caller to await it", async () => {
     const { fetchRemoteVerbs } = require("../src/dataset/remote");
-    fetchRemoteVerbs.mockResolvedValue([sampleRemoteVerb]);
+    fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: undefined });
 
     const { prefetch, resolveVerbs } = require("../src/dataset/source");
 
@@ -103,6 +103,30 @@ describe("resolveVerbs / prefetch", () => {
     const result = await resolveVerbs();
 
     expect(fetchRemoteVerbs).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ verbs: [sampleRemoteVerb], source: "remote" });
+    expect(result).toEqual({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
+  });
+
+  it("flows a non-undefined learning value through resolveVerbs() when fetchRemoteVerbs resolves one", async () => {
+    const sampleLearning = {
+      version: 1 as const,
+      templates: {
+        wrongTense: "wrong tense",
+        wrongSubject: "wrong subject",
+        wrongTenseAndSubject: "wrong tense and subject",
+        correctAnswerReveal: "correct answer reveal",
+        generic: "generic",
+      },
+      verbs: {
+        beber: { irregularTenses: [] },
+      },
+    };
+    const { fetchRemoteVerbs } = require("../src/dataset/remote");
+    fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: sampleLearning });
+
+    const { resolveVerbs } = require("../src/dataset/source");
+
+    const result = await resolveVerbs();
+
+    expect(result).toEqual({ verbs: [sampleRemoteVerb], source: "remote", learning: sampleLearning });
   });
 });
