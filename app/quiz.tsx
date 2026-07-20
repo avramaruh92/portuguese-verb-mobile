@@ -5,7 +5,6 @@ import { Stack, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/labels";
-import { verbs } from "../src/dataset/verbs";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
@@ -18,6 +17,8 @@ export default function Quiz() {
   const currentIndex = useQuizStore((s) => s.currentIndex);
   const lockedChoice = useQuizStore((s) => s.lockedChoice);
   const status = useQuizStore((s) => s.status);
+  const verbs = useQuizStore((s) => s.verbs);
+  const learning = useQuizStore((s) => s.learning);
   const selectAnswer = useQuizStore((s) => s.selectAnswer);
   const advance = useQuizStore((s) => s.advance);
   const reset = useQuizStore((s) => s.reset);
