@@ -118,7 +118,16 @@ Plans:
   3. A pure explanation-selection function, given a verb, selected answer, correct answer, and the parsed learning content, resolves the selected answer's `{tense, subject}` slot via `formIndex` and returns the correctly-templated explanation string, or `undefined` when no match exists.
   4. Unit tests cover correct template selection per mismatch type (`wrongTense` / `wrongSubject` / `wrongTenseAndSubject` / `generic`) and the missing-content fallback (no throw, `undefined` result).
 
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+**Wave 1**
+
+- [ ] 15-01-PLAN.md — Learning-content contract: src/learning/{types,schema}.ts + optional Verb.formIndex + schema tests (EXPL-01)
+
+**Wave 2** *(depends on 15-01; run in parallel)*
+
+- [ ] 15-02-PLAN.md — Thread learning/formIndex through fetchRemoteVerbs/resolveVerbs snapshot (breaking, atomic) + caller/test updates (EXPL-01)
+- [ ] 15-03-PLAN.md — Pure selectExplanation engine (tie-break classify + interpolation) + TEST-05 unit suite (TEST-05)
 
 ### Phase 16: Explanation Panel UI
 
@@ -157,7 +166,7 @@ Phases execute in numeric order: 13 → 14 → 15 → 16
 | 12. Tense Label Refresh | v0.2 | 1/1 | Complete | 2026-07-19 |
 | 13. Verb Mode Selection | v0.3 | 2/2 | Complete   | 2026-07-20 |
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete   | 2026-07-20 |
-| 15. Learning Content & Explanation Engine | v0.3 | 0/? | Not started | - |
+| 15. Learning Content & Explanation Engine | v0.3 | 0/3 | Not started | - |
 | 16. Explanation Panel UI | v0.3 | 0/? | Not started | - |
 
 ---
