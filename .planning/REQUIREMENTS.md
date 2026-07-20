@@ -14,10 +14,10 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 
 ### Distractors
 
-- [ ] **DIST-01**: Distractor selection prefers same-verb, wrong-subject forms over arbitrary wrong forms.
-- [ ] **DIST-02**: Distractor selection adds same-verb, wrong-tense forms, prioritizing the Completed-past vs. Imperfect-past confusion pair.
-- [ ] **DIST-03**: Distractor selection falls back to same-subject/tense forms from another verb (same conjugation class where available) when same-verb options run out.
-- [ ] **DIST-04**: Every question keeps exactly 4 unique choices with exactly 1 correct answer under the new strategy — the existing invariant, re-verified.
+- [x] **DIST-01**: Distractor selection prefers same-verb, wrong-subject forms over arbitrary wrong forms.
+- [x] **DIST-02**: Distractor selection adds same-verb, wrong-tense forms, prioritizing the Completed-past vs. Imperfect-past confusion pair.
+- [x] **DIST-03**: Distractor selection falls back to same-subject/tense forms from another verb (same conjugation class where available) when same-verb options run out.
+- [x] **DIST-04**: Every question keeps exactly 4 unique choices with exactly 1 correct answer under the new strategy — the existing invariant, re-verified.
 
 ### Explanations
 
@@ -29,7 +29,7 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 ### Testing
 
 - [ ] **TEST-03**: Verb-mode filter unit tests cover `regular_only`/`mixed`/`irregular_only`, including the existing 10-question/no-duplicate-triple guarantees under each mode.
-- [ ] **TEST-04**: Distractor-strategy unit tests cover wrong-subject, wrong-tense (incl. Completed/Imperfect past), and cross-verb fallback cases, plus the 4-unique-choices/1-correct-answer invariant.
+- [x] **TEST-04**: Distractor-strategy unit tests cover wrong-subject, wrong-tense (incl. Completed/Imperfect past), and cross-verb fallback cases, plus the 4-unique-choices/1-correct-answer invariant.
 - [ ] **TEST-05**: Explanation-selection unit tests cover correct template choice per mismatch type, the missing-learning-content fallback (no panel, no throw), and confirm explanation generation never mutates scoring/feedback data.
 
 ## Future Requirements (deferred)
@@ -53,11 +53,11 @@ plan), reconciled against the backend's already-shipped v0.3 contract
 | MODE-02 | Phase 13 | Pending |
 | MODE-03 | Phase 13 | Pending |
 | TEST-03 | Phase 13 | Pending |
-| DIST-01 | Phase 14 | Pending |
-| DIST-02 | Phase 14 | Pending |
-| DIST-03 | Phase 14 | Pending |
-| DIST-04 | Phase 14 | Pending |
-| TEST-04 | Phase 14 | Pending |
+| DIST-01 | Phase 14 | Complete |
+| DIST-02 | Phase 14 | Complete |
+| DIST-03 | Phase 14 | Complete |
+| DIST-04 | Phase 14 | Complete |
+| TEST-04 | Phase 14 | Complete |
 | EXPL-01 | Phase 15 | Pending |
 | TEST-05 | Phase 15 | Pending |
 | EXPL-02 | Phase 16 | Pending |
