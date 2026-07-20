@@ -4,6 +4,7 @@ import { resolveVerbs } from "../src/dataset/source";
 import { verbs as localVerbs } from "../src/dataset/verbs";
 import type { Verb } from "../src/dataset/types";
 import type { GenerateOptions } from "../src/quiz/types";
+import type { LearningContent } from "../src/learning/types";
 
 jest.mock("../src/dataset/source");
 
@@ -59,6 +60,18 @@ const sampleRemoteVerb: Verb = {
   },
 };
 
+const sampleLearning: LearningContent = {
+  version: 1,
+  templates: {
+    wrongTense: "For {verb}, the correct tense is {tense}.",
+    wrongSubject: "For {verb}, the correct subject is {subject}.",
+    wrongTenseAndSubject: "For {verb}, the correct answer is {correctAnswer}.",
+    correctAnswerReveal: "The correct answer is {correctAnswer}.",
+    generic: "The correct answer is {correctAnswer}.",
+  },
+  verbs: {},
+};
+
 describe("useQuizStore", () => {
   beforeEach(() => {
     useQuizStore.getState().reset();
@@ -91,6 +104,16 @@ describe("useQuizStore", () => {
     expect(state.filters).toEqual(VALID_OPTIONS);
     expect(state.currentIndex).toBe(0);
     expect(state.answers).toEqual([]);
+    expect(state.verbs).toEqual(localVerbs);
+    expect(state.learning).toBeUndefined();
+  });
+
+  it("startQuiz sets state.learning to the LearningContent resolved from resolveVerbs", async () => {
+    mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: sampleLearning });
+    await useQuizStore.getState().startQuiz(VALID_OPTIONS);
+    const state = useQuizStore.getState();
+    expect(state.learning).toEqual(sampleLearning);
+    expect(state.verbs).toEqual(localVerbs);
   });
 
   it("startQuiz with insufficient verbs sets error status with the D-04 message and no session", async () => {
@@ -170,6 +193,7 @@ describe("useQuizStore", () => {
   });
 
   it("reset returns all state to initial values", async () => {
+    mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: sampleLearning });
     await useQuizStore.getState().startQuiz(VALID_OPTIONS);
     useQuizStore.getState().selectAnswer("choice-0");
     useQuizStore.getState().reset();
@@ -181,6 +205,8 @@ describe("useQuizStore", () => {
     expect(state.answers).toEqual([]);
     expect(state.lockedChoice).toBeNull();
     expect(state.errorMessage).toBeNull();
+    expect(state.verbs).toEqual([]);
+    expect(state.learning).toBeUndefined();
   });
 
   it("reset() after an in-progress, mutated quiz restores every field to a fresh initialState (end-quiz-early full-state-equality guard)", async () => {

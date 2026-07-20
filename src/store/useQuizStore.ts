@@ -3,6 +3,8 @@ import { generate } from "../quiz/engine";
 import type { GenerateOptions, QuizSession } from "../quiz/types";
 import { InsufficientVerbsError } from "../quiz/types";
 import { resolveVerbs } from "../dataset/source";
+import type { Verb } from "../dataset/types";
+import type { LearningContent } from "../learning/types";
 
 type QuizStatus = "idle" | "error" | "in-progress" | "completed";
 
@@ -17,6 +19,8 @@ interface QuizStoreState {
   answers: (string | null)[];
   lockedChoice: string | null;
   errorMessage: string | null;
+  verbs: Verb[];
+  learning: LearningContent | undefined;
   startQuiz: (options: GenerateOptions) => Promise<void>;
   selectAnswer: (choice: string) => void;
   advance: () => void;
@@ -31,6 +35,8 @@ const initialState = {
   answers: [] as (string | null)[],
   lockedChoice: null,
   errorMessage: null,
+  verbs: [] as Verb[],
+  learning: undefined as LearningContent | undefined,
 };
 
 // Incrementing call token so that a stale (superseded) startQuiz call
@@ -44,7 +50,7 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
   startQuiz: async (options: GenerateOptions) => {
     const token = ++startToken;
     try {
-      const { verbs } = await resolveVerbs();
+      const { verbs, learning } = await resolveVerbs();
       if (token !== startToken) return; // superseded by a newer call
       const session = generate(options, undefined, verbs);
       set({
@@ -55,6 +61,8 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
         answers: [],
         lockedChoice: null,
         errorMessage: null,
+        verbs,
+        learning,
       });
     } catch (error) {
       if (token !== startToken) return; // superseded by a newer call
