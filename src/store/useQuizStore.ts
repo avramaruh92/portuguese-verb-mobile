@@ -7,7 +7,7 @@ import { resolveVerbs } from "../dataset/source";
 type QuizStatus = "idle" | "error" | "in-progress" | "completed";
 
 const INSUFFICIENT_VERBS_MESSAGE =
-  "Not enough verbs for that combination — try selecting more tenses or including irregulars.";
+  "Not enough verbs for that combination — try selecting more tenses or a different verb mode.";
 
 interface QuizStoreState {
   status: QuizStatus;

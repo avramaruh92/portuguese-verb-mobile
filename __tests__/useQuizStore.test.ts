@@ -11,12 +11,12 @@ const mockedResolveVerbs = resolveVerbs as jest.MockedFunction<typeof resolveVer
 
 const VALID_OPTIONS: GenerateOptions = {
   tenses: ["present_indicative"],
-  includeIrregular: false,
+  verbMode: "regular_only",
 };
 
 const ALL_TENSES_OPTIONS: GenerateOptions = {
   tenses: ["present_indicative", "preterite", "imperfect", "future"],
-  includeIrregular: false,
+  verbMode: "regular_only",
 };
 
 const sampleRemoteVerb: Verb = {
@@ -94,11 +94,11 @@ describe("useQuizStore", () => {
   });
 
   it("startQuiz with insufficient verbs sets error status with the D-04 message and no session", async () => {
-    await useQuizStore.getState().startQuiz({ tenses: [], includeIrregular: false });
+    await useQuizStore.getState().startQuiz({ tenses: [], verbMode: "regular_only" });
     const state = useQuizStore.getState();
     expect(state.status).toBe("error");
     expect(state.errorMessage).toBe(
-      "Not enough verbs for that combination — try selecting more tenses or including irregulars.",
+      "Not enough verbs for that combination — try selecting more tenses or a different verb mode.",
     );
     expect(state.session).toBeNull();
   });
