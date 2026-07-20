@@ -396,7 +396,11 @@ canonical backend source files and mobile source files) or `[CITED:
 CONTEXT.md]` (the D-01 through D-05 decisions, copied/restated, not
 re-derived).
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+Resolved by 15-02-PLAN.md Task 2, which mandates adding `learning: undefined`
+to every `mockedResolveVerbs.mockResolvedValue({ verbs, source })` call in
+`__tests__/useQuizStore.test.ts` — exactly this section's own recommendation.
 
 1. **Should `formIndex`/`learning` failures be surfaced anywhere in tests
    for `OfflinePill`/`useQuizStore`, given they don't change `source`?**
