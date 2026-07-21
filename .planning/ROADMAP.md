@@ -68,7 +68,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 **Milestone Goal:** Consume the backend v0.4 contract exactly as shipped,
 and add general product feedback via a new `/product-feedback` endpoint.
 
-- [ ] **Phase 17: Contract Fixture Verification** - Prove mobile's existing runtime parsing paths accept the real backend v0.4 payload shape, self-contained
+- [x] **Phase 17: Contract Fixture Verification** - Prove mobile's existing runtime parsing paths accept the real backend v0.4 payload shape, self-contained (completed 2026-07-21)
 - [ ] **Phase 18: Explanation Compatibility Upgrade** - `selectExplanation` gains selected-answer interpolation and backend-authored notes/hints, staying fail-closed
 - [ ] **Phase 19: General Product Feedback** - New `/product-feedback` domain + UI entry points on all 3 screens, independent of quiz-answer context
 
@@ -85,7 +85,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
   4. A test proves the fixture parses successfully through `fetchRemoteVerbs`'s parsing path.
   5. A test asserts accented forms (e.g. `pôr`/`pôs`) and tied forms (e.g. `falam`) survive parsing byte-for-byte unchanged.
 **Plans**: 1 plan
-- [ ] 17-01-PLAN.md — Copy backend v0.4 fixture into test tree + prove it parses through validateDataset/LearningContentSchema/fetchRemoteVerbs with byte-for-byte accent/tie fidelity
+- [x] 17-01-PLAN.md — Copy backend v0.4 fixture into test tree + prove it parses through validateDataset/LearningContentSchema/fetchRemoteVerbs with byte-for-byte accent/tie fidelity
 
 ### Phase 18: Explanation Compatibility Upgrade
 **Goal**: `selectExplanation` matches the backend v0.4 explanation template contract — resolving the selected (wrong) answer's tense/subject labels and appending backend-authored notes/hints — while remaining fail-closed exactly as it was in v0.3.
@@ -133,7 +133,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete | 2026-07-20 |
 | 15. Learning Content & Explanation Engine | v0.3 | 3/3 | Complete | 2026-07-20 |
 | 16. Explanation Panel UI | v0.3 | 2/2 | Complete | 2026-07-20 |
-| 17. Contract Fixture Verification | v0.4 | 0/1 | Not started | - |
+| 17. Contract Fixture Verification | v0.4 | 1/1 | Complete   | 2026-07-21 |
 | 18. Explanation Compatibility Upgrade | v0.4 | 0/? | Not started | - |
 | 19. General Product Feedback | v0.4 | 0/? | Not started | - |
 
