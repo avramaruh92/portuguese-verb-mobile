@@ -6,6 +6,7 @@
 - ✅ **v0.1 Online Quiz, Exit Flow & UI Polish** — Phases 7-10.1 (shipped 2026-07-17)
 - ✅ **v0.2 Lafa Design System + Tense Label Refresh** — Phases 11-12 (shipped 2026-07-19)
 - ✅ **v0.3 Learning Quality Upgrade** — Phases 13-16 (shipped 2026-07-21)
+- 🚧 **v0.4 Backend v0.4 Contract Sync + Product Feedback** — Phases 17-19 (in progress)
 
 ## Phases
 
@@ -62,6 +63,54 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 </details>
 
+### 🚧 v0.4 Backend v0.4 Contract Sync + Product Feedback (In Progress)
+
+**Milestone Goal:** Consume the backend v0.4 contract exactly as shipped,
+and add general product feedback via a new `/product-feedback` endpoint.
+
+- [ ] **Phase 17: Contract Fixture Verification** - Prove mobile's existing runtime parsing paths accept the real backend v0.4 payload shape, self-contained
+- [ ] **Phase 18: Explanation Compatibility Upgrade** - `selectExplanation` gains selected-answer interpolation and backend-authored notes/hints, staying fail-closed
+- [ ] **Phase 19: General Product Feedback** - New `/product-feedback` domain + UI entry points on all 3 screens, independent of quiz-answer context
+
+## Phase Details
+
+### Phase 17: Contract Fixture Verification
+**Goal**: Prove mobile's existing runtime parsing paths (`validateDataset`, `LearningContentSchema`, `fetchRemoteVerbs`) accept the real backend v0.4 sample payload exactly as shipped, with zero cross-repo coupling at test time.
+**Depends on**: Nothing (first v0.4 phase; validates existing v0.3 schemas against new backend-shaped data)
+**Requirements**: CONTRACT-01, CONTRACT-02, CONTRACT-03
+**Success Criteria** (what must be TRUE):
+  1. A copy of the backend's v0.4 sample fixture exists in the mobile repo's test tree, with no cross-repo import at test runtime.
+  2. A test proves the fixture's verb payload passes `validateDataset(payload.verbs)` with zero errors.
+  3. A test proves the fixture's `learning` block passes `LearningContentSchema.safeParse(payload.learning)`.
+  4. A test proves the fixture parses successfully through `fetchRemoteVerbs`'s parsing path.
+  5. A test asserts accented forms (e.g. `pôr`/`pôs`) and tied forms (e.g. `falam`) survive parsing byte-for-byte unchanged.
+**Plans**: TBD
+
+### Phase 18: Explanation Compatibility Upgrade
+**Goal**: `selectExplanation` matches the backend v0.4 explanation template contract — resolving the selected (wrong) answer's tense/subject labels and appending backend-authored notes/hints — while remaining fail-closed exactly as it was in v0.3.
+**Depends on**: Phase 17 (fixture proves the v0.4 `learning`/`formIndex` shape this phase's logic consumes actually parses)
+**Requirements**: EXPL-05, EXPL-06, EXPL-07, EXPL-08, TEST-06
+**Success Criteria** (what must be TRUE):
+  1. `selectExplanation`'s output includes all v0.4 template variables when data is present: `verb`, `selectedAnswer`, `correctAnswer`, `tenseLabel`, `subjectLabel`, `selectedTenseLabel`, `selectedSubjectLabel`.
+  2. Selected tense/subject labels are resolved via `verb.formIndex[selectedAnswer]`, reusing the same selected match that drove the mismatch category when ambiguous, otherwise falling back to the generic template.
+  3. When `tenseNotes[correctTense]` and/or `subjectHints[correctSubject]` are present in the backend content, they are appended to the returned explanation text.
+  4. When `learning`, `formIndex`, or a selected-answer match is missing, no explanation is returned — never fabricated grammar text, matching v0.3's fail-closed contract (EXPL-08).
+  5. Unit tests cover `selectedTenseLabel`/`selectedSubjectLabel` interpolation, appended `tenseNotes`/`subjectHints`, and the missing-selected-answer-match fail-closed path.
+**Plans**: TBD
+
+### Phase 19: General Product Feedback
+**Goal**: A learner can submit general app feedback (bug/idea/other) from any of the 3 screens, independent of and without ever including quiz-answer context, via a new `POST /product-feedback` endpoint matching the backend v0.4 contract exactly.
+**Depends on**: Nothing from Phase 17/18 (separate, additive domain — existing `POST /feedback` untouched); sequenced last as the largest, most UI-facing chunk of this milestone
+**Requirements**: PFDBK-01, PFDBK-02, PFDBK-03, PFDBK-04, PFDBK-05, TEST-07
+**Success Criteria** (what must be TRUE):
+  1. A "Help us improve" entry point is visible and functional on Setup, Quiz, and Results screens.
+  2. On the Quiz screen, after an answer is locked, a two-action row offers "Report a problem" and "Help us improve" as distinct, independently launchable flows.
+  3. Submitting product feedback sends exactly `category` (`bug`/`idea`/`other`), `message` (1-2000 chars), `screen` (`setup`/`quiz`/`results`), `appVersion` (1-20 chars), `platform` (`ios`/`android`) to `POST /product-feedback`, with zero quiz-answer fields (verb/tense/subject/correctAnswer/selectedAnswer) present in the payload.
+  4. Submission handles success (201), validation error (400), server error (500-or-other), and network error/cold-start using the same 90s `AbortController` timeout pattern and result-union shape as the existing feedback flow, without ever blocking quiz progress.
+  5. Unit tests mirror existing feedback coverage: schema validation (valid payload; invalid category/screen/platform; empty/over-2000 message; empty/over-20 appVersion), payload-builder field mapping, and submit-status branching (201/400/500-or-other/network-error).
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -83,8 +132,12 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 14. Smarter Distractor Generation | v0.3 | 1/1 | Complete | 2026-07-20 |
 | 15. Learning Content & Explanation Engine | v0.3 | 3/3 | Complete | 2026-07-20 |
 | 16. Explanation Panel UI | v0.3 | 2/2 | Complete | 2026-07-20 |
+| 17. Contract Fixture Verification | v0.4 | 0/? | Not started | - |
+| 18. Explanation Compatibility Upgrade | v0.4 | 0/? | Not started | - |
+| 19. General Product Feedback | v0.4 | 0/? | Not started | - |
 
 ---
 
-*Milestones v0.0, v0.1, v0.2, and v0.3 shipped. Run `/gsd:new-milestone` to
-plan the next milestone.*
+*Milestones v0.0, v0.1, v0.2, and v0.3 shipped. v0.4 roadmap created
+2026-07-21 — 3 phases (17-19) covering all 14 v1 requirements. Run
+`/gsd:plan-phase 17` to begin.*

@@ -56,25 +56,25 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONTRACT-01 | TBD | Pending |
-| CONTRACT-02 | TBD | Pending |
-| CONTRACT-03 | TBD | Pending |
-| EXPL-05 | TBD | Pending |
-| EXPL-06 | TBD | Pending |
-| EXPL-07 | TBD | Pending |
-| EXPL-08 | TBD | Pending |
-| TEST-06 | TBD | Pending |
-| PFDBK-01 | TBD | Pending |
-| PFDBK-02 | TBD | Pending |
-| PFDBK-03 | TBD | Pending |
-| PFDBK-04 | TBD | Pending |
-| PFDBK-05 | TBD | Pending |
-| TEST-07 | TBD | Pending |
+| CONTRACT-01 | Phase 17 | Pending |
+| CONTRACT-02 | Phase 17 | Pending |
+| CONTRACT-03 | Phase 17 | Pending |
+| EXPL-05 | Phase 18 | Pending |
+| EXPL-06 | Phase 18 | Pending |
+| EXPL-07 | Phase 18 | Pending |
+| EXPL-08 | Phase 18 | Pending |
+| TEST-06 | Phase 18 | Pending |
+| PFDBK-01 | Phase 19 | Pending |
+| PFDBK-02 | Phase 19 | Pending |
+| PFDBK-03 | Phase 19 | Pending |
+| PFDBK-04 | Phase 19 | Pending |
+| PFDBK-05 | Phase 19 | Pending |
+| TEST-07 | Phase 19 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14 ⚠️ (roadmap creation next)
+- Mapped to phases: 14
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-21*
