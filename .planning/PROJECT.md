@@ -186,9 +186,38 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, and
 `.planning/milestones/v0.3-REQUIREMENTS.md`.
 
-## Current Milestone
+## Current Milestone: v0.4 Backend v0.4 Contract Sync + Product Feedback
 
-Planning not yet started for the next milestone — run `/gsd:new-milestone`.
+**Goal:** Consume the backend v0.4 contract exactly as shipped, and add
+general product feedback via a new `/product-feedback` endpoint.
+
+**Target features:**
+- Contract fixture verification — copy the backend's v0.4 sample fixture
+  into mobile as a test fixture; prove mobile accepts the real
+  backend-shaped payload (`formIndex`, `learning`, accented/tied forms)
+  through the actual runtime paths (`validateDataset`,
+  `LearningContentSchema`, `fetchRemoteVerbs`), self-contained (no
+  cross-repo import at test time)
+- Explanation compatibility upgrade — `selectExplanation` gains
+  `selectedTenseLabel`/`selectedSubjectLabel` interpolation (resolved via
+  `verb.formIndex[selectedAnswer]`), appends backend-authored
+  `tenseNotes`/`subjectHints` when present, stays fail-closed on missing
+  data
+- General product feedback — new `src/productFeedback/` domain
+  (schema/types/payload/submit/categories/modal), `POST
+  /product-feedback` with `category (bug/idea/other)` + `message` +
+  `screen (setup/quiz/results)` + `appVersion` + `platform`, same 90s
+  `AbortController` timeout pattern as existing feedback; "Help us
+  improve" entry point on all 3 screens, two-action row on Quiz after
+  answer lock ("Report a problem" / "Help us improve"); sends only
+  screen/app metadata, never quiz-answer context
+
+**Key context:** Source plan is an external codex-generated implementation
+plan (`Mobile v0.4 Updated Implementation Plan.md`), confirmed against
+this repo's actual conventions before requirements definition. Existing
+quiz-specific `POST /feedback` is untouched by this milestone — product
+feedback is an additive, separate endpoint/domain.
+
 Full v0.3 goal/scope detail archived at
 `.planning/milestones/v0.3-ROADMAP.md`.
 

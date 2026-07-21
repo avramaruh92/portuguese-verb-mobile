@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.3
-milestone_name: Learning Quality Upgrade
-status: Awaiting next milestone
-stopped_at: Phase 16 UI-SPEC approved
-last_updated: "2026-07-20T23:17:58.401Z"
-last_activity: 2026-07-20 — Milestone v0.3 completed and archived
+milestone: v0.4
+milestone_name: Backend v0.4 Contract Sync + Product Feedback
+status: planning
+last_updated: "2026-07-21T20:09:53.321Z"
+last_activity: 2026-07-21
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 
 ## Current Position
 
-Phase: Milestone v0.3 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-20 — Milestone v0.3 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-21 — Milestone v0.4 started
 
 ## Performance Metrics
 
