@@ -13,9 +13,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Contract Fixture Verification
 
-- [ ] **CONTRACT-01**: Backend's v0.4 sample fixture (`contracts/content-verbs-v0.4.sample.json`) is copied into the mobile repo as a self-contained test fixture — no cross-repo import at test runtime
-- [ ] **CONTRACT-02**: Fixture payload is proven to parse through the actual mobile runtime paths — `validateDataset(payload.verbs)`, `LearningContentSchema.safeParse(payload.learning)`, and `fetchRemoteVerbs` parsing
-- [ ] **CONTRACT-03**: Fixture test asserts accented forms (e.g. `pôr`/`pôs`) and tied forms (e.g. `falam`) survive parsing unchanged
+- [x] **CONTRACT-01**: Backend's v0.4 sample fixture (`contracts/content-verbs-v0.4.sample.json`) is copied into the mobile repo as a self-contained test fixture — no cross-repo import at test runtime
+- [x] **CONTRACT-02**: Fixture payload is proven to parse through the actual mobile runtime paths — `validateDataset(payload.verbs)`, `LearningContentSchema.safeParse(payload.learning)`, and `fetchRemoteVerbs` parsing
+- [x] **CONTRACT-03**: Fixture test asserts accented forms (e.g. `pôr`/`pôs`) and tied forms (e.g. `falam`) survive parsing unchanged
 
 ### Explanation Compatibility Upgrade
 
@@ -56,9 +56,9 @@ Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONTRACT-01 | Phase 17 | Pending |
-| CONTRACT-02 | Phase 17 | Pending |
-| CONTRACT-03 | Phase 17 | Pending |
+| CONTRACT-01 | Phase 17 | Done |
+| CONTRACT-02 | Phase 17 | Done |
+| CONTRACT-03 | Phase 17 | Done |
 | EXPL-05 | Phase 18 | Complete |
 | EXPL-06 | Phase 18 | Complete |
 | EXPL-07 | Phase 18 | Complete |
