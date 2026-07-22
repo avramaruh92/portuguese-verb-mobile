@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ActivityIndicator, Pressable, Share, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, Share, StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
@@ -7,6 +8,7 @@ import { score } from "../src/quiz/scoring";
 import { buildShareMessage } from "../src/quiz/share";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
+import { ProductFeedbackModal } from "../src/productFeedback/ProductFeedbackModal";
 
 export default function Results() {
   const router = useRouter();
@@ -19,6 +21,10 @@ export default function Results() {
   const startQuiz = useQuizStore((s) => s.startQuiz);
   const [starting, setStarting] = useState(false);
   const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
+  const [productFeedbackVisible, setProductFeedbackVisible] = useState(false);
+
+  const appVersion = Constants.expoConfig?.version ?? "unknown";
+  const platform: "ios" | "android" = Platform.OS === "android" ? "android" : "ios";
 
   if (!session) {
     // No completed session to show (fresh state, or Try Again failed) —
@@ -113,6 +119,21 @@ export default function Results() {
           <Text style={styles.backButtonText}>Back to Setup</Text>
         </Pressable>
       </View>
+
+      <Pressable
+        onPress={() => setProductFeedbackVisible(true)}
+        style={styles.productFeedbackLink}
+      >
+        <Text style={styles.productFeedbackLinkText}>Help us improve</Text>
+      </Pressable>
+
+      <ProductFeedbackModal
+        visible={productFeedbackVisible}
+        screen="results"
+        appVersion={appVersion}
+        platform={platform}
+        onClose={() => setProductFeedbackVisible(false)}
+      />
     </View>
   );
 }
@@ -184,5 +205,16 @@ const styles = StyleSheet.create({
   backButtonText: {
     ...typography.bodyStrong,
     color: colors.primary,
+  },
+  productFeedbackLink: {
+    minHeight: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: spacing.md,
+  },
+  productFeedbackLinkText: {
+    ...typography.caption,
+    color: colors.primary,
+    textAlign: "center",
   },
 });
