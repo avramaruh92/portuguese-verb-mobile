@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Contract Sync + Product Feedback
 status: executing
-stopped_at: Phase 18 context gathered
-last_updated: "2026-07-22T00:55:32.432Z"
-last_activity: 2026-07-22 -- Phase 18 planning complete
+stopped_at: Phase 18 Plan 01 executed
+last_updated: "2026-07-22T10:04:43.501Z"
+last_activity: 2026-07-22 -- Phase 18 Plan 01 (explanation compatibility upgrade) executed
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 1
-  percent: 33
+  completed_phases: 2
+  total_plans: 3
+  completed_plans: 3
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 17 — Contract Fixture Verification
+**Current focus:** Phase 19 — General Product Feedback (not yet planned)
 
 ## Current Position
 
-Phase: 17 — COMPLETE
-Plan: — (not yet planned)
-Status: Ready to execute
-Last activity: 2026-07-22 -- Phase 18 planning complete
+Phase: 18 — COMPLETE (Explanation Compatibility Upgrade)
+Plan: 01 of 1 — COMPLETE
+Status: Ready to plan Phase 19
+Last activity: 2026-07-22 -- Phase 18 Plan 01 (explanation compatibility upgrade) executed
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -44,10 +44,11 @@ Progress: [░░░░░░░░░░] 0%
 | Phase | Requirements | Status |
 |-------|--------------|--------|
 | 17. Contract Fixture Verification | CONTRACT-01, CONTRACT-02, CONTRACT-03 | Not started |
-| 18. Explanation Compatibility Upgrade | EXPL-05, EXPL-06, EXPL-07, EXPL-08, TEST-06 | Not started |
+| 18. Explanation Compatibility Upgrade | EXPL-05, EXPL-06, EXPL-07, EXPL-08, TEST-06 | Complete |
 | 19. General Product Feedback | PFDBK-01..05, TEST-07 | Not started |
 
 *Updated after each plan completion*
+| Phase 18 P01 | 15min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -59,6 +60,9 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.3 decisions all show final outcomes).
+
+- [Phase 18]: selectedTenseLabel/selectedSubjectLabel resolved from matches[0] only when classify() reports agreement; omitted entirely on tied-disagree (D-02)
+- [Phase 18]: tenseNotes/subjectHints appended as separate newline-joined lines unconditionally across all mismatch categories, filtered to skip absent values with no empty line (D-03/D-04)
 
 ### Pending Todos
 
@@ -90,10 +94,10 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-22T00:31:30.145Z
+Last session: 2026-07-22T10:02:42.415Z
 Stopped at: Phase 18 context gathered
-Resume file: .planning/phases/18-explanation-compatibility-upgrade/18-CONTEXT.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd:plan-phase 17` to begin planning Contract Fixture Verification
+- Run `/gsd:plan-phase 19` to begin planning General Product Feedback

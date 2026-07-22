@@ -19,11 +19,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Explanation Compatibility Upgrade
 
-- [ ] **EXPL-05**: `selectExplanation` provides all backend v0.4 template variables (`verb`, `selectedAnswer`, `correctAnswer`, `tenseLabel`, `subjectLabel`, `selectedTenseLabel`, `selectedSubjectLabel`)
-- [ ] **EXPL-06**: Selected tense/subject are resolved from `verb.formIndex[selectedAnswer]`; for ambiguous selected-answer matches, reuse the same selected match that drove the mismatch category when possible, otherwise fall back to the generic template
-- [ ] **EXPL-07**: Backend-authored `tenseNotes[correctTense]` and `subjectHints[correctSubject]` are appended to the explanation when present
-- [ ] **EXPL-08**: Fail-closed behavior is preserved — if `learning`, `formIndex`, or a selected-answer match is missing, no explanation is shown, never fabricated grammar text
-- [ ] **TEST-06**: Explanation unit tests cover `selectedTenseLabel`/`selectedSubjectLabel` interpolation, appended `tenseNotes`/`subjectHints`, and the missing-selected-answer-match fail-closed path
+- [x] **EXPL-05**: `selectExplanation` provides all backend v0.4 template variables (`verb`, `selectedAnswer`, `correctAnswer`, `tenseLabel`, `subjectLabel`, `selectedTenseLabel`, `selectedSubjectLabel`)
+- [x] **EXPL-06**: Selected tense/subject are resolved from `verb.formIndex[selectedAnswer]`; for ambiguous selected-answer matches, reuse the same selected match that drove the mismatch category when possible, otherwise fall back to the generic template
+- [x] **EXPL-07**: Backend-authored `tenseNotes[correctTense]` and `subjectHints[correctSubject]` are appended to the explanation when present
+- [x] **EXPL-08**: Fail-closed behavior is preserved — if `learning`, `formIndex`, or a selected-answer match is missing, no explanation is shown, never fabricated grammar text
+- [x] **TEST-06**: Explanation unit tests cover `selectedTenseLabel`/`selectedSubjectLabel` interpolation, appended `tenseNotes`/`subjectHints`, and the missing-selected-answer-match fail-closed path
 
 ### General Product Feedback
 
@@ -59,11 +59,11 @@ Populated during roadmap creation.
 | CONTRACT-01 | Phase 17 | Pending |
 | CONTRACT-02 | Phase 17 | Pending |
 | CONTRACT-03 | Phase 17 | Pending |
-| EXPL-05 | Phase 18 | Pending |
-| EXPL-06 | Phase 18 | Pending |
-| EXPL-07 | Phase 18 | Pending |
-| EXPL-08 | Phase 18 | Pending |
-| TEST-06 | Phase 18 | Pending |
+| EXPL-05 | Phase 18 | Complete |
+| EXPL-06 | Phase 18 | Complete |
+| EXPL-07 | Phase 18 | Complete |
+| EXPL-08 | Phase 18 | Complete |
+| TEST-06 | Phase 18 | Complete |
 | PFDBK-01 | Phase 19 | Pending |
 | PFDBK-02 | Phase 19 | Pending |
 | PFDBK-03 | Phase 19 | Pending |
