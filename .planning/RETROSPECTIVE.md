@@ -166,6 +166,44 @@
 
 ---
 
+## Milestone: v0.4 — Backend v0.4 Contract Sync + Product Feedback
+
+**Shipped:** 2026-07-22
+**Phases:** 3 (17, 18, 19) | **Plans:** 7 | **Sessions:** ~2 (execute-phase 19 → audit-milestone → complete-milestone, following a prior planning session)
+
+### What Was Built
+- A byte-for-byte copied backend v0.4 sample fixture (`__tests__/fixtures/content-verbs-v0.4.sample.json`) proving mobile's existing `validateDataset`/`LearningContentSchema`/`fetchRemoteVerbs` all accept the real contract shape, with zero cross-repo coupling at test time
+- `selectExplanation` extended to interpolate the selected (wrong) answer's tense/subject labels (`matches[0]`-derived, omitted on tied-disagree) and append backend-authored `tenseNotes`/`subjectHints` as separate lines — zero signature change, fail-closed contract fully preserved
+- A new `src/productFeedback/` domain module — a deliberate zero-shared-code structural mirror of `src/feedback/` (schema, categories, payload, submit, `ProductFeedbackModal`) — wired into all 3 screens as a "Help us improve" entry point, structurally independent of the existing quiz-answer "Report a problem" flow
+- A real cross-repo contract gap caught live: the backend's `POST /product-feedback` route wasn't deployed yet at the first on-device check (404), diagnosed via direct `curl`, resolved by the user shipping the backend route mid-checkpoint, then re-verified (201) by both the human operator and an independent `gsd-verifier` live-curl check during phase verification
+
+### What Worked
+- **Parallel worktree dispatch for independent-file plans (19-03, 19-04) caught its own dependency gap without orchestrator intervention** — both worktrees had forked before Wave 2's `ProductFeedbackModal.tsx` landed on `main`; each executor detected the missing dependency via its own read/typecheck step and self-corrected with a fast-forward merge of `main` before implementing, the same self-healing pattern first seen in v0.3's Phase 16.
+- **Diagnosing the Phase 19 human-verify "something went wrong" report by direct `curl` against the live backend**, rather than assuming a mobile-side bug, took one command to produce a conclusive 404 and matched a risk the phase's own threat model (T-19-09) had already flagged in advance — the fastest of any milestone's "unexpected behavior" diagnosis so far, because the threat was pre-registered rather than discovered cold.
+- **Independent re-verification of a user-reported fix** (gsd-verifier re-curling `POST /product-feedback` itself during phase verification, rather than trusting the SUMMARY's narrative that the backend now worked) caught nothing new here, but is the right standing practice for any cross-repo claim resolved outside the mobile repo's own test suite.
+- **Milestone audit found and fixed a doc-sync gap on the first read**, not via a separate audit-then-fix cycle: CONTRACT-01/02/03 were still `[ ]`/"Pending" in REQUIREMENTS.md despite Phase 17's VERIFICATION.md and SUMMARY.md frontmatter both confirming completion — same class of gap already caught and fixed for PFDBK-01..05/TEST-07 right after Phase 19 executed, now recognized quickly enough to fix inline rather than needing a second pass.
+
+### What Was Inefficient
+- The requirements-doc-sync gap (CONTRACT-01/02/03 unchecked despite passed verification) is the fourth consecutive milestone to surface this exact pattern (v0.1's FETCH-05, v0.3's 6-of-14 stale requirements, now v0.4's 3-of-14) — it is caught every time by audit/verification, but never prevented at the phase-close step itself, despite being flagged as a known recurring pattern since v0.3's retrospective.
+- Phases 17/18/19's `VALIDATION.md` files were never updated post-execution (all task rows still "⬜ pending", sign-off checklists unchecked) despite each phase's independent VERIFICATION.md confirming all tests passed — this is a new instance of a gap Phase 15 (v0.3) already exhibited once, now confirmed across 3 consecutive phases in the same milestone, suggesting the VALIDATION.md-update step is missing from the executor's own close-out checklist rather than being an isolated oversight.
+
+### Patterns Established
+- **A phase's own threat model (STRIDE register) is a legitimate pre-registered hypothesis for human-verify diagnosis** — when a checkpoint reports unexpected behavior, check the phase's own threat register first for a matching entry before diagnosing from scratch; Phase 19's T-19-09 named the exact failure mode that occurred, cutting diagnosis to a single `curl` call.
+- **Independent live-endpoint re-verification during milestone/phase audit** (not just trusting a human-reported "it works now") is now a repeatable, cheap check (one `curl` call) worth doing any time a cross-repo blocker was resolved mid-session — confirms the fix rather than the report of the fix.
+
+### Key Lessons
+1. When a phase ships with a threat model / STRIDE register, check it first during human-verify diagnosis — a pre-registered risk (like T-19-09's contract-mismatch entry) often names the exact failure mode, turning a diagnosis into a single confirming command instead of an investigation.
+2. Requirements-doc staleness (checkboxes/traceability table lagging behind actual VERIFICATION.md/SUMMARY.md completion) has now recurred in 4 of 5 milestones (v0.1, v0.3, v0.4, and implicitly others) — this is a structural gap in the phase-close step, not an occasional slip; a future session should consider adding an explicit REQUIREMENTS.md sync check to the phase-completion tracking-update step itself, not leave it to audit time.
+3. `VALIDATION.md` staleness (task rows never flipped from "pending" post-execution) is now observed across 4 phases total (15 in v0.3, 17/18/19 in v0.4) — same root cause as lesson 2: the executor's close-out checklist doesn't currently include a VALIDATION.md sync step.
+4. When a cross-repo blocker is resolved mid-session based on a user report ("I pushed the backend, it works now"), have a verifier independently re-check the live system before accepting the report at face value — cheap insurance, and it corroborated rather than merely trusted the fix here.
+
+### Cost Observations
+- Model mix: sonnet for all execution/verification/integration-checking this milestone (worktree-isolated parallel dispatch for Wave 3's two independent-file plans).
+- Sessions: ~2 (execute-phase 19 through to milestone completion, following an earlier planning session for phases 17-19)
+- Notable: Phase 19 (5 plans) was the largest single phase of this milestone and the only one requiring a non-autonomous human-verify checkpoint; it was also the only phase to surface a genuine cross-repo blocker, resolved within the same session rather than deferred — the fastest cross-repo-blocker resolution of any milestone so far (single `curl` diagnosis → user pushes fix → single re-verify), likely because the phase's own threat model had already named the exact risk in advance.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -176,6 +214,7 @@
 | v0.1 | ~2 | 5 (incl. 1 inserted gap-closure phase) | First milestone to use an inserted decimal phase (10.1) for milestone-audit-driven gap closure, and the first to require on-device physical-hardware verification with fresh Apple developer signing setup |
 | v0.2 | ~3 | 2 | First milestone to deliberately skip research/VALIDATION.md/UI-SPEC.md on well-scoped phases, and first to resolve an open `human_needed` verification item at milestone-audit time rather than mid-phase |
 | v0.3 | ~1 | 4 | Fastest milestone yet (~1 day); first to have executor agents self-heal a worktree-vs-main dependency gap independently, and first where a human-verify "not seeing it" report was correctly diagnosed as an external (backend deploy) then internal (unmerged worktree) issue rather than the plan's own code |
+| v0.4 | ~2 | 3 | First milestone where a phase's own pre-registered threat model (STRIDE register) directly named the exact human-verify failure mode that occurred, cutting a cross-repo-blocker diagnosis to a single `curl` call; requirements-doc-sync staleness recurred for the 4th consecutive milestone |
 
 ### Cumulative Quality
 
@@ -185,6 +224,7 @@
 | v0.1 | 150 | Not measured via coverage tool this milestone | 0 (no new npm packages added across all 5 phases, including Phase 10.1) |
 | v0.2 | 155 | Not measured via coverage tool this milestone | 1 (eslint/eslint-config-expo — resolves carried-over v0.0 tech debt, auto-scaffolded during milestone audit, confirmed with user before committing) |
 | v0.3 | 192 | Not measured via coverage tool this milestone | 0 (new `src/learning/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
+| v0.4 | 251 | Not measured via coverage tool this milestone | 0 (new `src/productFeedback/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -194,6 +234,8 @@
 4. Milestone-audit-driven gap closure works best as a properly-planned inserted decimal phase (discuss/plan/execute/verify), with the milestone audit re-run afterward rather than trusted stale.
 5. Research/VALIDATION.md/UI-SPEC.md are optional, not default, when a phase's CONTEXT.md already locks exact copy/wording/placement — ask explicitly and log the skip as a Key Decision rather than defaulting to always-run or silently skipping.
 6. A `human_needed` phase-verification status is a deferred decision, not a blocker — resolve it explicitly at the next milestone-audit checkpoint with the original evidence, and record the resolution in both HUMAN-UAT.md and VERIFICATION.md.
-7. When a human-verify checkpoint reports unexpected behavior, diagnose the live external dependency and whether the code under test is actually merged/running before assuming the plan's own code is broken — both are faster to rule out than re-reading the diff.
+7. When a human-verify checkpoint reports unexpected behavior, diagnose the live external dependency and whether the code under test is actually merged/running before assuming the plan's own code is broken — both are faster to rule out than re-reading the diff. Check the phase's own threat model/STRIDE register first — a pre-registered risk often names the exact failure mode (confirmed in v0.4).
 8. Physical-device build friction (Expo Go incompatibility, CocoaPods podspec-cache drift, stale device-pairing tools) is a recurring, generic cost class across milestones (v0.1, v0.3) — worth a standing runbook rather than re-diagnosing each time.
-9. Requirements-doc sync (checkboxes + traceability table) drifts stale incrementally across phases, not just at milestone end — worth an explicit check at each phase's own close.
+9. Requirements-doc sync (checkboxes + traceability table) drifts stale incrementally across phases, not just at milestone end — now confirmed in 4 of 5 milestones (v0.1, v0.3, v0.4, and smaller instances elsewhere). This is a structural gap in the phase-close step itself, not an occasional slip — worth an explicit fix at the phase-completion tracking-update step, not left to audit/milestone-close time.
+10. `VALIDATION.md` task-status staleness (rows never flipped from "pending" post-execution) is a related but distinct recurring gap, now seen across 4 phases (15 in v0.3; 17, 18, 19 in v0.4) — likely missing from the executor's own close-out checklist.
+11. Independent re-verification of a user-reported cross-repo fix (e.g., re-`curl`ing a live endpoint during phase/milestone audit rather than trusting "it works now") is cheap insurance worth doing every time, even when it only corroborates rather than catches something new.
