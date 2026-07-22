@@ -198,4 +198,168 @@ describe("selectExplanation", () => {
     expect(JSON.stringify(verb)).toBe(verbSnapshot);
     expect(JSON.stringify(learning)).toBe(learningSnapshot);
   });
+
+  // --- EXPL-05 / EXPL-06: selected-answer label interpolation (v0.4 template) ---
+
+  it("interpolates the selected label alongside correct labels for the full v0.4 template (EXPL-05)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.templates.wrongSubject =
+      "For {subjectLabel} of {verb}, use '{correctAnswer}', not '{selectedAnswer}' ({selectedSubjectLabel}).";
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas' (${subjectLabels.tu}).`,
+    );
+  });
+
+  it("resolves selectedSubjectLabel for a single wrongSubject match (EXPL-06)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.templates.wrongSubject =
+      "For {subjectLabel} of {verb}, use '{correctAnswer}', not '{selectedAnswer}' ({selectedSubjectLabel}).";
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas' (${subjectLabels.tu}).`,
+    );
+  });
+
+  it("resolves selectedTenseLabel for a single wrongTense match (EXPL-06)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.templates.wrongTense =
+      "In {tenseLabel}, the correct form of {verb} is '{correctAnswer}', not '{selectedAnswer}' ({selectedTenseLabel}).";
+    const result = selectExplanation(verb, "falei", correctSlot, learning);
+    expect(result).toBe(
+      `In ${tenseLabels.present_indicative}, the correct form of falar is 'falo', not 'falei' (${tenseLabels.preterite}).`,
+    );
+  });
+
+  it("resolves selected labels from matches[0] when tied matches agree on category (EXPL-06)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.templates.wrongSubject =
+      "For {subjectLabel} of {verb}, use '{correctAnswer}', not '{selectedAnswer}' ({selectedSubjectLabel}).";
+    const result = selectExplanation(verb, "tied-agree", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'tied-agree' (${subjectLabels.tu}).`,
+    );
+  });
+
+  it("omits selected labels (D-02) when tied matches disagree on category (EXPL-06)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    const result = selectExplanation(
+      verb,
+      "tied-disagree",
+      correctSlot,
+      learning,
+    );
+    expect(result).toBe("For falar, the correct answer is 'falo'.");
+  });
+
+  // --- EXPL-07: tenseNotes/subjectHints appending ---
+
+  it("appends tenseNotes and subjectHints as separate lines in order interpolated -> notes -> hints (EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      tenseNotes: { present_indicative: "Present tense note." },
+      subjectHints: { eu: "Subject hint for eu." },
+    };
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas'.\nPresent tense note.\nSubject hint for eu.`,
+    );
+  });
+
+  it("appends exactly one line when only tenseNotes is present, no subjectHints (EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      tenseNotes: { present_indicative: "Present tense note." },
+    };
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas'.\nPresent tense note.`,
+    );
+  });
+
+  it("appends exactly one line when only subjectHints is present, no tenseNotes (EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      subjectHints: { eu: "Subject hint for eu." },
+    };
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas'.\nSubject hint for eu.`,
+    );
+  });
+
+  it("appends no extra lines when neither tenseNotes nor subjectHints is present (EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    const result = selectExplanation(verb, "falas", correctSlot, learning);
+    expect(result).toBe(
+      `For ${subjectLabels.eu} of falar, use 'falo', not 'falas'.`,
+    );
+  });
+
+  it("appends notes/hints unconditionally for the generic/tied-disagree category too (D-04, EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      tenseNotes: { present_indicative: "Present tense note." },
+      subjectHints: { eu: "Subject hint for eu." },
+    };
+    const result = selectExplanation(
+      verb,
+      "tied-disagree",
+      correctSlot,
+      learning,
+    );
+    expect(result).toBe(
+      "For falar, the correct answer is 'falo'.\nPresent tense note.\nSubject hint for eu.",
+    );
+  });
+
+  // --- EXPL-08: fail-closed contract preserved after the extension ---
+
+  it("returns undefined (never a fabricated string) even when notes/hints would be present, if the match is missing (EXPL-08)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      tenseNotes: { present_indicative: "Present tense note." },
+      subjectHints: { eu: "Subject hint for eu." },
+    };
+    const result = selectExplanation(
+      verb,
+      "no-matches",
+      correctSlot,
+      learning,
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it("does not mutate learning or verb when notes/hints are appended (purity, EXPL-07)", () => {
+    const verb = buildVerb();
+    const learning = buildLearningContent();
+    learning.verbs.falar = {
+      irregularTenses: [],
+      tenseNotes: { present_indicative: "Present tense note." },
+      subjectHints: { eu: "Subject hint for eu." },
+    };
+    const verbSnapshot = JSON.stringify(verb);
+    const learningSnapshot = JSON.stringify(learning);
+
+    selectExplanation(verb, "falas", correctSlot, learning);
+
+    expect(JSON.stringify(verb)).toBe(verbSnapshot);
+    expect(JSON.stringify(learning)).toBe(learningSnapshot);
+  });
 });

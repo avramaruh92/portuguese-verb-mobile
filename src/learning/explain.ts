@@ -5,7 +5,7 @@ import type { FormMatch, LearningContent, MismatchCategory } from "./types";
 function classify(
   matches: FormMatch[],
   correct: { tense: Tense; subject: Subject },
-): MismatchCategory {
+): { category: MismatchCategory; agreed: boolean } {
   const categories = matches.map((match): MismatchCategory => {
     const sameTense = match.tense === correct.tense;
     const sameSubject = match.subject === correct.subject;
@@ -19,7 +19,7 @@ function classify(
   // callers only invoke classify() after confirming matches.length >= 1.
   const first = categories[0]!;
   const allAgree = categories.every((category) => category === first);
-  return allAgree ? first : "generic";
+  return { category: allAgree ? first : "generic", agreed: allAgree };
 }
 
 function interpolate(
@@ -47,13 +47,13 @@ export function selectExplanation(
   const matches = verb.formIndex[selectedAnswer];
   if (!matches || matches.length === 0) return undefined;
 
-  const category = classify(matches, correctAnswer);
+  const { category, agreed } = classify(matches, correctAnswer);
   const template =
     category === "generic"
       ? learning.templates.generic
       : learning.templates[category];
 
-  const context = {
+  const context: Record<string, string> = {
     verb: verb.verb,
     correctAnswer:
       verb.conjugations[correctAnswer.tense][correctAnswer.subject],
@@ -62,5 +62,20 @@ export function selectExplanation(
     subjectLabel: subjectLabels[correctAnswer.subject],
   };
 
-  return interpolate(template, context);
+  if (agreed) {
+    // noUncheckedIndexedAccess-safe: matches.length >= 1 is guaranteed by the
+    // early return above, matching the categories[0]! convention in classify().
+    const selectedMatch = matches[0]!;
+    context.selectedTenseLabel = tenseLabels[selectedMatch.tense];
+    context.selectedSubjectLabel = subjectLabels[selectedMatch.subject];
+  }
+
+  const interpolated = interpolate(template, context);
+
+  const extraLines = [
+    entry.tenseNotes?.[correctAnswer.tense],
+    entry.subjectHints?.[correctAnswer.subject],
+  ].filter((line): line is string => Boolean(line));
+
+  return [interpolated, ...extraLines].join("\n");
 }
