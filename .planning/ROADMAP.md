@@ -97,7 +97,8 @@ and add general product feedback via a new `/product-feedback` endpoint.
   3. When `tenseNotes[correctTense]` and/or `subjectHints[correctSubject]` are present in the backend content, they are appended to the returned explanation text.
   4. When `learning`, `formIndex`, or a selected-answer match is missing, no explanation is returned — never fabricated grammar text, matching v0.3's fail-closed contract (EXPL-08).
   5. Unit tests cover `selectedTenseLabel`/`selectedSubjectLabel` interpolation, appended `tenseNotes`/`subjectHints`, and the missing-selected-answer-match fail-closed path.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 18-01-PLAN.md — Extend selectExplanation with selected-answer label interpolation (matches[0], D-01/D-02) + backend notes/hints appending (D-03/D-04), fail-closed preserved, plus full TEST-06 unit coverage
 
 ### Phase 19: General Product Feedback
 **Goal**: A learner can submit general app feedback (bug/idea/other) from any of the 3 screens, independent of and without ever including quiz-answer context, via a new `POST /product-feedback` endpoint matching the backend v0.4 contract exactly.
@@ -134,11 +135,11 @@ and add general product feedback via a new `/product-feedback` endpoint.
 | 15. Learning Content & Explanation Engine | v0.3 | 3/3 | Complete | 2026-07-20 |
 | 16. Explanation Panel UI | v0.3 | 2/2 | Complete | 2026-07-20 |
 | 17. Contract Fixture Verification | v0.4 | 1/1 | Complete   | 2026-07-21 |
-| 18. Explanation Compatibility Upgrade | v0.4 | 0/? | Not started | - |
+| 18. Explanation Compatibility Upgrade | v0.4 | 0/1 | Planned | - |
 | 19. General Product Feedback | v0.4 | 0/? | Not started | - |
 
 ---
 
 *Milestones v0.0, v0.1, v0.2, and v0.3 shipped. v0.4 roadmap created
-2026-07-21 — 3 phases (17-19) covering all 14 v1 requirements. Run
-`/gsd:plan-phase 17` to begin.*
+2026-07-21 — 3 phases (17-19) covering all 14 v1 requirements. Phase 18
+planned 2026-07-22 (1 plan). Run `/gsd:execute-phase 18` to build it.*
