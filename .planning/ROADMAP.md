@@ -70,7 +70,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
 
 - [x] **Phase 17: Contract Fixture Verification** - Prove mobile's existing runtime parsing paths accept the real backend v0.4 payload shape, self-contained (completed 2026-07-21)
 - [x] **Phase 18: Explanation Compatibility Upgrade** - `selectExplanation` gains selected-answer interpolation and backend-authored notes/hints, staying fail-closed (completed 2026-07-22)
-- [ ] **Phase 19: General Product Feedback** - New `/product-feedback` domain + UI entry points on all 3 screens, independent of quiz-answer context
+- [x] **Phase 19: General Product Feedback** - New `/product-feedback` domain + UI entry points on all 3 screens, independent of quiz-answer context (completed 2026-07-22)
 
 ## Phase Details
 
@@ -115,7 +115,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
 - [x] 19-02-PLAN.md — ProductFeedbackModal.tsx (category pills, required message, token-styled state machine)
 - [x] 19-03-PLAN.md — Setup + Results footer-link entry points (D-01/D-02)
 - [x] 19-04-PLAN.md — Quiz two-action row with divergent visibility (D-03/D-04)
-- [ ] 19-05-PLAN.md — Human-verify checkpoint: entry points + live submission on all 3 screens
+- [x] 19-05-PLAN.md — Human-verify checkpoint: entry points + live submission on all 3 screens
 **UI hint**: yes
 
 ## Progress
@@ -141,7 +141,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
 | 16. Explanation Panel UI | v0.3 | 2/2 | Complete | 2026-07-20 |
 | 17. Contract Fixture Verification | v0.4 | 1/1 | Complete   | 2026-07-21 |
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete   | 2026-07-22 |
-| 19. General Product Feedback | v0.4 | 4/5 | In Progress|  |
+| 19. General Product Feedback | v0.4 | 5/5 | Complete   | 2026-07-22 |
 
 ---
 
