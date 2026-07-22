@@ -236,21 +236,51 @@ re-verified 201 success on all 3 screens) — see `.planning/v0.4-MILESTONE-AUDI
 
 ### Active
 
-To be defined in `.planning/REQUIREMENTS.md` for the next milestone.
+To be defined in `.planning/REQUIREMENTS.md` for milestone v0.5 (see
+"Current Milestone" below).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
 and `.planning/milestones/v0.4-REQUIREMENTS.md`.
 
-## Next Milestone Goals
+## Current Milestone: v0.5 iOS TestFlight Readiness
 
-Not yet scoped — run `/gsd:new-milestone` to define the next milestone's
-requirements. Carried-over candidates from previous milestones' deferred
-lists (unchanged, still tracked as v2 candidates): `PROG-01` (typed-answer
-quiz mode), `PROG-02` (on-device progress/streak tracking), `PROG-03`
-(spaced repetition), `FETCH-06` (dataset staleness/version metadata),
-`QUIZ-09` (question-progress indicator), `UI-04` (subtle tap-feedback
-animation).
+**Goal:** Get `portuguese-verb-mobile` (Lafa) into TestFlight for the first
+time — release identity, Lafa app icon/splash, EAS build config, lint
+cleanup, and a live-backend preflight check — with zero new product
+features.
+
+**Target features:**
+- Release identity: bundle id `com.avram.aruh.lafa`, slug/scheme `lafa`,
+  iOS build number `1`, version stays `1.0.0`
+- Lafa app icon generated from `assets/brand/lafa-logo-v2.svg`
+  (1024x1024, no alpha, mark-only not full wordmark), replacing
+  `assets/images/icon.png`; splash updated if needed, existing blue
+  background kept unless visual QA rejects it
+- `eas.json` with a `production` iOS profile (EAS-managed Apple
+  credentials) and a submit profile placeholder
+- Fix the two `npm run lint` failures in `ReportFeedbackModal.tsx` and
+  `ProductFeedbackModal.tsx` (modal reset effects) with no behavior change
+- Live backend preflight: confirm `GET /health`, `GET /content/verbs`,
+  `POST /feedback`, `POST /product-feedback` all succeed before tester
+  invites
+
+**Key context:**
+- Source plan: codex-authored `Mobile v0.5 - iOS TestFlight Readiness.md`,
+  supplied by the user as the starting scope for this milestone.
+- Backend feature work is explicitly out of scope — mobile only needs a
+  live-endpoint smoke check, not new backend capability.
+- iOS-only launch focus; no Android release work this milestone (matches
+  the existing "Android release work" Out of Scope entry above).
+- First distribution target is TestFlight, not a public App Store
+  release. Operator (user) has Apple Developer access and will create/
+  approve the App Store Connect app record.
+- `assets/brand/lafa-logo-v2.svg` and `lafa-logo-v2-concept.png` already
+  exist in the repo (untracked at milestone start) and are the source of
+  truth for icon generation; original brand source files must be
+  preserved, not overwritten.
+- Keep ignored native `ios/` prebuild output out of source control — Expo
+  config (`app.json`) remains the release source of truth.
 
 New tech debt surfaced during v0.4 (non-blocking, see
 `.planning/v0.4-MILESTONE-AUDIT.md` for full detail):

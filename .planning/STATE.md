@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.4
-milestone_name: Contract Sync + Product Feedback
-status: Awaiting next milestone
-stopped_at: Phase 19 UI-SPEC approved
-last_updated: "2026-07-22T21:26:05.223Z"
-last_activity: 2026-07-22 — Milestone v0.4 completed and archived
+milestone: v0.5
+milestone_name: iOS TestFlight Readiness
+status: planning
+last_updated: "2026-07-22T22:15:31.017Z"
+last_activity: 2026-07-22
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 
 ## Current Position
 
-Phase: Milestone v0.4 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-22 — Milestone v0.4 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-22 — Milestone v0.5 started
 
 ## Performance Metrics
 
