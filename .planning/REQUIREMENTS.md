@@ -74,30 +74,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | TBD | Pending |
-| BUILD-02 | TBD | Pending |
-| IDENT-01 | TBD | Pending |
-| IDENT-02 | TBD | Pending |
-| IDENT-03 | TBD | Pending |
-| IDENT-04 | TBD | Pending |
-| ICON-01 | TBD | Pending |
-| ICON-02 | TBD | Pending |
-| ICON-03 | TBD | Pending |
-| ICON-04 | TBD | Pending |
-| EASCFG-01 | TBD | Pending |
-| EASCFG-02 | TBD | Pending |
-| EASCFG-03 | TBD | Pending |
-| SHIP-01 | TBD | Pending |
-| SHIP-02 | TBD | Pending |
-| SHIP-03 | TBD | Pending |
-| SHIP-04 | TBD | Pending |
-| SHIP-05 | TBD | Pending |
+| BUILD-01 | Phase 20 | Pending |
+| BUILD-02 | Phase 20 | Pending |
+| IDENT-01 | Phase 21 | Pending |
+| IDENT-02 | Phase 21 | Pending |
+| IDENT-03 | Phase 21 | Pending |
+| IDENT-04 | Phase 21 | Pending |
+| ICON-01 | Phase 22 | Pending |
+| ICON-02 | Phase 22 | Pending |
+| ICON-03 | Phase 22 | Pending |
+| ICON-04 | Phase 22 | Pending |
+| EASCFG-01 | Phase 23 | Pending |
+| EASCFG-02 | Phase 23 | Pending |
+| EASCFG-03 | Phase 23 | Pending |
+| SHIP-01 | Phase 24 | Pending |
+| SHIP-02 | Phase 24 | Pending |
+| SHIP-03 | Phase 24 | Pending |
+| SHIP-04 | Phase 24 | Pending |
+| SHIP-05 | Phase 24 | Pending |
 
 **Coverage:**
 - v0.5 requirements: 18 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 18 ⚠️ (expected — roadmapper fills this in next)
+- Mapped to phases: 18/18 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-22*
-*Last updated: 2026-07-22 after initial v0.5 definition*
+*Last updated: 2026-07-22 after v0.5 roadmap creation (Phases 20-24)*

@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: planning
-last_updated: "2026-07-22T22:15:31.017Z"
+last_updated: "2026-07-22T22:30:00.000Z"
 last_activity: 2026-07-22
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,17 +17,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-21)
+See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Planning next milestone (v0.4 shipped 2026-07-22)
+**Current focus:** v0.5 iOS TestFlight Readiness — roadmap created, ready for `/gsd:plan-phase 20`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 20 (Native Build Risk Front-Loading) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-22 — Milestone v0.5 started
+Status: Roadmap approved, awaiting phase planning
+Last activity: 2026-07-22 — v0.5 ROADMAP.md created, 18/18 requirements mapped to Phases 20-24
 
 ## Performance Metrics
 
@@ -36,36 +36,39 @@ Last activity: 2026-07-22 — Milestone v0.5 started
 - Total plans completed: 58 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, +4 counting Phase 10.1)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days (kickoff to ship)
 
-**v0.4 phases (shipped 2026-07-22, archived to `.planning/milestones/v0.4-phases/`):**
+**v0.5 phases (planned, not yet executed):**
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 17. Contract Fixture Verification | CONTRACT-01, CONTRACT-02, CONTRACT-03 | Complete |
-| 18. Explanation Compatibility Upgrade | EXPL-05, EXPL-06, EXPL-07, EXPL-08, TEST-06 | Complete |
-| 19. General Product Feedback | PFDBK-01..05, TEST-07 | Complete |
+| 20. Native Build Risk Front-Loading | BUILD-01, BUILD-02 | Not started |
+| 21. Release Identity Lock | IDENT-01, IDENT-02, IDENT-03, IDENT-04 | Not started |
+| 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Not started |
+| 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Not started |
+| 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Not started |
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 
+- v0.5 roadmap created 2026-07-22 — 5 phases (20-24) derived from 18 v0.5 requirements, following the 5-phase structure recommended by `.planning/research/SUMMARY.md`: native build risk front-loaded (Phase 20), release identity locked before any real build (Phase 21), icon/splash baked in before the real build (Phase 22), eas.json/credentials declared once identity is final (Phase 23), quality gates + preflight + first real submit last (Phase 24). 100% requirement coverage, no orphans.
 - v0.4 shipped 2026-07-22 — all 3 phases complete, 251/251 tests passing, milestone audit passed 14/14 requirements, archived to `.planning/milestones/v0.4-*`.
 - v0.3 shipped 2026-07-21 — all 4 phases complete, 192/192 tests passing, archived to `.planning/milestones/v0.3-*`.
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.4 decisions all show final outcomes).
+Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.4 decisions all show final outcomes). No new v0.5 decisions logged yet — this is a release-engineering milestone with scope locked from the source codex plan.
 
 ### Pending Todos
 
-None.
+- Await user approval of v0.5 ROADMAP.md, then begin `/gsd:plan-phase 20`.
 
 ### Blockers/Concerns
 
-None open. All prior-milestone blockers resolved and verified (see PROJECT.md Context section and `.planning/milestones/v0.4-MILESTONE-AUDIT.md` for non-blocking tech debt, none of which blocks the next milestone).
+None open. Key ordering constraint to respect during execution (per research): bundle ID/slug/scheme (Phase 21) must be locked before the real EAS credentials/project link exist — Phase 20's throwaway build should use minimal/placeholder config, not the final identity.
 
 ## Deferred Items
 
-Items acknowledged and carried forward to v2 (unchanged by v0.4 completion):
+Items acknowledged and carried forward to v2 (unchanged by v0.5 roadmap creation):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -75,6 +78,9 @@ Items acknowledged and carried forward to v2 (unchanged by v0.4 completion):
 | v2 | FETCH-06 Dataset staleness/version metadata | Deferred (P3) | v0.1 requirements definition |
 | v2 | QUIZ-09 Question-progress indicator ("Question X of 10") | Deferred (P2) | v0.1 requirements definition |
 | v2 | UI-04 Answer-selection feedback animation | Deferred (P3) | v0.1 requirements definition |
+| v2 | RELEASE-01 `.eas/workflows/` automated build+submit CI pipeline | Deferred | v0.5 requirements definition |
+| v2 | RELEASE-02 Full public App Store listing (screenshots, description, privacy nutrition label) | Deferred | v0.5 requirements definition |
+| v2 | RELEASE-03 Android build/Play Console setup | Deferred | v0.5 requirements definition |
 
 Known non-blocking tech debt carried from prior milestone audits — none block the next milestone:
 
@@ -87,10 +93,11 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-22T21:26:05.223Z
-Stopped at: Milestone v0.4 completed and archived
-Resume file: none — awaiting next milestone
+Last session: 2026-07-22T22:30:00.000Z
+Stopped at: v0.5 ROADMAP.md created (Phases 20-24), awaiting user approval
+Resume file: none — next step is `/gsd:plan-phase 20` once roadmap is approved
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd:new-milestone
+- Review and approve `.planning/ROADMAP.md` (v0.5 section, Phases 20-24)
+- Run `/gsd:plan-phase 20` to begin Phase 20: Native Build Risk Front-Loading
