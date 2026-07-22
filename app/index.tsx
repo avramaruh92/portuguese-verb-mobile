@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
@@ -9,6 +10,7 @@ import type { Tense } from "../src/dataset/types";
 import type { VerbMode } from "../src/quiz/types";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
+import { ProductFeedbackModal } from "../src/productFeedback/ProductFeedbackModal";
 
 const VERB_MODE_OPTIONS: { value: VerbMode; label: string }[] = [
   { value: "regular_only", label: "Regular only" },
@@ -27,6 +29,10 @@ export default function Index() {
   const [verbMode, setVerbMode] = useState<VerbMode>("regular_only");
   const [starting, setStarting] = useState(false);
   const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
+  const [productFeedbackVisible, setProductFeedbackVisible] = useState(false);
+
+  const appVersion = Constants.expoConfig?.version ?? "unknown";
+  const platform: "ios" | "android" = Platform.OS === "android" ? "android" : "ios";
 
   const allSelected = selectedTenses.length === TENSES.length;
   const canStart = selectedTenses.length > 0;
@@ -136,6 +142,21 @@ export default function Index() {
           {starting ? "Starting…" : "Start Quiz"}
         </Text>
       </Pressable>
+
+      <Pressable
+        onPress={() => setProductFeedbackVisible(true)}
+        style={styles.productFeedbackLink}
+      >
+        <Text style={styles.productFeedbackLinkText}>Help us improve</Text>
+      </Pressable>
+
+      <ProductFeedbackModal
+        visible={productFeedbackVisible}
+        screen="setup"
+        appVersion={appVersion}
+        platform={platform}
+        onClose={() => setProductFeedbackVisible(false)}
+      />
       </View>
     </>
   );
@@ -207,5 +228,16 @@ const styles = StyleSheet.create({
   startButtonText: {
     ...typography.bodyStrong,
     color: colors.background,
+  },
+  productFeedbackLink: {
+    minHeight: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: spacing.md,
+  },
+  productFeedbackLinkText: {
+    ...typography.caption,
+    color: colors.primary,
+    textAlign: "center",
   },
 });
