@@ -113,7 +113,9 @@ Full phase details, plan breakdowns, and success criteria archived in
   1. `npx expo-doctor` reports zero issues
   2. `npx expo install --check` reports no version mismatches (or all flagged mismatches are explicitly resolved)
   3. A throwaway `eas build --platform ios --profile production --clear-cache` completes with a successful build status in the EAS dashboard
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 20-01-PLAN.md — Dependency baseline: fix SDK version drift (BUILD-01), pin eas-cli devDependency + eas npm script
+- [ ] 20-02-PLAN.md — Native build bootstrap: set final bundleIdentifier, `eas build:configure`, throwaway iOS build (BUILD-02)
 
 ### Phase 21: Release Identity Lock
 **Goal**: The app's release identity — bundle identifier, slug/scheme, version/build number, and EAS project id — is locked and internally consistent before any "real" (non-throwaway) build or App Store Connect record is created against it.
