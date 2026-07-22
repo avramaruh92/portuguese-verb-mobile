@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/labels";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
+import { ProductFeedbackModal } from "../src/productFeedback/ProductFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
 import { OfflinePill } from "../src/components/OfflinePill";
 import { ExplanationPanel } from "../src/components/ExplanationPanel";
@@ -25,6 +26,7 @@ export default function Quiz() {
   const advance = useQuizStore((s) => s.advance);
   const reset = useQuizStore((s) => s.reset);
   const [reportVisible, setReportVisible] = useState(false);
+  const [productFeedbackVisible, setProductFeedbackVisible] = useState(false);
 
   function confirmExit(onConfirm: () => void) {
     Alert.alert("Quit Quiz?", "Your progress will be lost.", [
@@ -158,13 +160,22 @@ export default function Quiz() {
           <Text style={styles.nextButtonText}>Next</Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => setReportVisible(true)}
-          style={[styles.reportButton, lockedChoice === null && styles.reportButtonHidden]}
-          pointerEvents={lockedChoice === null ? "none" : "auto"}
-        >
-          <Text style={styles.reportButtonText}>Report a problem</Text>
-        </Pressable>
+        <View style={styles.feedbackRow}>
+          <Pressable
+            onPress={() => setReportVisible(true)}
+            style={[styles.reportButton, lockedChoice === null && styles.reportButtonHidden]}
+            pointerEvents={lockedChoice === null ? "none" : "auto"}
+          >
+            <Text style={styles.reportButtonText}>Report a problem</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setProductFeedbackVisible(true)}
+            style={styles.reportButton}
+          >
+            <Text style={styles.reportButtonText}>Help us improve</Text>
+          </Pressable>
+        </View>
 
         <ReportFeedbackModal
           visible={reportVisible}
@@ -176,6 +187,14 @@ export default function Quiz() {
           appVersion={appVersion}
           platform={platform}
           onClose={() => setReportVisible(false)}
+        />
+
+        <ProductFeedbackModal
+          visible={productFeedbackVisible}
+          screen="quiz"
+          appVersion={appVersion}
+          platform={platform}
+          onClose={() => setProductFeedbackVisible(false)}
         />
       </ScrollView>
     </>
@@ -269,11 +288,16 @@ const styles = StyleSheet.create({
     ...typography.bodyStrong,
     color: colors.background,
   },
+  feedbackRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
   reportButton: {
+    flex: 1,
     minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: spacing.md,
   },
   reportButtonHidden: {
     opacity: 0,
