@@ -111,7 +111,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
   4. Submission handles success (201), validation error (400), server error (500-or-other), and network error/cold-start using the same 90s `AbortController` timeout pattern and result-union shape as the existing feedback flow, without ever blocking quiz progress.
   5. Unit tests mirror existing feedback coverage: schema validation (valid payload; invalid category/screen/platform; empty/over-2000 message; empty/over-20 appVersion), payload-builder field mapping, and submit-status branching (201/400/500-or-other/network-error).
 **Plans**: 5 plans
-- [ ] 19-01-PLAN.md — productFeedback domain module (types/schema/categories/payload/submit) + 3 unit-test suites (TEST-07)
+- [x] 19-01-PLAN.md — productFeedback domain module (types/schema/categories/payload/submit) + 3 unit-test suites (TEST-07)
 - [ ] 19-02-PLAN.md — ProductFeedbackModal.tsx (category pills, required message, token-styled state machine)
 - [ ] 19-03-PLAN.md — Setup + Results footer-link entry points (D-01/D-02)
 - [ ] 19-04-PLAN.md — Quiz two-action row with divergent visibility (D-03/D-04)
@@ -141,7 +141,7 @@ and add general product feedback via a new `/product-feedback` endpoint.
 | 16. Explanation Panel UI | v0.3 | 2/2 | Complete | 2026-07-20 |
 | 17. Contract Fixture Verification | v0.4 | 1/1 | Complete   | 2026-07-21 |
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete   | 2026-07-22 |
-| 19. General Product Feedback | v0.4 | 0/5 | Not started | - |
+| 19. General Product Feedback | v0.4 | 1/5 | In Progress|  |
 
 ---
 
