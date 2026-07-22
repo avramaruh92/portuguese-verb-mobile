@@ -27,12 +27,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### General Product Feedback
 
-- [ ] **PFDBK-01**: User can open a "Help us improve" entry point from Setup, Quiz, and Results screens
-- [ ] **PFDBK-02**: On Quiz, after an answer is locked, a two-action row offers "Report a problem" and "Help us improve" as distinct flows
-- [ ] **PFDBK-03**: Product feedback payload (`category: bug | idea | other`, `message` 1-2000 chars, `screen: setup | quiz | results`, `appVersion` 1-20 chars, `platform: ios | android`) is submitted via `POST /product-feedback`, matching the backend v0.4 contract exactly
-- [ ] **PFDBK-04**: Product feedback submission uses the same 90s `AbortController` timeout pattern and success/validation-error/server-error/network-error result union as existing feedback
-- [ ] **PFDBK-05**: Product feedback sends only screen/app metadata — never quiz-answer context (verb/tense/subject/correctAnswer/selectedAnswer)
-- [ ] **TEST-07**: Product-feedback unit tests mirror existing feedback test coverage — schema validation (valid payload; invalid category/screen/platform; empty/over-2000 message; empty/over-20 appVersion), payload-builder field mapping, and submit-status branching (201/400/500-or-other/network-error)
+- [x] **PFDBK-01**: User can open a "Help us improve" entry point from Setup, Quiz, and Results screens
+- [x] **PFDBK-02**: On Quiz, after an answer is locked, a two-action row offers "Report a problem" and "Help us improve" as distinct flows
+- [x] **PFDBK-03**: Product feedback payload (`category: bug | idea | other`, `message` 1-2000 chars, `screen: setup | quiz | results`, `appVersion` 1-20 chars, `platform: ios | android`) is submitted via `POST /product-feedback`, matching the backend v0.4 contract exactly
+- [x] **PFDBK-04**: Product feedback submission uses the same 90s `AbortController` timeout pattern and success/validation-error/server-error/network-error result union as existing feedback
+- [x] **PFDBK-05**: Product feedback sends only screen/app metadata — never quiz-answer context (verb/tense/subject/correctAnswer/selectedAnswer)
+- [x] **TEST-07**: Product-feedback unit tests mirror existing feedback test coverage — schema validation (valid payload; invalid category/screen/platform; empty/over-2000 message; empty/over-20 appVersion), payload-builder field mapping, and submit-status branching (201/400/500-or-other/network-error)
 
 ## v2 Requirements
 
@@ -64,12 +64,12 @@ Populated during roadmap creation.
 | EXPL-07 | Phase 18 | Complete |
 | EXPL-08 | Phase 18 | Complete |
 | TEST-06 | Phase 18 | Complete |
-| PFDBK-01 | Phase 19 | Pending |
-| PFDBK-02 | Phase 19 | Pending |
-| PFDBK-03 | Phase 19 | Pending |
-| PFDBK-04 | Phase 19 | Pending |
-| PFDBK-05 | Phase 19 | Pending |
-| TEST-07 | Phase 19 | Pending |
+| PFDBK-01 | Phase 19 | Done |
+| PFDBK-02 | Phase 19 | Done |
+| PFDBK-03 | Phase 19 | Done |
+| PFDBK-04 | Phase 19 | Done |
+| PFDBK-05 | Phase 19 | Done |
+| TEST-07 | Phase 19 | Done |
 
 **Coverage:**
 - v1 requirements: 14 total
