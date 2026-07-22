@@ -1,156 +1,168 @@
 # Project Research Summary
 
-**Project:** Portuguese Verb Conjugation App — Mobile
-**Domain:** iOS-first Expo React Native offline-first quiz app, v0.1 milestone (online content fetch + offline fallback/caching, end-quiz-early flow, safe-area/UI polish)
-**Researched:** 2026-07-13
-**Confidence:** HIGH (all four research files are grounded in direct reads of the actual shipped v0.0 codebase — `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `app/*.tsx`, `package.json` — not generic ecosystem patterns, with supporting library/version claims verified against npm and official Expo/RN/TS docs)
+**Project:** Lafa (portuguese-verb-mobile) — v0.5 milestone: first iOS TestFlight release
+**Domain:** iOS release engineering for a managed Expo SDK ~57 / Expo Router app (EAS Build + EAS Submit)
+**Researched:** 2026-07-22
+**Confidence:** HIGH
 
 ## Executive Summary
 
-This is a small, already-shipped (v0.0) offline-first Expo/React Native quiz app entering its second milestone (v0.1), which adds three loosely-related capabilities: fetching quiz content from a not-yet-built backend endpoint with a bulletproof offline fallback, letting users exit a quiz mid-session with a confirmation, and fixing a known safe-area/visual-polish gap. All four research streams converge on the same architectural thesis: the existing v0.0 design (a pure/synchronous quiz engine, a single Zustand store acting as a state machine, Zod schemas already used for the feedback payload and dataset validation) is sound and should be extended, not replaced. The single highest-leverage move for the whole milestone is a small, mechanical refactor — making `generate()` accept a `Verb[]` parameter instead of importing the static dataset at module scope — because every other v0.1 feature (fetch-with-fallback, dataset snapshotting, exit-flow correctness) depends on that seam existing first.
+This milestone is not a product feature milestone — it's release engineering: taking a fully-shipped, working Expo Router app (v0.4 core loop already validated) from "no `eas.json`, no bundle identifier" to "a signed, submitted build sitting in TestFlight in front of testers." The expert-standard path for a managed Expo project with no existing native `ios/` directory is EAS Build + EAS Submit with EAS-managed (remote) Apple credentials — no fastlane, no manually-managed `.p12`/provisioning profiles, no `expo prebuild`-and-commit. All release identity (bundle ID, build number, version, icon, splash) lives exclusively in `app.json`, with `eas.json` layered on top as build/submit profile config. This is a config-and-process milestone, not a new-architecture milestone; the app's existing architecture (Zustand store, pure-function `quiz`/`dataset`/`feedback` domains) is unaffected and out of scope.
 
-The recommended approach: keep the engine 100% synchronous and pure (resolve remote-vs-local data *above* it, in the store), reuse the existing Zod validation infrastructure for the fetched payload exactly as it's used for the bundled dataset (never trust fetched JSON on TypeScript types alone), reuse the existing `reset()` primitive for quiz abandonment rather than inventing new store state, and fix the safe-area bug by wrapping `SafeAreaProvider` once at the Expo Router root (`app/_layout.tsx`) plus auditing each screen's existing hardcoded padding for double-padding regressions. Stack-wise, only one genuinely new dependency is needed (`@react-native-async-storage/async-storage`, for caching fetched content across app restarts) — everything else (native `fetch` + `AbortController`, existing Zod schemas, RN core `Alert.alert`, already-installed `react-native-safe-area-context`) is either already in the project or needs zero new install.
+The recommended approach: (1) run a clean `expo-doctor`/`expo install --check` pass and one throwaway `eas build` early to surface any native-dependency drift before investing in polish; (2) lock `ios.bundleIdentifier` (`com.avram.aruh.lafa`), slug/scheme (`lafa`), and build number/version identity in `app.json` once, treating it as effectively irreversible; (3) regenerate the app icon as a flat, alpha-free, exactly-1024x1024 PNG from `assets/brand/lafa-logo-v2.svg` — critically, addressing **both** icon paths this project has configured (`expo.icon` -> `assets/images/icon.png` and the SDK-54+ `ios.icon` -> `assets/expo.icon/` Icon Composer bundle, which currently still ships Expo's default template icon and silently wins on iOS if left untouched); (4) author a minimal `eas.json` with one `production` build profile (EAS-managed credentials, `appVersionSource: "remote"`, `autoIncrement: true`) and one `submit.production.ios` profile prefilled with `ascAppId`/`appleTeamId` once the App Store Connect app record exists; (5) fix the two known lint failures and run a live-backend preflight (including against a *cold*, post-idle Render instance) before sending tester invites.
 
-The key risks are almost all "looks done but isn't" correctness gaps rather than unknowns: (1) skipping runtime `.parse()` validation on fetched content, repeating a debt this project has already flagged once for the feedback payload; (2) a three-tier fallback (fresh fetch → cache → bundled dataset) that's missing the "no cache AND fetch failed" branch, breaking first-launch-no-network — the single worst possible first impression; (3) relying on `gestureEnabled: false` alone to block iOS swipe-back on the Quiz screen, which multiple open Expo/RN GitHub issues confirm is unreliable — a `beforeRemove` navigation listener is required instead; and (4) Zustand async-action stale-closure/race bugs between an in-flight content fetch and a user tapping "Start Quiz," which must never block or falsely error the Start button (the core "open the app, start a quiz" value must not regress).
+The dominant risks are all "looks done but isn't" failure modes that surface late (at submit or post-processing, not at build time): an alpha-channel icon rejected only at `eas submit` (`ITMS-90717`), a bundle-ID/App-Store-Connect-record mismatch discovered only when `eas submit` can't find a destination app, a missing export-compliance answer that leaves an otherwise-successful build undistributable to external testers, and Render's free-tier cold start (45-50s, already measured in a prior milestone) poisoning a first-time tester's very first app open. None of these require architectural changes to fix — they require sequencing (lock identity before building, verify alpha-free icons programmatically before submitting, set `ITSAppUsesNonExemptEncryption` proactively, warm the backend before sending invites) — but each is easy to discover only after burning a full build/submit cycle if not gated explicitly.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The v0.0 stack (Expo SDK 57 / RN 0.86, Expo Router 6, TypeScript 5.x — explicitly not 7.x yet, Zustand 5, Zod 4, `jest-expo`, native `fetch`, RN core `Share`) is locked and unchanged. v0.1 adds exactly one new dependency and reuses everything else already installed or already in code.
+The only net-new dependency is `eas-cli` (`^21.0.3`, as a devDependency, invoked via `npx`) plus a new `eas.json` config file at the repo root — no new runtime npm packages, no changes to the existing `expo`/`react-native`/`expo-router`/`zustand`/`zod` stack. `app.json` gains new fields (`ios.bundleIdentifier`, `ios.buildNumber`, `extra.eas.projectId` written automatically by `eas build:configure`) rather than being restructured.
 
 **Core technologies:**
-- `@react-native-async-storage/async-storage` (via `npx expo install`, never a raw npm pin): persist the last-known-good fetched dataset across app restarts, so there's something to fall back to before the next network attempt — a genuinely new requirement (v0.0's "no persistence" scope was about quiz-session state, not content caching).
-- `react-native-safe-area-context` (already installed, `~5.7.0`): fixes the safe-area bug — this is a wiring gap (`SafeAreaProvider` never mounted at root), not a missing package.
-- Native `fetch` + manual `AbortController` (same pattern as existing `src/feedback/submit.ts`, but a much shorter 2-5s timeout since this fetch is on the critical path to quiz start, unlike the fire-and-forget feedback call).
-- Existing Zod dataset schema (`src/dataset/validate.ts`): reused as-is to validate any fetched payload — do not write a second parallel schema.
-- RN core `Alert.alert()` for the exit-quiz confirmation — a system dialog is the right tool for a plain two-button destructive confirmation; no need for a custom modal.
-
-Explicitly avoid: MSW (over-engineered for one GET endpoint), a standalone mock server process, `react-native-mmkv` (no throughput need at this scale), and a custom `Modal` for exit confirmation (over-scoped for text + two buttons).
+- `eas-cli` (^21.0.3, devDependency) — the only tool that can produce a signed iOS build without a checked-in native `ios/` project or local Xcode; required because this is a managed-workflow project.
+- `eas.json` (new file, build/submit profile schema) — single source of truth EAS reads for credentials source, channel, and submit destination; `cli.appVersionSource: "remote"` + `build.production.autoIncrement: true` avoids manual build-number bumping from build #2 onward.
+- EAS-managed (remote) Apple credentials — EAS generates/stores the distribution cert + provisioning profile server-side; correct choice here since there's no existing fastlane/match infrastructure and the milestone explicitly scopes this in.
 
 ### Expected Features
 
-**Must have (table stakes) for v0.1:**
-- Local bundled dataset always works even if fetch never happens — non-negotiable, this is the app's core value.
-- Cached/local content shown immediately with zero blocking spinner before Setup/Quiz is usable (stale-while-revalidate, not a network gate).
-- Silent, non-blocking fallback on any fetch failure (unreachable, slow/timeout, malformed JSON) — treated identically, validated via the existing Zod schema.
-- Header exit ("X") control on the Quiz screen, with a confirmation dialog before discarding progress, that also intercepts swipe-back/hardware-back (not just the button).
-- Exiting fully discards progress and returns to Setup with no partial results shown (explicit product decision, already recorded).
-- Safe-area-correct layout; legible baseline typography/spacing and clear right/wrong feedback color.
+**Must have (table stakes — blocks TestFlight entirely if missing):**
+- `ios.bundleIdentifier` set in `app.json` (`com.avram.aruh.lafa`) — currently absent.
+- App Store Connect app record created with the exact matching bundle ID (external/manual, user-owned step, but a hard ordering dependency before `eas submit`).
+- 1024x1024, alpha-free app icon — both `expo.icon` (legacy path) and `ios.icon` (SDK 54+ Icon Composer path, currently still the unmodified Expo template default) must be addressed.
+- `eas.json` with a `production` build profile and a `submit.production.ios` profile (with `ascAppId` filled in once the ASC record exists).
+- EAS-managed iOS credentials configured (`eas credentials`).
+- Build number `1`, version stays `1.0.0` (first-ever upload).
+- `npm run lint` / `npm run typecheck` clean — 2 known lint failures (`ReportFeedbackModal.tsx`, `ProductFeedbackModal.tsx` modal-reset effects) must be fixed.
+- `ITSAppUsesNonExemptEncryption: false` set proactively — standard-HTTPS-only app qualifies for the encryption exemption; unset, it blocks external-tester distribution even after a successful submit.
+- Live-backend preflight (`GET /health`, `GET /content/verbs`, `POST /feedback`, `POST /product-feedback`) run against the deployed Render backend before tester invites — including at least once against a cold (>15 min idle) instance.
 
-**Should have (cheap differentiators, add if time allows within v0.1):**
-- Question-progress indicator ("Question X of 10") — derives directly from existing store state, no new logic.
-- Distinct exit-dialog button labels ("Quit Quiz"/"Keep Practicing") instead of generic OK/Cancel — free.
-- Subtle answer-selection feedback animation via RN's built-in `Animated`/`LayoutAnimation` (not Reanimated/Lottie).
+**Should have (smoother repeat-release process, cheap to include now):**
+- `appVersionSource: "remote"` + `autoIncrement: true` in `eas.json` (trivial now, pays off starting with build #2).
+- A `preview`/internal-distribution EAS profile for on-device sanity checks before spending a TestFlight upload slot — matches this project's established "verify on real device" pattern.
 
-**Defer (v0.2+):**
-- Full local sync/database layer (SQLite/WatermelonDB) — massive overkill for a ~50-row dataset.
-- Persisting the remote dataset merge/conflict-resolution logic — precedence rule only (remote-if-valid-this-session, else local), no merging.
-- Resume-in-progress / partial-results on abandonment — explicitly excluded by product decision.
-- Theming/dark mode, heavy animation libraries — no signal requested, disproportionate effort.
+**Defer (v0.6+ / out of scope this milestone):**
+- `.eas/workflows/` automated build+submit CI pipeline.
+- Full public App Store listing (screenshots, description, privacy nutrition label) — TestFlight-only target this milestone.
+- Android build/Play Console setup.
+- Push notification capability/entitlement setup.
+- Local (fastlane match / manual `.p12`) credential management.
 
 ### Architecture Approach
 
-The existing codebase already separates concerns cleanly (`src/dataset/` for data, `src/quiz/engine.ts` for pure quiz generation, `src/store/useQuizStore.ts` as the sole state machine, `src/feedback/` fully decoupled). v0.1 extends this without restructuring: two new files, `src/dataset/remote.ts` (network mechanics, mirrors `submit.ts`'s fetch+AbortController pattern) and `src/dataset/source.ts` (the fallback-decision orchestrator, `resolveVerbs()` that always resolves, never rejects). The engine gains one parameter (`verbs: Verb[]`) instead of a module-scope import, preserving its pure/sync/deterministic-under-injected-RNG contract untouched — no test becomes async. The store gains exactly one new status (`"loading"`) and an `abandonQuiz` action that's semantically a thin alias for the existing `reset()`. Screens become thin consumers: `index.tsx`/`results.tsx` need an `await` fix on `startQuiz` (currently racing a synchronous status read against what will become an async call), and `quiz.tsx` must read the resolved verb list from the store (`datasetVerbs`) rather than re-importing the static dataset, or lookups silently diverge once the active session was generated from remote data.
+No product architecture changes this milestone — the existing screens/store/domain-logic structure (`app/`, `src/store/`, `src/quiz/`, `src/dataset/`, `src/feedback/`) is untouched. The release-config "architecture" is entirely config-as-code: `app.json` is the single source of truth for release identity (bundle ID, build number, version, icon, splash references), and `eas.json` (new, repo root, sibling to `app.json`) declares build/submit profiles on top of it. There is no native `ios/` directory checked in and none should be — EAS Build performs its own ephemeral cloud `expo prebuild` from `app.json` on every build.
 
 **Major components:**
-1. `src/dataset/source.ts` — orchestrates remote-fetch-then-local-fallback, the only module that knows "remote vs. local" exists.
-2. `src/store/useQuizStore.ts` — owns the entire async fetch → generate → in-progress state machine; screens never orchestrate this themselves.
-3. `src/quiz/engine.ts` — stays pure/sync, now receives `verbs` as an explicit argument rather than importing it.
-4. `app/_layout.tsx` — single root `SafeAreaProvider` wrap; screens consume `useSafeAreaInsets()` individually.
+1. `app.json` (`expo` block) — release identity source of truth; gains `ios.bundleIdentifier`, `ios.buildNumber`, updated `slug`/`scheme` (`lafa`).
+2. `eas.json` (new) — `build.production` (EAS-managed credentials, `autoIncrement`) and `submit.production.ios` (`ascAppId` once the ASC record exists).
+3. Icon/splash asset pipeline — `assets/brand/lafa-logo-v2.svg` (source) -> rasterized, alpha-flattened, 1024x1024 -> `assets/images/icon.png`; a parallel decision needed on `assets/expo.icon/` (Icon Composer bundle, SDK 54+, currently unmodified Expo template default, wins on iOS if left as-is).
+4. EAS Build/Submit cloud services — external, invoked via CLI, produce the signed `.ipa` and upload it to App Store Connect -> TestFlight.
 
 ### Critical Pitfalls
 
-1. **Engine hardcodes the local dataset, no seam for fetched data** — refactor `generate()` to take `verbs` as a parameter *before* writing any fetch code; run the full existing test suite as the safety net for this being additive-only.
-2. **Race between in-flight fetch and "Start Quiz" tap** — never block the Start button on network; add an explicit resolved-pool state the store reads synchronously, never await inside `startQuiz`'s trigger path in a way that risks a false `InsufficientVerbsError` on cold start.
-3. **Mock-to-real-backend contract drift with no runtime validation** — this project already paid down this exact debt once for `POST /feedback`; `.safeParse()` every fetched response against the existing Zod schema and treat validation failure identically to a network failure, never just TypeScript-type-annotate the response.
-4. **Cache masks a working backend / breaks on first launch with no cache and no network** — implement the three-tier fallback (fresh fetch → cache → bundled dataset) as an explicit truth table, and explicitly test the "no cache AND fetch throws" branch, not just the happy paths.
-5. **iOS swipe-back gesture bypasses the exit confirmation** — `gestureEnabled: false` is confirmed unreliable on iOS per multiple open Expo/RN GitHub issues; use React Navigation's `beforeRemove` listener and verify with an actual device/simulator swipe, not just an in-app button tap.
+1. **Icon alpha channel rejected only at submit time (`ITMS-90717`)** — not caught by `eas build`, only by `eas submit`/ASC processing after a 10-20+ minute build. Avoid by programmatically verifying both `assets/images/icon.png` and `assets/expo.icon/` are alpha-free (`sips -g hasAlpha` / ImageMagick) before any real submit attempt.
+2. **Bundle ID / App Store Connect record / EAS credentials drift** — this is the app's first-ever release, so there's no existing bundle ID, ASC record, or credentials to check against; a stray typo or wrong-order step (building before the ASC record exists) causes `eas submit` to fail cryptically or silently create the wrong app. Avoid by locking `com.avram.aruh.lafa` once, creating the ASC record with the exact matching string before the first submit, and pre-filling `eas.json`'s `ascAppId`/`appleTeamId`.
+3. **Missing export compliance declaration blocks external-tester distribution even after a successful build+submit** — not prompted by the EAS CLI flow at all. Avoid by setting `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` in `app.json` ahead of the first build.
+4. **`expo-doctor`/native dependency drift only surfaces on the first real EAS build** — Expo Go/dev-client development doesn't validate the native dependency graph the way a real build does. Avoid by running `npx expo-doctor` + `npx expo install --check` and one throwaway `eas build --clear-cache` as the very first concrete step of this milestone, before icon/eas.json polish.
+5. **Render free-tier cold start (45-50s) poisons a first-time tester's very first app open** — a warm-instance-only preflight check misses this. Avoid by explicitly testing against a deliberately cold (>15 min idle) instance during preflight, and by warming the backend operationally right before sending TestFlight invites.
 
 ## Implications for Roadmap
 
-Based on combined research, the dependency chain across the three feature areas strongly suggests this phase order:
+Based on research, suggested phase structure:
 
-### Phase 1: Dataset seam refactor + fetch/fallback pipeline
-**Rationale:** Nothing else in v0.1 can proceed meaningfully until the engine accepts an injected verb pool; this is the prerequisite for both content-fetching and safe testing of fallback behavior. Fully unit-testable in isolation (mock `fetch`, assert fallback-on-failure) with zero external dependents yet.
-**Delivers:** `generate(verbs, options, random)` parameterized; `src/dataset/remote.ts` + `src/dataset/source.ts`; runtime Zod validation of any fetched payload; a mocked/stubbed swappable backend endpoint per PROJECT.md's explicit scoping.
-**Addresses:** "Local dataset always works" table stakes, "silent non-blocking fallback" table stakes.
-**Avoids:** Pitfall 1 (engine hardcoding), Pitfall 4 (mock-to-real drift with no validation).
+### Phase 1: Native build risk front-loading
+**Rationale:** This is the first-ever EAS build for this project; native dependency drift that's invisible in Expo Go/dev-client only surfaces at real build time. Cheapest and safest to discover this before any icon/identity polish work is invested.
+**Delivers:** Clean `npx expo-doctor` pass, `npx expo install --check` resolved, one successful throwaway `eas build --platform ios --profile production --clear-cache` run (minimal/placeholder `eas.json` + credentials sufficient to prove the pipeline works).
+**Addresses:** Table-stakes gate (build succeeds at all).
+**Avoids:** Pitfall 5 (expo-doctor/native build drift discovered late).
 
-### Phase 2: Store integration (async startQuiz, loading state, dataset snapshot)
-**Rationale:** Depends on Phase 1's resolved-verbs seam; this is where the race-condition and stale-closure risks live, so it needs its own careful design pass before touching screens.
-**Delivers:** New `"loading"` status; async `startQuiz()` sequencing `resolveVerbs()` → `generate()`; `datasetVerbs` held in store; dataset-source snapshot at `startQuiz()` time (preserving the existing filters-snapshot invariant).
-**Uses:** Zustand 5 (already locked); existing `InsufficientVerbsError` handling extended, not replaced.
-**Implements:** Pattern 1 (data-source injection into a pure engine) and Pattern 2 (fetch-with-fallback via single orchestrator) from ARCHITECTURE.md.
-**Avoids:** Pitfall 2 (race between in-flight fetch and Start tap), Pitfall 3 (stale-closure bugs in async Zustand actions).
+### Phase 2: Release identity lock (bundle ID, slug/scheme, version)
+**Rationale:** Bundle identifier and slug are effectively irreversible once a build/credential/ASC record is created against them — must be decided and locked before any "real" (non-throwaway) build.
+**Delivers:** `app.json` updated with `ios.bundleIdentifier: "com.avram.aruh.lafa"`, `slug`/`scheme: "lafa"`, `ios.buildNumber: "1"`, `version` confirmed `1.0.0`; `extra.eas.projectId` check (verify no pre-existing project id under the old slug before renaming).
+**Addresses:** Table-stakes identity fields from FEATURES.md.
+**Avoids:** Pitfall 2 (bundle ID/credential drift), Pitfall 3 (slug/scheme rename breaking EAS project link).
 
-### Phase 3: Persistence/caching layer
-**Rationale:** Only makes sense once the fetch/fallback pipeline (Phase 1-2) exists to cache the output of. Introduces the project's first-ever persistence dependency, so its own Jest-mocking setup must land before any caching business logic is written.
-**Delivers:** `@react-native-async-storage/async-storage` wired via `npx expo install`; three-tier fallback (fresh fetch → cache → bundled dataset); explicit Jest mock (`jest/async-storage-mock`) with assertions on actual call arguments, not just downstream branching.
-**Uses:** AsyncStorage (new dependency, STACK.md).
-**Avoids:** Pitfall 5 (cache masks stale/broken backend, or fails on empty-cache+no-network), Pitfall 6 (AsyncStorage untested/under-mocked in Jest).
+### Phase 3: Icon/splash asset pipeline
+**Rationale:** Icon must be baked into the binary before any build that goes to TestFlight — a post-build icon fix requires a full rebuild, so this should land before the "real" production build, and this project's dual icon-path (`expo.icon` vs. `ios.icon`) config makes it more failure-prone than a typical single-PNG swap.
+**Delivers:** 1024x1024, alpha-free `assets/images/icon.png` regenerated from `assets/brand/lafa-logo-v2.svg`; explicit decision + action on `assets/expo.icon/` (regenerate via Icon Composer or delete + remove `ios.icon` key); splash re-export if visual QA requires it.
+**Addresses:** Table-stakes icon requirement from FEATURES.md.
+**Avoids:** Pitfall 1 (icon alpha channel rejected only at submit time), Architecture Anti-Pattern 1 (regenerating one icon path but not the other).
 
-### Phase 4: End-quiz-early flow
-**Rationale:** Independent of the fetch/caching work (only lightly touches the same screens), but should follow Phase 2's store changes since the exit action needs to interoperate cleanly with the new `"loading"` status (e.g., can you exit while content is still loading?).
-**Delivers:** Header "X" exit control on Quiz screen; `Alert.alert` confirmation with distinct button labels; `abandonQuiz` action reusing the existing `reset()` primitive; `beforeRemove` navigation listener intercepting swipe-back/hardware-back; exit-control visibility gated strictly on `status === "in-progress"`.
-**Implements:** Pattern 3 (abandon-quiz as reuse of `reset()`) from ARCHITECTURE.md.
-**Avoids:** Pitfall 7 (partial reset corrupting next `startQuiz()`), Pitfall 8 (swipe-back bypass).
+### Phase 4: `eas.json` build/submit profile authoring + credentials
+**Rationale:** Requires Phase 2's identity fields to be final; can proceed in parallel with the App Store Connect app record being created (external/manual, user-owned).
+**Delivers:** `eas.json` with `production` build profile (EAS-managed credentials, `appVersionSource: "remote"`, `autoIncrement: true`) and `submit.production.ios` profile prefilled with `ascAppId`/`appleTeamId` once the ASC record exists; `ITSAppUsesNonExemptEncryption: false` set in `app.json`.
+**Uses:** `eas-cli` ^21.0.3, `eas.json` schema from STACK.md.
+**Implements:** `eas.json` build/submit profile split architecture pattern.
 
-### Phase 5: Safe-area fix + baseline visual polish
-**Rationale:** Cheapest to land alongside the screen edits already happening in Phase 4 (same files touched), and should follow the SafeAreaProvider wiring specifically before broader spacing/typography work to avoid rework once real insets are applied — per FEATURES.md's explicit dependency note.
-**Delivers:** `SafeAreaProvider` wrapped once at `app/_layout.tsx` root; per-screen audit removing now-redundant hardcoded padding (e.g., `results.tsx`'s `paddingTop: 64`); consistent spacing/typography/color tokens across Setup/Quiz/Results; styled loading/error states for the new fetch step; optional progress indicator and answer-feedback animation if time allows.
-**Avoids:** Pitfall 9 (SafeAreaProvider wired at wrong layer, or double-padding from leftover manual margins).
+### Phase 5: Quality gates + preflight + first real submit
+**Rationale:** Final gate before testers see the build — must happen last, after identity/icon/eas.json are all locked, and must explicitly include a cold-instance check that a simple "is it up" preflight would miss.
+**Delivers:** Lint fixes (`ReportFeedbackModal.tsx`/`ProductFeedbackModal.tsx`) landed and verified clean; live-backend preflight run against both warm and deliberately cold (>15 min idle) Render instances; first real `eas build --profile production` + `eas submit --profile production` cycle; internal TestFlight testers added.
+**Addresses:** Remaining table-stakes items (lint clean, backend preflight, testers added) from FEATURES.md.
+**Avoids:** Pitfall 4 (missing export compliance), Pitfall 6 (cold Render backend poisoning first tester impression).
 
 ### Phase Ordering Rationale
 
-- The engine/data seam (Phase 1) is a hard prerequisite for everything else touching data flow — landing it first with the existing 122-test suite as a regression guard is the single most de-risking move available.
-- Caching (Phase 3) is scoped as an explicit, separate decision from fetch/fallback (Phase 1-2) because it reopens a previously-closed scope line ("no persistence beyond a single quiz session") — FEATURES.md flags this should not be smuggled in as an implementation detail.
-- End-quiz-early (Phase 4) and safe-area polish (Phase 5) are architecturally independent of the data-fetching work but share the same three screen files, so sequencing them together (rather than as 4 separate screen-touching passes) minimizes redundant edits — this is ARCHITECTURE.md's explicit "Suggested Build Order" recommendation.
+- Native build risk (Phase 1) is front-loaded because it's cheapest to discover and fix early, and every later phase depends on `eas build` actually working end-to-end.
+- Identity (Phase 2) must precede icon/eas.json work because bundle ID/slug changes after credentials or an EAS project link exist are costly to undo — research (Pitfalls 2 & 3) flags this as the single most important ordering constraint in the whole workflow.
+- Icon (Phase 3) precedes the real build/submit (Phase 4-5) because it's baked in at build time, not swappable post-build.
+- eas.json/credentials (Phase 4) can start once identity is locked, in parallel with the user's manual App Store Connect app-record creation — but must complete before Phase 5's real submit, since `ascAppId` requires the ASC record to exist.
+- Quality gates + preflight + submit (Phase 5) is last because it's the only phase that actually produces a tester-visible artifact, and several of its sub-steps (export compliance, cold-backend check) are the specific "looks done but isn't" failure modes research flagged as easy to skip if not made an explicit gate.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 2 (Store integration):** the exact current Expo Router/React Navigation API surface for `beforeRemove`/gesture interception should be re-verified against the SDK-57-bundled version at implementation time — FEATURES.md flags this as an "important finding to verify in codebase," not settled by ecosystem research alone.
-- **Phase 3 (Persistence/caching):** AsyncStorage's Jest mocking wiring and any SDK-57-specific Android/Gradle caveats (irrelevant to iOS-only scope now, but worth a quick sanity check) warrant a focused look before writing caching logic.
+- **Phase 3 (icon pipeline):** The exact SDK 54+ Icon Composer `.icon` bundle format and whether it's practical without macOS-only Icon Composer tooling access needs a concrete decision (regenerate vs. delete `ios.icon`) — flagged as MEDIUM confidence in STACK.md/ARCHITECTURE.md, worth a `--research-phase` pass if the decision isn't obvious once icon work starts.
+- **Phase 5 (first real submit):** First-time submission specifics (interactive prompts, exact ASC UI flow for export compliance if not set via `Info.plist`, internal vs. external tester distinction) are well-documented in principle but this is a one-shot, unrepeatable-cheaply operation — worth double-checking current Expo/Apple UI flow immediately before executing, since these interfaces change.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 1 (Dataset seam refactor):** well-documented, standard "parameterize a pure function" refactor with existing tests as the safety net — HIGH confidence, no ecosystem uncertainty.
-- **Phase 4 (End-quiz-early):** the `Alert.alert()` + `reset()` reuse pattern is fully specified in ARCHITECTURE.md with working code examples; the one open question (exact `beforeRemove` API name) is a quick verification, not a research task.
-- **Phase 5 (Safe-area/visual polish):** root cause and fix are already directly confirmed via codebase reads (installed-but-unwired dependency); this is an implementation task, not a research one.
+- **Phase 1 (native build risk):** `expo-doctor`/`expo install --check` is a well-documented, standard Expo workflow — no deeper research needed.
+- **Phase 2 (identity lock):** `app.json` field additions are simple, well-documented config changes.
+- **Phase 4 (eas.json authoring):** Schema and recommended shape are fully documented and verified in STACK.md/ARCHITECTURE.md with HIGH confidence.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Core versions verified against npm `latest` dist-tags and official Expo changelogs; the one new dependency (AsyncStorage) has a flagged MEDIUM-confidence Android-only caveat that's explicitly irrelevant to this iOS-first milestone. |
-| Features | MEDIUM | Feature landscape and prioritization are well-established (NN/g sources, Duolingo pattern analysis), but two specifics — the exact Expo Router gesture-guard API name and the true safe-area root cause — are flagged as needing codebase-level verification, not just ecosystem research (this was subsequently done directly in ARCHITECTURE.md/PITFALLS.md by reading the actual files). |
-| Architecture | HIGH | Every finding is grounded in direct reads of the actual shipped v0.0 code, not generic patterns — includes concrete before/after code diffs for each proposed change. |
-| Pitfalls | MEDIUM-HIGH | Grounded in direct repo inspection plus verified GitHub issues (gesture-disable unreliability) and official AsyncStorage/Jest docs; a small number of claims (e.g. `beforeRemove` pattern generality) rely on general React Navigation ecosystem knowledge rather than a freshly re-fetched source this session. |
+| Stack | HIGH | Verified directly against current Expo/EAS official docs and live npm registry check for `eas-cli` version; a few narrow field-level nuances (e.g. exact Icon Composer format details) flagged MEDIUM. |
+| Features | HIGH | Cross-checked against Expo/Apple official docs and direct repo inspection (`app.json` current state, `.planning/PROJECT.md` milestone scope). |
+| Architecture | HIGH | Based on official Expo docs (build/submit config, icon/splash requirements) plus direct in-repo verification of the dual icon-path config and `.gitignore` state. |
+| Pitfalls | MEDIUM | EAS/App Store mechanics verified against Expo docs, GitHub issues, and Apple developer forums; exact current `expo-doctor` check list for SDK 57 could not be independently confirmed beyond community reports — verify live during Phase 1. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Exact Expo Router/React Navigation gesture-interception API name and behavior** for the SDK-57-bundled Router version — confirm at Phase 4 implementation time rather than trusting older tutorials (both FEATURES.md and PITFALLS.md flag this).
-- **Safe-area root-cause confirmation** — research suggests Expo Router may auto-wire `SafeAreaProvider` for its own routes in some versions, which would mean the real bug is missing per-screen inset consumption rather than a missing root provider; ARCHITECTURE.md's direct codebase read confirms no provider is wired at all in this project, so this gap is effectively resolved, but worth a final visual-device check during Phase 5.
-- **Real backend content-endpoint shape** does not exist yet; all Phase 1 fetch work is built against a local mock/stub swappable via a one-line URL change. The actual contract-drift risk (mirroring the `POST /feedback` enum-literal cross-repo risk already documented in CLAUDE.md) can only be fully closed once the sibling `portuguese-verb-api` repo ships the real endpoint — track this as an open cross-repo risk, not a gap in this research.
+- **`assets/expo.icon/` (Icon Composer bundle) resolution path:** whether to regenerate it with the Lafa mark (requires macOS-only Icon Composer tooling) or delete it and rely solely on the flat `expo.icon` PNG is not yet decided — surface this as an explicit decision point in Phase 3, not an assumption.
+- **`expo-doctor` SDK 57 check specifics:** community-report-level confidence only: run it live early (Phase 1) rather than trusting the research's specific failure-mode predictions.
+- **Internal vs. external TestFlight tester scope:** the milestone's "external testers" phrasing needs clarification — if it means genuinely external (non-team) people, Apple's first-time Beta App Review (~24-48h) is an unavoidable additional dependency that should be surfaced to the user before setting Phase 5 timeline expectations.
+- **Render cold-start operational mitigation:** explicitly out of scope to "fix" (no paid tier/keep-alive service), but the "warm before inviting" step is a manual operator runbook item, not a code change — make sure this is captured as a process note, not silently dropped.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Direct reads of the shipped codebase: `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `src/quiz/types.ts`, `src/dataset/verbs.ts`, `src/dataset/types.ts`, `src/dataset/validate.ts`, `src/feedback/submit.ts`, `app/_layout.tsx`, `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`, `package.json`, `.planning/PROJECT.md`
-- npm registry `latest` dist-tags (expo, expo-router, zustand, jest-expo, jest, zod, typescript, react-native, expo-sharing, @react-native-async-storage/async-storage)
-- https://docs.expo.dev/versions/latest/sdk/safe-area-context/ and https://docs.expo.dev/develop/user-interface/safe-areas/ — official Expo docs
+- [Configure EAS Build with eas.json — Expo Documentation](https://docs.expo.dev/build/eas-json/)
+- [Configure EAS Submit with eas.json — Expo Documentation](https://docs.expo.dev/submit/eas-json/)
+- [App version management — Expo Documentation](https://docs.expo.dev/build-reference/app-versions/)
+- [Submit to the Apple App Store with EAS Submit — Expo Docs](https://docs.expo.dev/submit/ios/)
+- [Splash screen and app icon — Expo Documentation](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/)
+- [Set up EAS Build — Expo Documentation](https://docs.expo.dev/build/setup/)
+- [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54)
+- [eas-cli — npm](https://www.npmjs.com/package/eas-cli)
+- Direct repo inspection: `app.json`, `assets/expo.icon/`, `package.json`, `.gitignore`, `.planning/PROJECT.md`
 
 ### Secondary (MEDIUM confidence)
-- https://www.nngroup.com/articles/confirmation-dialog/ and /cancel-vs-close/ — Nielsen Norman Group UX guidance
-- GitHub `expo/expo` issues #31614 and #28052 — iOS swipe-gesture disable unreliability
-- react-native-async-storage.github.io Jest integration docs — explicit mock wiring requirement
-- Duolingo lesson-exit pattern and stale-while-revalidate offline-first pattern — WebSearch synthesis, cross-source consistent
+- [expo/eas-cli#2911 — EAS Submit reads too much info from local project folder expo config file](https://github.com/expo/eas-cli/issues/2911)
+- [expo/eas-cli#2084 — extra.eas.projectId missing/present mismatch](https://github.com/expo/eas-cli/issues/2084)
+- [expo/eas-cli#1530 — Wrong app slug read from expo config](https://github.com/expo/eas-cli/issues/1530)
+- [expo/expo#3693 — App Store Icon can't be transparent or contain alpha channel](https://github.com/expo/expo/issues/3693)
+- [Apple Developer Forums — Bundle identifier error when running EAS build](https://developer.apple.com/forums/thread/720459)
+- [Apple Developer Help — Determine and upload export compliance documentation](https://developer.apple.com/help/app-store-connect/manage-app-information/determine-and-upload-export-compliance-documentation/)
+- [GitHub Community Discussion — Render service goes to sleep after inactivity](https://github.com/orgs/community/discussions/197645)
 
 ### Tertiary (LOW confidence)
-- General React Navigation `beforeRemove` ecosystem knowledge — not freshly re-fetched this session, standard/well-established pattern but flagged for re-verification against the exact SDK-57-bundled API surface at implementation time.
+- [blog.samkiel.dev — Your Render Free Tier Is Not Broken, It's Just Cold](https://blog.samkiel.dev/your-render-free-tier-is-not-broken-its-just-cold) — informal source, corroborates but not authoritative
+- Community reports on exact `expo-doctor` SDK 57 check list — not independently confirmed against official docs, verify live during Phase 1
 
 ---
-*Research completed: 2026-07-13*
+*Research completed: 2026-07-22*
 *Ready for roadmap: yes*

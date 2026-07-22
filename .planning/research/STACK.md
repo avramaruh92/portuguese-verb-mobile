@@ -1,225 +1,139 @@
-# Stack Research
+# Technology Stack
 
-**Domain:** iOS-first Expo React Native quiz app — v0.1 adds online content fetching w/ offline fallback + caching, exit-quiz confirmation, safe-area UI polish
-**Researched:** 2026-07-13 (v0.1 additions below); original v0.0 research (2026-07-12) preserved further down for history
-**Confidence:** MEDIUM-HIGH for v0.1 additions (verified against current npm/official docs; some claims WebSearch-only, flagged below)
+**Domain:** iOS TestFlight release readiness for a managed Expo SDK ~57 app (v0.5 milestone)
+**Researched:** 2026-07-22
+**Confidence:** HIGH (build/submit schema, CLI version, and icon/splash requirements verified against current Expo docs; a couple of narrow field-level nuances flagged MEDIUM below)
 
-This file's top section covers ONLY what's new for v0.1. Everything already
-validated in v0.0 (Expo SDK 57, Expo Router 6, Zustand 5, Zod 4, jest-expo,
-native `fetch` + `AbortController`, RN core `Share`) is unchanged — see the
-"v0.0 Research (preserved)" section below for that original rationale.
+> This file replaces the prior (2026-07-13, v0.1-scoped) `STACK.md` content, which
+> covered backend content-fetching/caching — a different, already-shipped milestone.
+> That research is preserved in git history if needed. This file is scoped
+> exclusively to v0.5's iOS release-readiness question: what's needed to take this
+> repo from "no `eas.json`, no bundle id" to "buildable and submittable to
+> TestFlight via `eas build`/`eas submit`."
 
----
+## Recommended Stack
 
-## v0.1 Additions (2026-07-13)
-
-### Core Technologies (new for v0.1)
-
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `@react-native-async-storage/async-storage` | latest resolved by `npx expo install` (currently `3.1.1` upstream; let Expo's installer pin the SDK-57-compatible build rather than hand-picking) | Persist the last-known-good fetched dataset JSON (+ fetch timestamp) across app restarts, so the app has something to fall back to before it even attempts a network call on next launch | This is a genuinely new requirement (v0.0 explicitly excluded persistence — "no persistence beyond a single quiz session," which was about *quiz session* state, not content caching). One JSON blob, read/written a handful of times per session, no hot-path performance need — AsyncStorage's simple async key-value API is the right level of complexity. **Caveat (MEDIUM confidence):** a GitHub issue (`expo/expo#43757`) reports AsyncStorage 3.x Gradle/Android build breakage on SDK 54+, with `2.2.0` cited as the last confirmed-working version for Android. This project is iOS-first with "no Android build/release effort" explicitly out of scope this milestone, so the Android-Gradle failure mode is not currently a blocker — but always install via `npx expo install @react-native-async-storage/async-storage` (never a raw `npm install` with a hand-picked version) so Expo's compatibility resolver picks the version validated against your exact SDK, and re-check this if/when Android work starts. |
-| `react-native-safe-area-context` | `~5.7.0` — **already installed**, no new dependency | Correct safe-area insets so content stops rendering under the iOS notch/status bar and home indicator | Already present in `package.json` as an Expo Router peer dependency (confirmed by reading the file directly). The v0.0 bug isn't a missing package, it's a missing `SafeAreaProvider` at the root (`app/_layout.tsx` currently only renders a bare `<Stack>`) plus screens not consuming insets. Fix is wiring, not installation. |
-
-### Supporting Libraries / Patterns (new for v0.1)
-
-| Library / Pattern | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| Native `fetch` + manual `AbortController` (same pattern as existing `submitFeedback`) | N/A, already in the codebase | Fetch quiz content from the new backend endpoint | Reuse the exact pattern already proven in `src/feedback/submit.ts` (manual `AbortController`, not `AbortSignal.timeout`, since that's unimplemented on Hermes — already a settled v0.0 finding). Difference: the feedback call is fire-and-forget with a generous 90s cold-start-tolerant timeout; the content fetch is **on the critical path to quiz start** (user is staring at a loading state), so use a much shorter timeout (2-5s is reasonable) and fall through to cache-then-bundled-dataset the moment it fires, rather than making the user wait through a Render cold start. |
-| Existing Zod dataset schema (`src/dataset/types.ts` / dataset schema module) | already in codebase, `zod@4.x` | Validate the shape of whatever the fetch returns before trusting it | Do not write a second, parallel schema for "the API response." Reuse the exact schema that already validates the bundled local dataset as the single source of truth for "what a valid verb dataset looks like" — a fetched payload that fails this same `.safeParse()` is exactly the "invalid data" fallback trigger the milestone calls for (per PROJECT.md: fall back if "unreachable, slow, or returns invalid data"). |
-| Plain `jest.fn()` / `jest.spyOn(global, 'fetch')` stubs (no new dependency) | N/A | Unit-test the fetch → validate → fallback → cache logic in Jest | For a single endpoint with a handful of deterministic scenarios (200 + valid shape, 200 + invalid shape, network error, timeout, cache-hit-no-network), directly stubbing `global.fetch` per test case is simpler, has zero new dependencies, and avoids MSW's React-Native-specific setup friction (see "What NOT to Use"). This matches the project's own established stack philosophy (no axios, no react-query) — don't reach for network-interception middleware to mock one endpoint. |
-| In-app dev-only mock toggle (e.g. an `__DEV__`-gated base-URL swap or a `EXPO_PUBLIC_CONTENT_API_URL` env var pointing at a local static JSON file/simple handler) | N/A, no new dependency | Manually exercise the fetch/fallback flow against a stand-in backend during development, before the real `portuguese-verb-api` endpoint exists | Single endpoint, single JSON shape, short-lived need (swapped for the real URL once the sibling backend ships it). A config-driven base URL (mirroring how `POST /feedback`'s URL is presumably already a constant) that can point at `http://localhost:PORT/verbs.json` (served by `npx serve` or a two-line Node script) during dev, or at the real Render URL later, is proportionate. Do not stand up a maintained `json-server`/Express mock service or MSW's request-interception layer for this — that's infrastructure sized for a multi-endpoint API surface, not one GET. |
-
-### Development Tools (new for v0.1)
-
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| RN core `Alert.alert()` (no new dependency) | Exit-quiz-early confirmation dialog | See "Alert vs custom modal" decision below. |
-
-### Installation (v0.1)
-
-```bash
-# Core — only one genuinely new package this milestone
-npx expo install @react-native-async-storage/async-storage
-
-# Everything else needed (react-native-safe-area-context, native fetch,
-# existing Zod schema, RN core Alert/Modal) is already in the project —
-# no further installs required.
-```
-
-### Alternatives Considered (v0.1)
-
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| `@react-native-async-storage/async-storage` for the cached dataset blob | `react-native-mmkv` | If the app later adds many more small, frequently-read/written keys (feature flags, per-screen prefs, a larger local cache with sync reads on every render) where MMKV's ~30x throughput and synchronous API start to matter. Not justified for "read/write one JSON blob once per app foreground" — and it requires a native module rebuild (a custom dev client / EAS build), which, notably, this project *already* effectively requires because `@expo/ui` and `expo-glass-effect` are native modules unavailable in plain Expo Go — so MMKV wouldn't add net new build friction here. Still overkill for the actual read/write frequency, so AsyncStorage remains the proportionate choice. |
-| `@react-native-async-storage/async-storage` | `expo-file-system` (write the JSON to a cache-directory file) | If the cached payload grows large (multi-MB) or you want atomic file-replace semantics. A ~200-verb JSON dataset is well under AsyncStorage's practical size limits; file-system caching adds path/URI management for no benefit at this scale. |
-| Plain `jest.fn()`/`jest.spyOn` fetch stubs for unit tests | MSW (`msw/native`) | If the app grows to call several backend endpoints with varied request-matching needs (headers, query params, multiple routes sharing setup), MSW's network-level interception scales better than ad hoc per-test stubs. For one GET endpoint with ~5 test scenarios, MSW's React-Native-specific setup (must import `msw/native` not `msw/node`, requires `URL`/`node-fetch`/`web-streams-polyfill` polyfills in the Jest environment, and needs extra wiring under Expo Router since there's no `index.ts` entry point to bootstrap it in) is materially more ceremony than the payoff justifies right now. |
-| In-app dev-only base-URL toggle for manual testing | A local `json-server`/Express mock server | If the mocked contract grows to multiple endpoints, needs stateful behavior (e.g. simulating pagination, POST-then-GET), or multiple people on the team need to hit the same stable mock URL. For "one static JSON payload, swapped for a real URL later," a static file plus a one-line static server (or even a local `file://` read behind a dev flag) is simpler to set up and tear down. |
-| RN core `Alert.alert()` for exit-quiz confirmation | Custom `Modal` (matching `ReportFeedbackModal`'s `presentationStyle="pageSheet"` pattern) | The existing custom modal exists because it's a multi-field form (reason picker + free-text message) that needs real layout control — a system alert can't do that. A "leave quiz? progress will be lost" confirmation is a plain two-button (Cancel/Discard) decision with no form fields — exactly what `Alert.alert(title, message, buttons)` is built for, matches iOS's native destructive-confirmation look for free, and needs zero new styling work (relevant given this milestone is also doing a broader "UI is currently unstyled" polish pass — don't spend that budget re-styling a confirm dialog a system component already handles). Reach for a custom modal here only if the confirmation later needs to show something beyond text + two buttons (e.g. a live score preview). |
-
-### What NOT to Use (v0.1)
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| MSW (`msw`/`msw/native`) for this milestone | Real capability, but sized for multi-endpoint API mocking; in a React-Native/Expo-Router context it needs non-default polyfills (`URL`, `node-fetch`, `web-streams-polyfill`) and a workaround for the missing `index.ts` entry point Expo Router uses instead — meaningful setup cost for a single GET endpoint with a handful of test scenarios. | `jest.spyOn(global, 'fetch')`/`jest.fn()` per-test stubs for unit tests; a static file + dev-flag base-URL swap for manual testing. |
-| A standalone `json-server`/Express mock backend process | Extra process to run/maintain, extra README/setup step, for content that's really just "serve this one static JSON file" during development. | A static JSON file served locally (or even read directly via a dev-only code path) behind the same base-URL config that will later point at the real backend. |
-| `react-native-mmkv` for the dataset cache | Adds a native-module dependency and a slightly different API (synchronous, `Storage` instance) for a read/write pattern (once per app foreground) that doesn't need MMKV's throughput advantage. | `@react-native-async-storage/async-storage` |
-| Custom full-screen `Modal` for the exit-quiz confirmation | Over-engineers a plain yes/no destructive confirmation; also more UI polish work in a milestone that's already doing a dedicated visual-polish pass elsewhere. | RN core `Alert.alert()` |
-| `react-native`'s legacy `SafeAreaView` (the one exported from `react-native` core, not `react-native-safe-area-context`) | Deprecated/inconsistent behavior on Android and doesn't participate in the same insets context as the rest of the safe-area ecosystem; the RN team itself points users to `react-native-safe-area-context`. | `react-native-safe-area-context`'s `SafeAreaView`, or (for finer per-edge control mixing custom headers) its `useSafeAreaInsets()` hook applied as padding |
-| Hand-picking an AsyncStorage version by pinning a raw `npm install @react-native-async-storage/async-storage@X` | Bypasses Expo's SDK-compatibility resolution; this is exactly the kind of version-skew mistake the SDK-57 stack already warns about for other Expo-adjacent packages. | `npx expo install @react-native-async-storage/async-storage` — let Expo pick the version validated against SDK 57 |
-
-### Stack Patterns by Variant (v0.1)
-
-**If the backend content endpoint later grows beyond one GET (e.g. versioned content, pagination, multiple content types):**
-- Revisit MSW for test mocking and consider whether a thin fetch-wrapper module needs to become a small typed client
-- Because the "one endpoint, ad hoc stub" approach stops scaling once there's real request variety to model
-
-**If Android release work is picked up in a future milestone:**
-- Re-verify `@react-native-async-storage/async-storage`'s Android/Gradle compatibility against whatever SDK is current then (the SDK-54+ Gradle issue referenced above was Android-specific and may or may not be resolved by the time Android work starts)
-- Because the iOS-first assumption underlying "AsyncStorage's rough edges don't matter yet" no longer holds once Android is in scope
-
-**If the exit-quiz confirmation later needs richer content (e.g. showing current score/progress before confirming):**
-- Move from `Alert.alert()` to a small custom modal, following the `ReportFeedbackModal` pattern (RN core `Modal`, `presentationStyle="pageSheet"`)
-- Because `Alert.alert()` is title+message+buttons only — it can't render a live score readout or other dynamic content
-
-### Version Compatibility (v0.1)
-
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| `@react-native-async-storage/async-storage` (via `npx expo install`) | `expo@57.0.4` | Install via the Expo CLI, not a raw npm pin, so version selection accounts for SDK 57. MEDIUM confidence flag: `2.2.0` was the last version confirmed working against Android Gradle builds on SDK 54+ per a still-open GitHub issue (`expo/expo#43757`); irrelevant to this milestone's iOS-only scope but worth re-checking before any Android build. |
-| `react-native-safe-area-context@~5.7.0` | `expo-router@57.0.4`, `expo@57.0.4` | Already installed and version-locked in this project; no action needed beyond wiring `SafeAreaProvider` at the root and consuming insets in screens. |
-| Native `fetch` (Hermes/RN 0.86) | N/A | `AbortSignal.timeout()` remains unimplemented on Hermes (same v0.0 finding that shaped the feedback client) — use manual `AbortController` + `setTimeout` for the content-fetch timeout too, exactly as `submitFeedback` already does. |
-
-### Sources (v0.1)
-
-- https://docs.expo.dev/versions/latest/sdk/safe-area-context/ — official Expo docs, HIGH confidence (peer-dependency status, general setup)
-- https://docs.expo.dev/develop/user-interface/safe-areas/ — official Expo docs, HIGH confidence (SafeAreaView vs useSafeAreaInsets guidance)
-- `package.json` (this repo) — direct read, HIGH confidence (confirms `react-native-safe-area-context@~5.7.0` already installed, no AsyncStorage present yet; confirms `@expo/ui`/`expo-glass-effect` native modules already require a dev client)
-- `app/_layout.tsx`, `app/quiz.tsx`, `src/feedback/ReportFeedbackModal.tsx` (this repo) — direct read, HIGH confidence (confirms no `SafeAreaProvider` currently wired; confirms existing `Modal`/`presentationStyle="pageSheet"` pattern)
-- https://github.com/expo/expo/issues/43757 — GitHub issue, MEDIUM confidence (Android/Gradle-specific AsyncStorage 3.x incompatibility on SDK 54+, `2.2.0` cited as last known-good; not independently reproduced, and irrelevant to this milestone's iOS-only scope)
-- https://mswjs.io/docs/integrations/react-native/ — official MSW docs, MEDIUM-HIGH confidence (confirms `msw/native` vs `msw/node`, required polyfills)
-- https://richiea1y.com/blog/integrating-msw-v2-with-expo-router-(typescript-+-esmodules) — blog, LOW-MEDIUM confidence (Expo Router entry-point friction with MSW setup; single source, but consistent with MSW's own documented RN caveats)
-- WebSearch synthesis on MMKV vs AsyncStorage vs SecureStore, 2026 — MEDIUM confidence, multiple sources agreed on general positioning (MMKV for hot-path/frequent small keys, AsyncStorage for simple baseline needs)
-- Existing project code (`src/feedback/submit.ts` pattern, referenced not re-read since already validated in v0.0) — HIGH confidence, establishes the reusable fetch/AbortController/Zod pattern this research extends
-
----
-
-## v0.0 Research (preserved, 2026-07-12)
-
-**Domain:** iOS-first Expo React Native offline quiz app (Expo Router + TypeScript + Zustand, single outbound REST call)
-**Confidence:** HIGH (core versions verified against npm registry `latest` dist-tags and official Expo/TS release posts; library-choice rationale MEDIUM where based on WebSearch synthesis)
-
-### Recommended Stack
-
-#### Core Technologies
+### Core Additions
 
 | Technology | Version | Purpose | Why Recommended |
 |------------|---------|---------|-----------------|
-| Expo SDK | 57 (`expo@57.0.4`) | Managed RN toolchain, build/runtime, dev client | Current stable SDK as of July 2026 per npm `latest` and official changelog; ships React Native 0.86. Already locked by project constraints — confirm you scaffold with SDK 57, not an older cached template. |
-| React Native | 0.86.0 (bundled by SDK 57, don't pin separately) | Native runtime | Comes bundled with SDK 57; always let Expo manage this version rather than hand-picking — mismatches are the #1 source of native build breakage in Expo projects. |
-| Expo Router | 6.x (`expo-router@57.0.4`, versioned in lockstep with `expo`) | File-based navigation | Already locked per CLAUDE.md/PROJECT.md. SDK 54+ introduced the iOS 26 native bottom-tabs primitive; SDK 57 continues on Router v6. No action needed beyond scaffolding with the current template. |
-| TypeScript | 5.x, NOT 7.x yet | Type safety | TypeScript 7.0 shipped in 2026 as a full Go-native compiler rewrite (10x+ faster builds) and is billed as behavior-compatible with TS 6.x, but Expo/Metro/React Native's toolchain (babel-based transpilation, `expo/tsconfig.base`, community type defs) has not yet been broadly validated against tsgo-based tooling as of this SDK. **Stay on the TypeScript 5.x line Expo's template installs** (installed automatically via `create-expo-app`) rather than manually bumping to `typescript@7`. Revisit once Expo's official templates adopt TS7 — this is a fast-moving space, treat as LOW confidence prediction, HIGH confidence on "don't manually upgrade yet." |
-| Zustand | 5.0.x (`zustand@5.0.14`) | Quiz session state (current question index, answers, score, filters) | Already locked. Zustand 5 requires React 18+ (satisfied by RN 0.86's React version) and has no Provider-wrapping boilerplate — ideal for a single small store holding in-progress quiz state that doesn't need to survive app restarts. |
+| `eas-cli` | `^21.0.3` (current latest as of 2026-07-22 — re-check `npm view eas-cli version` before running, it ships very frequently) | CLI to run `eas build`, `eas submit`, `eas build:configure` | Official, actively maintained tool required for cloud iOS builds — this project has no native `ios/` directory and isn't switching to bare workflow, so a local Xcode build isn't an option |
+| `eas.json` (new file, repo root, alongside `app.json`) | EAS Build/Submit config schema v1 (no self-versioning field — validated by whichever `eas-cli` runs, pinned via `cli.version` inside the file) | Declares build profiles (e.g. `production`) and submit profiles | Confirmed this file does not exist yet in the repo. This is the single source of truth EAS Build/Submit reads for distribution type, credentials source, channel, and submit ASC identifiers |
+| `app.json` → `expo.ios.bundleIdentifier` | n/a (string) | Apple's unique reverse-DNS app identifier | **Required** — EAS Build refuses App Store-distribution iOS builds without it. Confirmed absent from current `app.json`. Milestone target: `com.avram.aruh.lafa` |
+| `app.json` → `expo.extra.eas.projectId` + `expo.owner` | n/a (UUID string + Expo account/org slug) | Links the local project to an EAS project record on Expo's servers | Written automatically by `eas build:configure` (or `eas init`) on first run — do not hand-author these values |
 
-#### Supporting Libraries
+### Supporting Config Fields (app.json)
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `zod` | 4.x (`zod@4.4.3`) | Validate the local verb dataset's shape at build/test time, and validate/narrow the `POST /feedback` payload before sending | Use one Zod schema mirroring the backend's Zod contract (`message, verb, tense, subject, correctAnswer, selectedAnswer, appVersion, platform` with the exact enum literals) as a single source of truth in a `feedbackPayload.ts` module. Also write a second schema for the verb dataset (`verb, translation, isIrregular, conjugations: Record<tense, Record<subject, string>>`) and assert it against the JSON dataset in a Jest test — this is exactly the "dataset completeness/shape validation" test the PROJECT.md calls for, and Zod gives you both compile-time types (`z.infer`) and runtime validation for free. |
-| Native `fetch` (global, no package) | N/A (built into Hermes/RN 0.86) | The single outbound `POST /feedback` call | Expo's own guidance is to prefer native `fetch` over axios for exactly this kind of app: one external call, no interceptor/global-auth complexity, and it keeps bundle size down. Wrap it in a small `submitFeedback()` function that does the `AbortController`-based timeout, JSON parsing, and status-code branching (201/400/500/network) called out in the requirements — see Architecture note below. Do NOT add axios for a single endpoint; it adds a dependency and bundle size for zero benefit here. |
-| `expo-sharing` | current SDK-57-aligned version (`expo-sharing@57.0.3`) | **Not the right tool** — see "What NOT to Use" | `expo-sharing`'s `shareAsync` is designed for sharing **files** (images, PDFs) via `expo-file-system`, not short text strings. For "share a short score + app name message," it's the wrong primitive and adds an unneeded dependency. |
-| React Native core `Share` API (`import { Share } from 'react-native'`) | ships with RN 0.86, no install needed | Native iOS share sheet for the score/app-name text message | This is the correct choice for this requirement: `Share.share({ message: 'I scored 8/10 on Portuguese Verb Quiz! 🇵🇹' })` opens the standard iOS `UIActivityViewController` with zero extra dependencies. Confirmed as the standard recommendation for plain-text sharing over `expo-sharing` or the third-party `react-native-share` package (which is only needed for advanced cases: sharing to specific target apps, multiple file types, or Android/iOS parity edge cases the project doesn't need). |
-| `jest-expo` | latest SDK-57-aligned version (`jest-expo@57.0.1`) | Jest preset (`preset: 'jest-expo'`) for the whole test suite | Already locked per PROJECT.md/CLAUDE.md. Handles RN/Expo module transforms (`transformIgnorePatterns` for `node_modules/(expo|@expo|react-native|...)`) out of the box — do not hand-roll a custom Babel/Jest config, that's the most common source of "works on my machine" Jest breakage in Expo projects. |
-| `jest` | 30.x (`jest@30.4.2`, pulled in transitively by `jest-expo`) | Test runner | Let `jest-expo` pin the compatible Jest major version rather than adding your own top-level `jest` dependency at a mismatched version — version skew between `jest` and `jest-expo` is a known cause of preset failures. |
-| `@testing-library/react-native` | latest (matches RN 0.86 / React 18/19) | Component-level tests if any UI logic needs testing beyond pure functions | PROJECT.md's testing requirements are scoped to pure logic (quiz generation, scoring, dataset validation, payload mapping) — these need **no** RN rendering at all and should be plain Jest unit tests on plain TS modules with zero React/RN imports. Only add this library if a later phase decides to test a component's interaction logic (e.g., "tapping an answer shows feedback"); don't install it speculatively for v0 if all four required test areas are pure-function testable. |
-| `expo-application` (only if you want a real `appVersion` at runtime) | current SDK-57-aligned version | Read the installed app's version string for the `appVersion` field in the feedback payload | Alternative: read `Constants.expoConfig?.version` from `expo-constants` (already a transitive dependency of most Expo apps) — simpler, no extra install. Prefer `expo-constants`'s `Constants.expoConfig.version` over adding `expo-application` unless you specifically need native build numbers later. |
+| Field | Purpose | When to Use |
+|-------|---------|-------------|
+| `expo.ios.buildNumber` | Apple's internal build version, distinct from the user-facing `expo.version` | Only relevant if `eas.json`'s `cli.appVersionSource` is `"local"` (EAS reads/writes it directly in `app.json`). If `"remote"` (recommended below, and Expo's current default for new projects), EAS tracks build numbers server-side per bundle identifier and `app.json`'s `ios.buildNumber` is ignored after the first remote-version init — pick one mode, don't maintain both |
+| `expo.version` | User-facing marketing version | Already `1.0.0` and correct per milestone scope — no change needed |
+| `expo.slug` / `expo.scheme` | Project slug (used in EAS API calls, dashboard URL) and deep-link scheme | Milestone changes both to `lafa` — do this change **before** the first `eas build:configure` run, to avoid creating an EAS project record under the old slug |
+| `expo.ios.icon` | iOS-specific icon override; supports Icon Composer `.icon` bundles (SDK 54+) for automatic light/dark/tinted variants | Already set in this repo's `app.json` to `./assets/expo.icon` (an Icon Composer bundle, confirmed present: `assets/expo.icon/icon.json` + `Assets/`) — must be regenerated from the new Lafa mark or replaced by the flat top-level `expo.icon` PNG path; don't leave it pointing at the stale pre-rebrand bundle |
+| `expo.icon` | Fallback/cross-platform 1024x1024 PNG icon | Currently points to `./assets/images/icon.png` (old branding) — regenerate from `assets/brand/lafa-logo-v2.svg`: square, 1024x1024, **no alpha/transparency**, no pre-rounded corners (iOS applies its own corner mask) |
+| `expo-splash-screen` plugin config (`plugins: [["expo-splash-screen", {...}]]`) | Splash screen image/background | Already configured (`backgroundColor: "#208AEF"`, `image: "./assets/images/splash-icon.png"`) — milestone keeps the existing blue background unless visual QA rejects it; splash PNG should be 1024x1024 with a **transparent** background (opposite of the icon's no-alpha rule) |
 
-#### Development Tools
+## eas.json — Recommended Shape
 
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| `eas.json` / EAS Build (optional, later) | Cloud builds for TestFlight/App Store | Not needed to hit v0 scope (offline quiz + one API call), but note it now since "iOS-first" implies a device build is coming; no action needed this milestone. |
-| ESLint (`eslint-config-expo`) | Lint | Ships with `npx create-expo-app` templates by default; keep the default config, don't fight it with a custom flat config unless a specific rule conflicts with Zustand/Zod patterns. |
-| TypeScript strict mode (`extends: "expo/tsconfig.base"` + `"strict": true`) | Type safety baseline | Turn on `strict` explicitly even though Expo's base config is only lightly strict — this project's core value (accurate scoring, correct enum-literal mapping to the backend) benefits directly from strict null checks catching a missing conjugation form or mistyped enum literal at compile time, not runtime. |
-
-### Installation
-
-```bash
-# Scaffold (already done presumably, but for reference)
-npx create-expo-app@latest --template blank-typescript
-
-# Core additions on top of the Expo Router + TS template
-npx expo install zustand zod
-
-# Dev dependencies (jest-expo pulls in jest itself; don't double-add jest)
-npx expo install -D jest-expo @types/jest
-npm install -D @testing-library/react-native   # only if/when component tests are added later
-
-# Explicitly NOT needed:
-# - axios (use native fetch)
-# - expo-sharing / react-native-share (use RN core `Share` API)
-# - @react-native-async-storage/async-storage (no persistence beyond a single in-memory quiz session — see below)
+```json
+{
+  "cli": {
+    "version": ">= 21.0.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "credentialsSource": "remote"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {}
+    }
+  }
+}
 ```
 
-Use `npx expo install <pkg>` rather than plain `npm install` for any Expo-adjacent native package — it resolves the version compatible with your installed SDK automatically and is the standard-practice command for this ecosystem.
+**Rationale per field:**
+- `cli.version` — pins the minimum `eas-cli` version anyone running builds must use, so the schema stays compatible over time. Use a `>=` range, not an exact pin (matches Expo's own generated default).
+- `cli.appVersionSource: "remote"` — the simpler mode for a project with zero prior `eas.json`/build history: EAS owns build-number incrementing server-side per bundle identifier, so nobody has to remember to bump/commit `app.json` on every build. Docs confirm: "the remote version is initialized with the value from the local project," and thereafter local `ios.buildNumber` edits are ignored. (The only two documented values are `"remote"` and `"local"`; treated as HIGH confidence since no third value appears anywhere in current docs.)
+- `build.production.autoIncrement: true` — with remote versioning, this makes every `production`-profile build automatically bump the remote build number, so repeated TestFlight uploads of the same `1.0.0` don't collide.
+- `build.production.ios.credentialsSource: "remote"` — matches the milestone's explicit choice ("EAS-managed Apple credentials"). EAS generates/stores the distribution certificate + provisioning profile on Expo's servers, prompting interactively the first time `eas build --profile production --platform ios` runs (or via `eas credentials`). No local `.p12`/`.mobileprovision` files needed in a repo that has never had native iOS project files.
+- `submit.production.ios: {}` — the "submit profile placeholder" the milestone asks for, deliberately empty. `eas submit` prompts interactively for Apple ID / App Store Connect App ID (`ascAppId`) / Apple Team ID on first run. Don't hardcode `appleId` (an email) into a committed file unless the team is fine with that being in git history; for later CI automation, prefer an App Store Connect API key (`ascApiKeyPath` + `ascApiKeyId` + `ascApiKeyIssuerId`) supplied via secrets, not committed.
 
-### Alternatives Considered
+## Installation
+
+```bash
+# EAS CLI — as a devDependency so the whole team/any future CI uses a pinned range
+npm install -D eas-cli@^21.0.3
+
+# One-time login (interactive, human operator — not scriptable without a token)
+npx eas login
+
+# One-time project link — writes app.json's expo.extra.eas.projectId + expo.owner,
+# and can scaffold a starter eas.json if one doesn't exist yet
+npx eas build:configure
+```
+
+No new *runtime* npm packages are needed — `eas-cli` is a dev/build-time tool only, never imported by app code, and doesn't touch the existing `expo`/`react-native`/`expo-router` dependency graph.
+
+## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| RN core `Share` API for the share sheet | `expo-sharing` | If a later milestone adds "share a results screenshot/image," `expo-sharing` (paired with `expo-file-system` and something like `react-native-view-shot`) becomes the right tool — but not for v0's plain-text score message. |
-| RN core `Share` API | `react-native-share` (third-party) | If you need to target a specific app (e.g., "Share directly to Instagram Stories") or need richer Android intent control. Overkill for iOS-first plain text. |
-| Native `fetch` | `axios` | If the app grows to make many API calls needing shared interceptors (e.g., auth headers, automatic retry-on-401, request/response logging middleware) — not the case here with a single unauthenticated `POST /feedback` call. |
-| Zod for dataset + payload validation | `io-ts`, `yup`, hand-written type guards | `io-ts` has a steeper functional-programming learning curve for little benefit here; `yup` has weaker TypeScript inference than Zod; hand-written guards duplicate logic Zod already gives you with `.parse`/`.safeParse`. Zod is the de facto standard in the RN/Expo ecosystem in 2025/2026 and pairs naturally with a schema-first dataset. |
-| Zustand (already locked) | React Context + `useReducer` | Fine for genuinely trivial state, but quiz session state (current index, per-question answer history, score, active filters) benefits from Zustand's selector-based re-render isolation without needing a Context Provider wrapper — already the project's stated rationale. |
-| No persistence library for quiz session | `@react-native-async-storage/async-storage` | PROJECT.md explicitly scopes v0 to "no persistence beyond a single quiz session" — a quiz resets on app close by design. Don't add AsyncStorage speculatively; add it in a later milestone if "resume an in-progress quiz after backgrounding" or "remember toggle preferences across launches" becomes a requirement. **Superseded in v0.1** — see additions above; content caching is now a genuine requirement. |
-| TypeScript 5.x (Expo template default) | TypeScript 7.0 (Go-native compiler) | Once Expo's official templates, `expo/tsconfig.base`, and community `@types/*` packages are confirmed compatible with tsgo-based tooling (check Expo's changelog/blog before adopting) — track this but don't manually force it in for v0. |
+|-------------|-------------|--------------------------|
+| `eas-cli` as a devDependency, invoked via `npx`/npm script | Global `npm install --global eas-cli` | Fine for a solo operator's machine, but a devDependency is safer here since it guarantees a reproducible, pinned version for anyone else (or CI, if added later) without a manual global-install step |
+| `credentialsSource: "remote"` (EAS-managed Apple credentials) | `credentialsSource: "local"` with a checked-in/encrypted `.p12` + provisioning profile | Only worth it if the team wants full control over signing artifacts outside Expo's servers — not the case here (no existing native project, milestone explicitly asks for EAS-managed credentials) |
+| `appVersionSource: "remote"` | `appVersionSource: "local"` | Use `local` only if the team wants `ios.buildNumber` human-visible and git-tracked on every bump; for a first TestFlight release with no existing versioning discipline, `remote` is simpler and avoids merge conflicts on `app.json` |
+| Managed Expo workflow (no checked-in `ios/`; EAS Build prebuilds natively in the cloud each run) | `npx expo prebuild` to generate and commit a native `ios/` project, building via local Xcode or `eas build --local` | Only needed for custom native modules/config beyond what Expo config plugins support, or if the team wants to inspect/patch native Xcode settings directly — milestone explicitly says keep `ios/` prebuild output out of source control and treat `app.json` as the release source of truth, so managed workflow is correct |
+| Regenerate the Icon Composer `.icon` bundle (`expo.ios.icon`, SDK 54+) for the new mark | Drop `ios.icon`, rely solely on the flat top-level `expo.icon` PNG | Icon Composer bundles give automatic light/dark/tinted iOS icon variants (nicer for a real App Store listing) but require Apple's Icon Composer tool (macOS-only, not a simple PNG export). If that tooling isn't readily usable this milestone, the flat PNG path is lower-friction and fully sufficient for TestFlight |
 
-### What NOT to Use
+## What NOT to Use
 
 | Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `expo-sharing` for the score share sheet | Built for file-based sharing (`shareAsync` operates on a file URI via `expo-file-system`), not plain text — using it here means adding an unnecessary file-system dependency and a URI-based API for something that's just a string. | RN core `Share.share({ message })` |
-| `axios` for the single `POST /feedback` call | Adds ~5KB+ bundle size and a dependency for a single unauthenticated fetch with no need for interceptors, automatic retries, or global config — native `fetch` with a small hand-written wrapper (timeout via `AbortController`, status-code branching) covers 100% of the stated requirements. | Native `fetch` |
-| Hand-rolled Jest/Babel config instead of `jest-expo` preset | Expo's RN module transforms and mocks (e.g., for `expo-constants`, native modules) are non-trivial to replicate by hand and are exactly what `jest-expo` exists to solve; hand-rolling reliably reproduces subtle "works locally, fails in CI" bugs. | `preset: 'jest-expo'` in `jest.config.js` |
-| Manually bumping to `typescript@7` on this SDK | Full Go-native rewrite is very new (2026) and the Expo/Metro toolchain's compatibility with tsgo-based tooling isn't yet broadly documented/battle-tested as of this SDK release — this is a "wait one more cycle" call, not a hard incompatibility claim (no official incompatibility found, flagged LOW confidence either way). | Stay on the TS 5.x version Expo's template installs |
-| `@react-native-async-storage/async-storage` for quiz session state | PROJECT.md explicitly excludes persistence beyond a single session (no login, no history) — adding storage here works against the stated scope and adds a dependency with no current use. | In-memory Zustand store only, reset on quiz restart/app relaunch. **Note: v0.1 introduces AsyncStorage for content caching (a different requirement) — see additions above; this constraint applied specifically to quiz session state and to v0.0's scope.** |
-| Testing pure logic (quiz generation, scoring, dataset validation, payload mapping) through rendered components with `@testing-library/react-native` | All four required test areas from PROJECT.md are pure TypeScript functions operating on plain data (verb objects, arrays, enums) — routing them through component rendering adds RN-specific test overhead (native module mocks, act() warnings) for zero additional coverage value. | Plain Jest unit tests importing the logic modules directly, no RN/React imports in the test files |
+|-------|-----|--------------|
+| Hand-generating a native `ios/` directory via `expo prebuild` and committing it | Contradicts the milestone's explicit constraint ("Keep ignored native `ios/` prebuild output out of source control") and reintroduces manual Xcode project maintenance that EAS Build's cloud prebuild already handles from `app.json` | Let `eas build` run its own ephemeral cloud prebuild from `app.json` on every build; keep `ios/` gitignored |
+| Manually bumping `ios.buildNumber` in `app.json` while `eas.json`'s `appVersionSource` is `"remote"` | The two mechanisms conflict — per docs, once remote versioning is active, local `app.json` build-version edits become silent no-ops, misleading anyone reading `app.json` as the source of truth | Pick one mode explicitly in `eas.json` and stick to it; check the current remote value with `eas build:version:get` if ever needed |
+| Checking an Apple ID password or App Store Connect API key `.p8` file into `eas.json`/the repo | Credential leak risk — ASC API keys grant broad account-level access | Leave `submit.production.ios` empty and answer prompts interactively for a first manual submit; for later CI automation, store the `.p8` key + `ascApiKeyId`/`ascApiKeyIssuerId` as CI secrets, never in a committed file |
+| An old/cached `eas-cli` version | Expo iterates the `eas.json` schema and Apple App Store Connect integration frequently (e.g. a mid-2026 release added non-interactive iOS App Store/Enterprise build support via ASC API key) — an old CLI can silently ignore newer schema fields or fail against current Apple tooling requirements | Pin `eas-cli@^21.0.3` (or current) and re-verify the latest version before first use |
 
-### Stack Patterns by Variant
+## Stack Patterns by Variant
 
-**If a future milestone adds "resume quiz after backgrounding" or "remember toggle preferences":**
-- Add `@react-native-async-storage/async-storage` (or Zustand's `persist` middleware backed by it)
-- Because that's the point at which "no persistence" is explicitly revisited as a requirement — don't pre-build for it now
-- **Status: partially triggered in v0.1** — AsyncStorage is now being added, but for content caching, not quiz session resume/preferences; those remain open v2 candidates.
+**If the team wants a fully non-interactive `eas submit` later (CI-driven releases):**
+- Generate an App Store Connect API key in App Store Connect (Users and Access → Integrations → App Store Connect API), download the `.p8` once
+- Populate `submit.production.ios.ascApiKeyPath` / `ascApiKeyId` / `ascApiKeyIssuerId` via CI secrets (not committed values) instead of relying on interactive `appleId`/`ascAppId`/`appleTeamId` prompts
 
-**If a future milestone needs authenticated calls or multiple backend endpoints:**
-- Reconsider `axios` (or a thin fetch wrapper with interceptor-like middleware) at that point
-- Because the current single-unauthenticated-POST shape doesn't justify the dependency; revisit if the API surface grows
+**If a second platform (Android) build is added in a future milestone:**
+- Add a `build.production.android` block and `submit.production.android` block to the same `eas.json` — this milestone is iOS-only per explicit scope, so no Android profile is included here
 
-**If TypeScript 7 (tsgo) becomes the Expo template default in a later SDK:**
-- Adopt it then, following Expo's own upgrade guide
-- Because build-speed gains are real but the ecosystem compatibility story (Metro, Babel, community type packages) is still settling as of SDK 57
+## Version Compatibility
 
-### Version Compatibility
+| Package/Field | Compatible With | Notes |
+|----------------|------------------|-------|
+| `eas-cli@^21.0.3` | Expo SDK ~57 | EAS Build auto-selects a cloud build image matching the project's Expo SDK version ("EAS picks a default iOS image that fits the SDK if `ios.image` is not explicitly set") — no manual `ios.image` pin needed |
+| `appVersionSource: "remote"` | First-ever build for the new bundle identifier (`com.avram.aruh.lafa`) | Brand-new bundle ID, no prior build history to reconcile — remote versioning starts clean at whatever `expo.version`/build number the local project reports at first build |
+| Icon Composer `.icon` bundle format | Expo SDK 54+ only | Confirmed compatible with SDK 57 (already referenced in this repo's `app.json`), but the existing bundle's artwork is pre-Lafa and must be regenerated or replaced, not left as-is |
 
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| `expo@57.0.4` | `expo-router@57.0.4`, `jest-expo@57.0.1`, `expo-sharing@57.0.3`, RN `0.86.0` | Always install Expo-adjacent packages via `npx expo install` so versions stay in lockstep with the SDK; manually pinning mismatched majors (e.g., an `expo-router@6` template against an older `expo@54` project) is the most common cause of Metro bundling errors. |
-| `zustand@5.x` | React 18+ | RN 0.86 ships a React version satisfying this; no action needed, but don't downgrade Zustand below 5 if the project ever pins an older React for some reason. |
-| `zod@4.x` | TypeScript 5.x | Zod 4's improved type inference assumes a reasonably current TS 5.x; works fine with whatever 5.x version Expo's template currently installs. |
-| `jest-expo@57.0.1` | `jest@30.x` | Let `jest-expo` bring in its own compatible `jest` version rather than declaring `jest` as a separate top-level dependency at a different major. |
+## Sources
 
-### Sources
-
-- https://expo.dev/changelog/sdk-57 — official SDK 57 changelog (RN 0.86 pairing), MEDIUM-HIGH confidence (WebSearch snippet, not directly fetched)
-- https://expo.dev/changelog/sdk-54 — SDK 54 Router v6 / iOS 26 bottom-tabs context, MEDIUM confidence
-- npm registry `latest` dist-tags queried directly (`expo`, `expo-router`, `zustand`, `jest-expo`, `jest`, `zod`, `typescript`, `react-native`, `expo-sharing`, `@react-native-async-storage/async-storage`) — HIGH confidence, authoritative for current published versions as of 2026-07-12
-- https://docs.expo.dev/versions/latest/sdk/sharing/ — official Expo Sharing docs (file-based use case), HIGH confidence
-- https://reactnative.dev/docs/share — official RN core Share API docs (plain-text use case), HIGH confidence
-- https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/ — official TypeScript 7.0 announcement (Go-native compiler, TS6-compatible type-checking), HIGH confidence on TS7 claims, LOW/MEDIUM confidence on Expo-specific compatibility timing (not directly documented, inferred recommendation to wait)
-- WebSearch synthesis on fetch vs axios in RN/Expo context (Expo's own stated preference for native fetch) — MEDIUM confidence, multiple sources agreed
+- [Configure EAS Build with eas.json — Expo Documentation](https://docs.expo.dev/build/eas-json/) — build profile schema (channel, distribution, credentialsSource, autoIncrement, ios.image); HIGH confidence
+- [Configure EAS Submit with eas.json — Expo Documentation](https://docs.expo.dev/submit/eas-json/) — submit.ios schema (appleId, ascAppId, appleTeamId, ascApiKeyPath/Id/IssuerId); HIGH confidence
+- [App version management — Expo Documentation](https://docs.expo.dev/build-reference/app-versions/) — remote vs local `appVersionSource` semantics; HIGH confidence
+- [EAS JSON reference — Expo Documentation](https://docs.expo.dev/eas/json/) — combined build+submit schema confirmation; HIGH confidence
+- [Set up EAS Build — Expo Documentation](https://docs.expo.dev/build/setup/) — eas-cli install/login/`build:configure` flow; HIGH confidence
+- [Splash screen and app icon — Expo Documentation](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/) — icon requirements (1024x1024, square, no transparency, no pre-rounded corners), splash requirements (1024x1024 PNG, transparent background), `ios.icon`/Icon Composer note (SDK 54+); HIGH confidence, page dated June 2026 per source metadata — current
+- [eas-cli — npm](https://www.npmjs.com/package/eas-cli) — current version 21.0.3 as of 2026-07-22; HIGH confidence (live npm registry check)
+- Direct repo inspection: `app.json` (confirmed no `ios.bundleIdentifier`/`ios.buildNumber`/`extra.eas.projectId`), `assets/expo.icon/` (confirmed pre-existing Icon Composer bundle), `package.json` (confirmed no `eas-cli` dependency), repo root (confirmed no `eas.json`)
 
 ---
-*Stack research for: Portuguese Verb Conjugation App — Mobile*
-*v0.1 additions researched: 2026-07-13*
-*v0.0 original research: 2026-07-12*
+*Stack research for: iOS TestFlight release readiness (v0.5 milestone)*
+*Researched: 2026-07-22*

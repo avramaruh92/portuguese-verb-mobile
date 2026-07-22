@@ -1,303 +1,233 @@
 # Architecture Research
 
-**Domain:** Expo React Native quiz app — integrating async remote-content fetch, quiz abandonment, and safe-area wiring into an existing pure-function quiz engine + Zustand state machine (v0.1 milestone)
-**Researched:** 2026-07-13
-**Confidence:** HIGH (all findings grounded directly in the actual shipped codebase files, not generic patterns)
+**Domain:** iOS TestFlight release readiness for a managed Expo Router / React Native app
+**Researched:** 2026-07-22
+**Confidence:** HIGH (Context7/official docs) with MEDIUM/LOW flags noted inline
 
-> Supersedes the v0.0-era architecture sketch previously in this file (dated 2026-07-12), which
-> described a `src/quiz-engine/`/`src/api/` structure that was never actually adopted — the shipped
-> code uses `src/quiz/` and `src/feedback/`. This revision is grounded in the real, shipped v0.0
-> codebase and scoped specifically to the three v0.1 feature areas.
+> Supersedes the previous v0.1-scoped revision of this file (dated 2026-07-13, covering
+> async remote-content fetch / quiz abandonment / safe-area wiring). This revision is scoped
+> entirely to v0.5's release-config work (`eas.json`, `app.json` identity fields, icon/splash
+> asset pipeline, EAS build/submit) and does not restate the app's product architecture, which
+> is unchanged this milestone. See git history for the prior revision if that context is needed.
 
-## Standard Architecture (current, v0.0 shipped)
+## Standard Architecture
 
 ### System Overview
 
 ```
-┌───────────────────────────────────────────────────────────────────┐
-│  app/ (Expo Router screens — 3 routes, Stack navigator)             │
-│  ┌───────────┐   ┌───────────┐   ┌───────────┐                     │
-│  │ index.tsx │──▶│ quiz.tsx  │──▶│results.tsx│                     │
-│  │ (Setup)   │   │ (Quiz)    │   │ (Results) │                     │
-│  └─────┬─────┘   └─────┬─────┘   └─────┬─────┘                     │
-├────────┴────────────────┴───────────────┴───────────────────────────┤
-│  src/store/useQuizStore.ts (Zustand — idle/error/in-progress/        │
-│  completed state machine; startQuiz() is currently SYNCHRONOUS)      │
-├───────────────────────────────────────────────────────────────────┤
-│  src/quiz/engine.ts (generate/sampleTriples/buildQuestion/            │
-│  pickDistractors — pure, sync, deterministic-under-injected-RNG,     │
-│  hard-imports `verbs` from src/dataset/verbs.ts at module scope)     │
-├───────────────────────────────────────────────────────────────────┤
-│  src/dataset/verbs.ts (static 50-verb array, sole data source today)  │
-│  src/dataset/types.ts (Verb/Tense/Subject types + TENSES/SUBJECTS)    │
-│  src/dataset/validate.ts (Zod VerbSchema + validateDataset())         │
-├───────────────────────────────────────────────────────────────────┤
-│  src/feedback/ (schema.ts, payload.ts, submit.ts, ReportFeedback-     │
-│  Modal.tsx — modal-local state, zero useQuizStore coupling, only      │
-│  network call in the app today: fetch + manual AbortController)       │
-└───────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                     Repo root (existing, v0.4 shipped)                 │
+├───────────────────────────────────────────────────────────────────────┤
+│  app.json          — Expo config, SOURCE OF TRUTH for release identity │
+│  eas.json          — NEW: EAS Build + Submit profiles (sibling of      │
+│                       app.json/package.json, repo root, tracked in git)│
+│  package.json       — scripts, deps (eas-cli NOT currently a devDep)   │
+├───────────────────────────────────────────────────────────────────────┤
+│                    Source assets (tracked, hand-authored)              │
+│  assets/brand/lafa-logo-v2.svg        — brand source (untracked→ track)│
+│  assets/brand/lafa-logo-v2-concept.png — concept reference (untracked) │
+├───────────────────────────────────────────────────────────────────────┤
+│                 Generated release assets (tracked, derived)            │
+│  assets/images/icon.png               — 1024x1024, no-alpha, PNG       │
+│                                          (top-level `expo.icon`)        │
+│  assets/expo.icon/  (icon.json +      — SDK54+ Icon Composer format,   │
+│    Assets/*.svg,*.png)                  CURRENTLY the Expo template    │
+│                                          default — overrides `icon.png`│
+│                                          for iOS via `ios.icon` key     │
+│  assets/images/splash-icon.png        — splash foreground image        │
+│  assets/images/android-icon-*.png     — Android adaptive icon layers   │
+├───────────────────────────────────────────────────────────────────────┤
+│              Native build output (NEVER commit, git-ignored)           │
+│  ios/  (already in .gitignore)        — prebuild output, EAS Build     │
+│                                          regenerates from app.json      │
+│  .expo/, dist/                        — already git-ignored            │
+└───────────────────────────────────────────────────────────────────────┘
+                          │
+                          ▼  `eas build` reads app.json + eas.json,
+                             runs a cloud prebuild, produces .ipa
+                          ▼  `eas submit` reads eas.json `submit` profile,
+                             uploads .ipa to App Store Connect → TestFlight
 ```
 
-### Component Responsibilities (current)
+### Component Responsibilities
 
-| Component | Responsibility | Notes |
-|-----------|----------------|-------|
-| `app/index.tsx` | Setup screen — local `useState` for tense/irregular selection, calls `startQuiz()`, then synchronously reads `useQuizStore.getState().status` right after to decide navigation | This synchronous read-immediately-after-call is the exact spot that breaks once `startQuiz` becomes async |
-| `app/quiz.tsx` | Renders current question, imports static `verbs` directly for translation lookup (`verbs.find(v => v.verb === question.verb)`), owns `ReportFeedbackModal` visibility | Also the natural home for the new exit/abandon control |
-| `app/results.tsx` | Reads `score()`, share sheet; "Try Again" button calls `startQuiz(filters)` and does the same synchronous status re-read as `index.tsx` | Needs the same await-fix as `index.tsx` once `startQuiz` is async |
-| `src/store/useQuizStore.ts` | Owns the entire quiz session lifecycle; `startQuiz` calls `generate()` synchronously and wraps `InsufficientVerbsError` into an `"error"` status | No async today; no loading/fetching status exists |
-| `src/quiz/engine.ts` | `generate(options, random)` — imports `verbs` from `../dataset/verbs` at module scope; pure/sync given that fixed import | The module-scope import of `verbs` is the exact coupling point that must be removed for a swappable data source |
-| `src/dataset/verbs.ts` | Static, hand-authored 50-verb dataset | Must stay as-is — it's both today's only source **and** tomorrow's fallback |
-| `src/dataset/validate.ts` | `VerbSchema` (Zod) + `validateDataset()` | Already exists and can be reused as-is to validate any remote payload before trusting it |
-| `react-native-safe-area-context@~5.7.0` | Installed dependency, currently unused | Confirmed in `package.json` — no new install needed for the safe-area fix, only wiring |
+| Component | Responsibility | Typical Implementation |
+|-----------|----------------|------------------------|
+| `app.json` (`expo` block) | Single source of truth for app identity: name, slug, version, `ios.bundleIdentifier`, `ios.buildNumber`, icon/splash references | Already exists, needs new fields (`ios.bundleIdentifier`, `ios.buildNumber`, `scheme`) added, not restructured |
+| `eas.json` | Declares EAS Build profiles (`development`/`preview`/`production`) and EAS Submit profiles (`production`) | New file at repo root, JSON, versioned in git alongside `app.json` |
+| `assets/images/icon.png` | Fallback/base app icon referenced by top-level `expo.icon` | 1024x1024 PNG, fully opaque (no alpha channel), no rounded corners — OS applies masking |
+| `assets/expo.icon/` | SDK 54+ "Icon Composer" Liquid Glass icon bundle, referenced by `ios.icon` — **takes precedence over `icon.png` on iOS** | Directory containing `icon.json` (layer/fill/translucency descriptor) + `Assets/` (SVG/PNG layers); authored via the macOS-only Icon Composer app, or removed to fall back to `icon.png` |
+| `assets/images/splash-icon.png` | Splash screen foreground image, sized via `expo-splash-screen` plugin's `imageWidth` | PNG, transparent background allowed (unlike the app icon) |
+| EAS Build cloud service | Runs a cloud prebuild (generates the native `ios/` project transiently) and compiles the app | Triggered via `eas build --platform ios --profile production` |
+| EAS Submit cloud service | Uploads the built `.ipa` to App Store Connect, which triggers TestFlight processing | Triggered via `eas submit --platform ios --profile production` |
 
-## Recommended Project Structure (v0.1 additions)
+## Recommended Project Structure
 
 ```
-src/
-├── dataset/
-│   ├── types.ts             # UNCHANGED
-│   ├── verbs.ts              # UNCHANGED — becomes the local fallback, not the only source
-│   ├── validate.ts           # UNCHANGED — VerbSchema/validateDataset() reused to validate remote payloads
-│   ├── remote.ts             # NEW — fetchRemoteVerbs(): Promise<Verb[]>, mirrors src/feedback/submit.ts's
-│   │                         #        fetch + AbortController timeout pattern; throws on network/timeout/
-│   │                         #        shape-invalid response (validated via existing VerbSchema)
-│   └── source.ts             # NEW — resolveVerbs(): Promise<{ verbs: Verb[]; source: "remote" | "local" }>
-│                              #        orchestrates fetchRemoteVerbs() → catch-all fallback to local `verbs`;
-│                              #        this is the ONLY new module that knows about "remote vs local" —
-│                              #        everything above it just receives a Verb[]
-├── quiz/
-│   ├── engine.ts              # MODIFIED — generate(verbs, options, random) — verbs becomes an explicit
-│   │                          #        parameter instead of a module-scope import; function body otherwise
-│   │                          #        untouched, still 100% pure/sync/deterministic-under-injected-RNG
-│   ├── scoring.ts             # UNCHANGED — score() never touched verbs directly, no change needed
-│   ├── types.ts               # UNCHANGED
-│   ├── labels.ts              # UNCHANGED
-│   └── random.ts              # UNCHANGED
-├── store/
-│   └── useQuizStore.ts        # MODIFIED — new "loading" status; startQuiz() becomes async, calls
-│                              #        source.resolveVerbs() then engine.generate(verbs, options, random);
-│                              #        store now also holds the resolved verb list (see below) so quiz.tsx
-│                              #        doesn't need its own static import; new abandonQuiz() action
-└── feedback/                  # UNCHANGED — zero coupling to this milestone's work, confirmed by design
-
-app/
-├── _layout.tsx                # MODIFIED — wrap <Stack> in <SafeAreaProvider>
-├── index.tsx                  # MODIFIED — await startQuiz(), render a loading state while status === "loading"
-├── quiz.tsx                   # MODIFIED — read verb list from store instead of static import; add exit
-│                              #        button + confirmation Alert; apply safe-area insets
-└── results.tsx                # MODIFIED (small) — "Try Again" must also await startQuiz(); safe-area insets pass
+portuguese-verb-mobile/
+├── app.json                    # MODIFIED — add ios.bundleIdentifier, ios.buildNumber,
+│                                #   update slug/scheme if renaming to "lafa"
+├── eas.json                    # NEW — build + submit profiles
+├── package.json                # MODIFIED — add eas-cli as a devDependency (optional but
+│                                #   recommended for reproducible local `eas` invocations)
+├── assets/
+│   ├── brand/
+│   │   ├── lafa-logo-v2.svg           # source of truth, ADD to git (currently untracked)
+│   │   └── lafa-logo-v2-concept.png   # reference only, ADD to git (currently untracked)
+│   ├── images/
+│   │   ├── icon.png                   # REPLACED — regenerated 1024x1024 no-alpha PNG
+│   │   ├── splash-icon.png            # possibly REPLACED (Lafa mark on existing blue bg)
+│   │   ├── favicon.png                # unaffected (web-only, out of scope for TestFlight)
+│   │   └── android-icon-*.png         # unaffected this milestone (iOS-only scope)
+│   └── expo.icon/                     # DECISION NEEDED — see Anti-Pattern below:
+│       ├── icon.json                  #   either regenerate via Icon Composer with the
+│       └── Assets/                    #   Lafa mark, or delete + remove `ios.icon` key
+├── ios/                         # NEVER commit — already git-ignored, EAS Build
+│                                #   regenerates it from app.json on every cloud build
+└── .expo/, dist/                # NEVER commit — already git-ignored
 ```
 
 ### Structure Rationale
 
-- **`src/dataset/remote.ts` + `src/dataset/source.ts` as two separate new files**, not one: `remote.ts` owns *how* to fetch (network mechanics — timeout, JSON parse, shape validation via the existing `VerbSchema`), `source.ts` owns *the fallback decision* (try remote, catch anything, return local). This mirrors the existing separation of concerns pattern in `src/feedback/` between `submit.ts` (network mechanics) and the payload/schema modules — keeps the network wrapper unit-testable in isolation from the fallback policy.
-- **`src/dataset/verbs.ts` must NOT be renamed, restructured, or converted into a function.** It is explicitly the fallback source now, and the existing 122 tests / `validateDataset` dataset-shape test still need a static array to assert against. Converting it to fetch-then-cache would conflate "the bundled fallback content" with "the resolved active content for this session" — those are two different concerns that the new `source.ts` module exists to keep separate.
-- **`engine.generate()` gains `verbs` as a parameter rather than the store injecting a global/singleton.** This is the minimal-diff way to preserve the pure-function invariant established in v0.0: `generate` remains pure and synchronous, it just receives its data as an argument instead of importing it at module scope. All existing engine unit tests keep working with a one-line signature update (pass the local `verbs` array explicitly) — no test needs to become async.
-- **Store, not screens, owns the async fetch-then-generate sequencing.** Screens should not orchestrate fetch/fallback/generate themselves — that would duplicate logic across `index.tsx` and `results.tsx`'s "Try Again" (both already call `startQuiz`), and would violate the same "screens are thin, store owns the state machine" convention already established for `startQuiz` in v0.0.
+- **`eas.json` lives at repo root, sibling to `app.json`/`package.json`:** this is the fixed, non-configurable location EAS CLI looks for — no alternate path is supported.
+- **`assets/brand/` stays separate from `assets/images/`:** brand source files (SVG, concept PNG) are *inputs* to the icon pipeline, not release-consumable assets themselves — app.json never references files in `assets/brand/` directly. Keeping them separate and tracked preserves provenance (so a future rebrand or splash update can re-derive from the same source) without polluting the files Expo actually reads at build time.
+- **`assets/expo.icon/` is a directory, not a single file:** this is new in SDK 54+ (Icon Composer / Liquid Glass format) and is easy to mistake for a stray folder. It must be evaluated explicitly rather than left as-is, because it currently silently overrides `icon.png` on iOS with the unmodified Expo template default (see Anti-Pattern below).
+- **`ios/` must never be committed:** EAS Build's cloud infrastructure runs `expo prebuild` internally as part of every build, regenerating a fresh native project from `app.json` each time. A locally-generated `ios/` directory checked into git would create two competing sources of truth and is explicitly the failure mode Expo's managed-workflow model is designed to avoid. It is already correctly listed in `.gitignore` — no action needed there, just confirm no one runs `git add -f ios/` during this milestone.
 
 ## Architectural Patterns
 
-### Pattern 1: Data-source injection into a pure engine (async fetch stays outside the pure boundary)
+### Pattern 1: Config-as-code release identity (no Xcode project editing)
 
-**What:** The quiz engine (`generate`/`sampleTriples`/`buildQuestion`/`pickDistractors`) never becomes async and never calls `fetch`. All async/fallback resolution happens one layer up, in the store, which resolves a concrete `Verb[]` *before* calling `generate(verbs, options, random)`.
+**What:** All release-identity fields (`ios.bundleIdentifier`, `ios.buildNumber`, `version`, `name`, `slug`, `scheme`, `icon`, splash) live exclusively in `app.json`. There is no native `ios/*.xcodeproj` to hand-edit because none is checked in.
+**When to use:** Always, for a managed-workflow Expo project. This project is already fully managed (no `ios/` in git) — do not introduce native project files as part of this milestone.
+**Trade-offs:** Simpler, single source of truth, fully reproducible builds. Downside: any iOS-native customization not expressible in `app.json`/config plugins would require an `expo prebuild` + native edit + re-check-in `ios/`, which this project is explicitly avoiding — not needed for this milestone's scope.
 
-**When to use:** Any time an existing pure/sync core needs to consume data that might come from an async source. Don't push async into the pure layer — push data resolution above it.
-
-**Trade-offs:** Requires the store to sequence two steps (`await resolveVerbs()` then `generate(...)`) instead of one, and requires storing the resolved verb list somewhere consumers (like `quiz.tsx`'s translation lookup) can reach it without re-importing the static file. In exchange, 100% of the existing engine test suite needs zero conceptual changes — only the call sites gain an explicit argument.
-
-**Example:**
-```typescript
-// src/quiz/engine.ts — before/after diff is a single parameter addition
-export function generate(
-  verbs: Verb[],                       // NEW — was previously the module-scope import
-  options: GenerateOptions,
-  random: () => number = Math.random,
-): QuizSession {
-  const eligibleVerbs = verbs.filter((v) => options.includeIrregular || !v.isIrregular);
-  // ...unchanged body below
-}
-```
-
-```typescript
-// src/store/useQuizStore.ts — startQuiz becomes async, sequences fetch then pure generate
-startQuiz: async (options: GenerateOptions) => {
-  set({ status: "loading" });
-  const { verbs, source } = await resolveVerbs(); // NEW — src/dataset/source.ts
-  try {
-    const session = generate(verbs, options, Math.random); // now takes verbs explicitly
-    set({ status: "in-progress", filters: options, session, datasetVerbs: verbs, ...});
-  } catch (error) {
-    if (error instanceof InsufficientVerbsError) {
-      set({ status: "error", errorMessage: INSUFFICIENT_VERBS_MESSAGE, session: null });
-      return;
+**Example (`app.json` additions needed):**
+```json
+{
+  "expo": {
+    "name": "Lafa",
+    "slug": "portuguese-verb-mobile",
+    "scheme": "lafa",
+    "version": "1.0.0",
+    "ios": {
+      "bundleIdentifier": "com.avram.aruh.lafa",
+      "buildNumber": "1",
+      "icon": "./assets/images/icon.png"
     }
-    throw error;
-  }
-},
-```
-
-### Pattern 2: Fetch-with-fallback via a single orchestrating function, mirroring the existing feedback network wrapper
-
-**What:** `src/dataset/source.ts` exposes one function, `resolveVerbs()`, that internally tries `fetchRemoteVerbs()` (`AbortController`-based timeout, same shape as `src/feedback/submit.ts`) and on *any* failure — network error, timeout, non-2xx, or `validateDataset()` shape-validation failure — falls back to the local static `verbs` import. Callers never see a rejected promise; `resolveVerbs()` always resolves.
-
-**When to use:** Exactly this milestone's stated requirement ("fetch verbs from a backend content endpoint... falling back to the bundled local dataset if unreachable").
-
-**Trade-offs:** Swallowing all failure modes into a silent fallback means the UI has no way to tell the user "you're on cached/local content" unless `source.ts` also returns which source won (recommended: return `{ verbs, source: "remote" | "local" }` so a future UI affordance — e.g. a small "offline mode" indicator — is possible without a re-plumb). Since the backend endpoint doesn't exist yet, ship `fetchRemoteVerbs()` against a local mock/stub URL (per PROJECT.md's explicit scoping) so the fallback path is exercised in tests today and the real URL is a one-line swap later.
-
-**Example:**
-```typescript
-// src/dataset/source.ts
-import { verbs as localVerbs } from "./verbs";
-import { fetchRemoteVerbs } from "./remote";
-import type { Verb } from "./types";
-
-export async function resolveVerbs(): Promise<{ verbs: Verb[]; source: "remote" | "local" }> {
-  try {
-    const remote = await fetchRemoteVerbs(); // throws on network/timeout/invalid-shape
-    return { verbs: remote, source: "remote" };
-  } catch {
-    return { verbs: localVerbs, source: "local" };
   }
 }
 ```
+Note: the milestone's target bundle id is `com.avram.aruh.lafa`; slug/scheme target `lafa` per PROJECT.md — both are currently `portuguese-verb-mobile`/unset in the live `app.json`, confirming this field is not yet added.
 
-### Pattern 3: Abandon-quiz as a reuse of the existing `reset()` primitive, not a new state
+### Pattern 2: `eas.json` build/submit profile split
 
-**What:** "End quiz early" does not need a 5th status. Exiting mid-quiz is state-equivalent to the existing `reset()` action — it returns the store to `idle`, clearing `session`/`answers`/`currentIndex`/`lockedChoice`. The only genuinely new behavior is a **confirmation dialog**, which is a screen-level UI concern (native `Alert.alert`), not store logic.
-
-**When to use:** Whenever "cancel/abandon an in-progress flow" maps cleanly onto an already-existing "clear everything" action.
-
-**Trade-offs:** Slight ambiguity if `reset()` is ever repurposed for something status-specific later (e.g., "reset" meaning "clear an error" vs. "abandon a live quiz") — mitigate by adding a thin `abandonQuiz` action that's semantically named for call sites even if its body is currently identical to `reset()`, so future divergence (e.g. telemetry, a "did you mean to quit?" analytics event) has a natural home without renaming call sites later.
-
-**Example:**
-```typescript
-// src/store/useQuizStore.ts — thin, semantically-named alias; body may diverge from reset() later
-abandonQuiz: () => {
-  set({ ...initialState });
-},
-```
-
-```typescript
-// app/quiz.tsx — new exit button, confirmation lives at the screen, not the store
-import { Alert } from "react-native";
-
-function handleExit() {
-  Alert.alert(
-    "Exit Quiz?",
-    "Your progress will be lost.",
-    [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Exit",
-        style: "destructive",
-        onPress: () => {
-          abandonQuiz();
-          router.replace("/");
-        },
-      },
-    ],
-  );
-}
-```
-No new `QuizStatus` value is needed — `idle` already means "no active session," which is exactly what an abandoned quiz should look like, and it's the same state `app/index.tsx` already renders correctly.
-
-### Pattern 4: SafeAreaProvider — minimal-diff root wrap, insets applied per-screen (not a rewrite to `SafeAreaView`)
-
-**What:** `react-native-safe-area-context@~5.7.0` is already an installed (but unused) dependency — confirmed in `package.json`. The fix is two-part: (1) wrap the root `<Stack>` in `app/_layout.tsx` with `<SafeAreaProvider>` so `useSafeAreaInsets()` works anywhere below it, and (2) apply insets in each of the 3 screens' existing `StyleSheet` containers.
-
-**When to use:** Exactly the "content renders under the notch/status bar" tech-debt item called out in PROJECT.md's Current State section.
-
-**Trade-offs:** Two implementation choices exist — (a) swap each screen's root `<View style={styles.container}>` for `<SafeAreaView>` from `react-native-safe-area-context` (not the deprecated RN-core one), or (b) keep `View` and manually spread `useSafeAreaInsets()` into the existing `paddingTop`/`paddingHorizontal` style objects. Recommend (a) for `app/quiz.tsx` and `app/results.tsx` (simple full-bleed screens, minimal diff, no reconciliation needed against existing top-padding) but note `results.tsx` already has a hardcoded `paddingTop: 64` that becomes redundant/double-padded once real insets are applied and must be removed, not just supplemented. `app/index.tsx` uses `justifyContent: "center"` for vertical centering — verify this still centers correctly once wrapped in `SafeAreaView`, since it becomes a flex container itself; option (b) (`useSafeAreaInsets()` + spread into existing container style) is the safer choice there if centering behavior shifts unexpectedly.
+**What:** EAS separates *build* configuration (what gets compiled, credentials source, resource class) from *submit* configuration (where the built artifact is uploaded) into two top-level keys, each keyed by named profile.
+**When to use:** Any EAS-based release pipeline. A minimal viable `eas.json` for this milestone needs exactly one build profile (`production`) and one submit profile (`production`).
+**Trade-offs:** Named profiles let `development`/`preview` be added later without disrupting the `production` path already in use for TestFlight — worth stubbing even if only `production` is exercised this milestone, since it costs nothing and matches Expo's own scaffolded default.
 
 **Example:**
-```typescript
-// app/_layout.tsx — minimal diff
-import { Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-
-export default function RootLayout() {
-  return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </SafeAreaProvider>
-  );
+```json
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "production": {
+      "autoIncrement": true,
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {}
+    }
+  }
 }
 ```
+Leaving `submit.production.ios` empty and using EAS-managed Apple credentials (via `eas credentials` / interactive `eas submit` prompts) matches the milestone's stated "EAS-managed Apple credentials" decision — do not hardcode `ascApiKeyPath`/`appleId` unless the user explicitly wants a non-interactive CI submit path, which is out of scope here.
+
+### Pattern 3: Source-to-production icon pipeline (SVG → 1024×1024 no-alpha PNG)
+
+**What:** Expo's app icon requirement is a single flat, fully-opaque, exactly-square 1024×1024 PNG (no transparency, no pre-rounded corners — the OS applies platform-specific masking). The brand source is a vector SVG (`lafa-logo-v2.svg`), which must be rasterized, padded/composed onto a solid background if the mark itself isn't full-bleed, and alpha-flattened before it becomes `assets/images/icon.png`.
+**When to use:** Any time a vector brand asset is the source of truth and Expo needs a raster app icon.
+**Trade-offs:** Manual rasterization (e.g. `rsvg-convert`/`sharp`/Figma export) gives full control over padding and background color but must be re-run by hand on every brand update; there is no EAS-side re-rasterization step for the top-level `icon.png` — EAS Build only generates the *various OS-required intermediate sizes* from your one 1024×1024 source, it does not fix alpha-channel or squareness problems in that source.
+
+**Pipeline steps:**
+1. Rasterize `assets/brand/lafa-logo-v2.svg` at 1024×1024 (or higher, then downscale) — mark-only per PROJECT.md, not the full wordmark.
+2. Compose onto a solid (non-transparent) background if the SVG has transparency — matches the existing splash `backgroundColor` (`#208AEF`) unless visual QA picks a different fill.
+3. Flatten/remove the alpha channel entirely (validate with a tool like `identify -format '%A' file.png` → must report `False`/`Off`, or via `sharp`'s `.flatten()`).
+4. Verify exact squareness (1024×1024, not 1023×1024 or similar) — Expo's own docs call out this exact off-by-one as an invalid-icon failure mode.
+5. Write to `assets/images/icon.png`, replacing the current placeholder in place (same filename, `app.json` reference unchanged).
+6. Decide on `assets/expo.icon/` (see Anti-Pattern below) — do not leave it as the still-active iOS icon override while `icon.png` gets updated, or the new Lafa icon will silently not appear on iOS builds.
 
 ## Data Flow
 
-### Request Flow (v0.1, quiz start)
+### Release Config Flow
 
 ```
-[User taps "Start Quiz" on Setup screen]
-    ↓
-app/index.tsx: await startQuiz({ tenses, includeIrregular })
-    ↓
-useQuizStore.startQuiz (async):
-    set({ status: "loading" })
-    ↓
-src/dataset/source.ts: resolveVerbs()
-    ↓ (try)                              ↓ (catch: network/timeout/invalid shape)
-src/dataset/remote.ts:                src/dataset/verbs.ts:
-fetchRemoteVerbs()                    local `verbs` fallback
-    ↓                                     ↓
-    └──────────────┬──────────────────────┘
-                   ↓
-        { verbs, source: "remote"|"local" }
-                   ↓
-src/quiz/engine.ts: generate(verbs, options, Math.random)  ← still pure/sync
-                   ↓
-        set({ status: "in-progress", session, datasetVerbs: verbs })
-                   ↓
-app/index.tsx: status === "in-progress" → router.replace("/quiz")
-                   ↓
-app/quiz.tsx: reads `datasetVerbs` from store (not a static import) for translation lookup
+assets/brand/lafa-logo-v2.svg   (hand-authored, tracked, source of truth)
+    ↓  rasterize + flatten alpha + verify 1024x1024 square
+assets/images/icon.png          (generated, tracked, checked in)
+    ↓  referenced by app.json `expo.icon`
+    ↓  (only used on iOS if `ios.icon` is removed/absent — see Anti-Pattern)
+app.json                        (release identity: bundleIdentifier, buildNumber,
+                                  version, icon, splash — single source of truth)
+    ↓  read by EAS CLI at build time
+eas.json                        (build profile selects credentials source + resource
+                                  class; submit profile selects ASC destination)
+    ↓  `eas build --profile production --platform ios`
+EAS cloud build                 (transient `expo prebuild` generates a native `ios/`
+                                  project in the cloud only — never touches the repo's
+                                  git-ignored local `ios/`)
+    ↓  produces signed .ipa
+    ↓  `eas submit --profile production --platform ios`
+App Store Connect → TestFlight  (processing ~10-15 min, then available to testers)
 ```
-
-### State Management (status machine, v0.1)
-
-```
-idle ──(startQuiz, async)──▶ loading ──(resolveVerbs + generate succeed)──▶ in-progress
-  ▲                             │                                              │
-  │                    (InsufficientVerbsError)                        (advance() × 10 / abandonQuiz())
-  │                             ▼                                              │
-  └────────────────────────── error                                    completed / idle
-                                                                                │
-                                                                    (idle if abandonQuiz(); completed if finished)
-```
-
-Only one new status is needed: `"loading"`. Abandonment reuses the existing `idle` terminus via `reset()`/`abandonQuiz()` — it does not need its own status.
 
 ### Key Data Flows
 
-1. **Dataset resolution:** Happens once per `startQuiz()` call, not once per app launch — each new quiz attempt re-resolves (remote-first, local-fallback), matching PROJECT.md's framing of "fetch verbs... on load/quiz-start." No caching layer is required for v0.1 scope (no persistence library is installed or wanted, per existing STACK.md guidance against `AsyncStorage`); an in-memory module-level cache inside `source.ts` is optional and cheap if repeated fetches during one app session become a concern, but is not a hard requirement.
-2. **Verb lookup for display (`quiz.tsx`'s translation text):** Currently reads the static `verbs` import directly (line: `const currentVerb = verbs.find((v) => v.verb === question.verb)`). Must switch to reading whatever verb list actually produced the active session (`datasetVerbs` in the store) — otherwise if the remote dataset ever diverges from local (e.g. backend adds a 51st verb, or a translation differs), the UI would silently look up the wrong record or fail to find one at all.
-3. **Abandon flow:** Confirmation dialog (screen-local, ephemeral `Alert.alert` state) → store action (`abandonQuiz`/`reset`) → navigation (`router.replace("/")`). No result/partial-score screen is shown, matching the requirement of "no partial results shown."
+1. **Identity flow:** `app.json`'s `ios.bundleIdentifier` must be set and stable *before* the first `eas build` — EAS registers/associates the bundle id with the Apple Developer account and an App Store Connect app record on first build+submit. Changing it after registration means creating a new ASC app record, not editing the existing one.
+2. **Icon override flow:** iOS icon resolution has two competing paths in this specific project's `app.json` today — `expo.icon` (`assets/images/icon.png`) and `expo.ios.icon` (`assets/expo.icon/`, currently the unmodified Expo template default). `ios.icon` wins on iOS. Regenerating only `icon.png` without addressing `assets/expo.icon/` will ship the generic Expo template icon to TestFlight, not the Lafa mark.
+3. **Native output flow:** No locally-generated `ios/` should ever reach git. `eas build` runs its own cloud-side `expo prebuild`; a local `npx expo prebuild` run for icon-preview purposes (if used for visual QA) must not be committed — it's already covered by the existing `.gitignore` entry, but this is worth an explicit `git status` check before the first commit of this milestone's work.
 
 ## Scaling Considerations
 
-Not meaningfully applicable at this app's scale (single-user, offline-first, no backend load driven by this repo). The one real scaling axis is dataset size: if the backend-served dataset eventually grows well beyond 50 verbs, `resolveVerbs()`'s in-memory `Verb[]` return shape and `generate()`'s `pool.flatMap` over all eligible triples remain fine into the low thousands of verbs — no architectural change needed for v0.1's stated scope.
+Not applicable in the traditional sense (this is a release-pipeline, not a runtime-scaling, concern) — reframed as build/release cadence:
+
+| Stage | Approach |
+|-------|----------|
+| First TestFlight build (this milestone) | Single `production` build+submit profile, EAS-managed Apple credentials, manual `eas build`/`eas submit` invocation |
+| Repeated internal TestFlight builds | `autoIncrement: true` in the build profile (auto-bumps `ios.buildNumber` per build) so manual bumping of `app.json` isn't required every time |
+| Eventual public App Store release | Same pipeline, no architecture change — only ASC app-record metadata (screenshots, description, review info) differs, which is outside `eas.json`/`app.json` scope entirely |
+
+### Scaling Priorities
+
+1. **First blocker:** bundle identifier + first `eas build` establishes the Apple-side app record — this must happen once, correctly, before repeated builds are useful. Get identity fields right before the first build, not iteratively.
+2. **Second blocker (not this milestone):** if Android release work is later added, `eas.json` build profiles gain an `android` sibling key alongside `ios` in the same `production` profile — no restructuring needed, purely additive.
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Making `generate()` itself async or fetch-aware
+### Anti-Pattern 1: Regenerating `assets/images/icon.png` while leaving `assets/expo.icon/` untouched
 
-**What people do:** Reach for `async function generate(options)` that calls `fetch` internally "since it needs remote data now."
-**Why it's wrong:** Destroys the invariant established in v0.0 that quiz generation is pure/synchronous/deterministic-under-injected-RNG — every existing unit test that calls `generate(options, fixedRandom)` and asserts on the exact returned `QuizSession` would need to become async and would now depend on network mocking to stay deterministic, entirely undermining what made the engine trivially testable.
-**Do this instead:** Resolve the `Verb[]` data source *before* calling `generate`, in the store, and keep passing it into `generate` as a plain synchronous argument.
+**What people do:** Focus icon-pipeline work only on the top-level `icon`/`assets/images/icon.png` field because it's the more familiar/older Expo convention, not realizing `ios.icon` (SDK 54+ Icon Composer format) is already present in this project's `app.json` and takes precedence on iOS.
+**Why it's wrong:** The current `assets/expo.icon/` directory still contains the unmodified Expo template's default "expo-symbol" grid icon (confirmed via `assets/expo.icon/icon.json` — `image-name: "expo-symbol 2.svg"`, `grid.png`). If left as-is, the first TestFlight build ships the generic Expo template icon on iOS home screens regardless of how well `icon.png` is redone, because `ios.icon` silently wins.
+**Do this instead:** Either (a) regenerate `assets/expo.icon/` with the Lafa mark using Apple's Icon Composer app (macOS-only, produces the `.icon` bundle/layers format), or (b) the simpler path for this milestone — delete `assets/expo.icon/` and remove the `ios.icon` key from `app.json` entirely, letting the top-level `expo.icon` (`assets/images/icon.png`) apply uniformly to iOS as a plain flat icon with automatic OS-side Liquid Glass fallback treatment. Given the milestone scope ("mark-only, not full wordmark," no mention of Icon Composer tooling or macOS design tooling access), option (b) is very likely the pragmatic choice — flag this as an explicit decision point for the build-order plan, not an assumption to silently resolve.
 
-### Anti-Pattern 2: Adding a new `"loading"`/`"abandoned"` status pair when one suffices
+### Anti-Pattern 2: Committing a locally-run `expo prebuild` output
 
-**What people do:** Add both a new `loading` status *and* a new `abandoned` status, treating "user quit" as architecturally distinct from "never started."
-**Why it's wrong:** `idle` already means "no active session, ready for Setup" — that is exactly the correct post-abandon state, and `app/index.tsx` already renders correctly for it. Adding a distinct `abandoned` status doubles the number of states every screen's status-switch needs to account for, for zero behavioral gain in this milestone (no "you abandoned last time" messaging is in scope).
-**Do this instead:** Only add the one new state genuinely needed (`loading`, for the async fetch window). Route abandonment back through the existing `idle` terminus.
+**What people do:** Run `npx expo prebuild` locally to preview native icon/splash rendering before a cloud build, then forget to discard the generated `ios/` directory, and it gets swept into a broad `git add -A`/`git add .` commit.
+**Why it's wrong:** Creates a second, divergent source of truth for native config alongside `app.json`; EAS Build's cloud-side prebuild would silently ignore or conflict with a committed native project, and it violates this project's explicit "keep ignored native `ios/` prebuild output out of source control" constraint (PROJECT.md, v0.5 Key context).
+**Do this instead:** `ios/` is already correctly listed in `.gitignore` — trust it, but verify with `git status` after any local prebuild/build-preview step during this milestone, and never use `git add -f` on it.
 
-### Anti-Pattern 3: Letting `app/quiz.tsx` keep its own static `verbs` import after the dataset becomes swappable
+### Anti-Pattern 3: Treating `eas.json`'s `cli.version` as optional boilerplate
 
-**What people do:** Add the remote-fetch layer for `startQuiz()` but leave `app/quiz.tsx`'s `import { verbs } from "../src/dataset/verbs"` untouched, since "it still compiles."
-**Why it's wrong:** Once the active quiz session might have been generated from a *remote* verb list, a screen that independently re-imports the *local static* list for lookups can silently diverge from the data that actually produced the session (wrong/missing translation, or a lookup miss if the remote dataset adds/removes a verb).
-**Do this instead:** Store the resolved verb list used for the current session in the Zustand store (e.g. `datasetVerbs`) alongside `session`, and have `quiz.tsx` read from there.
+**What people do:** Skip the `cli` block in `eas.json`, assuming whatever `eas-cli` version is globally/npx-installed is fine.
+**Why it's wrong:** Without a pinned/floor `cli.version`, a future contributor (or CI) running an older/newer `eas-cli` could produce a build with different default behavior (e.g. credential handling, `autoIncrement` semantics) than what was verified during this milestone's first successful TestFlight build.
+**Do this instead:** Include a `cli.version` constraint (e.g. `">= 16.0.0"`, matching or exceeding the locally verified `eas-cli/20.0.0` found in this environment) in the new `eas.json`.
 
 ## Integration Points
 
@@ -305,32 +235,26 @@ Not meaningfully applicable at this app's scale (single-user, offline-first, no 
 
 | Service | Integration Pattern | Notes |
 |---------|---------------------|-------|
-| Backend content endpoint (does not exist yet — owned by `portuguese-verb-api`) | `fetch` + `AbortController` timeout, same shape as `src/feedback/submit.ts` | Build `fetchRemoteVerbs()` against a local mock/stub URL per PROJECT.md's explicit v0.1 scoping; the real URL swap is a one-line change once the sibling repo ships it. Validate the response shape with the *existing* `VerbSchema`/`validateDataset()` from `src/dataset/validate.ts` before accepting it as "remote success" — a 200 response with malformed data should fall back to local exactly like a network failure would. |
+| EAS Build (Expo Application Services) | `eas build --platform ios --profile production`, reads `app.json` + `eas.json` | Requires `eas login` (Expo account) and, on first run for this project, `eas init`/build will prompt to link the project to an EAS project id (written to `app.json`'s `extra.eas.projectId` — a new field, not yet present) |
+| App Store Connect (Apple) | `eas submit --platform ios --profile production`, reads `eas.json`'s `submit.production.ios` | Requires the operator's Apple Developer Program membership (confirmed available per PROJECT.md) and an App Store Connect app record — PROJECT.md states the operator will create/approve this manually, not automated by this milestone's config work |
+| `portuguese-verb-api` backend (existing) | Unchanged — `GET /health`, `GET /content/verbs`, `POST /feedback`, `POST /product-feedback` smoke-checked live before tester invites | Not a build-time integration; a manual/scripted preflight step, orthogonal to the `eas.json`/`app.json` work covered here |
 
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| `src/dataset/source.ts` ↔ `src/quiz/engine.ts` | Plain function argument (`Verb[]` passed into `generate()`) | No shared global/singleton state — keeps `engine.ts` a pure function of its arguments, unchanged from v0.0's design intent. |
-| `useQuizStore` ↔ `app/index.tsx` | `await startQuiz(options)` then read `status` from the store (not a synchronous `useQuizStore.getState().status` read immediately after a fire-and-forget call, as today) | The current code (`app/index.tsx`'s `handleStartQuiz`) reads store state synchronously right after calling `startQuiz` — this **must** become `await startQuiz(options)` before checking `nextStatus`, otherwise the navigation check will race the still-pending fetch and always see the stale pre-call status. The exact same pattern exists in `app/quiz.tsx`'s `handleAdvance` (checks status after `advance()` — `advance()` itself stays synchronous so no change needed there) and `app/results.tsx`'s `handleTryAgain` (calls `startQuiz` and reads status synchronously — needs the identical `await` fix). |
-| `useQuizStore` ↔ `app/quiz.tsx` | New: store exposes `datasetVerbs`; screen reads it instead of statically importing `src/dataset/verbs` | See Anti-Pattern 3 above. |
-| `SafeAreaProvider` ↔ screens | React Context, not props — `useSafeAreaInsets()` hook called independently in each of the 3 screens | No prop-drilling needed; each screen already has its own `StyleSheet`, so insets are applied locally per screen, not centralized. |
-
-## Suggested Build Order
-
-Given the dependency chain across the three feature areas:
-
-1. **Dataset fetch/fallback layer first** — `src/dataset/remote.ts` and `src/dataset/source.ts`. Zero dependents yet exist, fully unit-testable in isolation (mock `fetch`, assert fallback-on-failure), and nothing else can proceed meaningfully without it.
-2. **Refactor `engine.generate()` to accept `verbs` as a parameter.** Small, mechanical, independent of step 1 — can happen in parallel. Update existing engine unit tests to pass the local `verbs` array explicitly (one-line change per test file, no test becomes async).
-3. **Update `useQuizStore`** — add `"loading"` status, make `startQuiz` async (sequencing `resolveVerbs()` from step 1 → `generate()` from step 2), add `datasetVerbs` to store state, add `abandonQuiz` action. This step depends on both 1 and 2 being in place.
-4. **Update screens** — `app/index.tsx` (await `startQuiz`, render a loading state, fix the synchronous-status-read race), `app/quiz.tsx` (read `datasetVerbs` from store instead of static import, add exit button + confirmation `Alert`), `app/results.tsx` (fix its own `startQuiz`/"Try Again" call site the same way). Bundle the safe-area insets work into this same pass since these are the same files being touched — avoids a second edit pass over the same screens.
-5. **`SafeAreaProvider` root wrap** (`app/_layout.tsx`) can technically happen at any point — it has zero dependency on 1-4 — but is cheapest to land together with step 4's screen edits rather than as a fully separate pass, purely to avoid re-touching the same files twice.
+| `app.json` ↔ `eas.json` | `eas.json` build profiles implicitly read release identity (bundle id, version) from `app.json` — no field duplication needed except `appVersionSource: "remote"` opting into EAS-side version/build-number tracking instead of `app.json`-only | Set identity fields in `app.json` *before* the first `eas build`, since that build registers them with Apple |
+| `assets/brand/` ↔ `assets/images/`, `assets/expo.icon/` | One-way, manual/scripted rasterization — no automated watch/rebuild pipeline exists or is being added this milestone | Re-run the rasterize step by hand on any future brand-asset update; document the exact command used for reproducibility (not currently captured anywhere in the repo) |
+| `eslint.config.js` lint failures ↔ release readiness | Two pre-existing `react-hooks/set-state-in-effect` errors in `ReportFeedbackModal.tsx`/`ProductFeedbackModal.tsx` (confirmed live via `npm run lint`) block a clean `npm run lint` pass | Independent of `eas.json`/icon work but explicitly in this milestone's scope — fix before or in parallel with release-config work, not blocking it structurally (no code dependency between the two) |
 
 ## Sources
 
-- Direct reads of the actual shipped codebase (all HIGH confidence, primary source): `src/store/useQuizStore.ts`, `src/quiz/engine.ts`, `src/quiz/types.ts`, `src/dataset/verbs.ts`, `src/dataset/types.ts`, `src/dataset/validate.ts`, `src/feedback/submit.ts`, `app/_layout.tsx`, `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`, `package.json`, `.planning/PROJECT.md`
-- `react-native-safe-area-context@~5.7.0` confirmed already present in `package.json` dependencies (not a new install) — HIGH confidence, direct file read
+- [Splash screen and app icon - Expo Documentation](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/) — icon size/alpha requirements, config hierarchy, EAS Build's role generating intermediate sizes
+- [eas.json - Expo Documentation](https://docs.expo.dev/build/eas-json/) — build profile structure, platform-specific fields, resourceClass
+- [Submit to the Apple App Store - Expo Documentation](https://docs.expo.dev/submit/ios/) — submit profile fields, Apple credentials handling, TestFlight processing flow
+- [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54) — introduction of Icon Composer `.icon` format for Liquid Glass icons (confirms `assets/expo.icon/` is this SDK 54+ format, in-repo verified via `assets/expo.icon/icon.json`)
+- In-repo verification: `app.json` (current `expo.icon`/`ios.icon` split), `assets/expo.icon/icon.json` (confirms still-default Expo template content), `.gitignore` (confirms `ios/` already excluded), `npm run lint` output (confirms the exact 2 pre-existing lint failures named in PROJECT.md's v0.5 scope), `npx eas --version` (confirms `eas-cli` is available via `npx`, not yet a `package.json` devDependency)
 
 ---
-*Architecture research for: Expo React Native quiz app, v0.1 milestone (online content fetch + fallback, quiz abandonment, safe-area wiring)*
-*Researched: 2026-07-13*
+*Architecture research for: iOS TestFlight release readiness (Expo managed workflow)*
+*Researched: 2026-07-22*
