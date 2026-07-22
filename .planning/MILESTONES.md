@@ -1,5 +1,16 @@
 # Milestones
 
+## v0.4 Backend v0.4 Contract Sync + Product Feedback (Shipped: 2026-07-22)
+
+**Phases completed:** 3 phases, 7 plans, 4 tasks
+
+**Key accomplishments:**
+
+- Proved mobile's validateDataset, LearningContentSchema, and fetchRemoteVerbs all accept the real backend v0.4 content fixture (50 verbs + learning block) byte-for-byte, via a self-contained test fixture with zero cross-repo coupling at test time.
+- Extended `selectExplanation` to interpolate selected-answer tense/subject labels (matches[0]-derived, omitted on tied-disagree) and append backend-authored tenseNotes/subjectHints as separate newline-joined lines, matching the backend v0.4 explanation template contract with zero signature changes and all existing fail-closed behavior intact.
+
+---
+
 ## v0.3 Learning Quality Upgrade (Shipped: 2026-07-20)
 
 **Phases completed:** 4 phases, 8 plans, 16 tasks

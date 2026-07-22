@@ -58,7 +58,18 @@ crash) whenever content is unavailable or a cross-verb distractor's form
 doesn't resolve. Scoring, `correctAnswer`, and the `POST /feedback` payload
 are untouched by the panel's presence.
 
-## Current State (v0.3 shipped)
+**Shipped in v0.4:** the mobile app is proven to accept the backend's actual
+v0.4 content/learning contract shape (via a byte-for-byte copied fixture, not
+live coupling at test time), the wrong-answer explanation panel now
+interpolates the selected (wrong) answer's tense/subject labels alongside the
+correct answer's and appends backend-authored `tenseNotes`/`subjectHints`
+lines, and a brand-new "Help us improve" general product-feedback channel
+(bug/idea/other + free-text message) is available from all 3 screens,
+structurally independent of the existing quiz-answer "Report a problem" flow
+— zero shared code, zero coupling, confirmed submitting to a newly-shipped
+`POST /product-feedback` live backend endpoint.
+
+## Current State (v0.4 shipped)
 
 - Setup → Quiz → Results loop, backed by a live-fetched dataset with silent
   local fallback, snapshotted per session (Zustand store) — unchanged since
@@ -87,8 +98,25 @@ are untouched by the panel's presence.
   populated from the backend's optional `learning`/`formIndex` content via a
   pure `selectExplanation` resolver, fail-closed when content is unavailable
   — never affects scoring, `correctAnswer`, or the feedback payload
-- 192 tests passing across 17 suites, strict TypeScript clean, zero blocking
-  gaps (see `.planning/v0.3-MILESTONE-AUDIT.md` for non-blocking tech debt)
+- Explanation panel now also interpolates the selected (wrong) answer's
+  tense/subject labels (`selectedTenseLabel`/`selectedSubjectLabel`, resolved
+  via `verb.formIndex[selectedAnswer]`, `matches[0]` convention, omitted on
+  tied-disagree) and appends backend-authored `tenseNotes`/`subjectHints` as
+  separate newline-joined lines — zero signature change, fail-closed contract
+  fully preserved
+- Mobile's runtime parsing paths (`validateDataset`, `LearningContentSchema`,
+  `fetchRemoteVerbs`) proven to accept the real backend v0.4 sample payload
+  byte-for-byte via a self-contained test fixture, zero cross-repo coupling
+  at test time
+- New `src/productFeedback/` domain (Zod schema, category picker Bug/Idea/
+  Other, payload builder, submit transport) — a zero-shared-code structural
+  mirror of `src/feedback/` — with a "Help us improve" entry point on all 3
+  screens (footer link on Setup/Results, two-action row on Quiz alongside
+  "Report a problem" with divergent visibility gating), submitting to a live
+  `POST /product-feedback` backend endpoint, never including quiz-answer
+  context
+- 251 tests passing across 21 suites, strict TypeScript clean, zero blocking
+  gaps (see `.planning/v0.4-MILESTONE-AUDIT.md` for non-blocking tech debt)
 
 ## Core Value
 
@@ -106,6 +134,13 @@ existing quiz loop (more meaningful practice, better wrong-answer feedback)
 rather than introducing a competing feature; none of them add friction or a
 new blocking step to "pick what to practice → complete 10 questions → see a
 score."
+
+**Still the right priority after shipping v0.4** — the contract-fixture proof
+and explanation upgrade are backend-sync work with zero new UI, and the new
+"Help us improve" product-feedback channel is explicitly secondary (same
+non-blocking pattern as the existing "Report a problem" flow) — it never
+gates or interrupts the quiz loop, confirmed structurally (zero shared code
+with quiz-answer feedback) and on-device.
 
 ## Requirements
 
@@ -178,48 +213,58 @@ All 14 v0.3 requirements shipped and independently verified, including
 on-device confirmation of both the verb-mode chip UI and the explanation
 panel (see `.planning/milestones/v0.3-MILESTONE-AUDIT.md`).
 
+- ✓ Backend's v0.4 sample fixture copied into mobile as a self-contained test fixture, no cross-repo import at test runtime — v0.4 (CONTRACT-01)
+- ✓ Fixture payload proven to parse through `validateDataset`/`LearningContentSchema`/`fetchRemoteVerbs` — v0.4 (CONTRACT-02)
+- ✓ Fixture test asserts accented (`pôr`/`pôs`) and tied (`falam`) forms survive parsing unchanged — v0.4 (CONTRACT-03)
+- ✓ `selectExplanation` provides all 7 backend v0.4 template variables (verb, selectedAnswer, correctAnswer, tenseLabel, subjectLabel, selectedTenseLabel, selectedSubjectLabel) — v0.4 (EXPL-05)
+- ✓ Selected tense/subject resolved via `verb.formIndex[selectedAnswer]`, `matches[0]` convention, omitted on disagreement — v0.4 (EXPL-06)
+- ✓ Backend-authored `tenseNotes[correctTense]`/`subjectHints[correctSubject]` appended when present — v0.4 (EXPL-07)
+- ✓ Fail-closed behavior preserved — no fabricated grammar text — v0.4 (EXPL-08)
+- ✓ Explanation unit tests cover new interpolation/appending/fail-closed paths — v0.4 (TEST-06)
+- ✓ "Help us improve" entry point on Setup, Quiz, and Results — v0.4 (PFDBK-01)
+- ✓ Quiz two-action row: "Report a problem" + "Help us improve" as distinct flows, divergent visibility gating — v0.4 (PFDBK-02)
+- ✓ Product feedback payload submitted via `POST /product-feedback` matching the backend v0.4 contract exactly — v0.4 (PFDBK-03)
+- ✓ Same 90s `AbortController` timeout + success/validation-error/server-error/network-error result union as existing feedback — v0.4 (PFDBK-04)
+- ✓ Product feedback never includes quiz-answer context (verb/tense/subject/correctAnswer/selectedAnswer) — v0.4 (PFDBK-05)
+- ✓ Product-feedback unit tests mirror existing feedback test coverage — v0.4 (TEST-07)
+
+All 14 v0.4 requirements shipped and independently verified, including a
+live human-verify checkpoint that caught and resolved a real cross-repo
+contract gap (backend's `POST /product-feedback` wasn't deployed yet at
+first check; confirmed via direct curl, backend team shipped the route,
+re-verified 201 success on all 3 screens) — see `.planning/v0.4-MILESTONE-AUDIT.md`.
+
 ### Active
 
 To be defined in `.planning/REQUIREMENTS.md` for the next milestone.
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
-`.planning/milestones/v0.2-REQUIREMENTS.md`, and
-`.planning/milestones/v0.3-REQUIREMENTS.md`.
+`.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
+and `.planning/milestones/v0.4-REQUIREMENTS.md`.
 
-## Current Milestone: v0.4 Backend v0.4 Contract Sync + Product Feedback
+## Next Milestone Goals
 
-**Goal:** Consume the backend v0.4 contract exactly as shipped, and add
-general product feedback via a new `/product-feedback` endpoint.
+Not yet scoped — run `/gsd:new-milestone` to define the next milestone's
+requirements. Carried-over candidates from previous milestones' deferred
+lists (unchanged, still tracked as v2 candidates): `PROG-01` (typed-answer
+quiz mode), `PROG-02` (on-device progress/streak tracking), `PROG-03`
+(spaced repetition), `FETCH-06` (dataset staleness/version metadata),
+`QUIZ-09` (question-progress indicator), `UI-04` (subtle tap-feedback
+animation).
 
-**Target features:**
-- Contract fixture verification — copy the backend's v0.4 sample fixture
-  into mobile as a test fixture; prove mobile accepts the real
-  backend-shaped payload (`formIndex`, `learning`, accented/tied forms)
-  through the actual runtime paths (`validateDataset`,
-  `LearningContentSchema`, `fetchRemoteVerbs`), self-contained (no
-  cross-repo import at test time)
-- Explanation compatibility upgrade — `selectExplanation` gains
-  `selectedTenseLabel`/`selectedSubjectLabel` interpolation (resolved via
-  `verb.formIndex[selectedAnswer]`), appends backend-authored
-  `tenseNotes`/`subjectHints` when present, stays fail-closed on missing
-  data
-- General product feedback — new `src/productFeedback/` domain
-  (schema/types/payload/submit/categories/modal), `POST
-  /product-feedback` with `category (bug/idea/other)` + `message` +
-  `screen (setup/quiz/results)` + `appVersion` + `platform`, same 90s
-  `AbortController` timeout pattern as existing feedback; "Help us
-  improve" entry point on all 3 screens, two-action row on Quiz after
-  answer lock ("Report a problem" / "Help us improve"); sends only
-  screen/app metadata, never quiz-answer context
+New tech debt surfaced during v0.4 (non-blocking, see
+`.planning/v0.4-MILESTONE-AUDIT.md` for full detail):
+- `selectExplanation`'s `selectedTenseLabel`/`selectedSubjectLabel` are only
+  populated when matches agree — if a future backend `templates.generic`
+  string ever adds a placeholder for either, it would render un-replaced
+  rather than fail closed. No current template exercises this path.
+- Phases 17/18/19's `VALIDATION.md` task tables were never updated
+  post-execution (stale "pending" status despite each phase's independent
+  VERIFICATION.md confirming all tests pass) — a pre-existing
+  documentation-habit gap in this project, not unique to v0.4.
 
-**Key context:** Source plan is an external codex-generated implementation
-plan (`Mobile v0.4 Updated Implementation Plan.md`), confirmed against
-this repo's actual conventions before requirements definition. Existing
-quiz-specific `POST /feedback` is untouched by this milestone — product
-feedback is an additive, separate endpoint/domain.
-
-Full v0.3 goal/scope detail archived at
-`.planning/milestones/v0.3-ROADMAP.md`.
+Full v0.3/v0.4 goal/scope detail archived at
+`.planning/milestones/v0.3-ROADMAP.md` and `.planning/milestones/v0.4-ROADMAP.md`.
 
 ### Out of Scope
 
@@ -243,6 +288,9 @@ Full v0.3 goal/scope detail archived at
 - Question-progress indicator ("Question X of 10") (`QUIZ-09`) — deferred v2 candidate, not started.
 - Prepositions quiz type / verb-preposition mappings — explicitly deferred to a future cross-repo milestone in v0.3; backend owns canonical data, mobile should not invent it. **Still valid.**
 - Fixing the cross-verb distractor formIndex-miss gap (a Phase-14 cross-verb wrong answer's conjugation string is looked up against the *question's own verb's* `formIndex`, which rarely matches, so no explanation renders for that specific wrong answer) — explicitly deferred in both Phase 15 and 16 CONTEXT.md as out of scope for v0.3. Degrades gracefully (fail-closed per EXPL-03, no crash), just an occasional silent absence of an explanation. **Still valid** — candidate for a future phase if a broader per-verb-pair data shape is worth the backend investment.
+- Modifying or reinterpreting backend grammar content — backend v0.4 is the source of truth; mobile only consumes and displays it. **Still valid**, confirmed by Phase 17's zero-cross-repo-coupling fixture approach.
+- Collecting personal contact info in product feedback — not part of the backend v0.4 contract; `category`/`message`/`screen`/`appVersion`/`platform` only. **Still valid**, confirmed by Phase 19's payload shape.
+- Changes to the existing quiz-specific `POST /feedback` — explicitly untouched by v0.4; product feedback is a new, separate endpoint/domain. **Still valid**, confirmed by zero cross-imports between `src/feedback/` and `src/productFeedback/`.
 
 ## Context
 
@@ -272,24 +320,26 @@ Full v0.3 goal/scope detail archived at
   the backend now serves `GET /content/verbs` and the app is remote-first with
   local fallback (see "Shipped in v0.1" above and Constraints below).
 
-**Current codebase state (end of v0.3):**
-- ~5,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
-- 192 tests passing across 17 suites; strict TypeScript (`tsc --noEmit`) clean
-- 16 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
-  v0.3), 43 plans, v0.3 built in ~1 day (2026-07-20 kickoff → 2026-07-21 ship)
-- New `src/learning/` domain module (types, Zod schema, pure
-  `selectExplanation` resolver) added in v0.3, following the same
-  types.ts + logic-file convention as `dataset/`/`quiz/`/`feedback/`
-- Known non-blocking tech debt (see `.planning/milestones/v0.3-MILESTONE-AUDIT.md`
-  for full detail): a Phase-14 cross-verb distractor's wrong-answer form
-  occasionally doesn't resolve in Phase 15/16's `formIndex` lookup, so no
-  explanation shows for that specific wrong answer (fail-closed, not a crash,
-  explicitly accepted scope limit — see Out of Scope above); Phase 15's
-  `VALIDATION.md` metadata wasn't flipped to `nyquist_compliant: true` after
-  the phase's tests passed (cosmetic doc-sync gap only); carried-forward v0.2
-  tech debt (WCAG contrast, `OfflinePill` on Results' no-session fallback,
-  `handleBackToSetup()` not calling `reset()`) all still present, unrelated
-  to v0.3's scope.
+**Current codebase state (end of v0.4):**
+- ~6,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`)
+- 251 tests passing across 21 suites; strict TypeScript (`tsc --noEmit`) clean
+- 19 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
+  v0.3, 3 in v0.4), 50 plans, v0.4 built in ~2 days (2026-07-21 kickoff →
+  2026-07-22 ship)
+- New `src/productFeedback/` domain module (types, Zod schema, categories,
+  payload, submit, `ProductFeedbackModal`) added in v0.4, a deliberate
+  zero-shared-code structural mirror of `src/feedback/`
+- Known non-blocking tech debt (see `.planning/v0.4-MILESTONE-AUDIT.md`
+  for full detail): `selectExplanation`'s selected-label interpolation is
+  only populated on match-agreement, a template-content edge case to watch
+  (not an active bug); Phases 17/18/19's `VALIDATION.md` task tables never
+  updated post-execution (stale "pending" status, cosmetic doc-sync gap,
+  pre-existing pattern also seen in Phase 15); a Phase-14 cross-verb
+  distractor's wrong-answer form still occasionally doesn't resolve in the
+  explanation `formIndex` lookup (fail-closed, explicitly accepted scope
+  limit, carried from v0.3); carried-forward v0.2 tech debt (WCAG contrast,
+  `OfflinePill` on Results' no-session fallback, `handleBackToSetup()` not
+  calling `reset()`) all still present, unrelated to v0.4's scope.
 
 ## Constraints
 
@@ -329,6 +379,10 @@ Full v0.3 goal/scope detail archived at
 | `selectExplanation` is a pure function taking `(verb, selectedAnswer, question, learning)`, never throws | Matches this project's established pattern (`generate()`, `score()`) of pure, framework-free, unit-testable domain logic with fail-closed `undefined` returns instead of exceptions | ✓ Good — 11/11 unit tests including an explicit purity assertion, zero UI coupling until Phase 16 |
 | `useQuizStore` gained `verbs`/`learning` fields rather than Phase 16 re-fetching or re-deriving them | The session-snapshot `resolveVerbs()` result already had both fields threaded through since Phase 15 — the store was the only layer silently discarding them | ✓ Good — closed two real wiring bugs (store discarding `learning`, `quiz.tsx` reading the bundled dataset instead of the session snapshot) that pre-dated Phase 16's own scope |
 | Conditional mount (no reserved space) for `ExplanationPanel`, unlike the opacity-0 pattern used elsewhere in `quiz.tsx` | User's explicit choice (D-02) — matches EXPL-03's literal "no panel is shown" requirement; accepted tradeoff of choices/Next button shifting position slightly | ✓ Good — user-approved, on-device confirmed, zero complaints about layout shift |
+| Backend v0.4 fixture copied byte-for-byte into mobile's test tree (not imported cross-repo at test runtime) | Proves the real contract shape parses without introducing a runtime or build-time dependency on the sibling backend repo | ✓ Good — `diff`-verified identical to backend source, zero cross-repo coupling, 5/5 fixture tests pass |
+| `src/productFeedback/` built as a zero-shared-code structural mirror of `src/feedback/` (D-07) rather than generalizing a shared feedback abstraction | Two genuinely independent domains (quiz-answer report vs. general product feedback) with different payload shapes; premature abstraction risked coupling them | ✓ Good — confirmed zero cross-imports in either direction; "Report a problem" and "Help us improve" remain fully independent flows on the Quiz screen |
+| Product feedback entry point uses a hardcoded literal `screen` prop per call site, not `usePathname()` (D-08) | Simpler, explicit, and avoids a runtime dependency on router internals for a value that's static per screen | ✓ Good — zero ambiguity, `screen="setup"/"quiz"/"results"` set once per call site |
+| `POST /product-feedback` cross-repo blocker (backend hadn't shipped the route, 404) resolved live during the Phase 19 human-verify checkpoint rather than deferred as a known gap | User pushed the corresponding backend route mid-checkpoint instead of shipping mobile with an unverified endpoint | ✓ Good — re-verified 201 success on all 3 screens by both the human operator and an independent gsd-verifier live curl check |
 
 ## Evolution
 
@@ -348,4 +402,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 after v0.3 milestone*
+*Last updated: 2026-07-22 after v0.4 milestone*
