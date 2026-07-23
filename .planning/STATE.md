@@ -4,8 +4,8 @@ milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: executing
 stopped_at: Phase 22 context gathered
-last_updated: "2026-07-23T21:46:52.842Z"
-last_activity: 2026-07-23 -- Phase 22 planning complete
+last_updated: "2026-07-23T21:48:32.246Z"
+last_activity: 2026-07-23 -- Phase 22 execution started
 progress:
   total_phases: 5
   completed_phases: 2
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 22 — icon & splash asset pipeline
+**Current focus:** Phase 22 — icon-splash-asset-pipeline
 
 ## Current Position
 
-Phase: 22
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-07-23 -- Phase 22 planning complete
+Phase: 22 (icon-splash-asset-pipeline) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 22
+Last activity: 2026-07-23 -- Phase 22 execution started
 
 ## Performance Metrics
 
