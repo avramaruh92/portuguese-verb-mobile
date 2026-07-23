@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: executing
-stopped_at: Completed 20-01-PLAN.md (dependency baseline + eas-cli pin); ready for 20-02 (throwaway EAS build)
+stopped_at: Completed Phase 20 (20-01 dependency baseline + eas-cli pin; 20-02 native build proof — BUILD-02 satisfied, throwaway iOS build FINISHED on EAS). Ready to plan Phase 21.
 last_updated: "2026-07-23T12:35:55.389Z"
-last_activity: 2026-07-23 -- Phase 20 execution started
+last_activity: 2026-07-23 -- Phase 20 complete
 progress:
   total_phases: 5
   completed_phases: 1
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 20 — native-build-risk-front-loading
+**Current focus:** Phase 21 — Release Identity Lock (next, not yet planned)
 
 ## Current Position
 
-Phase: 20 (native-build-risk-front-loading) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 20
-Last activity: 2026-07-23 -- Phase 20 execution started
+Phase: 20 (native-build-risk-front-loading) — COMPLETE
+Plan: 2 of 2
+Status: Phase 20 complete; Phase 21 not yet planned
+Last activity: 2026-07-23 -- Phase 20 complete (BUILD-01, BUILD-02 satisfied)
 
 ## Performance Metrics
 
@@ -41,12 +41,13 @@ Last activity: 2026-07-23 -- Phase 20 execution started
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 20. Native Build Risk Front-Loading | BUILD-01, BUILD-02 | Not started |
+| 20. Native Build Risk Front-Loading | BUILD-01, BUILD-02 | Complete |
 | 21. Release Identity Lock | IDENT-01, IDENT-02, IDENT-03, IDENT-04 | Not started |
 | 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Not started |
 | 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Not started |
 | 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Not started |
 | Phase 20 P01 | 12min | 2 tasks | 2 files |
+| Phase 20 P02 | ~50min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
