@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
-status: executing
-stopped_at: Completed Phase 20 (20-01 dependency baseline + eas-cli pin; 20-02 native build proof — BUILD-02 satisfied, throwaway iOS build FINISHED on EAS). Ready to plan Phase 21.
-last_updated: "2026-07-23T12:35:55.389Z"
-last_activity: 2026-07-23 -- Phase 20 complete
+status: completed
+stopped_at: Phase 21 context gathered
+last_updated: "2026-07-23T12:40:26.330Z"
+last_activity: 2026-07-23 -- Phase 20 complete (BUILD-01, BUILD-02 satisfied)
 progress:
   total_phases: 5
   completed_phases: 1
@@ -98,9 +98,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-23T09:40:19.945Z
-Stopped at: Completed 20-01-PLAN.md (dependency baseline + eas-cli pin); ready for 20-02 (throwaway EAS build)
-Resume file: .planning/phases/20-native-build-risk-front-loading/20-02-PLAN.md
+Last session: 2026-07-23T12:40:26.323Z
+Stopped at: Phase 21 context gathered
+Resume file: .planning/phases/21-release-identity-lock/21-CONTEXT.md
 
 ## Operator Next Steps
 
