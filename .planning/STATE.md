@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: executing
-stopped_at: Phase 23 context gathered
-last_updated: "2026-07-23T22:17:13.060Z"
-last_activity: 2026-07-23 -- Phase 22 execution started
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-07-23T22:28:05.335Z"
+last_activity: 2026-07-23
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 60
+  completed_phases: 4
+  total_plans: 8
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 22 — icon-splash-asset-pipeline
+**Current focus:** Phase 23 — eas-build-submit-configuration (complete)
 
 ## Current Position
 
-Phase: 22 (icon-splash-asset-pipeline) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 22
-Last activity: 2026-07-23 -- Phase 22 execution started
+Phase: 23 (eas-build-submit-configuration) — COMPLETE
+Plan: 1 of 1
+Status: Ready to begin Phase 24
+Last activity: 2026-07-23 -- Phase 23 executed (EASCFG-01/02/03 complete)
 
 ## Performance Metrics
 
@@ -42,9 +42,9 @@ Last activity: 2026-07-23 -- Phase 22 execution started
 | Phase | Requirements | Status |
 |-------|--------------|--------|
 | 20. Native Build Risk Front-Loading | BUILD-01, BUILD-02 | Complete |
-| 21. Release Identity Lock | IDENT-01, IDENT-02, IDENT-03, IDENT-04 | Not started |
-| 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Not started |
-| 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Not started |
+| 21. Release Identity Lock | IDENT-01, IDENT-02, IDENT-03, IDENT-04 | Complete |
+| 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Complete |
+| 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Complete |
 | 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Not started |
 | Phase 20 P01 | 12min | 2 tasks | 2 files |
 | Phase 20 P02 | ~50min | 3 tasks | 3 files |
@@ -62,10 +62,12 @@ Last activity: 2026-07-23 -- Phase 22 execution started
 Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.4 decisions all show final outcomes). No new v0.5 decisions logged yet — this is a release-engineering milestone with scope locked from the source codex plan.
 
 - [Phase 20]: Pin eas-cli as devDependency + npm run eas script (D-04) despite triggering 2 new expo-doctor advisory checks — Deliberate tradeoff to bypass stale global eas-cli@20.0.0 shadowing bare npx on this dev machine (RESEARCH.md Pitfall 1); BUILD-01's expo-doctor 0-failures criterion was independently satisfied before eas-cli was added
+- [Phase 23]: D-01 — used all-caps sentinel placeholder `REPLACE_WITH_ASC_APP_ID` for `eas.json` `submit.production.ios.ascAppId` since no App Store Connect app record exists yet; Phase 24 must replace it with the real numeric ASC App ID before the first real submit
+- [Phase 23]: D-02 — left EAS-managed iOS credential defaults and `distribution: "store"` implicit in `build.production`/`submit.production.ios` rather than spelling them out, matching Phase 20's "trust eas build:configure output as-is" convention
 
 ### Pending Todos
 
-- Await user approval of v0.5 ROADMAP.md, then begin `/gsd:plan-phase 20`.
+- Begin `/gsd:plan-phase 24` (Quality Gates, Preflight & First Submit) — last v0.5 phase.
 
 ### Blockers/Concerns
 
@@ -98,11 +100,10 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-23T22:17:13.052Z
-Stopped at: Phase 23 context gathered
-Resume file: .planning/phases/23-eas-build-submit-configuration/23-CONTEXT.md
+Last session: 2026-07-23T22:28:05.335Z
+Stopped at: Completed 23-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Review and approve `.planning/ROADMAP.md` (v0.5 section, Phases 20-24)
-- Run `/gsd:plan-phase 20` to begin Phase 20: Native Build Risk Front-Loading
+- Run `/gsd:plan-phase 24` to begin Phase 24: Quality Gates, Preflight & First Submit

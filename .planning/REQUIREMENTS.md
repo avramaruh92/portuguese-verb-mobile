@@ -28,9 +28,9 @@ Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadm
 
 ### EAS Build/Submit Configuration
 
-- [ ] **EASCFG-01**: `eas.json` created with a `production` build profile using EAS-managed iOS credentials, `cli.appVersionSource: "remote"`, `build.production.autoIncrement: true`
-- [ ] **EASCFG-02**: `eas.json` `submit.production.ios` profile added with an `ascAppId` placeholder, to be filled once the operator creates the App Store Connect app record
-- [ ] **EASCFG-03**: `app.json` sets `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` (standard-HTTPS-only export-compliance exemption)
+- [x] **EASCFG-01**: `eas.json` created with a `production` build profile using EAS-managed iOS credentials, `cli.appVersionSource: "remote"`, `build.production.autoIncrement: true`
+- [x] **EASCFG-02**: `eas.json` `submit.production.ios` profile added with an `ascAppId` placeholder, to be filled once the operator creates the App Store Connect app record
+- [x] **EASCFG-03**: `app.json` sets `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` (standard-HTTPS-only export-compliance exemption)
 
 ### Quality Gates, Preflight & First Submit
 
@@ -84,9 +84,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ICON-02 | Phase 22 | Pending |
 | ICON-03 | Phase 22 | Pending |
 | ICON-04 | Phase 22 | Pending |
-| EASCFG-01 | Phase 23 | Pending |
-| EASCFG-02 | Phase 23 | Pending |
-| EASCFG-03 | Phase 23 | Pending |
+| EASCFG-01 | Phase 23 | Complete |
+| EASCFG-02 | Phase 23 | Complete |
+| EASCFG-03 | Phase 23 | Complete |
 | SHIP-01 | Phase 24 | Pending |
 | SHIP-02 | Phase 24 | Pending |
 | SHIP-03 | Phase 24 | Pending |
