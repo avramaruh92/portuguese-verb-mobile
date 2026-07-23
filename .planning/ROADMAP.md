@@ -98,7 +98,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 - Decimal phases (20.1, 20.2, ...): Urgent insertions (marked with INSERTED), if any arise
 
 - [x] **Phase 20: Native Build Risk Front-Loading** - Prove the app's native dependency graph builds on EAS's cloud infrastructure before any release-config polish (completed 2026-07-23)
-- [ ] **Phase 21: Release Identity Lock** - Lock bundle identifier, slug/scheme, version/build number, and EAS project id in `app.json`
+- [x] **Phase 21: Release Identity Lock** - Lock bundle identifier, slug/scheme, version/build number, and EAS project id in `app.json` (completed 2026-07-23)
 - [ ] **Phase 22: Icon & Splash Asset Pipeline** - Bake the Lafa mark into both iOS icon paths and reconcile splash assets
 - [ ] **Phase 23: EAS Build/Submit Configuration** - Author `eas.json` build/submit profiles and set export-compliance config
 - [ ] **Phase 24: Quality Gates, Preflight & First Submit** - Fix lint, verify the live backend (warm + cold), and run the first real build+submit+tester-invite cycle
@@ -128,7 +128,7 @@ Full phase details, plan breakdowns, and success criteria archived in
   4. `extra.eas.projectId` has been checked for a pre-existing value under the old slug and reconciled (no stale/duplicate project id remains)
 **Plans**: 2 plans
 - [x] 21-01-PLAN.md — Edit app.json identity fields (slug/scheme->lafa, ios.buildNumber=1) and read-only EAS project verification
-- [ ] 21-02-PLAN.md — Operator dashboard-rename checkpoint for EAS project slug (IDENT-04 closing evidence)
+- [x] 21-02-PLAN.md — Operator dashboard-rename checkpoint for EAS project slug (IDENT-04 closing evidence)
 
 ### Phase 22: Icon & Splash Asset Pipeline
 **Goal**: A Lafa-branded, App-Store-compliant app icon is baked into the binary via both of this project's configured icon paths, with splash assets reconciled and original brand source files untouched.
@@ -188,7 +188,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete | 2026-07-22 |
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
-| 21. Release Identity Lock | v0.5 | 1/2 | In Progress|  |
+| 21. Release Identity Lock | v0.5 | 2/2 | Complete   | 2026-07-23 |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 0/TBD | Not started | - |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
