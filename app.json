@@ -8,7 +8,6 @@
     "scheme": "lafa",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.avram.aruh.lafa",
       "buildNumber": "1",
       "infoPlist": {
