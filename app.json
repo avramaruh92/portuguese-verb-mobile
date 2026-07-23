@@ -1,15 +1,16 @@
 {
   "expo": {
     "name": "Lafa",
-    "slug": "portuguese-verb-mobile",
+    "slug": "lafa",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "portugueseverbmobile",
+    "scheme": "lafa",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.avram.aruh.lafa",
+      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
