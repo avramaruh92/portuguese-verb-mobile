@@ -30,12 +30,14 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "eas-cli": "^21.1.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.0",
     "jest-expo": "~57.0.2",
+    "sharp": "^0.35.3",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -46,7 +48,8 @@
     "lint": "expo lint",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "eas": "eas"
+    "eas": "eas",
+    "generate-assets": "node scripts/generate-brand-assets.ts"
   },
   "private": true,
   "jest": {
