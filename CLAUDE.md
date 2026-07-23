@@ -1,10 +1,14 @@
 # Lafa — Portuguese Verb Conjugation App (Mobile)
 
 **Lafa** is the product/brand name, adopted at v0.2 kickoff (2026-07-19). The
-repo/slug/backend sibling repo name stay `portuguese-verb-mobile` /
-`portuguese-verb-api` — "Lafa" is the user-facing identity only. **In-app
-display name is still "Portuguese Verb Quiz" until Phase 11 ships the
-rebrand** — check `app.json`'s `expo.name` before assuming it says "Lafa".
+git repo directory name and backend sibling repo name stay
+`portuguese-verb-mobile` / `portuguese-verb-api` — "Lafa" is the user-facing
+identity only. **As of Phase 21 (v0.5, 2026-07-23), `app.json`'s `expo.slug`
+and `expo.scheme` were changed to `lafa`** (release-identity lock ahead of
+the first real EAS build/submit) — this is a deliberate divergence from the
+git repo/package name, not drift; `package.json`'s `name` field intentionally
+stays `portuguese-verb-mobile`. Check `app.json` directly before assuming
+which values are current.
 
 This is `apps/mobile`, the companion mobile client to the backend API in
 the sibling repo `portuguese-verb-api` (`avramaruh92/portuguese-verb-backend`).
