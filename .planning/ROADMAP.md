@@ -188,7 +188,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete | 2026-07-22 |
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
-| 21. Release Identity Lock | v0.5 | 2/2 | Complete   | 2026-07-23 |
+| 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 0/TBD | Not started | - |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |

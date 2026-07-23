@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
-status: executing
-stopped_at: Phase 21 context gathered
-last_updated: "2026-07-23T17:04:54.404Z"
+status: ready_to_plan
+stopped_at: Phase 21 complete (2/2) — ready to discuss Phase 22
+last_updated: 2026-07-23T17:42:12.248Z
 last_activity: 2026-07-23 -- Phase 21 execution started
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 4
   percent: 20
 ---
 
@@ -21,20 +21,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 21 — release-identity-lock
+**Current focus:** Phase 22 — icon & splash asset pipeline
 
 ## Current Position
 
-Phase: 21 (release-identity-lock) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 21
-Last activity: 2026-07-23 -- Phase 21 execution started
+Phase: 22
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-23
 
 ## Performance Metrics
 
 **Velocity (v0.0-v0.4, shipped):**
 
-- Total plans completed: 58 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, +4 counting Phase 10.1)
+- Total plans completed: 60 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, +4 counting Phase 10.1)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days (kickoff to ship)
 
 **v0.5 phases (planned, not yet executed):**
