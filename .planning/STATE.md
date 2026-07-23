@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: executing
-stopped_at: Phase 20 planned — decision-coverage gate overridden (D-01..D-04 cited in plan body, not must_haves/truths block; plan-checker independently confirmed full coverage)
-last_updated: "2026-07-23T09:20:17.601Z"
-last_activity: 2026-07-23 -- Phase 20 planning complete
+stopped_at: Completed 20-01-PLAN.md (dependency baseline + eas-cli pin); ready for 20-02 (throwaway EAS build)
+last_updated: "2026-07-23T09:40:19.952Z"
+last_activity: 2026-07-23
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 20 (Native Build Risk Front-Loading) — not started
-Plan: —
+Phase: 20 (Native Build Risk Front-Loading) — in progress
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-07-23 -- Phase 20 planning complete
+Last activity: 2026-07-23
 
 ## Performance Metrics
 
@@ -46,6 +46,7 @@ Last activity: 2026-07-23 -- Phase 20 planning complete
 | 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Not started |
 | 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Not started |
 | 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Not started |
+| Phase 20 P01 | 12min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,8 @@ Last activity: 2026-07-23 -- Phase 20 planning complete
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.4 decisions all show final outcomes). No new v0.5 decisions logged yet — this is a release-engineering milestone with scope locked from the source codex plan.
+
+- [Phase 20]: Pin eas-cli as devDependency + npm run eas script (D-04) despite triggering 2 new expo-doctor advisory checks — Deliberate tradeoff to bypass stale global eas-cli@20.0.0 shadowing bare npx on this dev machine (RESEARCH.md Pitfall 1); BUILD-01's expo-doctor 0-failures criterion was independently satisfied before eas-cli was added
 
 ### Pending Todos
 
@@ -94,9 +97,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-23T09:20:08.731Z
-Stopped at: Phase 20 planned — decision-coverage gate overridden (D-01..D-04 cited in plan body, not must_haves/truths block; plan-checker independently confirmed full coverage)
-Resume file: .planning/phases/20-native-build-risk-front-loading/20-01-PLAN.md
+Last session: 2026-07-23T09:40:19.945Z
+Stopped at: Completed 20-01-PLAN.md (dependency baseline + eas-cli pin); ready for 20-02 (throwaway EAS build)
+Resume file: .planning/phases/20-native-build-risk-front-loading/20-02-PLAN.md
 
 ## Operator Next Steps
 

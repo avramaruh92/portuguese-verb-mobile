@@ -114,7 +114,7 @@ Full phase details, plan breakdowns, and success criteria archived in
   2. `npx expo install --check` reports no version mismatches (or all flagged mismatches are explicitly resolved)
   3. A throwaway `eas build --platform ios --profile production --clear-cache` completes with a successful build status in the EAS dashboard
 **Plans**: 2 plans
-- [ ] 20-01-PLAN.md — Dependency baseline: fix SDK version drift (BUILD-01), pin eas-cli devDependency + eas npm script
+- [x] 20-01-PLAN.md — Dependency baseline: fix SDK version drift (BUILD-01), pin eas-cli devDependency + eas npm script
 - [ ] 20-02-PLAN.md — Native build bootstrap: set final bundleIdentifier, `eas build:configure`, throwaway iOS build (BUILD-02)
 
 ### Phase 21: Release Identity Lock
@@ -185,7 +185,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 17. Contract Fixture Verification | v0.4 | 1/1 | Complete | 2026-07-21 |
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete | 2026-07-22 |
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
-| 20. Native Build Risk Front-Loading | v0.5 | 0/TBD | Not started | - |
+| 20. Native Build Risk Front-Loading | v0.5 | 1/2 | In Progress|  |
 | 21. Release Identity Lock | v0.5 | 0/TBD | Not started | - |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 0/TBD | Not started | - |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
