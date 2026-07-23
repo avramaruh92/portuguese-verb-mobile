@@ -14,10 +14,10 @@ Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadm
 
 ### Release Identity
 
-- [ ] **IDENT-01**: `app.json` sets `ios.bundleIdentifier` to `com.avram.aruh.lafa`
-- [ ] **IDENT-02**: `app.json` `slug` and `scheme` updated to `lafa`
-- [ ] **IDENT-03**: `app.json` sets `ios.buildNumber` to `1`; `version` confirmed unchanged at `1.0.0`
-- [ ] **IDENT-04**: `extra.eas.projectId` checked for a pre-existing value under the old slug and reconciled before the first real (non-throwaway) build
+- [x] **IDENT-01**: `app.json` sets `ios.bundleIdentifier` to `com.avram.aruh.lafa`
+- [x] **IDENT-02**: `app.json` `slug` and `scheme` updated to `lafa`
+- [x] **IDENT-03**: `app.json` sets `ios.buildNumber` to `1`; `version` confirmed unchanged at `1.0.0`
+- [x] **IDENT-04**: `extra.eas.projectId` checked for a pre-existing value under the old slug and reconciled before the first real (non-throwaway) build
 
 ### Icon & Splash Assets
 
@@ -76,10 +76,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | BUILD-01 | Phase 20 | Complete |
 | BUILD-02 | Phase 20 | Complete |
-| IDENT-01 | Phase 21 | Pending |
-| IDENT-02 | Phase 21 | Pending |
-| IDENT-03 | Phase 21 | Pending |
-| IDENT-04 | Phase 21 | Pending |
+| IDENT-01 | Phase 21 | Complete |
+| IDENT-02 | Phase 21 | Complete |
+| IDENT-03 | Phase 21 | Complete |
+| IDENT-04 | Phase 21 | Complete |
 | ICON-01 | Phase 22 | Pending |
 | ICON-02 | Phase 22 | Pending |
 | ICON-03 | Phase 22 | Pending |
