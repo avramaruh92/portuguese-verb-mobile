@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 import { Resvg } from "@resvg/resvg-js";
+import sharp from "sharp";
 
 const SOURCE_SVG_PATH = "assets/brand/lafa-logo-v2.svg";
 const ICON_OUTPUT_PATH = "assets/images/icon.png";
@@ -14,6 +15,22 @@ const ICON_GROUP_OPEN_TAG = '<g id="icon">';
 const ICON_GROUP_CLOSE_TAG = "</g>";
 const GREEN_ACCENT_DOT = '<circle cx="667" cy="522" r="18" fill="#2FA84F"/>';
 const BACKGROUND_RECT = '<rect x="192" y="92" width="640" height="640" rx="176" fill="#FCE4DA"/>';
+// The swoop stroke path has no explicit `fill`, so SVG's default fill (solid black) renders
+// a filled crescent under the stroke instead of the open smile line the source design intends
+// (confirmed against assets/brand/lafa-logo-v2-concept.png). Source stays byte-for-byte
+// unmodified (ICON-04) — this patches only the in-memory copy used for rasterization.
+const SWOOP_PATH_UNCLOSED_TAIL = 'stroke-width="30"\n      stroke-linecap="round"/>';
+const SWOOP_PATH_FILL_NONE_TAIL = 'stroke-width="30"\n      stroke-linecap="round"\n      fill="none"/>';
+
+function normalizeSwoopFill(iconGroup: string): string {
+  if (!iconGroup.includes(SWOOP_PATH_UNCLOSED_TAIL)) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} icon group is missing the expected swoop stroke path — source may have changed shape`,
+    );
+  }
+
+  return iconGroup.replace(SWOOP_PATH_UNCLOSED_TAIL, SWOOP_PATH_FILL_NONE_TAIL);
+}
 
 function extractIconGroup(svg: string): string {
   const groupStart = svg.indexOf(ICON_GROUP_OPEN_TAG);
@@ -62,7 +79,7 @@ function buildSplashDoc(iconGroup: string): string {
   return wrapInSvgRoot(monochrome);
 }
 
-function generateIcon(iconGroup: string): void {
+async function generateIcon(iconGroup: string): Promise<void> {
   const iconDoc = buildIconDoc(iconGroup);
   const render = new Resvg(iconDoc, {
     fitTo: { mode: "width", value: ICON_SIZE_PX },
@@ -75,7 +92,13 @@ function generateIcon(iconGroup: string): void {
     );
   }
 
-  writeFileSync(ICON_OUTPUT_PATH, render.asPng());
+  // resvg's `background` option flattens the pixel data to opaque, but @resvg/resvg-js
+  // always encodes PNGs with an RGBA color type — sips still reports hasAlpha: yes even
+  // though every pixel is fully opaque. Route through sharp's removeAlpha() to re-encode
+  // as a true alpha-free (RGB) PNG, matching ICON-01's "no alpha channel" requirement.
+  const alphaFreePng = await sharp(render.asPng()).removeAlpha().png().toBuffer();
+
+  writeFileSync(ICON_OUTPUT_PATH, alphaFreePng);
 }
 
 function generateSplash(iconGroup: string): void {
@@ -88,11 +111,11 @@ function generateSplash(iconGroup: string): void {
   writeFileSync(SPLASH_OUTPUT_PATH, render.asPng());
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const sourceSvg = readFileSync(SOURCE_SVG_PATH, "utf-8");
-  const iconGroup = extractIconGroup(sourceSvg);
+  const iconGroup = normalizeSwoopFill(extractIconGroup(sourceSvg));
 
-  generateIcon(iconGroup);
+  await generateIcon(iconGroup);
   generateSplash(iconGroup);
 }
 
