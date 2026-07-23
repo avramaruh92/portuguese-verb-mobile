@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
-status: ready_to_plan
-stopped_at: Phase 21 complete (2/2) — ready to discuss Phase 22
-last_updated: 2026-07-23T17:42:12.248Z
-last_activity: 2026-07-23 -- Phase 21 execution started
+status: planning
+stopped_at: Phase 22 context gathered
+last_updated: "2026-07-23T17:58:03.914Z"
+last_activity: 2026-07-23
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
   completed_plans: 4
-  percent: 20
+  percent: 40
 ---
 
 # Project State
@@ -98,9 +98,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-23T12:40:26.323Z
-Stopped at: Phase 21 context gathered
-Resume file: .planning/phases/21-release-identity-lock/21-CONTEXT.md
+Last session: 2026-07-23T17:58:03.901Z
+Stopped at: Phase 22 context gathered
+Resume file: .planning/phases/22-icon-splash-asset-pipeline/22-CONTEXT.md
 
 ## Operator Next Steps
 
