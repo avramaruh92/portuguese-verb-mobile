@@ -126,7 +126,9 @@ Full phase details, plan breakdowns, and success criteria archived in
   2. `app.json` `slug` and `scheme` both read `lafa`
   3. `app.json` `ios.buildNumber` is `1` and `version` is confirmed unchanged at `1.0.0`
   4. `extra.eas.projectId` has been checked for a pre-existing value under the old slug and reconciled (no stale/duplicate project id remains)
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 21-01-PLAN.md — Edit app.json identity fields (slug/scheme->lafa, ios.buildNumber=1) and read-only EAS project verification
+- [ ] 21-02-PLAN.md — Operator dashboard-rename checkpoint for EAS project slug (IDENT-04 closing evidence)
 
 ### Phase 22: Icon & Splash Asset Pipeline
 **Goal**: A Lafa-branded, App-Store-compliant app icon is baked into the binary via both of this project's configured icon paths, with splash assets reconciled and original brand source files untouched.
@@ -186,7 +188,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 18. Explanation Compatibility Upgrade | v0.4 | 1/1 | Complete | 2026-07-22 |
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
-| 21. Release Identity Lock | v0.5 | 0/TBD | Not started | - |
+| 21. Release Identity Lock | v0.5 | 0/2 | Not started | - |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 0/TBD | Not started | - |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
