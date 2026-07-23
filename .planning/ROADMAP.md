@@ -152,7 +152,8 @@ Full phase details, plan breakdowns, and success criteria archived in
   1. `eas.json` has a `build.production` profile using EAS-managed iOS credentials, with `cli.appVersionSource: "remote"` and `build.production.autoIncrement: true`
   2. `eas.json` has a `submit.production.ios` profile with an `ascAppId` placeholder ready to fill in once the App Store Connect app record exists
   3. `app.json` sets `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 23-01-PLAN.md — Add submit.production.ios.ascAppId placeholder to eas.json (EASCFG-02); confirm EASCFG-01 fields + app.json export-compliance flag (EASCFG-03)
 
 ### Phase 24: Quality Gates, Preflight & First Submit
 **Goal**: A signed, submitted iOS build reaches App Store Connect and internal TestFlight testers, gated by clean lint and a live-backend preflight that explicitly includes a cold-instance check.
@@ -193,7 +194,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
 | 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete   | 2026-07-23 |
-| 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
+| 23. EAS Build/Submit Configuration | v0.5 | 0/1 | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
 
 ---
