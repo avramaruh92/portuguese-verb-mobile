@@ -1,0 +1,36 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Lafa logo v2</title>
+  <desc id="desc">A single rounded lowercase a mark with the lafa wordmark.</desc>
+
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+
+  <g id="icon">
+    <rect x="192" y="92" width="640" height="640" rx="176" fill="#FCE4DA"/>
+
+    <path
+      d="M524 214C401.8 214 302 311.6 302 432.5C302 555.6 398.3 650 520.6 650C583.4 650 636.7 627.8 674.8 589.1V600C674.8 634.2 702.6 662 736.8 662C771.6 662 799 634.2 799 600V436.6C799 312.9 649.5 214 524 214Z"
+      fill="#E8663D"/>
+
+    <path
+      d="M531 337C592.4 337 642 385.2 642 445.5C642 506.5 592.4 555 531 555C469.6 555 420 506.5 420 445.5C420 385.2 469.6 337 531 337Z"
+      fill="#FFFFFF"/>
+
+    <path
+      d="M474 466C509.4 506 578.6 506 614 466"
+      stroke="#E8663D"
+      stroke-width="30"
+      stroke-linecap="round"/>
+
+    <circle cx="667" cy="522" r="18" fill="#2FA84F"/>
+  </g>
+
+  <text
+    x="512"
+    y="895"
+    text-anchor="middle"
+    font-family="Avenir Next, Nunito, Arial Rounded MT Bold, Arial, sans-serif"
+    font-size="164"
+    font-weight="800"
+    letter-spacing="2"
+    fill="#1C1B1A">lafa</text>
+</svg>
