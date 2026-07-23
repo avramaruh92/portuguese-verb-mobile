@@ -258,17 +258,19 @@ This command completed instantly with no interactive prompt in this repo's non-T
 
 **If this table is empty:** N/A — see above, two items logged.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the expo.dev dashboard actually expose a "rename project" action that changes the registered slug while keeping the same `projectId`?**
    - What we know: EAS CLI itself has no such mutation (verified — no `updateApp`/`renameApp` GraphQL call in `eas-cli`'s project-handling source). Expo's own `app.json` field docs describe `currentFullName` as legitimately changing "when a project is transferred between accounts or renamed," implying project renaming is a first-class, expected lifecycle event on the platform.
    - What's unclear: Where/how this rename is triggered (web dashboard project settings is the most likely candidate, by elimination, since the CLI has no equivalent) — not directly observed via docs or screenshots in this session.
    - Recommendation: The plan should include a `checkpoint:human-verify` task for the operator to check the expo.dev dashboard's project settings for a rename/slug-change option immediately after this phase's `app.json` edit lands, and log the outcome (renamed successfully / no such option found) as this phase's IDENT-04 closing evidence — rather than assuming either outcome. If no rename option exists, surface the resulting fullName/slug mismatch explicitly to Phase 24 planning as a known pre-existing condition (not a regression introduced by that phase).
+   - **RESOLVED:** handled via 21-02's `checkpoint:human-verify` task — the operator checks the dashboard and logs the outcome (renamed / no such option) as IDENT-04's closing evidence.
 
 2. **Will Phase 24's first real `eas build --profile production` actually throw on the slug/fullName mismatch, or does EAS's build submission path tolerate it differently than `eas project:info`/local CLI validation suggests?**
    - What we know: `getProjectIdAsync`'s slug-consistency throw is in the shared context-resolution code used by build-adjacent commands (confirmed via source), and Phase 20 already saw this general class of "local CLI environment surprises production behavior" risk (the npm 10 vs. 11 lockfile issue).
    - What's unclear: Whether this specific check fires identically for `eas build` (submitted from a possibly-different EAS-side execution context) as it does for locally-run CLI commands — not empirically tested this session per D-03 (no build in this phase).
    - Recommendation: Phase 24's research/planning should re-verify this specific risk with a cheap, safe command (e.g., another `eas project:info` right before the real build, plus checking whether question 1's dashboard rename actually happened) rather than assuming Phase 21's finding is stale by the time Phase 24 executes.
+   - **RESOLVED:** deferred to Phase 24 per D-03 (config-only scope here) — Phase 24 research/planning must re-verify this risk with a fresh `eas project:info` check before its first real build.
 
 ## Environment Availability
 
