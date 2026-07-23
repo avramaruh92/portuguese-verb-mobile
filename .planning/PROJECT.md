@@ -432,4 +432,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-22 after v0.4 milestone*
+*Last updated: 2026-07-23 after Phase 21 (Release Identity Lock)*
