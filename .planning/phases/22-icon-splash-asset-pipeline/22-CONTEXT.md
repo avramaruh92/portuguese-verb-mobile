@@ -72,6 +72,16 @@ the original brand source files.
   after this phase completes (do not uninstall/delete after use) — it's
   reusable if the brand mark changes again in a future rebrand.
 
+### Verification approach (from research, resolved post-research)
+- **D-10:** `assets/brand/lafa-logo-v2.svg` and `lafa-logo-v2-concept.png`
+  are currently untracked by git. Commit them as a first step in this
+  phase (before the icon-generation script runs), so ICON-04's
+  "byte-for-byte unmodified" requirement can be verified with a plain
+  `git diff`/`git status` check rather than a manual `shasum` baseline.
+- **D-11:** The splash mark drops the green accent-dot circle entirely —
+  the splash variant is just the "a" glyph shape (loop + swoop stroke)
+  recolored to white, not every path from the `icon` group.
+
 </decisions>
 
 <canonical_refs>
