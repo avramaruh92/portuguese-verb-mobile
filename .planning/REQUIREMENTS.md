@@ -10,7 +10,7 @@ Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadm
 ### Native Build Verification
 
 - [x] **BUILD-01**: `npx expo-doctor` and `npx expo install --check` run clean before any release-config polish work begins
-- [ ] **BUILD-02**: A throwaway `eas build --platform ios --profile production --clear-cache` succeeds, proving the native dependency graph builds on EAS's cloud infrastructure (this is the app's first-ever real native build)
+- [x] **BUILD-02**: A throwaway `eas build --platform ios --profile production --clear-cache` succeeds, proving the native dependency graph builds on EAS's cloud infrastructure (this is the app's first-ever real native build)
 
 ### Release Identity
 
@@ -75,7 +75,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BUILD-01 | Phase 20 | Complete |
-| BUILD-02 | Phase 20 | Pending |
+| BUILD-02 | Phase 20 | Complete |
 | IDENT-01 | Phase 21 | Pending |
 | IDENT-02 | Phase 21 | Pending |
 | IDENT-03 | Phase 21 | Pending |

@@ -4,14 +4,14 @@ milestone: v0.5
 milestone_name: iOS TestFlight Readiness
 status: executing
 stopped_at: Completed 20-01-PLAN.md (dependency baseline + eas-cli pin); ready for 20-02 (throwaway EAS build)
-last_updated: "2026-07-23T09:40:19.952Z"
-last_activity: 2026-07-23
+last_updated: "2026-07-23T12:35:55.389Z"
+last_activity: 2026-07-23 -- Phase 20 execution started
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 20
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** v0.5 iOS TestFlight Readiness — roadmap created, ready for `/gsd:plan-phase 20`
+**Current focus:** Phase 20 — native-build-risk-front-loading
 
 ## Current Position
 
-Phase: 20 (Native Build Risk Front-Loading) — in progress
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-07-23
+Phase: 20 (native-build-risk-front-loading) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 20
+Last activity: 2026-07-23 -- Phase 20 execution started
 
 ## Performance Metrics
 
