@@ -99,7 +99,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 - [x] **Phase 20: Native Build Risk Front-Loading** - Prove the app's native dependency graph builds on EAS's cloud infrastructure before any release-config polish (completed 2026-07-23)
 - [x] **Phase 21: Release Identity Lock** - Lock bundle identifier, slug/scheme, version/build number, and EAS project id in `app.json` (completed 2026-07-23)
-- [ ] **Phase 22: Icon & Splash Asset Pipeline** - Bake the Lafa mark into both iOS icon paths and reconcile splash assets
+- [x] **Phase 22: Icon & Splash Asset Pipeline** - Bake the Lafa mark into both iOS icon paths and reconcile splash assets (completed 2026-07-23)
 - [ ] **Phase 23: EAS Build/Submit Configuration** - Author `eas.json` build/submit profiles and set export-compliance config
 - [ ] **Phase 24: Quality Gates, Preflight & First Submit** - Fix lint, verify the live backend (warm + cold), and run the first real build+submit+tester-invite cycle
 
@@ -142,7 +142,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 **Plans**: 3 plans
 - [x] 22-01-PLAN.md — Asset-generation pipeline: generate 1024x1024 alpha-free icon.png + white splash silhouette from the SVG (ICON-01, ICON-03, ICON-04)
 - [x] 22-02-PLAN.md — Remove Icon Composer bundle + app.json ios.icon key so the flat PNG is sole iOS icon source (ICON-02)
-- [ ] 22-03-PLAN.md — Visual QA checkpoint: confirm icon + splash render correctly in a build (ICON-01, ICON-03)
+- [x] 22-03-PLAN.md — Visual QA checkpoint: confirm icon + splash render correctly in a build (ICON-01, ICON-03)
 
 ### Phase 23: EAS Build/Submit Configuration
 **Goal**: `eas.json` declares reproducible, EAS-managed-credential build and submit profiles, and export-compliance is set proactively, so the first real build/submit cycle in Phase 24 has nothing left to configure.
@@ -192,7 +192,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
 | 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
-| 22. Icon & Splash Asset Pipeline | v0.5 | 2/3 | In Progress|  |
+| 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete   | 2026-07-23 |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
 
