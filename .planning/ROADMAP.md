@@ -139,7 +139,10 @@ Full phase details, plan breakdowns, and success criteria archived in
   2. The `assets/expo.icon/` Icon Composer bundle and its `app.json` `ios.icon` key no longer exist — the flat `expo.icon` PNG is the sole source of the iOS app icon
   3. `splash-icon.png` shows a Lafa-branded mark if visual QA required a change, or is confirmed intentionally unchanged (existing blue background preserved) otherwise
   4. `assets/brand/lafa-logo-v2.svg` and related original brand source files remain byte-for-byte unmodified by the icon-generation pipeline
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 22-01-PLAN.md — Asset-generation pipeline: generate 1024x1024 alpha-free icon.png + white splash silhouette from the SVG (ICON-01, ICON-03, ICON-04)
+- [ ] 22-02-PLAN.md — Remove Icon Composer bundle + app.json ios.icon key so the flat PNG is sole iOS icon source (ICON-02)
+- [ ] 22-03-PLAN.md — Visual QA checkpoint: confirm icon + splash render correctly in a build (ICON-01, ICON-03)
 
 ### Phase 23: EAS Build/Submit Configuration
 **Goal**: `eas.json` declares reproducible, EAS-managed-credential build and submit profiles, and export-compliance is set proactively, so the first real build/submit cycle in Phase 24 has nothing left to configure.
@@ -189,7 +192,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 19. General Product Feedback | v0.4 | 5/5 | Complete | 2026-07-22 |
 | 20. Native Build Risk Front-Loading | v0.5 | 2/2 | Complete   | 2026-07-23 |
 | 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
-| 22. Icon & Splash Asset Pipeline | v0.5 | 0/TBD | Not started | - |
+| 22. Icon & Splash Asset Pipeline | v0.5 | 0/3 | Not started | - |
 | 23. EAS Build/Submit Configuration | v0.5 | 0/TBD | Not started | - |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
 
