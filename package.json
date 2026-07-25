@@ -49,7 +49,8 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "eas": "eas",
-    "generate-assets": "node scripts/generate-brand-assets.ts"
+    "generate-assets": "node scripts/generate-brand-assets.ts",
+    "preflight": "node scripts/preflight.ts"
   },
   "private": true,
   "jest": {
