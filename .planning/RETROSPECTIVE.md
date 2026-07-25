@@ -204,6 +204,49 @@
 
 ---
 
+## Milestone: v0.5 — iOS TestFlight Readiness
+
+**Shipped:** 2026-07-25
+**Phases:** 5 (20, 21, 22, 23, 24) | **Plans:** 11 | **Sessions:** ~3 (execute-phase 24 spanning multiple operator checkpoints → audit-milestone → complete-milestone, following a prior planning session)
+
+### What Was Built
+- Native dependency graph proven to build on EAS's cloud infrastructure — the app's first-ever real native build — surfacing and fixing a real npm-version lockfile mismatch (Node 25/npm 11 local vs. Node 22/npm 10 EAS build image) along the way
+- Release identity locked (`bundleIdentifier`, `slug`/`scheme`, `buildNumber`) before any real build, deliberately accepting a known EAS project slug/local-slug mismatch (IDENT-04) as carried-forward, documented risk rather than blocking Phase 21 on it
+- Lafa-branded 1024x1024 alpha-free app icon and splash mark generated via a reproducible `@resvg/resvg-js`+`sharp` pipeline (`scripts/generate-brand-assets.ts`), with two real rendering bugs found and fixed mid-phase (solid-crescent swoop fill, false-alpha PNG encoding)
+- `eas.json` build/submit profiles declared, export-compliance set proactively
+- Both known `react-hooks/set-state-in-effect` lint errors fixed via a render-time reset pattern — deviated from the plan's literal `useRef` to `useState` mid-execution because this project's React Compiler (`experiments.reactCompiler: true`) forbids ref reads/writes during render
+- A reusable, checked-in live-backend preflight script (`scripts/preflight.ts`) verified all 4 mobile-facing endpoints both warm and genuinely cold (>15 min idle)
+- The first real signed production iOS build — surviving two genuine blocking bugs discovered live during the human checkpoint (the IDENT-04 slug mismatch, and the npm-version lockfile drift recurring a second time) — submitted via an App Store Connect API Key (the current `eas-cli` version has no interactive Apple ID/password submit path at all, a version-driven surprise) and confirmed installed/launched by an internal TestFlight tester
+
+### What Worked
+- **Executing an entirely human-checkpoint phase (24-03) conversationally, one task at a time, worked well for a release-engineering milestone** — no subagent was appropriate for waiting on a >15min cold-instance window or interactive Apple ID/API-key auth, so the orchestrator walked the operator through each of the 3 tasks directly, catching and fixing 2 real blocking bugs live rather than deferring them to a "known issue."
+- **Presenting a two-option AskUserQuestion at each blocking discovery** (revert slug vs. new EAS project; regenerate lockfile; skip vs. proceed with external testers; backfill vs. accept tech debt) kept the operator in control of every consequential, hard-to-reverse decision without slowing down the actual fix — the same pattern used successfully for architecture-adjacent gray-area calls in prior milestones, now proven for release-ops decisions too.
+- **A phase's own prior carried-forward finding (IDENT-04, flagged by Phase 21, closed with "no dashboard fix exists" evidence) predicted the exact failure Phase 24 hit** — when the blocker actually occurred, the fix was already partially scoped by that earlier investigation, cutting diagnosis time to near zero.
+- **Retroactively backfilling two phases' VERIFICATION.md files during milestone audit, using evidence already gathered in that same audit session, closed a `gaps_found` audit status to `passed` in the same session** rather than deferring to a separate gap-closure phase — appropriate because the underlying evidence (live re-checks, `git log` cross-referencing) was already collected, not fabricated after the fact.
+
+### What Was Inefficient
+- **Phase 20 and Phase 22 never had a `gsd-verifier` pass run against them** — a genuine process gap, not caught until milestone audit. Both phases' actual requirements were solid (confirmed independently), but the audit had to spend real effort re-deriving evidence that a contemporaneous verification pass would have produced for free at phase-close time.
+- **The npm-version lockfile mismatch (Node 25/npm 11 local vs. Node 22/npm 10 EAS build image) recurred identically in Phase 24 despite being found, fixed, and explicitly flagged as a recurrence risk in Phase 20** ("recommend adding a durable Node-version pin... so this class of drift can't silently recur") — the recommendation was written down but never acted on, and the exact same bug cost another full diagnosis-and-fix cycle 2 phases later.
+- **`eas submit`'s actual auth flow (App Store Connect API Key only, no interactive Apple ID path) diverged from what the phase plan assumed (interactive Apple ID login)** — a version-drift surprise discovered live at the worst possible time (mid-submission), not during planning/research.
+
+### Patterns Established
+- **Human-checkpoint-only phases (all tasks `checkpoint:human-verify`, `autonomous: false`) are best executed conversationally by the orchestrator itself, not delegated to a subagent** — the orchestrator has the full context needed to interpret unexpected operator-reported output (build errors, CLI auth prompts) and route to a fix inline, whereas a subagent would need to re-derive that context or halt.
+- **When a live tool's behavior diverges from what the plan assumed (a missing auth method, a changed CLI flow), treat it as a version-drift finding to resolve in the moment, not a plan defect to blame** — same disposition already established for build-error handling in v0.5's Phase 20 CONTEXT.md, now confirmed at the milestone-audit level too.
+- **Retroactive VERIFICATION.md backfill is a legitimate closure path for a `gaps_found` audit** when the underlying evidence is independently re-derivable from live repo state (not just trusting old SUMMARY claims) — mark it `retroactive: true` in frontmatter for honest traceability rather than backdating it to look contemporaneous.
+
+### Key Lessons
+1. A tooling-version mismatch found and fixed once (Phase 20's lockfile drift) will recur if the fix isn't made durable (a pinned `.nvmrc`/CI Node-version guard) — "we already diagnosed this" is not the same as "this can't happen again." Carried forward explicitly into v0.5's PROJECT.md Out of Scope as a strong candidate for the next milestone, not left as a passive footnote.
+2. Every phase should get a `gsd-verifier` pass at phase-close time, even release-engineering phases with no application code — skipping it (Phase 20, 22) doesn't remove the need for verification, it just moves the cost to milestone-audit time and creates a `gaps_found` status that requires explicit user sign-off to resolve.
+3. When a plan assumes a specific external tool's auth/UX flow (interactive Apple ID login, a specific CLI prompt sequence), that assumption is a research artifact with a shelf life — CLI tools change between planning and execution, and the plan's own literal steps should be treated as a starting hypothesis to verify live, not a guaranteed script.
+4. Carrying forward a known-but-unresolved finding (IDENT-04) with a clear "handed to Phase X with two concrete resolution options" disposition, rather than either force-resolving it prematurely or silently ignoring it, paid off directly — when the blocker actually materialized, the fix was already half-scoped.
+
+### Cost Observations
+- Model mix: sonnet for all execution/verification/integration-checking this milestone (2 parallel worktree-isolated executors for Wave 1, conversational human-checkpoint execution for Wave 2/Phase 24-03).
+- Sessions: ~3 (execute-phase 24 spanning the operator's real-world >15min idle wait and interactive EAS auth, then a separate audit-milestone session, then complete-milestone), following an earlier planning session for phases 20-24.
+- Notable: this was the first milestone with zero new application/product code — 100% of the diff was release config, two lint-pattern fixes, and two new standalone scripts. Despite that, it required the most real-world/external-system interaction of any milestone so far (EAS cloud builds, Apple ID/API-key auth, App Store Connect UI, TestFlight installs) — a different risk profile than prior product milestones, dominated by tooling/environment drift rather than application logic bugs.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -215,6 +258,7 @@
 | v0.2 | ~3 | 2 | First milestone to deliberately skip research/VALIDATION.md/UI-SPEC.md on well-scoped phases, and first to resolve an open `human_needed` verification item at milestone-audit time rather than mid-phase |
 | v0.3 | ~1 | 4 | Fastest milestone yet (~1 day); first to have executor agents self-heal a worktree-vs-main dependency gap independently, and first where a human-verify "not seeing it" report was correctly diagnosed as an external (backend deploy) then internal (unmerged worktree) issue rather than the plan's own code |
 | v0.4 | ~2 | 3 | First milestone where a phase's own pre-registered threat model (STRIDE register) directly named the exact human-verify failure mode that occurred, cutting a cross-repo-blocker diagnosis to a single `curl` call; requirements-doc-sync staleness recurred for the 4th consecutive milestone |
+| v0.5 | ~3 | 5 | First pure release-engineering milestone (zero new product code); first to have an entire phase (24-03) run conversationally as human-only checkpoints rather than any subagent dispatch; first to retroactively backfill VERIFICATION.md files during milestone audit to close a `gaps_found` status; a tooling-version bug (npm lockfile drift) recurred despite being explicitly flagged as a recurrence risk when first fixed |
 
 ### Cumulative Quality
 
@@ -225,6 +269,7 @@
 | v0.2 | 155 | Not measured via coverage tool this milestone | 1 (eslint/eslint-config-expo — resolves carried-over v0.0 tech debt, auto-scaffolded during milestone audit, confirmed with user before committing) |
 | v0.3 | 192 | Not measured via coverage tool this milestone | 0 (new `src/learning/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 | v0.4 | 251 | Not measured via coverage tool this milestone | 0 (new `src/productFeedback/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
+| v0.5 | 251 | Not measured via coverage tool this milestone | 2 devDependencies (`@resvg/resvg-js`, `sharp` for the icon pipeline) + `eas-cli` pinned as a devDependency (deliberate tradeoff, D-04) — zero application-code dependency changes, release-engineering only |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -239,3 +284,5 @@
 9. Requirements-doc sync (checkboxes + traceability table) drifts stale incrementally across phases, not just at milestone end — now confirmed in 4 of 5 milestones (v0.1, v0.3, v0.4, and smaller instances elsewhere). This is a structural gap in the phase-close step itself, not an occasional slip — worth an explicit fix at the phase-completion tracking-update step, not left to audit/milestone-close time.
 10. `VALIDATION.md` task-status staleness (rows never flipped from "pending" post-execution) is a related but distinct recurring gap, now seen across 4 phases (15 in v0.3; 17, 18, 19 in v0.4) — likely missing from the executor's own close-out checklist.
 11. Independent re-verification of a user-reported cross-repo fix (e.g., re-`curl`ing a live endpoint during phase/milestone audit rather than trusting "it works now") is cheap insurance worth doing every time, even when it only corroborates rather than catches something new.
+12. A tooling/environment bug fixed once but not made durable (e.g., a lockfile-vs-build-image npm version mismatch fixed manually without a pinned `.nvmrc`/CI guard) will recur — writing "recommend adding X for a future phase" in a SUMMARY is not the same as it actually happening; track it as an explicit Out of Scope/backlog item with an owner, not a passive footnote (confirmed in v0.5, where the exact same lockfile bug cost two separate diagnosis-and-fix cycles).
+13. Skipping a phase's formal `gsd-verifier` pass at close time (even for release-engineering phases with no application code) doesn't remove the need for verification — it just relocates the cost to milestone-audit time, where a `gaps_found` status requires explicit user sign-off to resolve even when the underlying work is solid (confirmed in v0.5, Phases 20/22).
