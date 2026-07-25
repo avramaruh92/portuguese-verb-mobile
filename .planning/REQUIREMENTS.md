@@ -21,10 +21,10 @@ Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadm
 
 ### Icon & Splash Assets
 
-- [ ] **ICON-01**: 1024x1024, alpha-free app icon generated from `assets/brand/lafa-logo-v2.svg` (orange mark only, not the full wordmark), replacing `assets/images/icon.png`
-- [ ] **ICON-02**: `ios.icon` Icon Composer bundle (`assets/expo.icon/`) and its `app.json` key removed, so the flat `expo.icon` PNG governs the iOS app icon
-- [ ] **ICON-03**: `splash-icon.png` updated to a Lafa-branded mark if visual QA requires it, existing blue splash background preserved otherwise
-- [ ] **ICON-04**: Original brand source files in `assets/brand` preserved unmodified (not overwritten by the icon-generation pipeline)
+- [x] **ICON-01**: 1024x1024, alpha-free app icon generated from `assets/brand/lafa-logo-v2.svg` (orange mark only, not the full wordmark), replacing `assets/images/icon.png`
+- [x] **ICON-02**: `ios.icon` Icon Composer bundle (`assets/expo.icon/`) and its `app.json` key removed, so the flat `expo.icon` PNG governs the iOS app icon
+- [x] **ICON-03**: `splash-icon.png` updated to a Lafa-branded mark if visual QA requires it, existing blue splash background preserved otherwise
+- [x] **ICON-04**: Original brand source files in `assets/brand` preserved unmodified (not overwritten by the icon-generation pipeline)
 
 ### EAS Build/Submit Configuration
 
@@ -80,10 +80,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IDENT-02 | Phase 21 | Complete |
 | IDENT-03 | Phase 21 | Complete |
 | IDENT-04 | Phase 21 | Complete |
-| ICON-01 | Phase 22 | Pending |
-| ICON-02 | Phase 22 | Pending |
-| ICON-03 | Phase 22 | Pending |
-| ICON-04 | Phase 22 | Pending |
+| ICON-01 | Phase 22 | Complete |
+| ICON-02 | Phase 22 | Complete |
+| ICON-03 | Phase 22 | Complete |
+| ICON-04 | Phase 22 | Complete |
 | EASCFG-01 | Phase 23 | Complete |
 | EASCFG-02 | Phase 23 | Complete |
 | EASCFG-03 | Phase 23 | Complete |
