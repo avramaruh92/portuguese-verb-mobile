@@ -165,7 +165,10 @@ Full phase details, plan breakdowns, and success criteria archived in
   3. The same preflight is repeated against a deliberately cold (>15 min idle) Render instance and all 4 endpoints still succeed
   4. `eas build --profile production` followed by `eas submit --profile production` completes and produces a Processing/Ready build in App Store Connect
   5. Internal TestFlight testers (Apple Developer team members only) are added and confirm they can install the build
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 24-01-PLAN.md — Fix the two react-hooks/set-state-in-effect lint errors in both feedback modals (SHIP-01)
+- [ ] 24-02-PLAN.md — Build scripts/preflight.ts + npm run preflight; confirm warm-backend all-pass (SHIP-02)
+- [ ] 24-03-PLAN.md — Operator checkpoints: cold preflight, real eas build/submit, TestFlight testers (SHIP-03, SHIP-04, SHIP-05)
 
 ## Progress
 
