@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
-status: executing
+status: completed
 stopped_at: Phase 24 context gathered
-last_updated: "2026-07-25T13:31:16.481Z"
-last_activity: 2026-07-25 -- Phase 24 execution started
+last_updated: "2026-07-25T18:32:52.504Z"
+last_activity: 2026-07-25 -- Phase 24 marked complete
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 24 (quality-gates-preflight-first-submit) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 24
-Last activity: 2026-07-25 -- Phase 24 execution started
+Phase: 24 — COMPLETE
+Plan: 3 of 3
+Status: v0.5 milestone complete — all 5 phases (20-24) done
+Last activity: 2026-07-25 -- Phase 24 marked complete
 
 ## Performance Metrics
 
@@ -45,7 +45,7 @@ Last activity: 2026-07-25 -- Phase 24 execution started
 | 21. Release Identity Lock | IDENT-01, IDENT-02, IDENT-03, IDENT-04 | Complete |
 | 22. Icon & Splash Asset Pipeline | ICON-01, ICON-02, ICON-03, ICON-04 | Complete |
 | 23. EAS Build/Submit Configuration | EASCFG-01, EASCFG-02, EASCFG-03 | Complete |
-| 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Not started |
+| 24. Quality Gates, Preflight & First Submit | SHIP-01, SHIP-02, SHIP-03, SHIP-04, SHIP-05 | Complete |
 | Phase 20 P01 | 12min | 2 tasks | 2 files |
 | Phase 20 P02 | ~50min | 3 tasks | 3 files |
 
@@ -67,7 +67,7 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.4 decisions all 
 
 ### Pending Todos
 
-- Begin `/gsd:plan-phase 24` (Quality Gates, Preflight & First Submit) — last v0.5 phase.
+None open. v0.5 milestone complete — consider `/gsd:complete-milestone` to archive and prepare for the next version.
 
 ### Blockers/Concerns
 
@@ -100,10 +100,10 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-07-24T16:15:24.415Z
-Stopped at: Phase 24 context gathered
-Resume file: .planning/phases/24-quality-gates-preflight-first-submit/24-CONTEXT.md
+Last session: 2026-07-25
+Stopped at: Phase 24 complete — v0.5 milestone terminal deliverable reached (internal TestFlight build installed and launched)
+Resume file: .planning/phases/24-quality-gates-preflight-first-submit/24-VERIFICATION.md
 
 ## Operator Next Steps
 
-- Run `/gsd:plan-phase 24` to begin Phase 24: Quality Gates, Preflight & First Submit
+- v0.5 milestone complete. Consider `/gsd:complete-milestone` to archive and start the next milestone.

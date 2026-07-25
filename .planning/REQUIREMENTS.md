@@ -34,11 +34,11 @@ Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadm
 
 ### Quality Gates, Preflight & First Submit
 
-- [ ] **SHIP-01**: `npm run lint` passes with zero errors — the two known `react-hooks/set-state-in-effect` failures in `ReportFeedbackModal.tsx` and `ProductFeedbackModal.tsx` fixed without changing user-visible feedback behavior
-- [ ] **SHIP-02**: Live-backend preflight confirms `GET /health`, `GET /content/verbs`, `POST /feedback`, and `POST /product-feedback` all succeed against the deployed Render backend
-- [ ] **SHIP-03**: Preflight explicitly includes a check against a deliberately cold (>15 min idle) Render instance, not only a warm one
-- [ ] **SHIP-04**: First real `eas build --profile production` + `eas submit --profile production` cycle completes, producing a processed TestFlight build
-- [ ] **SHIP-05**: Internal TestFlight testers (Apple Developer team members only — no external/Beta App Review scope this milestone) added and confirmed able to install the build
+- [x] **SHIP-01**: `npm run lint` passes with zero errors — the two known `react-hooks/set-state-in-effect` failures in `ReportFeedbackModal.tsx` and `ProductFeedbackModal.tsx` fixed without changing user-visible feedback behavior
+- [x] **SHIP-02**: Live-backend preflight confirms `GET /health`, `GET /content/verbs`, `POST /feedback`, and `POST /product-feedback` all succeed against the deployed Render backend
+- [x] **SHIP-03**: Preflight explicitly includes a check against a deliberately cold (>15 min idle) Render instance, not only a warm one
+- [x] **SHIP-04**: First real `eas build --profile production` + `eas submit --profile production` cycle completes, producing a processed TestFlight build
+- [x] **SHIP-05**: Internal TestFlight testers (Apple Developer team members only — no external/Beta App Review scope this milestone) added and confirmed able to install the build
 
 ## v2 Requirements
 
@@ -87,11 +87,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EASCFG-01 | Phase 23 | Complete |
 | EASCFG-02 | Phase 23 | Complete |
 | EASCFG-03 | Phase 23 | Complete |
-| SHIP-01 | Phase 24 | Pending |
-| SHIP-02 | Phase 24 | Pending |
-| SHIP-03 | Phase 24 | Pending |
-| SHIP-04 | Phase 24 | Pending |
-| SHIP-05 | Phase 24 | Pending |
+| SHIP-01 | Phase 24 | Complete |
+| SHIP-02 | Phase 24 | Complete |
+| SHIP-03 | Phase 24 | Complete |
+| SHIP-04 | Phase 24 | Complete |
+| SHIP-05 | Phase 24 | Complete |
 
 **Coverage:**
 - v0.5 requirements: 18 total
