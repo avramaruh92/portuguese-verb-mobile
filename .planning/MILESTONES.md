@@ -1,5 +1,23 @@
 # Milestones
 
+## v0.5 iOS TestFlight Readiness (Shipped: 2026-07-25)
+
+**Phases completed:** 5 phases, 11 plans, 19 tasks
+
+**Key accomplishments:**
+
+- Applied `expo install --fix`'s 7-package SDK 57 version realignment and pinned eas-cli@^21.1.0 with a local-resolving npm script, closing BUILD-01's clean-baseline requirement.
+- Set the final iOS bundle identifier, bootstrapped eas.json via the EAS CLI, diagnosed and fixed a Node/npm-version lockfile mismatch that broke the first cloud build attempt, and confirmed a production iOS build reaches FINISHED status on EAS infrastructure — closing BUILD-02.
+- Locked `app.json`'s release identity (bundle id, slug/scheme, build number) and confirmed via `eas project:info` that the existing EAS project registration still resolves, surfacing a real server-slug/local-slug mismatch (IDENT-04) rather than a research prediction gap.
+- Confirmed no EAS dashboard mechanism exists to rename a project's slug — IDENT-04 closes with the mismatch explicitly documented and handed to Phase 24, not silently accepted or hidden.
+- Node script rasterizes a 1024x1024 alpha-free app icon and a 228px transparent white splash glyph from the Lafa brand SVG using @resvg/resvg-js + sharp, with the source SVG kept byte-for-byte unmodified and committed to git as the pipeline's git-diffable baseline.
+- Deleted the `assets/expo.icon/` Icon Composer bundle and its `ios.icon` app.json reference so the flat `expo.icon` PNG (`./assets/images/icon.png`) is the sole iOS app-icon source.
+- Added an `ascAppId` placeholder to `eas.json`'s submit profile; confirmed EASCFG-01 and EASCFG-03 fields were already satisfied by Phase 20's bootstrap with no edit needed.
+- Replaced effect-based form resets in both feedback modals with render-time `useState`-tracked previous-visible comparisons, eliminating both `react-hooks/set-state-in-effect` lint errors so `npm run lint` exits 0 project-wide.
+- Ran the three operator-only release steps to their conclusion: cold-instance preflight passed, the first real production iOS build was built and submitted (surviving two blocking config bugs surfaced along the way), and an internal TestFlight tester confirmed install — completing the v0.5 milestone's terminal deliverable.
+
+---
+
 ## v0.4 Backend v0.4 Contract Sync + Product Feedback (Shipped: 2026-07-22)
 
 **Phases completed:** 3 phases, 7 plans, 4 tasks

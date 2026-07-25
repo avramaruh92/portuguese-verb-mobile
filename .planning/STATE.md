@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v0.5
 milestone_name: iOS TestFlight Readiness
-status: completed
-stopped_at: Phase 24 context gathered
-last_updated: "2026-07-25T18:32:52.504Z"
-last_activity: 2026-07-25 -- Phase 24 marked complete
+status: Awaiting next milestone
+stopped_at: Phase 24 complete — v0.5 milestone terminal deliverable reached (internal TestFlight build installed and launched)
+last_updated: "2026-07-25T20:27:36.792Z"
+last_activity: 2026-07-25 — Milestone v0.5 completed and archived
 progress:
   total_phases: 5
   completed_phases: 5
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 ## Current Position
 
-Phase: 24 — COMPLETE
-Plan: 3 of 3
-Status: v0.5 milestone complete — all 5 phases (20-24) done
-Last activity: 2026-07-25 -- Phase 24 marked complete
+Phase: Milestone v0.5 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-25 — Milestone v0.5 completed and archived
 
 ## Performance Metrics
 
@@ -106,4 +106,4 @@ Resume file: .planning/phases/24-quality-gates-preflight-first-submit/24-VERIFIC
 
 ## Operator Next Steps
 
-- v0.5 milestone complete. Consider `/gsd:complete-milestone` to archive and start the next milestone.
+- Start the next milestone with /gsd-new-milestone
