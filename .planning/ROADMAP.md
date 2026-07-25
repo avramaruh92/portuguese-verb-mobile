@@ -101,7 +101,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 - [x] **Phase 21: Release Identity Lock** - Lock bundle identifier, slug/scheme, version/build number, and EAS project id in `app.json` (completed 2026-07-23)
 - [x] **Phase 22: Icon & Splash Asset Pipeline** - Bake the Lafa mark into both iOS icon paths and reconcile splash assets (completed 2026-07-23)
 - [x] **Phase 23: EAS Build/Submit Configuration** - Author `eas.json` build/submit profiles and set export-compliance config (completed 2026-07-23)
-- [ ] **Phase 24: Quality Gates, Preflight & First Submit** - Fix lint, verify the live backend (warm + cold), and run the first real build+submit+tester-invite cycle
+- [x] **Phase 24: Quality Gates, Preflight & First Submit** - Fix lint, verify the live backend (warm + cold), and run the first real build+submit+tester-invite cycle (completed 2026-07-25)
 
 ## Phase Details
 
@@ -168,7 +168,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 **Plans**: 3 plans
 - [x] 24-01-PLAN.md — Fix the two react-hooks/set-state-in-effect lint errors in both feedback modals (SHIP-01)
 - [x] 24-02-PLAN.md — Build scripts/preflight.ts + npm run preflight; confirm warm-backend all-pass (SHIP-02)
-- [ ] 24-03-PLAN.md — Operator checkpoints: cold preflight, real eas build/submit, TestFlight testers (SHIP-03, SHIP-04, SHIP-05)
+- [x] 24-03-PLAN.md — Operator checkpoints: cold preflight, real eas build/submit, TestFlight testers (SHIP-03, SHIP-04, SHIP-05)
 
 ## Progress
 
@@ -198,7 +198,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete   | 2026-07-23 |
 | 23. EAS Build/Submit Configuration | v0.5 | 1/1 | Complete   | 2026-07-23 |
-| 24. Quality Gates, Preflight & First Submit | v0.5 | 2/3 | In Progress|  |
+| 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete   | 2026-07-25 |
 
 ---
 
