@@ -166,8 +166,8 @@ Full phase details, plan breakdowns, and success criteria archived in
   4. `eas build --profile production` followed by `eas submit --profile production` completes and produces a Processing/Ready build in App Store Connect
   5. Internal TestFlight testers (Apple Developer team members only) are added and confirm they can install the build
 **Plans**: 3 plans
-- [ ] 24-01-PLAN.md — Fix the two react-hooks/set-state-in-effect lint errors in both feedback modals (SHIP-01)
-- [ ] 24-02-PLAN.md — Build scripts/preflight.ts + npm run preflight; confirm warm-backend all-pass (SHIP-02)
+- [x] 24-01-PLAN.md — Fix the two react-hooks/set-state-in-effect lint errors in both feedback modals (SHIP-01)
+- [x] 24-02-PLAN.md — Build scripts/preflight.ts + npm run preflight; confirm warm-backend all-pass (SHIP-02)
 - [ ] 24-03-PLAN.md — Operator checkpoints: cold preflight, real eas build/submit, TestFlight testers (SHIP-03, SHIP-04, SHIP-05)
 
 ## Progress
@@ -198,7 +198,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 21. Release Identity Lock | v0.5 | 2/2 | Complete    | 2026-07-23 |
 | 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete   | 2026-07-23 |
 | 23. EAS Build/Submit Configuration | v0.5 | 1/1 | Complete   | 2026-07-23 |
-| 24. Quality Gates, Preflight & First Submit | v0.5 | 0/TBD | Not started | - |
+| 24. Quality Gates, Preflight & First Submit | v0.5 | 2/3 | In Progress|  |
 
 ---
 
