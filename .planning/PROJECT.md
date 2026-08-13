@@ -299,6 +299,17 @@ SVG icon as the canonical source, update the app palette to the new brand
 guideline, regenerate every Expo app/startup asset from that source, and
 eliminate the blue Expo default launch flash on cold start.
 
+**Progress:** Phase 25 (Brand Asset Pipeline) complete 2026-08-13 —
+`assets/brand/lafa-icon.svg` is the sole source consumed by
+`scripts/generate-brand-assets.ts` (rewritten around its two-shape
+structure), all five app assets (icon/favicon/splash/Android
+foreground+monochrome) regenerate to spec, and the old AI-concept assets
+(`lafa-logo.svg`, `lafa-logo-v2.svg`, both concept PNGs) are deleted with
+zero remaining references. BRAND-01/02/03 validated (11/11 must-haves,
+`25-VERIFICATION.md`). Palette application (Phase 26), `app.json`
+splash/adaptive-icon config (Phase 27), and per-screen theming (Phase 28)
+remain.
+
 **Target features:**
 - `assets/brand/lafa-icon.svg` (the user-supplied icon) becomes the sole
   source consumed by `scripts/generate-brand-assets.ts`; old AI-concept
