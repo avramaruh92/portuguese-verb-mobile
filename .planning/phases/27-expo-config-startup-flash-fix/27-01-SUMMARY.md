@@ -105,6 +105,17 @@ None - no external service configuration required.
 - Ready for Phase 28 (UI Token Application), which applies the new palette across every screen/component (`#208AEF`, `#E6F4FE`, `#E8663D`, `#FCE4DA`, `#2FA84F` are now only absent from `app/`/`src/` source; a repo-wide search of those old-palette hexes should return zero hits in source after Phase 28).
 - Phase 29 (Brand Validation & Release Verification) will perform the end-to-end splash/icon check on a real EAS build — the one item this phase could not verify in Expo Go.
 
+## Self-Check: PASSED
+
+- [x] `27-01-SUMMARY.md` exists on disk
+- [x] Task commits present: `82eda9c` (Task 1), `021d590` (Task 2)
+- [x] Summary commit present: `bb89933` (docs(27-01): add plan summary)
+- [x] Tracking commit present: `6209c8a` (docs(27-01): mark CONFIG-01..04 complete, close out plan tracking)
+- [x] `app.json`, `app/_layout.tsx`, `src/**`, `assets/**` unmodified in the working tree
+- [x] `app.json` assertions pass (`#FFF9F6` splash/adaptive, no `backgroundImage`, `userInterfaceStyle: "light"`, no `#208AEF`/`#E6F4FE`)
+- [x] ROADMAP.md Phase 27 row `1/1 Complete`, plan checkbox checked
+- [x] REQUIREMENTS.md CONFIG-01..04 marked Complete
+
 ---
 *Phase: 27-expo-config-startup-flash-fix*
 *Completed: 2026-08-14*
