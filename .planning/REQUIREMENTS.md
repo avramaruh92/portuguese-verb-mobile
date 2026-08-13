@@ -92,17 +92,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | TBD | Pending |
-| BRAND-02 | TBD | Pending |
-| BRAND-03 | TBD | Pending |
-| THEME-01 | TBD | Pending |
-| THEME-02 | TBD | Pending |
-| CONFIG-01 | TBD | Pending |
-| CONFIG-02 | TBD | Pending |
-| CONFIG-03 | TBD | Pending |
-| CONFIG-04 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| VALID-01 | TBD | Pending |
-| VALID-02 | TBD | Pending |
-| VALID-03 | TBD | Pending |
+| BRAND-01 | Phase 25 | Pending |
+| BRAND-02 | Phase 25 | Pending |
+| BRAND-03 | Phase 25 | Pending |
+| THEME-01 | Phase 26 | Pending |
+| THEME-02 | Phase 26 | Pending |
+| CONFIG-01 | Phase 27 | Pending |
+| CONFIG-02 | Phase 27 | Pending |
+| CONFIG-03 | Phase 27 | Pending |
+| CONFIG-04 | Phase 27 | Pending |
+| UI-01 | Phase 28 | Pending |
+| UI-02 | Phase 28 | Pending |
+| VALID-01 | Phase 29 | Pending |
+| VALID-02 | Phase 29 | Pending |
+| VALID-03 | Phase 29 | Pending |
