@@ -3,120 +3,185 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { Resvg } from "@resvg/resvg-js";
 import sharp from "sharp";
 
-const SOURCE_SVG_PATH = "assets/brand/lafa-logo-v2.svg";
+const SOURCE_SVG_PATH = "assets/brand/lafa-icon.svg";
 const ICON_OUTPUT_PATH = "assets/images/icon.png";
+const FAVICON_OUTPUT_PATH = "assets/images/favicon.png";
 const SPLASH_OUTPUT_PATH = "assets/images/splash-icon.png";
-const ICON_BACKGROUND = "#FCE4DA";
-const SPLASH_BACKGROUND = "rgba(0,0,0,0)";
-const ICON_SIZE_PX = 1024;
-const SPLASH_WIDTH_PX = 228;
-const CROP_VIEWBOX = "192 92 640 640";
-const ICON_GROUP_OPEN_TAG = '<g id="icon">';
-const ICON_GROUP_CLOSE_TAG = "</g>";
-const GREEN_ACCENT_DOT = '<circle cx="667" cy="522" r="18" fill="#2FA84F"/>';
-const BACKGROUND_RECT = '<rect x="192" y="92" width="640" height="640" rx="176" fill="#FCE4DA"/>';
-// The swoop stroke path has no explicit `fill`, so SVG's default fill (solid black) renders
-// a filled crescent under the stroke instead of the open smile line the source design intends
-// (confirmed against assets/brand/lafa-logo-v2-concept.png). Source stays byte-for-byte
-// unmodified (ICON-04) — this patches only the in-memory copy used for rasterization.
-const SWOOP_PATH_UNCLOSED_TAIL = 'stroke-width="30"\n      stroke-linecap="round"/>';
-const SWOOP_PATH_FILL_NONE_TAIL = 'stroke-width="30"\n      stroke-linecap="round"\n      fill="none"/>';
+const ANDROID_FOREGROUND_OUTPUT_PATH = "assets/images/android-icon-foreground.png";
+const ANDROID_MONOCHROME_OUTPUT_PATH = "assets/images/android-icon-monochrome.png";
 
-function normalizeSwoopFill(iconGroup: string): string {
-  if (!iconGroup.includes(SWOOP_PATH_UNCLOSED_TAIL)) {
+const CANVAS_PX = 1024;
+const SPLASH_WIDTH_PX = 1024;
+const FAVICON_PX = 48;
+const SAFE_ZONE_RATIO = 0.66;
+const SAFE_ZONE_PX = Math.round(CANVAS_PX * SAFE_ZONE_RATIO); // 676
+
+const ICON_BACKGROUND_HEX = "#FFF9F6";
+const TRANSPARENT_BACKGROUND = "rgba(0,0,0,0)";
+const MARK_FILL = 'fill="#F2643E"';
+const MONOCHROME_FILL = 'fill="#FFFFFF"';
+const EXPECTED_MARK_PATH_COUNT = 2;
+
+const BACKGROUND_RECT = '<rect width="1024" height="1024" rx="230" fill="#FFF9F6"/>';
+// No `rx` — the flattened square is deliberate so the OS-level icon mask does not
+// double-round on top of a pre-baked rounded-rect background (D-03).
+const FLAT_BACKGROUND_RECT = '<rect width="1024" height="1024" fill="#FFF9F6"/>';
+
+function extractMarkOnly(svg: string): string {
+  if (!svg.includes(BACKGROUND_RECT)) {
     throw new Error(
-      `${SOURCE_SVG_PATH} icon group is missing the expected swoop stroke path — source may have changed shape`,
+      `${SOURCE_SVG_PATH} is missing the expected background rect — source may have changed shape`,
     );
   }
 
-  return iconGroup.replace(SWOOP_PATH_UNCLOSED_TAIL, SWOOP_PATH_FILL_NONE_TAIL);
-}
-
-function extractIconGroup(svg: string): string {
-  const groupStart = svg.indexOf(ICON_GROUP_OPEN_TAG);
-  if (groupStart === -1) {
+  const markFillCount = svg.split(MARK_FILL).length - 1;
+  if (markFillCount !== EXPECTED_MARK_PATH_COUNT) {
     throw new Error(
-      `${SOURCE_SVG_PATH} has no ${ICON_GROUP_OPEN_TAG} — source may have changed shape`,
+      `${SOURCE_SVG_PATH} has ${markFillCount} mark paths, expected ${EXPECTED_MARK_PATH_COUNT} — source may have changed shape`,
     );
   }
 
-  const groupEnd = svg.indexOf(ICON_GROUP_CLOSE_TAG, groupStart);
-  if (groupEnd === -1) {
+  const rootTagEnd = svg.indexOf(">", svg.indexOf("<svg"));
+  const svgCloseIndex = svg.lastIndexOf("</svg>");
+  if (rootTagEnd === -1 || svgCloseIndex === -1) {
     throw new Error(
-      `${SOURCE_SVG_PATH} has an unterminated ${ICON_GROUP_OPEN_TAG} group — source may have changed shape`,
+      `${SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
     );
   }
 
-  return svg.slice(groupStart, groupEnd + ICON_GROUP_CLOSE_TAG.length);
-}
+  const innerMarkup = svg.slice(rootTagEnd + 1, svgCloseIndex).replace(BACKGROUND_RECT, "");
 
-function wrapInSvgRoot(innerMarkup: string): string {
-  return `<svg viewBox="${CROP_VIEWBOX}" xmlns="http://www.w3.org/2000/svg">${innerMarkup}</svg>`;
-}
-
-function buildIconDoc(iconGroup: string): string {
-  return wrapInSvgRoot(iconGroup);
-}
-
-function buildSplashDoc(iconGroup: string): string {
-  if (!iconGroup.includes(BACKGROUND_RECT)) {
+  if (innerMarkup.trim().length === 0 || !innerMarkup.includes('clip-path="url(')) {
     throw new Error(
-      `${SOURCE_SVG_PATH} icon group is missing the expected background rect — source may have changed shape`,
-    );
-  }
-  if (!iconGroup.includes(GREEN_ACCENT_DOT)) {
-    throw new Error(
-      `${SOURCE_SVG_PATH} icon group is missing the expected green accent dot — source may have changed shape`,
+      `${SOURCE_SVG_PATH} mark markup is missing the expected clip-path reference (or <defs> was lost) — source may have changed shape`,
     );
   }
 
-  const withoutBackground = iconGroup.replace(BACKGROUND_RECT, "");
-  const withoutGreenDot = withoutBackground.replace(GREEN_ACCENT_DOT, ""); // D-11: green dot is dropped, not recolored
-  const monochrome = withoutGreenDot
-    .replaceAll('fill="#E8663D"', 'fill="#FFFFFF"')
-    .replaceAll('stroke="#E8663D"', 'stroke="#FFFFFF"');
-
-  return wrapInSvgRoot(monochrome);
+  return innerMarkup;
 }
 
-async function generateIcon(iconGroup: string): Promise<void> {
-  const iconDoc = buildIconDoc(iconGroup);
-  const render = new Resvg(iconDoc, {
-    fitTo: { mode: "width", value: ICON_SIZE_PX },
-    background: ICON_BACKGROUND,
-  }).render();
+function wrapMarkDoc(markMarkup: string, viewBox: string): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${markMarkup}</svg>`;
+}
 
-  if (render.width !== ICON_SIZE_PX || render.height !== ICON_SIZE_PX) {
+function buildFullIconDoc(markMarkup: string): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_PX} ${CANVAS_PX}">${FLAT_BACKGROUND_RECT}${markMarkup}</svg>`;
+}
+
+function getMarkBBox(markOnlyDoc: string): { x: number; y: number; width: number; height: number } {
+  const bbox = new Resvg(markOnlyDoc, {
+    fitTo: { mode: "width", value: CANVAS_PX },
+  }).getBBox();
+
+  if (!bbox || bbox.width === 0 || bbox.height === 0) {
     throw new Error(
-      `rendered icon is ${render.width}x${render.height}, expected ${ICON_SIZE_PX}x${ICON_SIZE_PX} — check fitTo/viewBox config`,
+      `${SOURCE_SVG_PATH} mark bbox came back empty — source may have changed shape`,
     );
   }
 
-  // resvg's `background` option flattens the pixel data to opaque, but @resvg/resvg-js
-  // always encodes PNGs with an RGBA color type — sips still reports hasAlpha: yes even
-  // though every pixel is fully opaque. Route through sharp's removeAlpha() to re-encode
-  // as a true alpha-free (RGB) PNG, matching ICON-01's "no alpha channel" requirement.
-  const alphaFreePng = await sharp(render.asPng()).removeAlpha().png().toBuffer();
+  if (bbox.width >= CANVAS_PX) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} mark bbox spans the full canvas (${bbox.width}px) — the background rect was likely not stripped, source may have changed shape`,
+    );
+  }
 
-  writeFileSync(ICON_OUTPUT_PATH, alphaFreePng);
+  return bbox;
 }
 
-function generateSplash(iconGroup: string): void {
-  const splashDoc = buildSplashDoc(iconGroup);
-  const render = new Resvg(splashDoc, {
-    fitTo: { mode: "width", value: SPLASH_WIDTH_PX },
-    background: SPLASH_BACKGROUND, // transparent — #208AEF plugin blue must show through (D-05)
-  }).render();
+async function renderCenteredOnSafeZone(
+  croppedMarkDoc: string,
+  bbox: { width: number; height: number },
+): Promise<Buffer> {
+  const scale = SAFE_ZONE_PX / Math.max(bbox.width, bbox.height);
+  const fitMode: "width" | "height" = bbox.width >= bbox.height ? "width" : "height";
+  const fitValue =
+    fitMode === "width" ? Math.round(bbox.width * scale) : Math.round(bbox.height * scale);
 
-  writeFileSync(SPLASH_OUTPUT_PATH, render.asPng());
+  const rendered = new Resvg(croppedMarkDoc, {
+    fitTo: { mode: fitMode, value: fitValue },
+    background: TRANSPARENT_BACKGROUND,
+  })
+    .render()
+    .asPng();
+
+  return sharp({
+    create: {
+      width: CANVAS_PX,
+      height: CANVAS_PX,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([{ input: rendered, gravity: "center" }])
+    .png()
+    .toBuffer();
+}
+
+function toMonochromeSilhouette(markDoc: string): string {
+  const recolored = markDoc.replaceAll(MARK_FILL, MONOCHROME_FILL);
+
+  if (recolored.includes(MARK_FILL) || recolored.includes("#F2643E")) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} monochrome recolor left an orange fill behind — partial recolour must never ship as a themed icon`,
+    );
+  }
+
+  return recolored;
 }
 
 async function main(): Promise<void> {
   const sourceSvg = readFileSync(SOURCE_SVG_PATH, "utf-8");
-  const iconGroup = normalizeSwoopFill(extractIconGroup(sourceSvg));
+  const mark = extractMarkOnly(sourceSvg);
 
-  await generateIcon(iconGroup);
-  generateSplash(iconGroup);
+  const fullCanvasMarkDoc = wrapMarkDoc(mark, `0 0 ${CANVAS_PX} ${CANVAS_PX}`);
+  const bbox = getMarkBBox(fullCanvasMarkDoc);
+  const croppedMarkDoc = wrapMarkDoc(mark, `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+
+  // icon.png — full-bleed flat #FFF9F6 background, no baked-in rounding (D-03).
+  const iconRender = new Resvg(buildFullIconDoc(mark), {
+    fitTo: { mode: "width", value: CANVAS_PX },
+    background: ICON_BACKGROUND_HEX,
+  }).render();
+
+  if (iconRender.width !== CANVAS_PX || iconRender.height !== CANVAS_PX) {
+    throw new Error(
+      `rendered icon is ${iconRender.width}x${iconRender.height}, expected ${CANVAS_PX}x${CANVAS_PX} — check fitTo/viewBox config`,
+    );
+  }
+
+  // resvg's `background` option flattens pixel data to opaque, but @resvg/resvg-js
+  // always encodes PNGs with an RGBA color type — sips still reports hasAlpha: yes even
+  // though every pixel is fully opaque. Route through sharp's removeAlpha() to re-encode
+  // as a true alpha-free (RGB) PNG.
+  const iconPng = await sharp(iconRender.asPng()).removeAlpha().png().toBuffer();
+  writeFileSync(ICON_OUTPUT_PATH, iconPng);
+
+  // favicon.png — downscaled from the already-rendered icon buffer so it stays
+  // pixel-consistent with icon.png.
+  const faviconPng = await sharp(iconPng)
+    .resize(FAVICON_PX, FAVICON_PX, { kernel: sharp.kernel.lanczos3 })
+    .removeAlpha()
+    .png()
+    .toBuffer();
+  writeFileSync(FAVICON_OUTPUT_PATH, faviconPng);
+
+  // splash-icon.png — full-canvas mark composition, transparent, no background rect.
+  const splashRender = new Resvg(fullCanvasMarkDoc, {
+    fitTo: { mode: "width", value: SPLASH_WIDTH_PX },
+    background: TRANSPARENT_BACKGROUND,
+  }).render();
+  writeFileSync(SPLASH_OUTPUT_PATH, splashRender.asPng());
+
+  // android-icon-foreground.png — mark centered within the ~66% Android safe zone.
+  const foregroundPng = await renderCenteredOnSafeZone(croppedMarkDoc, bbox);
+  writeFileSync(ANDROID_FOREGROUND_OUTPUT_PATH, foregroundPng);
+
+  // android-icon-monochrome.png — same centering/scale, solid white silhouette (D-06).
+  const monochromePng = await renderCenteredOnSafeZone(
+    toMonochromeSilhouette(croppedMarkDoc),
+    bbox,
+  );
+  writeFileSync(ANDROID_MONOCHROME_OUTPUT_PATH, monochromePng);
 }
 
 main();
