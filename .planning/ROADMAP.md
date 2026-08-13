@@ -98,7 +98,7 @@ user-supplied SVG icon as the canonical source, update the app palette to
 the new brand guideline, regenerate every Expo app/startup asset from that
 source, and eliminate the blue Expo default launch flash on cold start.
 
-- [ ] **Phase 25: Brand Asset Pipeline** - Regenerate all app assets from the user-supplied SVG, retire the old AI-generated sources
+- [x] **Phase 25: Brand Asset Pipeline** - Regenerate all app assets from the user-supplied SVG, retire the old AI-generated sources (completed 2026-08-13)
 - [ ] **Phase 26: Theme Palette Update** - Update design tokens to the new brand guideline palette
 - [ ] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch
 - [ ] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component
@@ -119,7 +119,7 @@ referenced anywhere in the repo.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 25-01-PLAN.md — Rename source SVG, delete legacy brand assets, rewrite the generator for all five outputs, regenerate and verify
+- [x] 25-01-PLAN.md — Rename source SVG, delete legacy brand assets, rewrite the generator for all five outputs, regenerate and verify
 
 ### Phase 26: Theme Palette Update
 **Goal**: The app's design-token module carries the new brand guideline
@@ -199,7 +199,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete | 2026-07-23 |
 | 23. EAS Build/Submit Configuration | v0.5 | 1/1 | Complete | 2026-07-23 |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete | 2026-07-25 |
-| 25. Brand Asset Pipeline | v0.6 | 0/TBD | Not started | - |
+| 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 26. Theme Palette Update | v0.6 | 0/TBD | Not started | - |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 0/TBD | Not started | - |
 | 28. UI Token Application | v0.6 | 0/TBD | Not started | - |
