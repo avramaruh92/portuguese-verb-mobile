@@ -116,7 +116,10 @@ referenced anywhere in the repo.
   1. `scripts/generate-brand-assets.ts` reads only `assets/brand/lafa-icon.svg` — no code path references `lafa-logo.svg`, `lafa-logo-v2.svg`, or any concept PNG.
   2. Running `npm run generate-assets` produces `icon.png` (1024x1024, opaque RGB, no alpha channel), `favicon.png` (48x48), `splash-icon.png` (transparent, mark only, no background rectangle), `android-icon-foreground.png` (1024x1024, transparent, mark centered in the Android safe zone), and `android-icon-monochrome.png` (1024x1024, transparent monochrome mask).
   3. The old AI-generated brand source/concept files are deleted from the repo, or confirmed to have zero remaining references if removal is unsafe.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 25-01-PLAN.md — Rename source SVG, delete legacy brand assets, rewrite the generator for all five outputs, regenerate and verify
 
 ### Phase 26: Theme Palette Update
 **Goal**: The app's design-token module carries the new brand guideline
