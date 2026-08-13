@@ -292,10 +292,49 @@ Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
 `.planning/milestones/v0.4-REQUIREMENTS.md`, and `.planning/milestones/v0.5-REQUIREMENTS.md`.
 
-## Current Milestone
+## Current Milestone: v0.6 Lafa Branding + Expo Splash Cleanup
 
-None active — v0.5 shipped 2026-07-25. Run `/gsd:new-milestone` to scope
-the next one.
+**Goal:** Replace the AI-generated Lafa brand assets with the user-supplied
+SVG icon as the canonical source, update the app palette to the new brand
+guideline, regenerate every Expo app/startup asset from that source, and
+eliminate the blue Expo default launch flash on cold start.
+
+**Target features:**
+- `assets/brand/lafa-icon.svg` (the user-supplied icon) becomes the sole
+  source consumed by `scripts/generate-brand-assets.ts`; old AI-concept
+  assets (`lafa-logo.svg`, `lafa-logo-v2.svg`, concept PNGs) are removed or
+  unreferenced.
+- `src/theme/tokens.ts` updated to the new guideline palette (primary
+  orange `#F2643E`, deep orange `#C94A2D`, soft peach `#FDE7DF`, teal
+  `#36799A`, green `#1F7F66`, ink `#24201E`, stone `#746D69`, canvas
+  `#F1EFED`, warm background `#FFF9F6`), keeping existing semantic token
+  names where possible.
+- Regenerated `icon.png`, `favicon.png`, `splash-icon.png` (transparent,
+  mark-only), Android adaptive foreground + monochrome images; Android
+  adaptive background image usage removed in favor of a solid background
+  color.
+- `app.json` splash/adaptive-icon config updated off Expo blue
+  (`#208AEF` → `#FFF9F6`), `imageWidth` set to `160`, Android
+  `backgroundImage` removed, `userInterfaceStyle` set to `"light"`.
+- `app/_layout.tsx` applies brand tokens to the Stack/header/status bar and
+  sets the runtime root background via `expo-system-ui` to prevent a
+  post-splash flash.
+- New palette applied across Setup, Quiz, Results, feedback modals,
+  `OfflinePill`, and `ExplanationPanel` — no screen still hardcodes/depends
+  on the old Expo-blue or old brand hex values.
+- A brand validation script/check confirming no blue splash/adaptive
+  background remains, generated PNG dimensions are correct, `icon.png` has
+  no alpha channel, and the generator no longer references old SVG sources.
+
+**Key context:** Sourced from a plan document
+(`Lafa Branding + Expo Splash Cleanup Plan.md`) already reviewed and
+confirmed against the current codebase (verified `#208AEF` blue splash,
+old `#E8663D`/`#2FA84F` palette, and existing
+`scripts/generate-brand-assets.ts` all match the plan's assumptions before
+scoping). Final splash/flash verification must happen on an EAS
+release/preview build, not Expo Go/dev client, per Expo's splash-screen
+docs. No precise vector wordmark exists yet — do not invent one; typography
+stays system-based.
 
 New tech debt surfaced during v0.4 (non-blocking, see
 `.planning/v0.4-MILESTONE-AUDIT.md` for full detail, carried forward —
