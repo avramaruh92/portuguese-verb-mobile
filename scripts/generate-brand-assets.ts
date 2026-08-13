@@ -22,10 +22,10 @@ const MARK_FILL = 'fill="#F2643E"';
 const MONOCHROME_FILL = 'fill="#FFFFFF"';
 const EXPECTED_MARK_PATH_COUNT = 2;
 
-const BACKGROUND_RECT = '<rect width="1024" height="1024" rx="230" fill="#FFF9F6"/>';
+const BACKGROUND_RECT = `<rect width="${CANVAS_PX}" height="${CANVAS_PX}" rx="230" fill="${ICON_BACKGROUND_HEX}"/>`;
 // No `rx` — the flattened square is deliberate so the OS-level icon mask does not
 // double-round on top of a pre-baked rounded-rect background (D-03).
-const FLAT_BACKGROUND_RECT = '<rect width="1024" height="1024" fill="#FFF9F6"/>';
+const FLAT_BACKGROUND_RECT = `<rect width="${CANVAS_PX}" height="${CANVAS_PX}" fill="${ICON_BACKGROUND_HEX}"/>`;
 
 function extractMarkOnly(svg: string): string {
   if (!svg.includes(BACKGROUND_RECT)) {
