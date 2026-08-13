@@ -23,12 +23,12 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Theme Palette
 
-- [ ] **THEME-01**: `src/theme/tokens.ts` carries the new guideline palette (primary
+- [x] **THEME-01**: `src/theme/tokens.ts` carries the new guideline palette (primary
       orange `#F2643E`, deep orange `#C94A2D`, soft peach `#FDE7DF`, teal `#36799A`,
       green `#1F7F66`, ink `#24201E`, stone `#746D69`, canvas `#F1EFED`, warm
       background `#FFF9F6`), with existing semantic token names preserved where
       possible and new aliases added only for pressed/info/background states.
-- [ ] **THEME-02**: `src/theme/tokens.test.ts` is updated to assert the new palette
+- [x] **THEME-02**: `src/theme/tokens.test.ts` is updated to assert the new palette
       values.
 
 ### Expo Config + Startup Flash
@@ -95,8 +95,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-01 | Phase 25 | Complete |
 | BRAND-02 | Phase 25 | Complete |
 | BRAND-03 | Phase 25 | Complete |
-| THEME-01 | Phase 26 | Pending |
-| THEME-02 | Phase 26 | Pending |
+| THEME-01 | Phase 26 | Complete |
+| THEME-02 | Phase 26 | Complete |
 | CONFIG-01 | Phase 27 | Pending |
 | CONFIG-02 | Phase 27 | Pending |
 | CONFIG-03 | Phase 27 | Pending |
