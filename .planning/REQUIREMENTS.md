@@ -33,14 +33,14 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Expo Config + Startup Flash
 
-- [ ] **CONFIG-01**: `app.json`'s `expo-splash-screen` plugin config uses the warm
+- [x] **CONFIG-01**: `app.json`'s `expo-splash-screen` plugin config uses the warm
       background (`#FFF9F6`) instead of Expo blue (`#208AEF`), keeps `image` pointed
       at the regenerated `splash-icon.png`, and sets `imageWidth` to `160`.
-- [ ] **CONFIG-02**: `app.json`'s `android.adaptiveIcon.backgroundColor` uses the warm
+- [x] **CONFIG-02**: `app.json`'s `android.adaptiveIcon.backgroundColor` uses the warm
       background instead of the old Expo blue-tinted value, and `backgroundImage` is
       removed in favor of the solid background color.
-- [ ] **CONFIG-03**: `app.json`'s `userInterfaceStyle` is set to `"light"`.
-- [ ] **CONFIG-04**: `app/_layout.tsx` sets Stack `contentStyle`/`headerStyle`/
+- [x] **CONFIG-03**: `app.json`'s `userInterfaceStyle` is set to `"light"`.
+- [x] **CONFIG-04**: `app/_layout.tsx` sets Stack `contentStyle`/`headerStyle`/
       `headerTintColor`/`headerShadowVisible` from brand tokens, configures
       `StatusBar` for dark content on the warm background, and sets the runtime root
       background via `expo-system-ui` to `#FFF9F6` so no white/default flash appears
@@ -97,10 +97,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-03 | Phase 25 | Complete |
 | THEME-01 | Phase 26 | Complete |
 | THEME-02 | Phase 26 | Complete |
-| CONFIG-01 | Phase 27 | Pending |
-| CONFIG-02 | Phase 27 | Pending |
-| CONFIG-03 | Phase 27 | Pending |
-| CONFIG-04 | Phase 27 | Pending |
+| CONFIG-01 | Phase 27 | Complete |
+| CONFIG-02 | Phase 27 | Complete |
+| CONFIG-03 | Phase 27 | Complete |
+| CONFIG-04 | Phase 27 | Complete |
 | UI-01 | Phase 28 | Pending |
 | UI-02 | Phase 28 | Pending |
 | VALID-01 | Phase 29 | Pending |

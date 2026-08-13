@@ -100,7 +100,7 @@ source, and eliminate the blue Expo default launch flash on cold start.
 
 - [x] **Phase 25: Brand Asset Pipeline** - Regenerate all app assets from the user-supplied SVG, retire the old AI-generated sources (completed 2026-08-13)
 - [x] **Phase 26: Theme Palette Update** - Update design tokens to the new brand guideline palette (completed 2026-08-13)
-- [ ] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch
+- [x] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch (completed 2026-08-13)
 - [ ] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component
 - [ ] **Phase 29: Brand Validation & Release Verification** - Automated brand checks plus a manual EAS release-build confirmation
 
@@ -149,7 +149,7 @@ splash through first paint.
 **UI hint**: yes
 
 Plans:
-- [ ] 27-01-PLAN.md — Apply brand values to app.json (splash, adaptive icon, appearance), delete the orphaned Android background asset, and wire root-layout header/status-bar/system-UI theming
+- [x] 27-01-PLAN.md — Apply brand values to app.json (splash, adaptive icon, appearance), delete the orphaned Android background asset, and wire root-layout header/status-bar/system-UI theming
 
 ### Phase 28: UI Token Application
 **Goal**: Every screen and shared component visually reflects the new
@@ -207,7 +207,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete | 2026-07-25 |
 | 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
-| 27. Expo Config & Startup Flash Fix | v0.6 | 0/TBD | Not started | - |
+| 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 0/TBD | Not started | - |
 | 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
 
