@@ -41,9 +41,10 @@ function extractMarkOnly(svg: string): string {
     );
   }
 
-  const rootTagEnd = svg.indexOf(">", svg.indexOf("<svg"));
+  const svgTagStart = svg.indexOf("<svg");
+  const rootTagEnd = svgTagStart === -1 ? -1 : svg.indexOf(">", svgTagStart);
   const svgCloseIndex = svg.lastIndexOf("</svg>");
-  if (rootTagEnd === -1 || svgCloseIndex === -1) {
+  if (svgTagStart === -1 || rootTagEnd === -1 || svgCloseIndex === -1) {
     throw new Error(
       `${SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
     );
