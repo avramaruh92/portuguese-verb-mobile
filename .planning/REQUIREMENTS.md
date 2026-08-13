@@ -11,11 +11,11 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Brand Asset Source
 
-- [ ] **BRAND-01**: `assets/brand/lafa-icon.svg` (the user-supplied SVG) is the sole
+- [x] **BRAND-01**: `assets/brand/lafa-icon.svg` (the user-supplied SVG) is the sole
       source `scripts/generate-brand-assets.ts` consumes to produce app assets.
-- [ ] **BRAND-02**: Old AI-generated brand assets (`lafa-logo.svg`, `lafa-logo-v2.svg`,
+- [x] **BRAND-02**: Old AI-generated brand assets (`lafa-logo.svg`, `lafa-logo-v2.svg`,
       concept PNGs) are removed or no longer referenced anywhere in the repo.
-- [ ] **BRAND-03**: The generator produces `icon.png` (1024x1024, opaque RGB, no alpha
+- [x] **BRAND-03**: The generator produces `icon.png` (1024x1024, opaque RGB, no alpha
       channel), `favicon.png` (48x48), `splash-icon.png` (transparent, mark only, no
       background rectangle), `android-icon-foreground.png` (1024x1024, transparent,
       mark centered in the Android safe zone), and `android-icon-monochrome.png`
@@ -92,9 +92,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BRAND-01 | Phase 25 | Pending |
-| BRAND-02 | Phase 25 | Pending |
-| BRAND-03 | Phase 25 | Pending |
+| BRAND-01 | Phase 25 | Complete |
+| BRAND-02 | Phase 25 | Complete |
+| BRAND-03 | Phase 25 | Complete |
 | THEME-01 | Phase 26 | Pending |
 | THEME-02 | Phase 26 | Pending |
 | CONFIG-01 | Phase 27 | Pending |
