@@ -129,7 +129,10 @@ palette as the single source of truth for color going forward.
 **Success Criteria** (what must be TRUE):
   1. `src/theme/tokens.ts` exports the new guideline palette (primary orange `#F2643E`, deep orange `#C94A2D`, soft peach `#FDE7DF`, teal `#36799A`, green `#1F7F66`, ink `#24201E`, stone `#746D69`, canvas `#F1EFED`, warm background `#FFF9F6`) under existing semantic token names, with new aliases added only for pressed/info/background states.
   2. `src/theme/tokens.test.ts` asserts the new palette values and passes.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 26-01-PLAN.md — Update the `colors` assertion in `tokens.test.ts`, then repoint the `colors` export in `tokens.ts` to the new guideline palette
 
 ### Phase 27: Expo Config & Startup Flash Fix
 **Goal**: Cold app launch never shows Expo's default blue splash or an
@@ -200,7 +203,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 23. EAS Build/Submit Configuration | v0.5 | 1/1 | Complete | 2026-07-23 |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete | 2026-07-25 |
 | 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
-| 26. Theme Palette Update | v0.6 | 0/TBD | Not started | - |
+| 26. Theme Palette Update | v0.6 | 0/1 | Planned | - |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 0/TBD | Not started | - |
 | 28. UI Token Application | v0.6 | 0/TBD | Not started | - |
 | 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
