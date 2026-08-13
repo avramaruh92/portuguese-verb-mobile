@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v0.6
 milestone_name: Lafa Branding + Expo Splash Cleanup
-status: completed
-stopped_at: Phase 27 context gathered
-last_updated: "2026-08-13T23:19:06.000Z"
+status: ready_to_plan
+stopped_at: Phase 27 complete (1/1) — ready to discuss Phase 28
+last_updated: 2026-08-13T23:23:32.532Z
 last_activity: 2026-08-14 -- Phase 27 marked complete
 progress:
   total_phases: 5
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 27 — expo-config-startup-flash-fix
+**Current focus:** Phase 28 — ui token application
 
 ## Current Position
 
-Phase: 27 — COMPLETE
-Plan: 1 of 1
-Status: Phase 27 complete
-Last activity: 2026-08-14 -- Phase 27 marked complete
+Phase: 28
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-13
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity (v0.0-v0.5, shipped):**
 
-- Total plans completed: 72 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, +4 counting Phase 10.1)
+- Total plans completed: 73 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, +4 counting Phase 10.1)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days (kickoff to ship)
 
 **v0.6 phases (planned, not yet started):**

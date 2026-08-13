@@ -207,7 +207,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete | 2026-07-25 |
 | 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
-| 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete   | 2026-08-13 |
+| 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 0/TBD | Not started | - |
 | 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
 
