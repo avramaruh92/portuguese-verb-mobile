@@ -1,12 +1,14 @@
 export const colors = {
-  primary: "#E8663D",
-  primarySoft: "#FCE4DA",
-  success: "#2FA84F",
+  primary: "#F2643E",
+  primarySoft: "#FDE7DF",
+  pressed: "#C94A2D",
+  info: "#36799A",
+  success: "#1F7F66",
   error: "#D64545",
-  background: "#FFFFFF",
-  text: "#1C1B1A",
-  textSecondary: "#6B6560",
-  surface: "#F2F2F1",
+  background: "#FFF9F6",
+  text: "#24201E",
+  textSecondary: "#746D69",
+  surface: "#F1EFED",
 };
 
 export const spacing = {
