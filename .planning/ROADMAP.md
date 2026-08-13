@@ -145,8 +145,11 @@ splash through first paint.
   2. `app.json`'s `android.adaptiveIcon.backgroundColor` uses the warm background instead of the old Expo-blue-tinted value, and `backgroundImage` is removed.
   3. `app.json`'s `userInterfaceStyle` is `"light"`.
   4. `app/_layout.tsx` applies brand tokens to the Stack's `contentStyle`/`headerStyle`/`headerTintColor`/`headerShadowVisible`, configures `StatusBar` for dark content on the warm background, and sets the runtime root background via `expo-system-ui` to `#FFF9F6` so no white/default flash appears after the splash screen.
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
+
+Plans:
+- [ ] 27-01-PLAN.md — Apply brand values to app.json (splash, adaptive icon, appearance), delete the orphaned Android background asset, and wire root-layout header/status-bar/system-UI theming
 
 ### Phase 28: UI Token Application
 **Goal**: Every screen and shared component visually reflects the new
