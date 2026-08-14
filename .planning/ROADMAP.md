@@ -101,7 +101,7 @@ source, and eliminate the blue Expo default launch flash on cold start.
 - [x] **Phase 25: Brand Asset Pipeline** - Regenerate all app assets from the user-supplied SVG, retire the old AI-generated sources (completed 2026-08-13)
 - [x] **Phase 26: Theme Palette Update** - Update design tokens to the new brand guideline palette (completed 2026-08-13)
 - [x] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch (completed 2026-08-13)
-- [ ] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component
+- [x] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component (completed 2026-08-14)
 - [ ] **Phase 29: Brand Validation & Release Verification** - Automated brand checks plus a manual EAS release-build confirmation
 
 ## Phase Details
@@ -165,7 +165,7 @@ brand palette, with zero remaining dependence on old palette hex values.
 Plans:
 - [x] 28-01-PLAN.md — Add the `colors.infoSoft` token (+ test assertion) and switch `OfflinePill` to the info/infoSoft teal pairing
 - [x] 28-02-PLAN.md — Wire `colors.pressed` into Setup/Quiz/Results primary buttons via `Pressable`'s function-form `style` prop, and confirm the UI-01 text-only heading
-- [ ] 28-03-PLAN.md — Wire pressed state into both feedback modals' submit/retry buttons and run the phase-wide old-palette regression gate
+- [x] 28-03-PLAN.md — Wire pressed state into both feedback modals' submit/retry buttons and run the phase-wide old-palette regression gate
 
 ### Phase 29: Brand Validation & Release Verification
 **Goal**: The rebrand is provably correct both by automated check and on a
@@ -213,7 +213,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
-| 28. UI Token Application | v0.6 | 2/3 | In Progress|  |
+| 28. UI Token Application | v0.6 | 3/3 | Complete   | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
 
 ---
