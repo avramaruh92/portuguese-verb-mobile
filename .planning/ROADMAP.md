@@ -159,8 +159,13 @@ brand palette, with zero remaining dependence on old palette hex values.
 **Success Criteria** (what must be TRUE):
   1. The Setup screen's "Lafa" heading uses either the generated icon mark plus token-styled text, or a token-styled text-only heading if no vector wordmark is available — no wordmark is invented.
   2. Setup, Quiz, Results, both feedback modals (`ReportFeedbackModal`, `ProductFeedbackModal`), `OfflinePill`, and `ExplanationPanel` all consume the updated tokens — a repo-wide search finds zero occurrences of the old palette hex values (`#208AEF`, `#E6F4FE`, `#E8663D`, `#FCE4DA`, `#2FA84F`) in `app/`/`src/`.
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 28-01-PLAN.md — Add the `colors.infoSoft` token (+ test assertion) and switch `OfflinePill` to the info/infoSoft teal pairing
+- [ ] 28-02-PLAN.md — Wire `colors.pressed` into Setup/Quiz/Results primary buttons via `Pressable`'s function-form `style` prop, and confirm the UI-01 text-only heading
+- [ ] 28-03-PLAN.md — Wire pressed state into both feedback modals' submit/retry buttons and run the phase-wide old-palette regression gate
 
 ### Phase 29: Brand Validation & Release Verification
 **Goal**: The rebrand is provably correct both by automated check and on a
