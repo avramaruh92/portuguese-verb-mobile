@@ -7,6 +7,7 @@ describe("theme tokens (Lafa palette + token completeness)", () => {
       primarySoft: "#FDE7DF",
       pressed: "#C94A2D",
       info: "#36799A",
+      infoSoft: "#DCEBF0",
       success: "#1F7F66",
       error: "#D64545",
       background: "#FFF9F6",
