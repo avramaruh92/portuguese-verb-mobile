@@ -163,8 +163,8 @@ brand palette, with zero remaining dependence on old palette hex values.
 **UI hint**: yes
 
 Plans:
-- [ ] 28-01-PLAN.md — Add the `colors.infoSoft` token (+ test assertion) and switch `OfflinePill` to the info/infoSoft teal pairing
-- [ ] 28-02-PLAN.md — Wire `colors.pressed` into Setup/Quiz/Results primary buttons via `Pressable`'s function-form `style` prop, and confirm the UI-01 text-only heading
+- [x] 28-01-PLAN.md — Add the `colors.infoSoft` token (+ test assertion) and switch `OfflinePill` to the info/infoSoft teal pairing
+- [x] 28-02-PLAN.md — Wire `colors.pressed` into Setup/Quiz/Results primary buttons via `Pressable`'s function-form `style` prop, and confirm the UI-01 text-only heading
 - [ ] 28-03-PLAN.md — Wire pressed state into both feedback modals' submit/retry buttons and run the phase-wide old-palette regression gate
 
 ### Phase 29: Brand Validation & Release Verification
@@ -213,7 +213,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
-| 28. UI Token Application | v0.6 | 0/TBD | Not started | - |
+| 28. UI Token Application | v0.6 | 2/3 | In Progress|  |
 | 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
 
 ---
