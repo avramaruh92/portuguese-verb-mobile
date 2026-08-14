@@ -164,9 +164,10 @@ export function ProductFeedbackModal({
         <Pressable
           onPress={handleSubmit}
           disabled={isSubmitDisabled}
-          style={[
+          style={({ pressed }) => [
             styles.submitButton,
             isSubmitDisabled && styles.submitButtonDisabled,
+            pressed && { backgroundColor: colors.pressed },
           ]}
         >
           {isSubmitting ? (
@@ -177,7 +178,13 @@ export function ProductFeedbackModal({
         </Pressable>
 
         {showRetry ? (
-          <Pressable onPress={handleSubmit} style={styles.retryButton}>
+          <Pressable
+            onPress={handleSubmit}
+            style={({ pressed }) => [
+              styles.retryButton,
+              pressed && { backgroundColor: colors.pressed },
+            ]}
+          >
             <Text style={styles.retryButtonText}>Retry submission</Text>
           </Pressable>
         ) : null}

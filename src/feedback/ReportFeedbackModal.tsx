@@ -172,7 +172,11 @@ export function ReportFeedbackModal({
         <Pressable
           onPress={handleSubmit}
           disabled={isSubmitting}
-          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          style={({ pressed }) => [
+            styles.submitButton,
+            isSubmitting && styles.submitButtonDisabled,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
         >
           {isSubmitting ? (
             <ActivityIndicator color={colors.background} />
@@ -182,7 +186,13 @@ export function ReportFeedbackModal({
         </Pressable>
 
         {showRetry ? (
-          <Pressable onPress={handleSubmit} style={styles.retryButton}>
+          <Pressable
+            onPress={handleSubmit}
+            style={({ pressed }) => [
+              styles.retryButton,
+              pressed && { backgroundColor: colors.pressed },
+            ]}
+          >
             <Text style={styles.retryButtonText}>Retry submission</Text>
           </Pressable>
         ) : null}
