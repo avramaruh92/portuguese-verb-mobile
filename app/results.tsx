@@ -100,14 +100,23 @@ export default function Results() {
       </View>
 
       <View style={styles.actions}>
-        <Pressable onPress={handleShare} style={styles.shareButton}>
+        <Pressable
+          onPress={handleShare}
+          style={({ pressed }) => [
+            styles.shareButton,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
+        >
           <Text style={styles.shareButtonText}>Share Score</Text>
         </Pressable>
 
         <Pressable
           onPress={handleTryAgain}
           disabled={starting}
-          style={styles.tryAgainButton}
+          style={({ pressed }) => [
+            styles.tryAgainButton,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
         >
           {starting ? <ActivityIndicator size="small" color={colors.background} /> : null}
           <Text style={styles.tryAgainButtonText}>
