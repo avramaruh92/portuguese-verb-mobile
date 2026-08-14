@@ -135,7 +135,11 @@ export default function Index() {
       <Pressable
         onPress={handleStartQuiz}
         disabled={!canStart || starting}
-        style={[styles.startButton, (!canStart || starting) && styles.startButtonDisabled]}
+        style={({ pressed }) => [
+          styles.startButton,
+          (!canStart || starting) && styles.startButtonDisabled,
+          pressed && { backgroundColor: colors.pressed },
+        ]}
       >
         {starting ? <ActivityIndicator size="small" color={colors.background} /> : null}
         <Text style={styles.startButtonText}>
