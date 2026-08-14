@@ -142,7 +142,11 @@ export default function Quiz() {
               <Pressable
                 key={choice}
                 onPress={() => selectAnswer(choice)}
-                style={[styles.choice, style.container]}
+                style={({ pressed }) => [
+                  styles.choice,
+                  style.container,
+                  lockedChoice === null && pressed && { backgroundColor: colors.pressed },
+                ]}
               >
                 <Text style={[styles.choiceText, style.text]}>{choice}</Text>
               </Pressable>
@@ -154,7 +158,11 @@ export default function Quiz() {
 
         <Pressable
           onPress={handleAdvance}
-          style={[styles.nextButton, lockedChoice === null && styles.nextButtonHidden]}
+          style={({ pressed }) => [
+            styles.nextButton,
+            lockedChoice === null && styles.nextButtonHidden,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
           pointerEvents={lockedChoice === null ? "none" : "auto"}
         >
           <Text style={styles.nextButtonText}>Next</Text>
