@@ -102,7 +102,7 @@ source, and eliminate the blue Expo default launch flash on cold start.
 - [x] **Phase 26: Theme Palette Update** - Update design tokens to the new brand guideline palette (completed 2026-08-13)
 - [x] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch (completed 2026-08-13)
 - [x] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component (completed 2026-08-14)
-- [ ] **Phase 29: Brand Validation & Release Verification** - Automated brand checks plus a manual EAS release-build confirmation
+- [x] **Phase 29: Brand Validation & Release Verification** - Automated brand checks plus a manual EAS release-build confirmation (completed 2026-08-15)
 
 ## Phase Details
 
@@ -204,7 +204,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 29-02-PLAN.md — Author `HUMAN-UAT.md`, produce the iOS EAS `preview` build, and capture the developer's VALID-03 sign-off
+- [x] 29-02-PLAN.md — Author `HUMAN-UAT.md`, produce the iOS EAS `preview` build, and capture the developer's VALID-03 sign-off
 
 ## Progress
 
@@ -242,7 +242,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 3/3 | Complete   | 2026-08-14 |
-| 29. Brand Validation & Release Verification | v0.6 | 1/2 | In Progress|  |
+| 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete   | 2026-08-15 |
 
 ---
 
