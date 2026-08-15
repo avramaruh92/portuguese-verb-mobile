@@ -176,7 +176,11 @@ real release build, closing out the milestone.
   1. A brand validation script/check passes, confirming `app.json` has no Expo-blue splash/adaptive background, generated PNG dimensions match expected sizes, `icon.png` has no alpha channel, and the generator no longer references any old AI SVG source path.
   2. `npm test -- src/theme/tokens.test.ts`, `npm run typecheck`, and `npm run lint` all pass cleanly.
   3. On an EAS release/preview build (not Expo Go/dev client), a human confirms: cold launch shows the warm Lafa splash and never Expo blue, the iOS app icon uses the supplied SVG design, the Android adaptive icon is centered and not clipped by common masks, and Setup/Quiz/Results/modals all show the new palette consistently.
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 29-01-PLAN.md — Add `scripts/validate-brand.ts` (app.json hex, PNG dimensions/alpha, generator source-path hygiene) + `npm run validate-brand`, and run the VALID-02 gate suite
+- [ ] 29-02-PLAN.md — Author `HUMAN-UAT.md`, produce the iOS EAS `preview` build, and capture the developer's VALID-03 sign-off
 
 ## Progress
 
