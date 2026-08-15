@@ -200,7 +200,7 @@ real release build, closing out the milestone.
 Plans:
 **Wave 1**
 
-- [ ] 29-01-PLAN.md — Add `scripts/validate-brand.ts` (app.json hex, PNG dimensions/alpha, generator source-path hygiene) + `npm run validate-brand`, and run the VALID-02 gate suite
+- [x] 29-01-PLAN.md — Add `scripts/validate-brand.ts` (app.json hex, PNG dimensions/alpha, generator source-path hygiene) + `npm run validate-brand`, and run the VALID-02 gate suite
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -242,7 +242,7 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 3/3 | Complete   | 2026-08-14 |
-| 29. Brand Validation & Release Verification | v0.6 | 0/TBD | Not started | - |
+| 29. Brand Validation & Release Verification | v0.6 | 1/2 | In Progress|  |
 
 ---
 
