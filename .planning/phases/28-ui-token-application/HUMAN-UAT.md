@@ -1,5 +1,7 @@
 # Phase 28 — Human UAT
 
+**Status: APPROVED by developer, 2026-08-15.**
+
 Consolidated from `checkpoint:human-verify` tasks deferred during execution
 (`workflow.human_verify_mode = end-of-phase`, the project default).
 
