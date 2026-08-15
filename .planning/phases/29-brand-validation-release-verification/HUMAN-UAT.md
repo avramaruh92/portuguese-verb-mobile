@@ -7,6 +7,11 @@ Consolidated from `checkpoint:human-verify` tasks deferred during execution
 
 ## Build and install the EAS preview build (from Phase 21/24 release config)
 
+**Build:** `preview` profile, iOS, build ID `f86867ab-5f84-4ec4-83ca-ad0fe26b563b`,
+finished 2026-08-15T22:21:44Z.
+Artifact: https://expo.dev/artifacts/eas/eDUoPQ-c_KGcS0MczAZprhYXQJ2SDLfMU0eDksOzmmw.ipa
+Build page: https://expo.dev/accounts/avram.aruh/projects/portuguese-verb-mobile/builds/f86867ab-5f84-4ec4-83ca-ad0fe26b563b
+
 **What was built:** An installable iOS build produced via EAS's `preview`
 build profile (internal distribution, not App Store submission), covering
 all brand work shipped in Phases 25-28.
