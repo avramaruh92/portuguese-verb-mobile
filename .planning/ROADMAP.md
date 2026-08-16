@@ -150,8 +150,27 @@ Plans:
   3. Regenerated icon, splash, favicon, and Android foreground/monochrome assets exist at the same dimensions as the pre-refactor baseline
   4. `icon.png` has no alpha channel, re-confirmed against a real EAS build (not just local validation)
 
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 3 plans
+**UI hint**: yes *(generic flag — this phase is a build-script/asset-pipeline refactor with no
+screens or interaction design, so no UI-SPEC.md was produced)*
+
+Plans:
+**Wave 1**
+
+- [ ] 31-01-PLAN.md — Promote the Warm Bold Mark to `assets/brand/lafa-icon.svg` with stable
+  `mark-depth`/`mark-fill`/`mark-highlight` ids, and add the `linkedom` devDependency
+  (wave 1, checkpoint: package legitimacy gate)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 31-02-PLAN.md — Rewrite `extractMarkOnly()` to id-based extraction, compose per-output
+  layer sets with per-variant bbox, and regenerate all five PNGs (wave 2, autonomous)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 31-03-PLAN.md — Prove baseline dimensions/alpha, developer visual verification after a
+  delete-and-reinstall, and reconcile criterion 4 with D-10's Phase 35 deferral
+  (wave 3, checkpoint: human visual verify)
 
 ### Phase 32: Homepage Lockup
 
