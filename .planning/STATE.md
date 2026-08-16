@@ -2,9 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: planning
-last_updated: "2026-08-16T00:00:00.000Z"
-last_activity: 2026-08-16
+status: "Roadmap created, awaiting approval / `/gsd:plan-phase 30`"
+stopped_at: Phase 30 context gathered
+last_updated: "2026-08-16T11:58:41.821Z"
+last_activity: 2026-08-16 — v1.0 roadmap created (Phases 30-35)
 progress:
   total_phases: 6
   completed_phases: 0
@@ -65,6 +66,7 @@ None open.
 ### Blockers/Concerns
 
 None open yet. Flagged from research for phase-planning attention:
+
 - Phase 30 must confirm the exact EAS build-image Node version from real build logs, not assumed from the local dev machine, before pinning `.nvmrc`/`engines.node`/`eas.json`'s `node` field.
 - Phase 31's generator rewrite must include an explicit alpha-channel re-verification against a real EAS build (not just local `sharp`/`resvg` output) — this is the exact code path that produced the currently-solved opaque-icon invariant.
 - Phase 33 needs an explicit precedence check (locked+correct → locked+incorrect → pressed → default), not just the new token's existence, to avoid a last-writer-wins style bug.
@@ -96,9 +98,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-16 — v1.0 roadmap created
-Stopped at: ROADMAP.md/STATE.md written, awaiting user approval
-Resume file: .planning/ROADMAP.md (Phase 30 detail section)
+Last session: 2026-08-16T11:58:41.813Z
+Stopped at: Phase 30 context gathered
+Resume file: .planning/phases/30-build-pipeline-hardening/30-CONTEXT.md
 
 ## Operator Next Steps
 
