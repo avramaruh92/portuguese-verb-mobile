@@ -157,7 +157,7 @@ screens or interaction design, so no UI-SPEC.md was produced)*
 Plans:
 **Wave 1**
 
-- [ ] 31-01-PLAN.md — Promote the Warm Bold Mark to `assets/brand/lafa-icon.svg` with stable
+- [x] 31-01-PLAN.md — Promote the Warm Bold Mark to `assets/brand/lafa-icon.svg` with stable
   `mark-depth`/`mark-fill`/`mark-highlight` ids, and add the `linkedom` devDependency
   (wave 1, checkpoint: package legitimacy gate)
 
@@ -264,7 +264,7 @@ Plans:
 | 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
-| 31. Brand Asset Source & Generator | v1.0 | 0/? | Not started | - |
+| 31. Brand Asset Source & Generator | v1.0 | 1/3 | In Progress|  |
 | 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |

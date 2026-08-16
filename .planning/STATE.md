@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: executing
-stopped_at: Phase 31 context gathered
-last_updated: "2026-08-16T14:52:10.127Z"
-last_activity: 2026-08-16 -- Phase 31 planning complete
+stopped_at: Completed 31-01-PLAN.md
+last_updated: "2026-08-16T15:25:46.716Z"
+last_activity: 2026-08-16
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 3
   percent: 17
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-16)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 30 — build-pipeline-hardening
+**Current focus:** Phase 31 — brand-asset-source-generator
 
 ## Current Position
 
-Phase: 30 — COMPLETE
-Plan: 1 of 2
+Phase: 31 (brand-asset-source-generator) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-08-16 -- Phase 31 planning complete
+Last activity: 2026-08-16
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Last activity: 2026-08-16 -- Phase 31 planning complete
 | 33. Quiz Press-State Color Fix | UX-01, UX-02, UX-03 | Not started |
 | 34. Brand Validation Extension | VALID-01, VALID-02, VALID-03, VALID-04 | Not started |
 | 35. App Store Connect Readiness | STORE-01 through STORE-09 | Not started |
+| Phase 31 P01 | 25min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -58,6 +59,9 @@ Last activity: 2026-08-16 -- Phase 31 planning complete
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all show final outcomes). No new v1.0 decisions logged yet — roadmap creation only.
+
+- [Phase 31]: linkedom package legitimacy approved for build-time devDependency install (T-31-SC mitigation satisfied)
+- [Phase 31]: Worktree isolation failed to provision for plan 31-01; coordinator authorized sequential execution on plan/phase-20 instead
 
 ### Pending Todos
 
@@ -104,9 +108,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-16T14:14:26.985Z
-Stopped at: Phase 31 context gathered
-Resume file: .planning/phases/31-brand-asset-source-generator/31-CONTEXT.md
+Last session: 2026-08-16T15:25:46.708Z
+Stopped at: Completed 31-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 

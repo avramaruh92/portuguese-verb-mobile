@@ -16,7 +16,7 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 ### Brand Asset Source & Generator
 
-- [ ] **BRAND-01**: `assets/brand/lafa-icon.svg` is promoted from the Warm Bold Mark candidate (`assets/brand/candidates/lafa-icon-warm-bold.svg`), with stable `<g id="...">` layers added
+- [x] **BRAND-01**: `assets/brand/lafa-icon.svg` is promoted from the Warm Bold Mark candidate (`assets/brand/candidates/lafa-icon-warm-bold.svg`), with stable `<g id="...">` layers added
 - [ ] **BRAND-02**: `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` is rewritten to use id-based layer lookup instead of brittle fill-count string parsing
 - [ ] **BRAND-03**: Icon, splash, favicon, and Android foreground/monochrome assets are regenerated from the new source, with dimensions unchanged from the pre-refactor baseline
 - [ ] **BRAND-04**: `icon.png` remains fully opaque (no alpha channel) after regeneration, re-verified against a real EAS build (not just local validation)
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUILD-02 | Phase 30 | Pending |
 | BUILD-03 | Phase 30 | Pending |
 | BUILD-04 | Phase 30 | Pending |
-| BRAND-01 | Phase 31 | Pending |
+| BRAND-01 | Phase 31 | Complete |
 | BRAND-02 | Phase 31 | Pending |
 | BRAND-03 | Phase 31 | Pending |
 | BRAND-04 | Phase 31 | Pending |
