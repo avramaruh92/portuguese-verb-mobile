@@ -247,6 +247,46 @@
 
 ---
 
+## Milestone: v0.6 — Lafa Branding + Expo Splash Cleanup
+
+**Shipped:** 2026-08-16
+**Phases:** 5 (25, 26, 27, 28, 29) | **Plans:** 8 | **Sessions:** ~2-3 (planning + execution across Phases 25-28, then a Phase 29 EAS-build session split across two sittings, then milestone close)
+
+### What Was Built
+- Brand-asset generation pipeline rebuilt around a single user-supplied SVG source (`assets/brand/lafa-icon.svg`), retiring all AI-generated concept assets with zero remaining references
+- `src/theme/tokens.ts`'s `colors` export repointed to the new 10-key Lafa guideline palette, with `pressed`/`info`/`infoSoft` added as new alias keys, verified via an exact `toEqual()` test
+- Expo-blue splash and adaptive-icon backgrounds replaced with the warm Lafa canvas (`#FFF9F6`); `app/_layout.tsx` themes native headers/status bar/runtime root background to eliminate the post-splash white flash
+- Every screen and shared component (Setup, Quiz, Results, both feedback modals, `OfflinePill`, `ExplanationPanel`) wired to the new tokens, including pressed-state visuals via `Pressable`'s function-form `style` prop (first use of that pattern in this codebase) — zero remaining old-palette hex confirmed by a phase-wide regression grep
+- `scripts/validate-brand.ts`, a new standalone, exit-code-carrying validator (config hex, PNG dimensions/alpha, generator source hygiene) wired to `npm run validate-brand`, empirically proven to actually gate (forced-failure test confirmed exit 1)
+- A dated developer sign-off on a real EAS `preview`-profile iOS build confirming the full rebrand end-to-end, after fixing a `package.json`/`package-lock.json` react-native version drift that was blocking `npm ci` on EAS's build server
+
+### What Worked
+- **Splitting Phase 29's plan 02 across two sessions** (author `HUMAN-UAT.md` and pause vs. actually run the EAS build + capture sign-off) matched the real constraint that the second half needs the developer physically present with a device and EAS credentials — the plan wasn't forced to pretend it could finish autonomously.
+- **Treating the `npm ci` ERESOLVE failure as a blocking pre-existing bug, not scope creep**, and fixing it the structurally-correct way (regenerate the lockfile against a clean slate) rather than reaching for `--legacy-peer-deps`/`--force` kept the dependency tree's actual resolution correct instead of masking a real conflict — consistent with how the same class of bug was handled in v0.5.
+- **A phase-wide regression gate (grep for retired hex values + manual press-tracking patterns) run as an explicit Task 3** in Phase 28's last plan, rather than trusted implicitly from earlier plans' own scoped diffs, caught the milestone's cross-cutting UI-02 requirement with a single command instead of a screen-by-screen re-audit.
+- **`validate-brand.ts` declaring its forbidden-hex/retired-asset literals independently from `generate-brand-assets.ts`** (rather than importing them) meant the validator couldn't silently agree with a broken generator — a deliberate design choice from CONTEXT.md, confirmed correct by the fail-path proof (forced `#E6F4FE` perturbation → exit 1, then confirmed a clean revert).
+
+### What Was Inefficient
+- **The npm-version lockfile drift bug recurred for a third time** (Phase 20 in v0.5, Phase 24 in v0.5, now Phase 29 in v0.6) — the exact same root cause (local npm tolerating a `package.json`/lockfile mismatch that `npm ci` on EAS's build server doesn't) despite being flagged as "a strong candidate for the next milestone" after both prior occurrences. Writing the recommendation down twice did not make it happen.
+- **REQUIREMENTS.md's checkboxes and traceability table for UI-01/UI-02 (Phase 28) and VALID-01/02/03 (Phase 29) were still unchecked/"Pending" at milestone-close time**, despite both phases' own VERIFICATION.md/SUMMARY.md files independently confirming completion (Phase 28: 7/7 truths verified, `human_needed` only pending the already-approved HUMAN-UAT; Phase 29: VALID-01/02/03 explicitly stated "all closed" in the SUMMARY) — caught only at `/gsd:complete-milestone` time via the pre-close audit surfacing stale `human_needed`/`unknown` statuses, which on inspection turned out to be false positives (both HUMAN-UAT.md files were already dated-approved). This is the same requirements-doc-sync gap flagged as a structural, recurring pattern in every prior milestone's retrospective (v0.1, v0.3, v0.4) — still not prevented at phase-close time in v0.6 either.
+- **The pre-close artifact audit's `uat_gaps`/`verification_gaps` flags were stale metadata, not real gaps** — both Phase 28 and Phase 29's `HUMAN-UAT.md` files already read "APPROVED by developer" in their content, but the audit tool's own status field (`unknown`/`human_needed`) hadn't been updated to match. Required manually reading the actual file contents to distinguish a real open item from a stale flag, rather than trusting the audit's structured summary at face value.
+
+### Patterns Established
+- **A brand/asset regression validator should declare its own forbidden-value literals independently of the generator it's validating** — this is now a confirmed, deliberate pattern (documented in 29-CONTEXT.md's D-03) worth applying to any future "prove X still holds" validation script in this codebase.
+- **Pressed-state visuals belong on `Pressable`'s function-form `style` prop, not `onPressIn`/`onPressOut` + manual `useState` tracking** — first use in this codebase (Phase 28), confirmed regression-gated (zero `onPressIn`/`onPressOut` matches), now the standard approach for any future interactive-state styling.
+
+### Key Lessons
+1. The npm-version lockfile drift (local npm tolerating a mismatch `npm ci` rejects) has now recurred three times across two milestones despite being flagged as a fix-later item twice. A written recommendation in a SUMMARY.md is not a mitigation — only an actual `.nvmrc`/CI Node-version guard would be. This is now the single most-recurring unaddressed tech debt item in the project and should be the first thing tackled in the next milestone, not carried forward a fourth time.
+2. When a milestone-close pre-flight audit flags `human_needed`/`unknown` status items, read the actual referenced file's content before treating it as a real gap — the audit's structured status field can lag behind a human sign-off that already happened, and the fix is a one-line correction to the tracking metadata, not a blocker to close.
+3. Requirements-doc staleness (checkboxes/traceability table lagging real completion) has now been observed at or near every milestone boundary since v0.1 — the repeated fix (catch it at complete-milestone time) works, but never being prevented at phase-close time means it's now a fully expected, budgeted-for step of every milestone close rather than a surprise. Worth treating as a standing item in the complete-milestone checklist rather than continuing to flag it as a "gap" each time.
+
+### Cost Observations
+- Model mix: sonnet for execution/verification across all 5 phases; no parallel worktree dispatch needed this milestone (phases were largely sequential due to real dependency chains — assets → tokens → config/UI → validation).
+- Sessions: ~2-3 (Phases 25-28 executed across earlier sessions, Phase 29 split explicitly across two sessions to accommodate the developer's own EAS build/device-verification availability, then a separate milestone-close session)
+- Notable: this was the second milestone (after v0.5) where an external tooling/environment bug (the lockfile drift) cost real diagnosis time despite being a known, previously-fixed issue — reinforcing that "fixed once" tooling bugs in this project need durable prevention, not repeated manual fixes.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -259,6 +299,7 @@
 | v0.3 | ~1 | 4 | Fastest milestone yet (~1 day); first to have executor agents self-heal a worktree-vs-main dependency gap independently, and first where a human-verify "not seeing it" report was correctly diagnosed as an external (backend deploy) then internal (unmerged worktree) issue rather than the plan's own code |
 | v0.4 | ~2 | 3 | First milestone where a phase's own pre-registered threat model (STRIDE register) directly named the exact human-verify failure mode that occurred, cutting a cross-repo-blocker diagnosis to a single `curl` call; requirements-doc-sync staleness recurred for the 4th consecutive milestone |
 | v0.5 | ~3 | 5 | First pure release-engineering milestone (zero new product code); first to have an entire phase (24-03) run conversationally as human-only checkpoints rather than any subagent dispatch; first to retroactively backfill VERIFICATION.md files during milestone audit to close a `gaps_found` status; a tooling-version bug (npm lockfile drift) recurred despite being explicitly flagged as a recurrence risk when first fixed |
+| v0.6 | ~2-3 | 5 | First pure brand/visual milestone (zero product/UX-flow changes); first use of `Pressable`'s function-form `style` prop for pressed-state visuals; first milestone-close pre-flight audit to flag a false-positive gap (stale `human_needed`/`unknown` status vs. an already-approved HUMAN-UAT.md) rather than a real one; the npm lockfile-drift tooling bug recurred a third time despite being flagged as a fix candidate twice before |
 
 ### Cumulative Quality
 
@@ -270,6 +311,7 @@
 | v0.3 | 192 | Not measured via coverage tool this milestone | 0 (new `src/learning/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 | v0.4 | 251 | Not measured via coverage tool this milestone | 0 (new `src/productFeedback/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 | v0.5 | 251 | Not measured via coverage tool this milestone | 2 devDependencies (`@resvg/resvg-js`, `sharp` for the icon pipeline) + `eas-cli` pinned as a devDependency (deliberate tradeoff, D-04) — zero application-code dependency changes, release-engineering only |
+| v0.6 | 251 | Not measured via coverage tool this milestone | 0 (new `scripts/validate-brand.ts` built entirely on existing `sharp`/TypeScript stack, no new npm packages; `package-lock.json` regenerated to fix drift, not to add a dependency) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -286,3 +328,5 @@
 11. Independent re-verification of a user-reported cross-repo fix (e.g., re-`curl`ing a live endpoint during phase/milestone audit rather than trusting "it works now") is cheap insurance worth doing every time, even when it only corroborates rather than catches something new.
 12. A tooling/environment bug fixed once but not made durable (e.g., a lockfile-vs-build-image npm version mismatch fixed manually without a pinned `.nvmrc`/CI guard) will recur — writing "recommend adding X for a future phase" in a SUMMARY is not the same as it actually happening; track it as an explicit Out of Scope/backlog item with an owner, not a passive footnote (confirmed in v0.5, where the exact same lockfile bug cost two separate diagnosis-and-fix cycles).
 13. Skipping a phase's formal `gsd-verifier` pass at close time (even for release-engineering phases with no application code) doesn't remove the need for verification — it just relocates the cost to milestone-audit time, where a `gaps_found` status requires explicit user sign-off to resolve even when the underlying work is solid (confirmed in v0.5, Phases 20/22).
+14. A tooling/environment bug flagged as a "recommend fixing later" item is not self-enforcing — the npm lockfile-drift bug recurred a third time in v0.6 despite being written down twice in v0.5. If a recurring bug's fix requires a durable artifact (a `.nvmrc`, a CI guard), track it as a scheduled backlog item with an owner and a milestone target, not a passive footnote that gets re-flagged and re-deferred indefinitely.
+15. A milestone-close pre-flight audit's structured status flags (`human_needed`, `unknown`) can themselves be stale — always read the actual referenced artifact's content before treating a flagged item as a real open gap; the fix for a false positive is a one-line metadata correction, not a blocker (confirmed in v0.6, where both Phase 28 and 29's HUMAN-UAT.md were already dated-approved despite the audit's status field disagreeing).
