@@ -1,14 +1,5 @@
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -78,10 +69,7 @@ export default function Index() {
   return (
     <>
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom }]}
-      >
+      <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <OfflinePill />
       <Image
         source={require("../assets/images/lafa-homepage-lockup.png")}
@@ -179,7 +167,7 @@ export default function Index() {
         platform={platform}
         onClose={() => setProductFeedbackVisible(false)}
       />
-      </ScrollView>
+      </View>
     </>
   );
 }
@@ -187,16 +175,12 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: spacing.md,
+    backgroundColor: colors.background,
   },
   lockup: {
-    width: "100%",
-    maxWidth: 400,
+    height: 56,
     aspectRatio: 1600 / 520,
     alignSelf: "center",
     marginBottom: spacing.lg,
