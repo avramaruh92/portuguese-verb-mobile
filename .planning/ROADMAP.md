@@ -234,7 +234,15 @@ Plans:
   3. `scripts/validate-brand.ts` checks that `icon.png` has no alpha channel
   4. `scripts/validate-brand.ts` checks that the homepage lockup output is present
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+**Wave 1**
+
+- [ ] 34-01-PLAN.md — Add the `LOCKUP_PATH`/`LOCKUP_WIDTH_PX`/`LOCKUP_HEIGHT_PX` constants and the
+  single `checkPngDimensions("lafa-homepage-lockup.png dimensions", ..., 3200, 1040)` call to
+  `scripts/validate-brand.ts`, then prove the gate fails (exit 1) without the lockup and document
+  the VALID-01..04 requirement-to-check mapping (wave 1, autonomous)
 
 ### Phase 35: App Store Connect Readiness
 
