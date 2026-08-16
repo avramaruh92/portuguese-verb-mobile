@@ -163,7 +163,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 31-02-PLAN.md — Rewrite `extractMarkOnly()` to id-based extraction, compose per-output
+- [x] 31-02-PLAN.md — Rewrite `extractMarkOnly()` to id-based extraction, compose per-output
   layer sets with per-variant bbox, and regenerate all five PNGs (wave 2, autonomous)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -264,7 +264,7 @@ Plans:
 | 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
-| 31. Brand Asset Source & Generator | v1.0 | 1/3 | In Progress|  |
+| 31. Brand Asset Source & Generator | v1.0 | 2/3 | In Progress|  |
 | 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
