@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v0.6
 milestone_name: Lafa Branding + Expo Splash Cleanup
-status: executing
+status: Awaiting next milestone
 stopped_at: Phase 29 context gathered
-last_updated: "2026-08-15T10:20:00.143Z"
-last_activity: 2026-08-15 -- Phase 29 execution started
+last_updated: "2026-08-16T08:58:25.126Z"
+last_activity: 2026-08-16 — Milestone v0.6 completed and archived
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,10 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 
 ## Current Position
 
-Phase: 29 (brand-validation-release-verification) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 29
-Last activity: 2026-08-15 -- Phase 29 execution started
-
-Progress: [████████░░] 80%
+Phase: Milestone v0.6 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-16 — Milestone v0.6 completed and archived
 
 ## Performance Metrics
 
@@ -105,5 +103,4 @@ Resume file: .planning/phases/29-brand-validation-release-verification/29-CONTEX
 
 ## Operator Next Steps
 
-- Review and approve the v0.6 roadmap (Phases 25-29)
-- Run `/gsd:plan-phase 25` to begin planning the Brand Asset Pipeline phase
+- Start the next milestone with /gsd-new-milestone

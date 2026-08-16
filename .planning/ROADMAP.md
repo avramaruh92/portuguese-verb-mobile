@@ -8,7 +8,7 @@
 - ✅ **v0.3 Learning Quality Upgrade** — Phases 13-16 (shipped 2026-07-21)
 - ✅ **v0.4 Backend v0.4 Contract Sync + Product Feedback** — Phases 17-19 (shipped 2026-07-22)
 - ✅ **v0.5 iOS TestFlight Readiness** — Phases 20-24 (shipped 2026-07-25)
-- 🚧 **v0.6 Lafa Branding + Expo Splash Cleanup** — Phases 25-29 (in progress)
+- ✅ **v0.6 Lafa Branding + Expo Splash Cleanup** — Phases 25-29 (shipped 2026-08-16)
 
 ## Phases
 
@@ -91,125 +91,21 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 </details>
 
-### 🚧 v0.6 Lafa Branding + Expo Splash Cleanup (In Progress)
+<details>
+<summary>✅ v0.6 Lafa Branding + Expo Splash Cleanup (Phases 25-29) — SHIPPED 2026-08-16</summary>
 
-**Milestone Goal:** Replace the AI-generated Lafa brand assets with the
-user-supplied SVG icon as the canonical source, update the app palette to
-the new brand guideline, regenerate every Expo app/startup asset from that
-source, and eliminate the blue Expo default launch flash on cold start.
+- [x] Phase 25: Brand Asset Pipeline (1/1 plan) — completed 2026-08-13
+- [x] Phase 26: Theme Palette Update (1/1 plan) — completed 2026-08-13
+- [x] Phase 27: Expo Config & Startup Flash Fix (1/1 plan) — completed 2026-08-13
+- [x] Phase 28: UI Token Application (3/3 plans) — completed 2026-08-14
+- [x] Phase 29: Brand Validation & Release Verification (2/2 plans) — completed 2026-08-15
 
-- [x] **Phase 25: Brand Asset Pipeline** - Regenerate all app assets from the user-supplied SVG, retire the old AI-generated sources (completed 2026-08-13)
-- [x] **Phase 26: Theme Palette Update** - Update design tokens to the new brand guideline palette (completed 2026-08-13)
-- [x] **Phase 27: Expo Config & Startup Flash Fix** - Eliminate the Expo-blue splash/background flash on cold launch (completed 2026-08-13)
-- [x] **Phase 28: UI Token Application** - Apply the new palette across every screen and shared component (completed 2026-08-14)
-- [x] **Phase 29: Brand Validation & Release Verification** - Automated brand checks plus a manual EAS release-build confirmation (completed 2026-08-15)
+Full phase details, plan breakdowns, and success criteria archived in
+`.planning/milestones/v0.6-ROADMAP.md`.
 
-## Phase Details
-
-### Phase 25: Brand Asset Pipeline
-
-**Goal**: The user-supplied SVG icon is the sole source for every generated
-app asset, and the old AI-generated concept assets no longer exist or are
-referenced anywhere in the repo.
-**Depends on**: Phase 24 (v0.5, complete)
-**Requirements**: BRAND-01, BRAND-02, BRAND-03
-**Success Criteria** (what must be TRUE):
-
-  1. `scripts/generate-brand-assets.ts` reads only `assets/brand/lafa-icon.svg` — no code path references `lafa-logo.svg`, `lafa-logo-v2.svg`, or any concept PNG.
-  2. Running `npm run generate-assets` produces `icon.png` (1024x1024, opaque RGB, no alpha channel), `favicon.png` (48x48), `splash-icon.png` (transparent, mark only, no background rectangle), `android-icon-foreground.png` (1024x1024, transparent, mark centered in the Android safe zone), and `android-icon-monochrome.png` (1024x1024, transparent monochrome mask).
-  3. The old AI-generated brand source/concept files are deleted from the repo, or confirmed to have zero remaining references if removal is unsafe.
-
-**Plans**: 1 plan
-
-Plans:
-
-- [x] 25-01-PLAN.md — Rename source SVG, delete legacy brand assets, rewrite the generator for all five outputs, regenerate and verify
-
-### Phase 26: Theme Palette Update
-
-**Goal**: The app's design-token module carries the new brand guideline
-palette as the single source of truth for color going forward.
-**Depends on**: Phase 24 (v0.5, complete)
-**Requirements**: THEME-01, THEME-02
-**Success Criteria** (what must be TRUE):
-
-  1. `src/theme/tokens.ts` exports the new guideline palette (primary orange `#F2643E`, deep orange `#C94A2D`, soft peach `#FDE7DF`, teal `#36799A`, green `#1F7F66`, ink `#24201E`, stone `#746D69`, canvas `#F1EFED`, warm background `#FFF9F6`) under existing semantic token names, with new aliases added only for pressed/info/background states.
-  2. `src/theme/tokens.test.ts` asserts the new palette values and passes.
-
-**Plans**: 1 plan
-
-Plans:
-
-- [x] 26-01-PLAN.md — Update the `colors` assertion in `tokens.test.ts`, then repoint the `colors` export in `tokens.ts` to the new guideline palette
-
-### Phase 27: Expo Config & Startup Flash Fix
-
-**Goal**: Cold app launch never shows Expo's default blue splash or an
-unbranded background — the warm Lafa background is visible end-to-end from
-splash through first paint.
-**Depends on**: Phase 25 (regenerated `splash-icon.png`), Phase 26 (brand tokens)
-**Requirements**: CONFIG-01, CONFIG-02, CONFIG-03, CONFIG-04
-**Success Criteria** (what must be TRUE):
-
-  1. `app.json`'s `expo-splash-screen` plugin config uses the warm background (`#FFF9F6`) instead of Expo blue (`#208AEF`), points `image` at the regenerated `splash-icon.png`, and sets `imageWidth` to `160`.
-  2. `app.json`'s `android.adaptiveIcon.backgroundColor` uses the warm background instead of the old Expo-blue-tinted value, and `backgroundImage` is removed.
-  3. `app.json`'s `userInterfaceStyle` is `"light"`.
-  4. `app/_layout.tsx` applies brand tokens to the Stack's `contentStyle`/`headerStyle`/`headerTintColor`/`headerShadowVisible`, configures `StatusBar` for dark content on the warm background, and sets the runtime root background via `expo-system-ui` to `#FFF9F6` so no white/default flash appears after the splash screen.
-
-**Plans**: 1 plan
-**UI hint**: yes
-
-Plans:
-
-- [x] 27-01-PLAN.md — Apply brand values to app.json (splash, adaptive icon, appearance), delete the orphaned Android background asset, and wire root-layout header/status-bar/system-UI theming
-
-### Phase 28: UI Token Application
-
-**Goal**: Every screen and shared component visually reflects the new
-brand palette, with zero remaining dependence on old palette hex values.
-**Depends on**: Phase 25 (icon asset for the Setup heading), Phase 26 (updated tokens)
-**Requirements**: UI-01, UI-02
-**Success Criteria** (what must be TRUE):
-
-  1. The Setup screen's "Lafa" heading uses either the generated icon mark plus token-styled text, or a token-styled text-only heading if no vector wordmark is available — no wordmark is invented.
-  2. Setup, Quiz, Results, both feedback modals (`ReportFeedbackModal`, `ProductFeedbackModal`), `OfflinePill`, and `ExplanationPanel` all consume the updated tokens — a repo-wide search finds zero occurrences of the old palette hex values (`#208AEF`, `#E6F4FE`, `#E8663D`, `#FCE4DA`, `#2FA84F`) in `app/`/`src/`.
-
-**Plans**: 3 plans
-**UI hint**: yes
-
-Plans:
-
-- [x] 28-01-PLAN.md — Add the `colors.infoSoft` token (+ test assertion) and switch `OfflinePill` to the info/infoSoft teal pairing
-- [x] 28-02-PLAN.md — Wire `colors.pressed` into Setup/Quiz/Results primary buttons via `Pressable`'s function-form `style` prop, and confirm the UI-01 text-only heading
-- [x] 28-03-PLAN.md — Wire pressed state into both feedback modals' submit/retry buttons and run the phase-wide old-palette regression gate
-
-### Phase 29: Brand Validation & Release Verification
-
-**Goal**: The rebrand is provably correct both by automated check and on a
-real release build, closing out the milestone.
-**Depends on**: Phase 27, Phase 28
-**Requirements**: VALID-01, VALID-02, VALID-03
-**Success Criteria** (what must be TRUE):
-
-  1. A brand validation script/check passes, confirming `app.json` has no Expo-blue splash/adaptive background, generated PNG dimensions match expected sizes, `icon.png` has no alpha channel, and the generator no longer references any old AI SVG source path.
-  2. `npm test -- src/theme/tokens.test.ts`, `npm run typecheck`, and `npm run lint` all pass cleanly.
-  3. On an EAS release/preview build (not Expo Go/dev client), a human confirms: cold launch shows the warm Lafa splash and never Expo blue, the iOS app icon uses the supplied SVG design, the Android adaptive icon is centered and not clipped by common masks, and Setup/Quiz/Results/modals all show the new palette consistently.
-
-**Plans**: 2 plans
-
-Plans:
-**Wave 1**
-
-- [x] 29-01-PLAN.md — Add `scripts/validate-brand.ts` (app.json hex, PNG dimensions/alpha, generator source-path hygiene) + `npm run validate-brand`, and run the VALID-02 gate suite
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 29-02-PLAN.md — Author `HUMAN-UAT.md`, produce the iOS EAS `preview` build, and capture the developer's VALID-03 sign-off
+</details>
 
 ## Progress
-
-**Execution Order:**
-Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each other and could run in parallel; 27 and 28 both depend on 25+26; 29 depends on 27+28).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|-----------------|--------|-----------|
@@ -238,13 +134,13 @@ Phases 25 → 26 → 27 → 28 → 29 (25 and 26 have no dependency on each othe
 | 22. Icon & Splash Asset Pipeline | v0.5 | 3/3 | Complete | 2026-07-23 |
 | 23. EAS Build/Submit Configuration | v0.5 | 1/1 | Complete | 2026-07-23 |
 | 24. Quality Gates, Preflight & First Submit | v0.5 | 3/3 | Complete | 2026-07-25 |
-| 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete    | 2026-08-13 |
-| 26. Theme Palette Update | v0.6 | 1/1 | Complete   | 2026-08-13 |
-| 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete    | 2026-08-13 |
-| 28. UI Token Application | v0.6 | 3/3 | Complete   | 2026-08-14 |
-| 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete   | 2026-08-15 |
+| 25. Brand Asset Pipeline | v0.6 | 1/1 | Complete | 2026-08-13 |
+| 26. Theme Palette Update | v0.6 | 1/1 | Complete | 2026-08-13 |
+| 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete | 2026-08-13 |
+| 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
+| 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 
 ---
 
-*Milestones v0.0, v0.1, v0.2, v0.3, v0.4, and v0.5 shipped. v0.6 roadmap
-created 2026-08-13, awaiting user approval before planning begins.*
+*Milestones v0.0, v0.1, v0.2, v0.3, v0.4, v0.5, and v0.6 shipped. Run
+`/gsd:new-milestone` to start the next milestone.*

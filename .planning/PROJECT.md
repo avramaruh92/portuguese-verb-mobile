@@ -83,7 +83,26 @@ surviving two real blocking bugs along the way (an EAS project
 slug/local-slug mismatch inherited from the rebrand, and an npm-version
 lockfile drift between the local dev machine and the EAS build image).
 
-## Current State (v0.5 shipped)
+**Shipped in v0.6:** the app's visual identity is rebuilt from a single
+user-supplied source. `assets/brand/lafa-icon.svg` replaces the old
+AI-generated concept assets as the sole input to
+`scripts/generate-brand-assets.ts`, regenerating icon/favicon/splash/Android
+adaptive assets. `src/theme/tokens.ts` carries the new 10-key Lafa guideline
+palette (primary orange `#F2643E`, deep orange `#C94A2D`, teal `#36799A`,
+warm background `#FFF9F6`, etc.), with `pressed`/`info`/`infoSoft` added as
+new alias keys. The Expo-blue splash and adaptive-icon backgrounds are gone
+— cold launch now shows the warm Lafa canvas with no unbranded flash, native
+headers/status bar are themed, and `userInterfaceStyle` is locked to light.
+Every screen and shared component (Setup, Quiz, Results, both feedback
+modals, `OfflinePill`, `ExplanationPanel`) consumes the new tokens, including
+new pressed-state visuals on primary-action buttons, with zero remaining
+old-palette hex anywhere in `app/`/`src/`. A new `scripts/validate-brand.ts`
+automates the rebrand's correctness proof (config hex, PNG dimensions/alpha,
+generator source hygiene) as a permanent regression gate, and the rebrand
+was confirmed end-to-end on a real EAS preview build with dated developer
+sign-off.
+
+## Current State (v0.6 shipped)
 
 - Setup → Quiz → Results loop, backed by a live-fetched dataset with silent
   local fallback, snapshotted per session (Zustand store) — unchanged since
@@ -146,6 +165,15 @@ lockfile drift between the local dev machine and the EAS build image).
   an internal tester has installed and launched the app
 - No new product features or UI in v0.5 — this was entirely release
   engineering; the Setup → Quiz → Results loop is unchanged since v0.4
+- Full visual rebrand shipped in v0.6: brand assets regenerated from a
+  single user-supplied SVG source, `src/theme/tokens.ts` carries the new
+  Lafa guideline palette, Expo-blue splash/adaptive-icon backgrounds and
+  the post-splash white flash are gone, every screen/shared component
+  consumes the new tokens (incl. pressed-state visuals), and
+  `scripts/validate-brand.ts` gates the rebrand as a permanent regression
+  check — confirmed on a real EAS preview build with developer sign-off.
+  No product/UX-flow changes; the Setup → Quiz → Results loop is
+  unchanged since v0.4.
 
 ## Core Value
 
@@ -175,6 +203,11 @@ with quiz-answer feedback) and on-device.
 milestone by design, with zero product/UI changes; the core loop is
 byte-for-byte the same app v0.4 shipped, now distributed via TestFlight
 instead of Expo Go.
+
+**Still the right priority after shipping v0.6** — a brand/visual pass by
+design, with zero product/UX-flow changes; the core loop is functionally
+identical to what v0.5 shipped, now wearing the correct brand identity
+end-to-end (assets, palette, splash, on-screen tokens).
 
 ## Requirements
 
@@ -283,6 +316,38 @@ just trusted from SUMMARY claims — see `.planning/v0.5-MILESTONE-AUDIT.md`.
 immutable server-side registration; user-facing branding (`name: "Lafa"`,
 `scheme: "lafa"`, `bundleIdentifier`) is unaffected.
 
+- ✓ `assets/brand/lafa-icon.svg` (user-supplied SVG) is the sole source
+  `scripts/generate-brand-assets.ts` consumes — v0.6 (BRAND-01)
+- ✓ Old AI-generated brand assets removed/unreferenced — v0.6 (BRAND-02)
+- ✓ Generator produces icon/favicon/splash/Android adaptive
+  foreground+monochrome to spec (opaque icon, transparent splash mark,
+  centered Android safe-zone mark) — v0.6 (BRAND-03)
+- ✓ `src/theme/tokens.ts` carries the new guideline palette with existing
+  semantic names preserved, new pressed/info aliases added — v0.6
+  (THEME-01)
+- ✓ `tokens.test.ts` asserts the new palette values exactly — v0.6
+  (THEME-02)
+- ✓ `app.json` splash/adaptive-icon config off Expo blue, warm background,
+  `imageWidth` 160, no `backgroundImage` — v0.6 (CONFIG-01, CONFIG-02)
+- ✓ `userInterfaceStyle` locked to `"light"` — v0.6 (CONFIG-03)
+- ✓ `app/_layout.tsx` themes headers/status bar/runtime root background,
+  eliminating the post-splash flash — v0.6 (CONFIG-04)
+- ✓ Setup heading stays token-styled text, no invented wordmark — v0.6
+  (UI-01)
+- ✓ Setup, Quiz, Results, both feedback modals, `OfflinePill`,
+  `ExplanationPanel` all consume updated tokens, zero old-palette hex
+  remains — v0.6 (UI-02)
+- ✓ `scripts/validate-brand.ts` automates config/asset/generator-hygiene
+  validation as a permanent gate — v0.6 (VALID-01)
+- ✓ Full test/typecheck/lint suite passes after the palette/config
+  changes — v0.6 (VALID-02)
+- ✓ Manually verified on a real EAS preview build (not Expo Go/dev
+  client): splash, icon, palette all correct — v0.6 (VALID-03)
+
+All 14 v0.6 requirements shipped and independently verified, including a
+dated developer sign-off on a real EAS preview build — see
+`.planning/milestones/v0.6-REQUIREMENTS.md`.
+
 ### Active
 
 To be defined in `.planning/REQUIREMENTS.md` for the next milestone
@@ -290,88 +355,42 @@ To be defined in `.planning/REQUIREMENTS.md` for the next milestone
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
-`.planning/milestones/v0.4-REQUIREMENTS.md`, and `.planning/milestones/v0.5-REQUIREMENTS.md`.
+`.planning/milestones/v0.4-REQUIREMENTS.md`, `.planning/milestones/v0.5-REQUIREMENTS.md`,
+and `.planning/milestones/v0.6-REQUIREMENTS.md`.
 
-## Current Milestone: v0.6 Lafa Branding + Expo Splash Cleanup
+## Next Milestone
 
-**Goal:** Replace the AI-generated Lafa brand assets with the user-supplied
-SVG icon as the canonical source, update the app palette to the new brand
-guideline, regenerate every Expo app/startup asset from that source, and
-eliminate the blue Expo default launch flash on cold start.
+To be defined via `/gsd:new-milestone`.
 
-**Progress:** Phase 25 (Brand Asset Pipeline) complete 2026-08-13 —
-`assets/brand/lafa-icon.svg` is the sole source consumed by
-`scripts/generate-brand-assets.ts` (rewritten around its two-shape
-structure), all five app assets (icon/favicon/splash/Android
-foreground+monochrome) regenerate to spec, and the old AI-concept assets
-(`lafa-logo.svg`, `lafa-logo-v2.svg`, both concept PNGs) are deleted with
-zero remaining references. BRAND-01/02/03 validated (11/11 must-haves,
-`25-VERIFICATION.md`). Palette application (Phase 26), `app.json`
-splash/adaptive-icon config (Phase 27), and per-screen theming (Phase 28)
-remain.
-
-**Target features:**
-- `assets/brand/lafa-icon.svg` (the user-supplied icon) becomes the sole
-  source consumed by `scripts/generate-brand-assets.ts`; old AI-concept
-  assets (`lafa-logo.svg`, `lafa-logo-v2.svg`, concept PNGs) are removed or
-  unreferenced.
-- `src/theme/tokens.ts` updated to the new guideline palette (primary
-  orange `#F2643E`, deep orange `#C94A2D`, soft peach `#FDE7DF`, teal
-  `#36799A`, green `#1F7F66`, ink `#24201E`, stone `#746D69`, canvas
-  `#F1EFED`, warm background `#FFF9F6`), keeping existing semantic token
-  names where possible.
-- Regenerated `icon.png`, `favicon.png`, `splash-icon.png` (transparent,
-  mark-only), Android adaptive foreground + monochrome images; Android
-  adaptive background image usage removed in favor of a solid background
-  color.
-- `app.json` splash/adaptive-icon config updated off Expo blue
-  (`#208AEF` → `#FFF9F6`), `imageWidth` set to `160`, Android
-  `backgroundImage` removed, `userInterfaceStyle` set to `"light"`.
-- `app/_layout.tsx` applies brand tokens to the Stack/header/status bar and
-  sets the runtime root background via `expo-system-ui` to prevent a
-  post-splash flash.
-- New palette applied across Setup, Quiz, Results, feedback modals,
-  `OfflinePill`, and `ExplanationPanel` — no screen still hardcodes/depends
-  on the old Expo-blue or old brand hex values.
-- A brand validation script/check confirming no blue splash/adaptive
-  background remains, generated PNG dimensions are correct, `icon.png` has
-  no alpha channel, and the generator no longer references old SVG sources.
-
-**Key context:** Sourced from a plan document
-(`Lafa Branding + Expo Splash Cleanup Plan.md`) already reviewed and
-confirmed against the current codebase (verified `#208AEF` blue splash,
-old `#E8663D`/`#2FA84F` palette, and existing
-`scripts/generate-brand-assets.ts` all match the plan's assumptions before
-scoping). Final splash/flash verification must happen on an EAS
-release/preview build, not Expo Go/dev client, per Expo's splash-screen
-docs. No precise vector wordmark exists yet — do not invent one; typography
-stays system-based.
-
-New tech debt surfaced during v0.4 (non-blocking, see
-`.planning/v0.4-MILESTONE-AUDIT.md` for full detail, carried forward —
-none addressed by v0.5's release-engineering scope):
+Non-blocking tech debt carried forward (none addressed by v0.6's brand-asset
+scope; see prior milestone audits for full detail):
 - `selectExplanation`'s `selectedTenseLabel`/`selectedSubjectLabel` are only
   populated when matches agree — if a future backend `templates.generic`
   string ever adds a placeholder for either, it would render un-replaced
-  rather than fail closed. No current template exercises this path.
-- Phases 17/18/19's `VALIDATION.md` task tables were never updated
+  rather than fail closed. No current template exercises this path (v0.4).
+- Phases 15, 17/18/19's `VALIDATION.md` task tables were never updated
   post-execution (stale "pending" status despite each phase's independent
   VERIFICATION.md confirming all tests pass) — a pre-existing
-  documentation-habit gap in this project, not unique to v0.4.
-
-New tech debt surfaced during v0.5 (non-blocking, see
-`.planning/v0.5-MILESTONE-AUDIT.md` for full detail):
+  documentation-habit gap in this project (v0.3/v0.4).
 - `npx expo-doctor` reports 2 advisory failures (`eas` npm script vs.
   `.bin` conflict, `eas-cli` as a project dependency) — a deliberate,
-  documented Phase 20 tradeoff (D-04) to bypass a stale global `eas-cli`
-  shadowing this dev machine's `npx` resolution, not a regression.
-- Phase 20 and 22's `VERIFICATION.md` were backfilled retroactively during
-  the milestone audit rather than generated immediately post-execution —
-  flagged `retroactive: true` in both files' frontmatter for traceability.
+  documented Phase 20 tradeoff (D-04), not a regression (v0.5).
+- No durable Node-version pin (`.nvmrc`/CI guard) exists — the npm-version
+  lockfile drift (newer local npm vs. the EAS build image's npm) has now
+  recurred **three times** (Phase 20, Phase 24, and again in v0.6 Phase
+  29's `29-02` plan) despite being flagged as a strong next-milestone
+  candidate after both prior occurrences. Real, recurring friction —
+  strong candidate to finally address in the next milestone.
+- Locked Lafa palette (pre-v0.6) computed below WCAG AA 4.5:1 contrast on
+  several text/background pairings, user-approved after live device
+  review (v0.2) — the v0.6 replacement palette was not independently
+  contrast-audited against this same bar; worth a spot-check if
+  accessibility becomes a priority.
 
-Full v0.3/v0.4/v0.5 goal/scope detail archived at
+Full v0.3/v0.4/v0.5/v0.6 goal/scope detail archived at
 `.planning/milestones/v0.3-ROADMAP.md`, `.planning/milestones/v0.4-ROADMAP.md`,
-and `.planning/milestones/v0.5-ROADMAP.md`.
+`.planning/milestones/v0.5-ROADMAP.md`, and
+`.planning/milestones/v0.6-ROADMAP.md`.
 
 ### Out of Scope
 
@@ -402,7 +421,10 @@ and `.planning/milestones/v0.5-ROADMAP.md`.
 - Full public App Store listing (screenshots, description, privacy nutrition label) — TestFlight-only distribution this milestone. **Still valid.**
 - `.eas/workflows/` automated build+submit CI pipeline — one-shot manual build/submit was sufficient for the first release; automation is premature before a second release cycle. **Still valid**, tracked as v2 candidate `RELEASE-01`.
 - Fastlane / manually-managed `.p12` credentials — EAS-managed (remote) Apple credentials chosen instead; no existing fastlane/match infrastructure to build on. **Still valid.**
-- Durable Node-version pin (`.nvmrc` or CI guard) — the npm-version lockfile drift (Node 25/npm 11 local vs. Node 22/npm 10 EAS build image) recurred twice in v0.5 (Phase 20's throwaway build, then again in Phase 24's real build) despite Phase 20 explicitly flagging it as a recommendation for a later phase. **Not yet addressed** — real recurring friction, strong candidate for the next milestone rather than deferred indefinitely.
+- Durable Node-version pin (`.nvmrc` or CI guard) — the npm-version lockfile drift (Node 25/npm 11 local vs. Node 22/npm 10 EAS build image) recurred twice in v0.5 (Phase 20's throwaway build, then again in Phase 24's real build) despite Phase 20 explicitly flagging it as a recommendation for a later phase. **Not yet addressed** — recurred a third time in v0.6 (Phase 29); strong candidate for the next milestone rather than deferred indefinitely.
+- Hand-drawn/vector wordmark — no precise vector wordmark was supplied for v0.6 either; typography stayed system-based per plan assumptions. **Still valid.**
+- Full dark mode / dual theme system — `userInterfaceStyle` stayed locked to `"light"` through v0.6; no dual-theme system exists yet. **Still valid.**
+- Redesigning icon/screen layout or IA — v0.6 was a brand-asset/token substitution pass only, confirmed zero layout/IA changes across all 5 phases. **Still valid.**
 
 ## Context
 
@@ -432,43 +454,55 @@ and `.planning/milestones/v0.5-ROADMAP.md`.
   the backend now serves `GET /content/verbs` and the app is remote-first with
   local fallback (see "Shipped in v0.1" above and Constraints below).
 
-**Current codebase state (end of v0.5):**
-- ~6,900 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`) — unchanged
-  from v0.4, since v0.5 touched only release config (`app.json`, `eas.json`),
-  two lint fixes with no behavior change, and two new standalone `scripts/`
-  files (`generate-brand-assets.ts`, `preflight.ts`)
-- 251 tests passing across 21 suites; strict TypeScript (`tsc --noEmit`)
-  and `npm run lint` both clean project-wide
-- 24 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
-  v0.3, 3 in v0.4, 5 in v0.5), 61 plans, v0.5 built in 3 days (2026-07-23
-  kickoff → 2026-07-25 ship)
+**Current codebase state (end of v0.6):**
+- ~7,000 LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`) — v0.6
+  added one new standalone script (`scripts/validate-brand.ts`), rewrote
+  `scripts/generate-brand-assets.ts` around the new SVG source, and touched
+  `src/theme/tokens.ts` plus every screen/shared component's `StyleSheet`
+  block; no new domain modules
+- 251 tests passing across 21 suites (unchanged count from v0.5 — the new
+  validation script isn't imported by app code); strict TypeScript
+  (`tsc --noEmit`) and `npm run lint` both clean project-wide
+- 29 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
+  v0.3, 3 in v0.4, 5 in v0.5, 5 in v0.6), 69 plans, v0.6 built in 3 days
+  (2026-08-13 kickoff → 2026-08-15 ship)
+- Brand asset source is now `assets/brand/lafa-icon.svg` (single
+  user-supplied file, two-shape structure); all prior AI-concept SVGs and
+  concept PNGs deleted with zero remaining references
+- `src/theme/tokens.ts`'s `colors` export fully repointed to the new
+  10-key Lafa guideline palette, with `pressed`, `info`, and `infoSoft`
+  as new alias keys; `Pressable`'s function-form `style` prop used for
+  the first time in this codebase (5 files, 9 call sites) to wire
+  pressed-state visuals
+- `app.json` splash/adaptive-icon config and `app/_layout.tsx`'s
+  header/status-bar/runtime-background theming both point at the warm
+  `#FFF9F6` canvas; zero Expo-blue surfaces remain anywhere in `app/`/`src/`
+- `scripts/validate-brand.ts` (`npm run validate-brand`) is a new,
+  committed, exit-code-carrying regression gate (20 checks: PNG
+  dimensions/alpha, forbidden hex, referenced-asset existence, generator
+  source hygiene) — mirrors `scripts/preflight.ts`'s shape
 - Both feedback modals (`ReportFeedbackModal`, `ProductFeedbackModal`) now
   use a React Compiler-safe render-time `useState` reset pattern (swapped
   from the originally-planned `useRef` mid-Phase-24, since this project has
   `experiments.reactCompiler: true` enabled) instead of `setState`-in-effect
-- App icon/splash now Lafa-branded end-to-end (`assets/images/icon.png`,
-  `splash-icon.png`), generated reproducibly from `assets/brand/lafa-logo-v2.svg`
-  via `npm run generate-assets`; Icon Composer bundle removed
-- `eas.json` fully configured (production build + submit profiles, real
-  `ascAppId`); first real signed iOS build submitted and TestFlight-installed
+- `eas.json` fully configured (production + preview build profiles,
+  submit profile with real `ascAppId`); a `preview`-profile EAS build was
+  produced and installed on a real device for v0.6's VALID-03 sign-off
 - New `src/productFeedback/` domain module (types, Zod schema, categories,
   payload, submit, `ProductFeedbackModal`) added in v0.4, a deliberate
-  zero-shared-code structural mirror of `src/feedback/` — untouched by v0.5
-- Known non-blocking tech debt (see `.planning/v0.4-MILESTONE-AUDIT.md` and
-  `.planning/v0.5-MILESTONE-AUDIT.md` for full detail): `selectExplanation`'s
-  selected-label interpolation is only populated on match-agreement, a
-  template-content edge case to watch (not an active bug); Phases 17/18/19's
-  `VALIDATION.md` task tables never updated post-execution (stale "pending"
-  status, cosmetic doc-sync gap, pre-existing pattern also seen in Phase 15);
-  a Phase-14 cross-verb distractor's wrong-answer form still occasionally
-  doesn't resolve in the explanation `formIndex` lookup (fail-closed,
-  explicitly accepted scope limit, carried from v0.3); carried-forward v0.2
-  tech debt (WCAG contrast, `OfflinePill` on Results' no-session fallback,
-  `handleBackToSetup()` not calling `reset()`); `npx expo-doctor` 2 advisory
-  failures from the deliberate `eas-cli` devDependency pin (v0.5, D-04); no
-  durable Node-version pin exists yet despite the lockfile-drift bug
-  recurring twice in v0.5 (flagged above in Out of Scope as a strong
-  candidate for the next milestone).
+  zero-shared-code structural mirror of `src/feedback/` — untouched by v0.6
+- Known non-blocking tech debt (see prior milestone audits and this
+  document's "Next Milestone" section above for full detail):
+  `selectExplanation`'s selected-label interpolation is only populated on
+  match-agreement (v0.4); Phases 15/17/18/19's `VALIDATION.md` task tables
+  never updated post-execution (cosmetic doc-sync gap); a Phase-14
+  cross-verb distractor's wrong-answer form still occasionally doesn't
+  resolve in the explanation `formIndex` lookup (fail-closed, accepted
+  scope limit, v0.3); `npx expo-doctor` 2 advisory failures from the
+  deliberate `eas-cli` devDependency pin (v0.5, D-04); no durable
+  Node-version pin exists despite the lockfile-drift bug now recurring
+  three times (v0.5 Phase 20, v0.5 Phase 24, v0.6 Phase 29) — the
+  strongest candidate for the next milestone.
 
 ## Constraints
 
@@ -517,6 +551,12 @@ and `.planning/milestones/v0.5-ROADMAP.md`.
 | `package-lock.json` must be regenerated under the same npm major version bundled in the EAS build image (Node 22/npm 10), not whatever npm version the local dev machine runs | A lockfile written by a newer local npm (Node 25/npm 11) encodes an `optionalDependencies[].libc` field that npm 10's `npm ci` rejects as out-of-sync, causing a misleading "missing package" error | ✓ Good, but recurring — this bug was found and fixed once in Phase 20 (`9b48acf`) and recurred identically in Phase 24 (`d005442`) since no durable `.nvmrc`/CI Node-version guard was ever added; flagged in Out of Scope as a strong candidate for the next milestone |
 | `eas submit`'s current pinned CLI version has no interactive Apple ID/password auth path for iOS submit — App Store Connect API Key is the only supported method | Version-driven change in `eas-cli`, not a choice made against the plan's original intent (which assumed interactive Apple ID login) | ✓ Good — operator generated an ASC API Key interactively during the first real submit; works, though it creates a persistent credential rather than a one-off login |
 | External TestFlight testers explicitly excluded from v0.5, even though the operator had already created an external testing group | Matches REQUIREMENTS.md's Out-of-Scope entry (Beta App Review triggers a ~24-48h delay); operator confirmed mid-checkpoint to skip it rather than expand scope | ✓ Good — kept v0.5's scope exactly as specified; external group left empty/unsubmitted for a future milestone |
+| `assets/brand/lafa-icon.svg` (user-supplied) fully replaces the prior AI-generated concept SVGs as the sole brand-asset source, rather than iterating on the existing `lafa-logo-v2.svg` | User supplied a definitive SVG mark ahead of v0.6 kickoff; generator was rewritten around its two-shape structure instead of patching the old generator to accept a new input shape | ✓ Good — zero remaining references to any retired asset, verified by both `25-VERIFICATION.md` and `scripts/validate-brand.ts`'s generator-hygiene checks |
+| `colors.pressed`/`colors.infoSoft` added as new token aliases rather than reusing/overloading existing keys | Pressed-state and OfflinePill-teal are visually and semantically distinct from any existing token; keeps `primary`/`primarySoft` etc. meaning stable | ✓ Good — zero drift, `tokens.test.ts`'s exhaustive `toEqual()` catches any future accidental key removal |
+| Pressed-state visuals wired via `Pressable`'s function-form `style` prop (first use in this codebase), not `onPressIn`/`onPressOut` + `useState` | Function-form `style` is declarative and avoids introducing manual press-tracking state that could desync from the actual gesture | ✓ Good — regression-gated (`grep -rn "onPressIn\|onPressOut"` returns zero matches), 9 call sites across 5 files all correctly gated so locked-answer success/error coloring always wins over the pressed override |
+| `scripts/validate-brand.ts` built as a standalone node script (mirroring `scripts/preflight.ts`'s shape) rather than a Jest test or a check folded into an existing script | Keeps the fast, dependency-light `node script.js` invocation pattern this project already uses for release-adjacent gates, separate from the unit-test suite's concerns | ✓ Good — 20/20 checks passing, empirically proved to actually gate (forced-failure test confirmed exit 1 + correct FAIL lines before reverting) |
+| `validate-brand.ts` declares its forbidden-hex/retired-asset literals independently rather than importing them from `generate-brand-assets.ts` | A validator that imports its "source of truth" from the same script it's meant to catch regressions in isn't an independent check — a broken generator could ship a broken literal and the validator would agree with it | ✓ Good — deliberate independence, confirmed by design review during Phase 29 planning |
+| `package-lock.json` drift (react-native `0.86.2` in `package.json` vs `0.86.0` locked) fixed via lockfile regeneration, discovered a third time via EAS's `npm ci` failure | Same root cause as the twice-prior v0.5 drift (local npm tolerates mismatches `npm ci` doesn't) — fixed the same way (regenerate against a clean slate), not `--legacy-peer-deps`/`--force` | ✓ Good, but now 3x-recurring — durable Node-version pin is the strongest candidate for the next milestone, flagged explicitly in "Next Milestone" above |
 
 ## Evolution
 
@@ -536,4 +576,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-25 after v0.5 milestone (iOS TestFlight Readiness)*
+*Last updated: 2026-08-16 after v0.6 milestone (Lafa Branding + Expo Splash Cleanup)*

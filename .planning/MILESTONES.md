@@ -1,5 +1,19 @@
 # Milestones
 
+## v0.6 Lafa Branding + Expo Splash Cleanup (Shipped: 2026-08-16)
+
+**Phases completed:** 5 phases, 8 plans, 14 requirements
+
+**Key accomplishments:**
+
+- Rebuilt the brand-asset generation pipeline around the single user-supplied `lafa-icon.svg` source, retiring all AI-concept SVGs and regenerating icon/favicon/splash/Android adaptive assets (Phase 25).
+- Repointed `src/theme/tokens.ts` to the new 10-key Lafa brand palette (primary orange, deep orange, teal, ink, warm background, etc.), with `pressed`/`info` added as new alias keys and an exact `toEqual` test guarding it (Phase 26).
+- Replaced the Expo-blue splash/adaptive-icon backgrounds with the warm Lafa canvas (`#FFF9F6`), locked light appearance, and themed the root layout's headers/status bar/runtime background — eliminating the unbranded flash after splash (Phase 27).
+- Wired the new palette into every screen and shared component (Setup, Quiz, Results, both feedback modals, `OfflinePill`, `ExplanationPanel`), including pressed-state visuals on all primary-action buttons, with a zero-old-hex regression gate (Phase 28).
+- Shipped `scripts/validate-brand.ts` as an automated, exit-code-carrying gate (config hex, PNG dimensions/alpha, generator source hygiene), fixed a `package.json`/lockfile drift blocking EAS builds, and got a dated developer sign-off on a real EAS preview build confirming the rebrand end-to-end (Phase 29).
+
+---
+
 ## v0.5 iOS TestFlight Readiness (Shipped: 2026-07-25)
 
 **Phases completed:** 5 phases, 11 plans, 19 tasks
