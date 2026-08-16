@@ -210,8 +210,17 @@ Plans:
   2. `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
   3. Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
 
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
+
+Plans:
+**Wave 1**
+
+- [ ] 33-01-PLAN.md — Add the neutral `colors.choicePressed` (`#E3DFDA`) token, extract
+  `app/quiz.tsx`'s split locked-state/pressed-state logic into a pure
+  `src/quiz/choiceStyle.ts` with unit tests proving locked correct/incorrect coloring
+  always beats the pressed color, and rewire the answer-choice `Pressable`
+  (wave 1, checkpoint: human on-device verify)
 
 ### Phase 34: Brand Validation Extension
 
