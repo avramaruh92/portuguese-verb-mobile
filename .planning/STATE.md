@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: planning
+status: executing
 stopped_at: Phase 34 context gathered
-last_updated: "2026-08-16T21:43:57.869Z"
-last_activity: 2026-08-16
+last_updated: "2026-08-16T21:53:38.538Z"
+last_activity: 2026-08-16 -- Phase 34 planning complete
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 8
+  total_plans: 9
   completed_plans: 8
   percent: 67
 ---
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-08-16)
 
 Phase: 34
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-08-16
+Status: Ready to execute
+Last activity: 2026-08-16 -- Phase 34 planning complete
 
 ## Performance Metrics
 
@@ -76,7 +76,9 @@ None open.
 
 ### Blockers/Concerns
 
-None open yet. Flagged from research for phase-planning attention:
+- [Phase 34]: Decision coverage gate flagged D-01–D-04 as "uncovered" (literal `D-NN:` string not present in 34-01-PLAN.md's `must_haves`), overridden as "Proceed anyway" — gsd-plan-checker independently confirmed all four decisions are substantively honored in the plan body (explicit "do NOT" clauses, exact reused-helper approach, unchanged output contract). Labeling gap only, not a scope/behavior gap.
+
+None open yet otherwise. Flagged from research for phase-planning attention:
 
 - Phase 30 must confirm the exact EAS build-image Node version from real build logs, not assumed from the local dev machine, before pinning `.nvmrc`/`engines.node`/`eas.json`'s `node` field.
 - Phase 31's generator rewrite must include an explicit alpha-channel re-verification against a real EAS build (not just local `sharp`/`resvg` output) — this is the exact code path that produced the currently-solved opaque-icon invariant.
