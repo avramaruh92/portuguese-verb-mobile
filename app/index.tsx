@@ -175,12 +175,13 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    paddingTop: spacing.xl2,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.background,
   },
   lockup: {
-    height: 56,
+    height: 84,
     aspectRatio: 1600 / 520,
     alignSelf: "center",
     marginBottom: spacing.lg,
