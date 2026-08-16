@@ -104,3 +104,9 @@ None — this plan touches only build/version-pin configuration files
 (`.nvmrc`, `package.json` `engines`, `eas.json` `build.production.node`,
 `package-lock.json`), no new network endpoints, auth paths, file access
 patterns, or schema changes.
+
+## Self-Check: PASSED
+
+All claimed files exist on disk (`.nvmrc`, `package.json`, `eas.json`,
+`package-lock.json`, this SUMMARY.md) and all 3 task commit hashes
+(`4c73523`, `353068d`, `fad49d5`) are present in `git log`.
