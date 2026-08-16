@@ -9,8 +9,16 @@
 - ✅ **v0.4 Backend v0.4 Contract Sync + Product Feedback** — Phases 17-19 (shipped 2026-07-22)
 - ✅ **v0.5 iOS TestFlight Readiness** — Phases 20-24 (shipped 2026-07-25)
 - ✅ **v0.6 Lafa Branding + Expo Splash Cleanup** — Phases 25-29 (shipped 2026-08-16)
+- 🚧 **v1.0 Warm Brand Polish + App Store Submission Readiness** — Phases 30-35 (in progress)
 
 ## Phases
+
+- [ ] **Phase 30: Build Pipeline Hardening** - Node/npm version drift between local dev and the EAS build image is closed for good with a durable pin
+- [ ] **Phase 31: Brand Asset Source & Generator** - The Warm Bold Mark becomes the canonical, id-based-extracted production icon source
+- [ ] **Phase 32: Homepage Lockup** - Setup screen's plain-text title is replaced with the branded image lockup
+- [ ] **Phase 33: Quiz Press-State Color Fix** - Unsubmitted answer-option presses no longer read as a wrong answer
+- [ ] **Phase 34: Brand Validation Extension** - `validate-brand.ts` gates the new source/lockup pipeline outputs
+- [ ] **Phase 35: App Store Connect Readiness** - The app is submitted for Apple App Review with accurate, complete listing
 
 <details>
 <summary>✅ v0.0 Offline Quiz MVP (Phases 1-6) — SHIPPED 2026-07-13</summary>
@@ -105,6 +113,76 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 </details>
 
+## Phase Details
+
+### Phase 30: Build Pipeline Hardening
+**Goal**: The Node/npm version drift between the local dev machine and the real EAS build image is structurally closed, not patched ad hoc a fourth time
+**Depends on**: Nothing (first phase of v1.0; prerequisite for every later phase since Phase 31/35 touch dependencies and produce real EAS builds)
+**Requirements**: BUILD-01, BUILD-02, BUILD-03, BUILD-04
+**Success Criteria** (what must be TRUE):
+  1. `.nvmrc` exists at the repo root, pinning the exact Node version confirmed from real EAS build logs (not assumed from the local machine)
+  2. `package.json`'s `engines.node` field matches the pinned version
+  3. `eas.json`'s production build profile declares a `node` field matching the pinned version
+  4. A freshly regenerated `package-lock.json`, built under the pinned Node/npm version, produces a clean `npm ci` and a real EAS production build succeeds with no lockfile-drift error
+**Plans**: TBD
+
+### Phase 31: Brand Asset Source & Generator
+**Goal**: The Warm Bold Mark is the canonical production brand-asset source, extracted via a robust id-based lookup instead of brittle fill-count parsing
+**Depends on**: Phase 30 (this phase adds a new build-time dependency and regenerates assets; the Node/lockfile pin should be stable first)
+**Requirements**: BRAND-01, BRAND-02, BRAND-03, BRAND-04
+**Success Criteria** (what must be TRUE):
+  1. `assets/brand/lafa-icon.svg` is the promoted Warm Bold Mark candidate, with stable `<g id="...">` layers added to the source
+  2. `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` selects layers by id, not by counting `fill` occurrences
+  3. Regenerated icon, splash, favicon, and Android foreground/monochrome assets exist at the same dimensions as the pre-refactor baseline
+  4. `icon.png` has no alpha channel, re-confirmed against a real EAS build (not just local validation)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 32: Homepage Lockup
+**Goal**: The Setup screen shows a branded image lockup instead of a plain-text title
+**Depends on**: Phase 31 (shares the same generator script; the core id-based rewrite should land and be verified before adding the lockup as a second concern)
+**Requirements**: LOCKUP-01, LOCKUP-02, LOCKUP-03
+**Success Criteria** (what must be TRUE):
+  1. `assets/brand/lafa-homepage-lockup.svg` is promoted as the canonical homepage lockup source
+  2. `scripts/generate-brand-assets.ts` produces `assets/images/lafa-homepage-lockup.png` from that source
+  3. `app/index.tsx` renders the lockup as a responsive `Image` in place of the old plain `Text` title
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 33: Quiz Press-State Color Fix
+**Goal**: A learner never misreads pressing-and-holding an unsubmitted answer choice as a "wrong answer" signal
+**Depends on**: Nothing (fully independent of Phases 31-32 — different files, different token; can run in parallel with brand-asset work)
+**Requirements**: UX-01, UX-02, UX-03
+**Success Criteria** (what must be TRUE):
+  1. `colors.choicePressed` exists in `src/theme/tokens.ts`, scoped only to unsubmitted quiz answer-option press/hold states
+  2. `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
+  3. Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 34: Brand Validation Extension
+**Goal**: The brand regression gate catches drift in the new Warm Bold Mark source and lockup pipeline, not just the pre-v1.0 checks
+**Depends on**: Phase 31, Phase 32 (asserts against real generated output from both phases; extending checks before that output exists means they'd fail by construction)
+**Requirements**: VALID-01, VALID-02, VALID-03, VALID-04
+**Success Criteria** (what must be TRUE):
+  1. `scripts/validate-brand.ts` checks that the Warm Bold Mark source is the canonical one in use
+  2. `scripts/validate-brand.ts` checks that generated assets exist at their expected dimensions
+  3. `scripts/validate-brand.ts` checks that `icon.png` has no alpha channel
+  4. `scripts/validate-brand.ts` checks that the homepage lockup output is present
+**Plans**: TBD
+
+### Phase 35: App Store Connect Readiness
+**Goal**: The app is submitted to Apple for App Review with a complete, accurate App Store Connect listing
+**Depends on**: Phase 30, Phase 31, Phase 32, Phase 33, Phase 34 (screenshots and the submitted build must reflect the truly final branded/fixed state; this is the terminal action of the milestone)
+**Requirements**: STORE-01, STORE-02, STORE-03, STORE-04, STORE-05, STORE-06, STORE-07, STORE-08, STORE-09
+**Success Criteria** (what must be TRUE):
+  1. `store/` holds versioned App Store Connect metadata (description, subtitle, keywords, category, review notes) matching what's entered in App Store Connect
+  2. A live Support URL and Privacy Policy URL are reachable, and the App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows
+  3. The age rating questionnaire is completed under Apple's 2026 tier system, and `ios.supportsTablet` is explicitly confirmed and locked to `false`
+  4. 3-5 alpha-free 6.9" iPhone screenshots (1320×2868), captured from the final branded build, cover Setup/Quiz/Results, and export compliance is re-verified unchanged
+  5. A production `eas build` + `eas submit` completes with an incremented build number, and "Submit for Review" is manually completed in App Store Connect
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -139,8 +217,16 @@ Full phase details, plan breakdowns, and success criteria archived in
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
+| 30. Build Pipeline Hardening | v1.0 | 0/? | Not started | - |
+| 31. Brand Asset Source & Generator | v1.0 | 0/? | Not started | - |
+| 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
+| 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
+| 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
+| 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
 
 ---
 
-*Milestones v0.0, v0.1, v0.2, v0.3, v0.4, v0.5, and v0.6 shipped. Run
-`/gsd:new-milestone` to start the next milestone.*
+*Milestones v0.0, v0.1, v0.2, v0.3, v0.4, v0.5, and v0.6 shipped. v1.0
+(Warm Brand Polish + App Store Submission Readiness) roadmap created
+2026-08-16 — 6 phases (30-35), 27/27 requirements mapped, awaiting
+approval. Run `/gsd:plan-phase 30` to begin.*

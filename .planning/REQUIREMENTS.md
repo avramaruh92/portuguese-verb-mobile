@@ -82,39 +82,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | — | Pending |
-| BUILD-02 | — | Pending |
-| BUILD-03 | — | Pending |
-| BUILD-04 | — | Pending |
-| BRAND-01 | — | Pending |
-| BRAND-02 | — | Pending |
-| BRAND-03 | — | Pending |
-| BRAND-04 | — | Pending |
-| LOCKUP-01 | — | Pending |
-| LOCKUP-02 | — | Pending |
-| LOCKUP-03 | — | Pending |
-| UX-01 | — | Pending |
-| UX-02 | — | Pending |
-| UX-03 | — | Pending |
-| VALID-01 | — | Pending |
-| VALID-02 | — | Pending |
-| VALID-03 | — | Pending |
-| VALID-04 | — | Pending |
-| STORE-01 | — | Pending |
-| STORE-02 | — | Pending |
-| STORE-03 | — | Pending |
-| STORE-04 | — | Pending |
-| STORE-05 | — | Pending |
-| STORE-06 | — | Pending |
-| STORE-07 | — | Pending |
-| STORE-08 | — | Pending |
-| STORE-09 | — | Pending |
+| BUILD-01 | Phase 30 | Pending |
+| BUILD-02 | Phase 30 | Pending |
+| BUILD-03 | Phase 30 | Pending |
+| BUILD-04 | Phase 30 | Pending |
+| BRAND-01 | Phase 31 | Pending |
+| BRAND-02 | Phase 31 | Pending |
+| BRAND-03 | Phase 31 | Pending |
+| BRAND-04 | Phase 31 | Pending |
+| LOCKUP-01 | Phase 32 | Pending |
+| LOCKUP-02 | Phase 32 | Pending |
+| LOCKUP-03 | Phase 32 | Pending |
+| UX-01 | Phase 33 | Pending |
+| UX-02 | Phase 33 | Pending |
+| UX-03 | Phase 33 | Pending |
+| VALID-01 | Phase 34 | Pending |
+| VALID-02 | Phase 34 | Pending |
+| VALID-03 | Phase 34 | Pending |
+| VALID-04 | Phase 34 | Pending |
+| STORE-01 | Phase 35 | Pending |
+| STORE-02 | Phase 35 | Pending |
+| STORE-03 | Phase 35 | Pending |
+| STORE-04 | Phase 35 | Pending |
+| STORE-05 | Phase 35 | Pending |
+| STORE-06 | Phase 35 | Pending |
+| STORE-07 | Phase 35 | Pending |
+| STORE-08 | Phase 35 | Pending |
+| STORE-09 | Phase 35 | Pending |
 
 **Coverage:**
 - v1 requirements: 27 total
-- Mapped to phases: 0 (pending roadmap creation)
-- Unmapped: 27 ⚠️ (expected — roadmap not yet created)
+- Mapped to phases: 27/27 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-08-16*
-*Last updated: 2026-08-16 after initial v1.0 definition*
+*Last updated: 2026-08-16 after v1.0 roadmap creation (Phases 30-35, full coverage)*

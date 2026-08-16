@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: planning
-last_updated: "2026-08-16T10:47:39.790Z"
+last_updated: "2026-08-16T00:00:00.000Z"
 last_activity: 2026-08-16
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,45 +17,46 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-25)
+See: .planning/PROJECT.md (updated 2026-08-16)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 29 — brand-validation-release-verification
+**Current focus:** Phase 30 — Build Pipeline Hardening
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 30 (Build Pipeline Hardening) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-08-16 — Milestone v1.0 started
+Status: Roadmap created, awaiting approval / `/gsd:plan-phase 30`
+Last activity: 2026-08-16 — v1.0 roadmap created (Phases 30-35)
 
 ## Performance Metrics
 
-**Velocity (v0.0-v0.5, shipped):**
+**Velocity (v0.0-v0.6, shipped):**
 
-- Total plans completed: 73 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, +4 counting Phase 10.1)
-- Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days (kickoff to ship)
+- Total plans completed: 81 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
+- Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days, v0.6 ~3 days (kickoff to ship)
 
-**v0.6 phases (planned, not yet started):**
+**v1.0 phases (planned, not yet started):**
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 25. Brand Asset Pipeline | BRAND-01, BRAND-02, BRAND-03 | Not started |
-| 26. Theme Palette Update | THEME-01, THEME-02 | Not started |
-| 27. Expo Config & Startup Flash Fix | CONFIG-01, CONFIG-02, CONFIG-03, CONFIG-04 | Not started |
-| 28. UI Token Application | UI-01, UI-02 | Not started |
-| 29. Brand Validation & Release Verification | VALID-01, VALID-02, VALID-03 | Not started |
+| 30. Build Pipeline Hardening | BUILD-01, BUILD-02, BUILD-03, BUILD-04 | Not started |
+| 31. Brand Asset Source & Generator | BRAND-01, BRAND-02, BRAND-03, BRAND-04 | Not started |
+| 32. Homepage Lockup | LOCKUP-01, LOCKUP-02, LOCKUP-03 | Not started |
+| 33. Quiz Press-State Color Fix | UX-01, UX-02, UX-03 | Not started |
+| 34. Brand Validation Extension | VALID-01, VALID-02, VALID-03, VALID-04 | Not started |
+| 35. App Store Connect Readiness | STORE-01 through STORE-09 | Not started |
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 
-- v0.6 roadmap created 2026-08-13 — 5 phases (25-29) derived from BRAND/THEME/CONFIG/UI/VALID requirement categories; 14/14 v0.6 requirements mapped, no orphans. Sequencing: 25 (assets) and 26 (tokens) have no cross-dependency; 27 (config/splash) depends on both (needs the regenerated splash icon and the token palette); 28 (UI application) depends on 25+26; 29 (validation, incl. manual EAS build check) closes the milestone, depending on 27+28.
-- v0.5 shipped 2026-07-25 — all 5 phases complete, 18/18 requirements verified, 251/251 tests passing, milestone audit passed (2 phases' VERIFICATION.md backfilled retroactively during audit), archived to `.planning/milestones/v0.5-*`.
+- v1.0 roadmap created 2026-08-16 — 6 phases (30-35) derived from BUILD/BRAND/LOCKUP/UX/VALID/STORE requirement categories, following research/SUMMARY.md's suggested ordering. 27/27 v1.0 requirements mapped, no orphans. Sequencing: 30 (Node/lockfile pin) must lead — prerequisite, not a feature, with 3x prior-incident evidence (v0.5 Phase 20, Phase 24, v0.6 Phase 29). 31 (brand source + generator id-rewrite) depends on 30 since it adds a new build-time dependency and regenerates assets. 32 (homepage lockup) depends on 31 — shares the same generator script, isolates risk to one variable at a time. 33 (quiz press-state fix) is fully independent, can run in parallel with 31-32. 34 (validate-brand.ts extension) depends on 31+32 since it asserts against their real generated output. 35 (App Store Connect submission) is strictly last — terminal action, screenshots/build must reflect the fully finished state.
+- v0.6 shipped 2026-08-16 — all 5 phases complete, 14/14 requirements verified, 251/251 tests passing, dated developer sign-off on a real EAS preview build, archived to `.planning/milestones/v0.6-*`.
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.5 decisions all show final outcomes, including v0.5's IDENT-04 slug resolution, the recurring lockfile-drift fix, and the ASC API Key auth version-drift finding). No new v0.6 decisions logged yet.
+Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all show final outcomes). No new v1.0 decisions logged yet — roadmap creation only.
 
 ### Pending Todos
 
@@ -63,11 +64,15 @@ None open.
 
 ### Blockers/Concerns
 
-None open. Note: VALID-03 is a manual human-verification step on an EAS release/preview build (not Expo Go) — cannot be auto-verified by a plan-checker or gsd-verifier; Phase 29 must route it through an explicit human checkpoint.
+None open yet. Flagged from research for phase-planning attention:
+- Phase 30 must confirm the exact EAS build-image Node version from real build logs, not assumed from the local dev machine, before pinning `.nvmrc`/`engines.node`/`eas.json`'s `node` field.
+- Phase 31's generator rewrite must include an explicit alpha-channel re-verification against a real EAS build (not just local `sharp`/`resvg` output) — this is the exact code path that produced the currently-solved opaque-icon invariant.
+- Phase 33 needs an explicit precedence check (locked+correct → locked+incorrect → pressed → default), not just the new token's existence, to avoid a last-writer-wins style bug.
+- Phase 35 needs the backend's actual data-retention/IP-logging behavior confirmed with the sibling `portuguese-verb-api` repo before finalizing the privacy nutrition label, and Apple's exact 2026 age-rating/screenshot-dimension specifics should be spot-checked live in App Store Connect at execution time.
 
 ## Deferred Items
 
-Items acknowledged and carried forward to v2 (unchanged by v0.6 roadmap creation):
+Items acknowledged and carried forward (unchanged by v1.0 roadmap creation):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -78,28 +83,24 @@ Items acknowledged and carried forward to v2 (unchanged by v0.6 roadmap creation
 | v2 | QUIZ-09 Question-progress indicator ("Question X of 10") | Deferred (P2) | v0.1 requirements definition |
 | v2 | UI-04 Answer-selection feedback animation | Deferred (P3) | v0.1 requirements definition |
 | v2 | RELEASE-01 `.eas/workflows/` automated build+submit CI pipeline | Deferred | v0.5 requirements definition |
-| v2 | RELEASE-02 Full public App Store listing (screenshots, description, privacy nutrition label) | Deferred | v0.5 requirements definition |
-| v2 | RELEASE-03 Android build/Play Console setup | Deferred | v0.5 requirements definition |
+| v2 | RELEASE-04 Additional device-size screenshot sets | Deferred | v1.0 requirements definition |
+| v2 | RELEASE-05 Localized App Store listing copy | Deferred | v1.0 requirements definition |
 | v2 | External (non-team) TestFlight testers — triggers Apple Beta App Review | Deferred | v0.5, Phase 24 checkpoint |
-| v0.6 | Durable Node-version pin (`.nvmrc`/CI guard) | Not addressed by v0.6 (out of this milestone's brand-asset scope) | v0.5 requirements definition |
 
-Known non-blocking tech debt carried from prior milestone audits — none block v0.6:
+Known non-blocking tech debt carried from prior milestone audits — none block v1.0's roadmap, but relevant context for planning:
 
-- Locked Lafa palette (pre-v0.6) computed below WCAG AA 4.5:1 contrast on several text/background pairings — v0.6's new palette should be spot-checked for the same issue but this isn't a v0.6 requirement.
-- `OfflinePill` not rendered on Results' no-session fallback branch (carried from v0.1, deliberate scope choice)
-- `app/results.tsx`'s `handleBackToSetup()` doesn't call `reset()` before navigating (carried from v0.1, currently harmless)
-- Cross-verb distractor `formIndex`-miss gap (Phase 14/15/16) — explanation coverage uneven across distractor tiers, fail-closed, explicitly deferred
-- `selectExplanation`'s selected-label interpolation only populates on match-agreement (v0.4, Phase 18) — template-content edge case, no current template exercises it
-- Phases 15 (v0.3), 17/18/19 (v0.4) `VALIDATION.md` task tables never updated post-execution (stale "pending" status) — cosmetic doc-sync gap, confirmed recurring pattern
-- `npx expo-doctor` 2 advisory failures (`eas` npm script, `eas-cli` devDependency) — deliberate v0.5 Phase 20 tradeoff (D-04), not a regression
-- No durable Node-version pin exists (`.nvmrc`/CI guard) — npm 11-vs-npm 10 lockfile drift recurred twice in v0.5, not addressed by v0.6's scope
+- No durable Node-version pin existed prior to v1.0 — npm-version lockfile drift recurred 3 times (v0.5 Phase 20, Phase 24, v0.6 Phase 29); this is now Phase 30's primary deliverable, not deferred further.
+- Locked Lafa palette computed below WCAG AA 4.5:1 contrast on several text/background pairings (pre-v0.6, not independently re-audited for the v0.6 replacement palette) — not in v1.0 scope, spot-check candidate for a future milestone.
+- Cross-verb distractor `formIndex`-miss gap (v0.3) — explanation coverage uneven across distractor tiers, fail-closed, explicitly deferred, not in v1.0 scope.
+- `npx expo-doctor` 2 advisory failures (`eas` npm script, `eas-cli` devDependency) — deliberate v0.5 Phase 20 tradeoff (D-04), not a regression, not in v1.0 scope.
 
 ## Session Continuity
 
-Last session: 2026-08-15T09:36:11.258Z
-Stopped at: Phase 29 context gathered
-Resume file: .planning/phases/29-brand-validation-release-verification/29-CONTEXT.md
+Last session: 2026-08-16 — v1.0 roadmap created
+Stopped at: ROADMAP.md/STATE.md written, awaiting user approval
+Resume file: .planning/ROADMAP.md (Phase 30 detail section)
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Review and approve the v1.0 roadmap
+- Run `/gsd:plan-phase 30` to begin Phase 30 (Build Pipeline Hardening)
