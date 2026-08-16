@@ -183,8 +183,21 @@ Plans:
   2. `scripts/generate-brand-assets.ts` produces `assets/images/lafa-homepage-lockup.png` from that source
   3. `app/index.tsx` renders the lockup as a responsive `Image` in place of the old plain `Text` title
 
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
+
+Plans:
+**Wave 1**
+
+- [ ] 32-01-PLAN.md — Promote the candidate lockup to `assets/brand/lafa-homepage-lockup.svg`
+  with the 3-layer canonical mark, and add a generator render step producing a 3200x1040
+  `assets/images/lafa-homepage-lockup.png` with the mark injected from `lafa-icon.svg`
+  (wave 1, autonomous)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 32-02-PLAN.md — Replace the Setup screen's plain `Text` title with the responsive,
+  accessibility-labelled lockup `Image` (wave 2, checkpoint: human visual verify)
 
 ### Phase 33: Quiz Press-State Color Fix
 
