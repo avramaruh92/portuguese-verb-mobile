@@ -2,6 +2,9 @@
   "name": "portuguese-verb-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "engines": {
+    "node": "22.23.2"
+  },
   "dependencies": {
     "@expo/ui": "~57.0.10",
     "expo": "~57.0.12",
