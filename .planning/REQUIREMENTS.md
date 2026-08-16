@@ -19,7 +19,7 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 - [x] **BRAND-01**: `assets/brand/lafa-icon.svg` is promoted from the Warm Bold Mark candidate (`assets/brand/candidates/lafa-icon-warm-bold.svg`), with stable `<g id="...">` layers added
 - [x] **BRAND-02**: `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` is rewritten to use id-based layer lookup instead of brittle fill-count string parsing
 - [x] **BRAND-03**: Icon, splash, favicon, and Android foreground/monochrome assets are regenerated from the new source, with dimensions unchanged from the pre-refactor baseline
-- [ ] **BRAND-04**: `icon.png` remains fully opaque (no alpha channel) after regeneration, re-verified against a real EAS build (not just local validation) (local verification lands in Phase 31; the real-EAS-build re-confirmation lands in Phase 35, per D-10)
+- [x] **BRAND-04**: `icon.png` remains fully opaque (no alpha channel) after regeneration, re-verified against a real EAS build (not just local validation) (local verification lands in Phase 31; the real-EAS-build re-confirmation lands in Phase 35, per D-10)
 
 ### Homepage Lockup
 
@@ -89,7 +89,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-01 | Phase 31 | Complete |
 | BRAND-02 | Phase 31 | Complete |
 | BRAND-03 | Phase 31 | Complete |
-| BRAND-04 | Phase 31 (local), Phase 35 (real-build) | Pending |
+| BRAND-04 | Phase 31 (local), Phase 35 (real-build) | Complete |
 | LOCKUP-01 | Phase 32 | Pending |
 | LOCKUP-02 | Phase 32 | Pending |
 | LOCKUP-03 | Phase 32 | Pending |

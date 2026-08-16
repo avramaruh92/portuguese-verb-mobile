@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: verifying
-stopped_at: Completed 31-03-PLAN.md
-last_updated: "2026-08-16T15:54:24.547Z"
+status: ready_to_plan
+stopped_at: Phase 31 complete (3/3) — ready to discuss Phase 32
+last_updated: 2026-08-16T15:57:48.214Z
 last_activity: 2026-08-16
 progress:
   total_phases: 6
@@ -21,20 +21,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-16)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 31 — brand-asset-source-generator
+**Current focus:** Phase 32 — homepage lockup
 
 ## Current Position
 
-Phase: 31 (brand-asset-source-generator) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 32
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-08-16
 
 ## Performance Metrics
 
 **Velocity (v0.0-v0.6, shipped):**
 
-- Total plans completed: 81 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
+- Total plans completed: 84 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days, v0.6 ~3 days (kickoff to ship)
 
 **v1.0 phases (planned, not yet started):**
