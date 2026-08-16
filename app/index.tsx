@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -71,7 +71,13 @@ export default function Index() {
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <OfflinePill />
-      <Text style={styles.heading}>Lafa</Text>
+      <Image
+        source={require("../assets/images/lafa-homepage-lockup.png")}
+        style={styles.lockup}
+        resizeMode="contain"
+        accessibilityRole="image"
+        accessibilityLabel="Lafa — Learn it. Say it."
+      />
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Select tenses</Text>
@@ -173,11 +179,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     backgroundColor: colors.background,
   },
-  heading: {
-    ...typography.heading,
-    color: colors.text,
+  lockup: {
+    width: "100%",
+    maxWidth: 400,
+    aspectRatio: 1600 / 520,
+    alignSelf: "center",
     marginBottom: spacing.lg,
-    textAlign: "center",
   },
   section: {
     marginBottom: spacing.lg,
