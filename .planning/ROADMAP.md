@@ -189,7 +189,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 32-01-PLAN.md — Promote the candidate lockup to `assets/brand/lafa-homepage-lockup.svg`
+- [x] 32-01-PLAN.md — Promote the candidate lockup to `assets/brand/lafa-homepage-lockup.svg`
   with the 3-layer canonical mark, and add a generator render step producing a 3200x1040
   `assets/images/lafa-homepage-lockup.png` with the mark injected from `lafa-icon.svg`
   (wave 1, autonomous)
@@ -279,7 +279,7 @@ Plans:
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete    | 2026-08-16 |
-| 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
+| 32. Homepage Lockup | v1.0 | 1/2 | In Progress|  |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
 | 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
