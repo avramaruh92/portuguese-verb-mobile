@@ -239,7 +239,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 34-01-PLAN.md — Add the `LOCKUP_PATH`/`LOCKUP_WIDTH_PX`/`LOCKUP_HEIGHT_PX` constants and the
+- [x] 34-01-PLAN.md — Add the `LOCKUP_PATH`/`LOCKUP_WIDTH_PX`/`LOCKUP_HEIGHT_PX` constants and the
   single `checkPngDimensions("lafa-homepage-lockup.png dimensions", ..., 3200, 1040)` call to
   `scripts/validate-brand.ts`, then prove the gate fails (exit 1) without the lockup and document
   the VALID-01..04 requirement-to-check mapping (wave 1, autonomous)
@@ -298,7 +298,7 @@ Plans:
 | 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete    | 2026-08-16 |
 | 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete    | 2026-08-16 |
-| 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
+| 34. Brand Validation Extension | v1.0 | 1/1 | Complete   | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
 
 ---
