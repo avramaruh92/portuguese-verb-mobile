@@ -14,8 +14,8 @@
 ## Phases
 
 - [x] **Phase 30: Build Pipeline Hardening** - Node/npm version drift between local dev and the EAS build image is closed for good with a durable pin
-- [ ] **Phase 31: Brand Asset Source & Generator** - The Warm Bold Mark becomes the canonical, id-based-extracted production icon source
-- [ ] **Phase 32: Homepage Lockup** - Setup screen's plain-text title is replaced with the branded image lockup
+- [x] **Phase 31: Brand Asset Source & Generator** - The Warm Bold Mark becomes the canonical, id-based-extracted production icon source
+- [x] **Phase 32: Homepage Lockup** - Setup screen's plain-text title is replaced with the branded image lockup
 - [ ] **Phase 33: Quiz Press-State Color Fix** - Unsubmitted answer-option presses no longer read as a wrong answer
 - [ ] **Phase 34: Brand Validation Extension** - `validate-brand.ts` gates the new source/lockup pipeline outputs
 - [ ] **Phase 35: App Store Connect Readiness** - The app is submitted for Apple App Review with accurate, complete listing
@@ -196,7 +196,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 32-02-PLAN.md — Replace the Setup screen's plain `Text` title with the responsive,
+- [x] 32-02-PLAN.md — Replace the Setup screen's plain `Text` title with the responsive,
   accessibility-labelled lockup `Image` (wave 2, checkpoint: human visual verify)
 
 ### Phase 33: Quiz Press-State Color Fix
@@ -279,7 +279,7 @@ Plans:
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete    | 2026-08-16 |
-| 32. Homepage Lockup | v1.0 | 1/2 | In Progress|  |
+| 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
 | 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |

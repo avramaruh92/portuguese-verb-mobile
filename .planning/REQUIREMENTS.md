@@ -23,9 +23,9 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 ### Homepage Lockup
 
-- [ ] **LOCKUP-01**: `assets/brand/lafa-homepage-lockup.svg` is promoted as the canonical homepage lockup source
-- [ ] **LOCKUP-02**: `scripts/generate-brand-assets.ts` adds a lockup render step producing `assets/images/lafa-homepage-lockup.png`
-- [ ] **LOCKUP-03**: `app/index.tsx`'s plain `Text` title is replaced with a responsive `Image` lockup
+- [x] **LOCKUP-01**: `assets/brand/lafa-homepage-lockup.svg` is promoted as the canonical homepage lockup source
+- [x] **LOCKUP-02**: `scripts/generate-brand-assets.ts` adds a lockup render step producing `assets/images/lafa-homepage-lockup.png`
+- [x] **LOCKUP-03**: `app/index.tsx`'s plain `Text` title is replaced with a responsive `Image` lockup
 
 ### Quiz Interaction Polish
 
@@ -90,9 +90,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BRAND-02 | Phase 31 | Complete |
 | BRAND-03 | Phase 31 | Complete |
 | BRAND-04 | Phase 31 (local), Phase 35 (real-build) | Complete |
-| LOCKUP-01 | Phase 32 | Pending |
-| LOCKUP-02 | Phase 32 | Pending |
-| LOCKUP-03 | Phase 32 | Pending |
+| LOCKUP-01 | Phase 32 | Complete |
+| LOCKUP-02 | Phase 32 | Complete |
+| LOCKUP-03 | Phase 32 | Complete |
 | UX-01 | Phase 33 | Pending |
 | UX-02 | Phase 33 | Pending |
 | UX-03 | Phase 33 | Pending |

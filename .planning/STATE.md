@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: executing
-stopped_at: Phase 32 UI-SPEC approved
-last_updated: "2026-08-16T17:25:22.594Z"
-last_activity: 2026-08-16 -- Phase 32 execution started
+stopped_at: Phase 32 complete (32-02 approved)
+last_updated: "2026-08-16T20:47:56.436Z"
+last_activity: 2026-08-16
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 5
-  percent: 33
+  completed_plans: 7
+  percent: 50
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-16)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 32 — homepage-lockup
+**Current focus:** Phase 33 — quiz-press-state-color-fix
 
 ## Current Position
 
-Phase: 32 (homepage-lockup) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 32
-Last activity: 2026-08-16 -- Phase 32 execution started
+Phase: 32 (homepage-lockup) — COMPLETE
+Plan: 2 of 2 (all plans complete)
+Status: Phase 32 complete, ready to start Phase 33
+Last activity: 2026-08-16
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Last activity: 2026-08-16 -- Phase 32 execution started
 | Phase 31 P01 | 25min | 3 tasks | 3 files |
 | Phase 31 P02 | 20min | 2 tasks | 6 files |
 | Phase 31 P03 | 15min | 3 tasks | 2 files |
+| Phase 32 P02 | ~2h | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,7 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 31]: Worktree isolation failed to provision for plan 31-01; coordinator authorized sequential execution on plan/phase-20 instead
 - [Phase 31]: Combined generator extraction rewrite and main() rewiring into a single Task 1 commit; Task 2's commit scoped to regenerated PNG binaries
 - [Phase 31]: Checkpoint (31-03 Task 2) approved with 5 of 6 checks passing; check 5 (native icon after delete+reinstall) deferred to Phase 35 per D-10 since no dev-client/EAS build was available to test against
+- [Phase 32]: Task 2 checkpoint required 5 rounds of on-device iteration on lockup sizing/alignment before developer approval; final approach crops the rendered PNG to its measured non-background content bounding box rather than aligning the full 1600x520 canvas
 
 ### Pending Todos
 
@@ -112,10 +114,11 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-16T16:39:16.937Z
+Last session: 2026-08-16T20:44:58.668Z
 Stopped at: Phase 32 UI-SPEC approved
-Resume file: .planning/phases/32-homepage-lockup/32-UI-SPEC.md
+Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd:execute-phase 31` to continue with plan 31-03 (final plan in Phase 31)
+- Phase 32 (Homepage Lockup) is complete — both plans shipped, LOCKUP-01/02/03 verified.
+- Run `/gsd:execute-phase 33` to continue with Phase 33 (Quiz Press-State Color Fix), which is fully independent and can run in parallel with any remaining brand-asset work.
