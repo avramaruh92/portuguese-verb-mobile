@@ -168,7 +168,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 31-03-PLAN.md — Prove baseline dimensions/alpha, developer visual verification after a
+- [x] 31-03-PLAN.md — Prove baseline dimensions/alpha, developer visual verification after a
   delete-and-reinstall, and reconcile criterion 4 with D-10's Phase 35 deferral
   (wave 3, checkpoint: human visual verify)
 
@@ -265,7 +265,7 @@ Plans:
 | 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
-| 31. Brand Asset Source & Generator | v1.0 | 2/3 | In Progress|  |
+| 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete   | 2026-08-16 |
 | 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
