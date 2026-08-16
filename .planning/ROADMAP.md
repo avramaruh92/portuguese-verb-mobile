@@ -298,7 +298,7 @@ Plans:
 | 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete    | 2026-08-16 |
 | 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete    | 2026-08-16 |
-| 34. Brand Validation Extension | v1.0 | 1/1 | Complete   | 2026-08-16 |
+| 34. Brand Validation Extension | v1.0 | 1/1 | Complete    | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
 
 ---

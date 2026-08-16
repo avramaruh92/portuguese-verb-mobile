@@ -35,10 +35,10 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 ### Brand Validation
 
-- [ ] **VALID-01**: `scripts/validate-brand.ts` checks that the Warm Bold Mark source is canonical
-- [ ] **VALID-02**: `scripts/validate-brand.ts` checks generated assets exist at expected dimensions
-- [ ] **VALID-03**: `scripts/validate-brand.ts` checks `icon.png` has no alpha channel
-- [ ] **VALID-04**: `scripts/validate-brand.ts` checks the homepage lockup output is present
+- [x] **VALID-01**: `scripts/validate-brand.ts` checks that the Warm Bold Mark source is canonical
+- [x] **VALID-02**: `scripts/validate-brand.ts` checks generated assets exist at expected dimensions
+- [x] **VALID-03**: `scripts/validate-brand.ts` checks `icon.png` has no alpha channel
+- [x] **VALID-04**: `scripts/validate-brand.ts` checks the homepage lockup output is present
 
 ### App Store Connect Readiness
 
@@ -96,10 +96,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-01 | Phase 33 | Complete |
 | UX-02 | Phase 33 | Complete |
 | UX-03 | Phase 33 | Complete |
-| VALID-01 | Phase 34 | Pending |
-| VALID-02 | Phase 34 | Pending |
-| VALID-03 | Phase 34 | Pending |
-| VALID-04 | Phase 34 | Pending |
+| VALID-01 | Phase 34 | Complete |
+| VALID-02 | Phase 34 | Complete |
+| VALID-03 | Phase 34 | Complete |
+| VALID-04 | Phase 34 | Complete |
 | STORE-01 | Phase 35 | Pending |
 | STORE-02 | Phase 35 | Pending |
 | STORE-03 | Phase 35 | Pending |
