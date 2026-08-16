@@ -350,13 +350,51 @@ dated developer sign-off on a real EAS preview build — see
 
 ### Active
 
-To be defined in `.planning/REQUIREMENTS.md` for the next milestone
-(run `/gsd:new-milestone` to start).
+To be defined in `.planning/REQUIREMENTS.md` for milestone v1.0 (in progress).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
 `.planning/milestones/v0.4-REQUIREMENTS.md`, `.planning/milestones/v0.5-REQUIREMENTS.md`,
 and `.planning/milestones/v0.6-REQUIREMENTS.md`.
+
+## Current Milestone: v1.0 Warm Brand Polish + App Store Submission Readiness
+
+**Goal:** Lock in the Warm Bold Mark as the production brand identity, fix
+two visual/interaction papercuts (homepage plain-text title, quiz
+long-press color misread as "wrong"), and carry the app through full Apple
+App Store submission readiness (not just TestFlight).
+
+**Target features:**
+- Canonical `assets/brand/candidates/lafa-icon-warm-bold.svg` promoted to
+  the production brand-asset source, with stable SVG layer ids replacing
+  the brittle fill-count parsing in `scripts/generate-brand-assets.ts`
+- Homepage brand lockup: `lafa-homepage-lockup.svg` → generated
+  `lafa-homepage-lockup.png`, replacing the plain `Text` title in
+  `app/index.tsx` with a responsive image lockup
+- `scripts/generate-brand-assets.ts` updated to produce all production
+  assets (iOS icon, splash icon, favicon, Android foreground/monochrome,
+  homepage lockup) from the warm source; `icon.png` stays opaque
+- New `colors.choicePressed = "#E7DFDA"` token, scoped to unsubmitted
+  quiz answer-option press/hold states only — red/error stays reserved for
+  actual wrong-answer feedback, `colors.pressed` unchanged for primary
+  buttons
+- `scripts/validate-brand.ts` extended to check the warm source is
+  canonical, generated assets exist at expected dimensions, `icon.png` has
+  no alpha, and the homepage lockup output is present
+- Full Apple App Store Connect readiness: app metadata (description,
+  subtitle, keywords, category, support/privacy URLs, review notes, age
+  rating), privacy nutrition-label answers matching actual feedback data
+  practices, 1-10 alpha-free iPhone screenshots at Apple's accepted sizes,
+  production EAS build + EAS Submit, and manual App Review handoff
+
+**Key context:** Brand candidate SVGs/PNGs already exist in
+`assets/brand/candidates/` (untracked, generated ahead of this milestone —
+`lafa-icon-warm-bold.svg`, `lafa-icon-bold-orange.svg`,
+`lafa-icon-premium-dark.svg`, `lafa-homepage-lockup.svg`, plus rendered
+PNG previews). The Warm Bold Mark is the user-approved direction; the app
+icon stays mark-only while the homepage uses the corrected lockup image.
+This milestone assumes backend API contracts stay unchanged unless v1.0 QA
+surfaces a release-blocking issue.
 
 ## Next Milestone
 
@@ -576,4 +614,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-16 after v0.6 milestone (Lafa Branding + Expo Splash Cleanup)*
+*Last updated: 2026-08-16 — milestone v1.0 (Warm Brand Polish + App Store Submission Readiness) started*

@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.6
-milestone_name: Lafa Branding + Expo Splash Cleanup
-status: Awaiting next milestone
-stopped_at: Phase 29 context gathered
-last_updated: "2026-08-16T08:58:25.126Z"
-last_activity: 2026-08-16 — Milestone v0.6 completed and archived
+milestone: v1.0
+milestone_name: Warm Brand Polish + App Store Submission Readiness
+status: planning
+last_updated: "2026-08-16T10:47:39.790Z"
+last_activity: 2026-08-16
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-07-25)
 
 ## Current Position
 
-Phase: Milestone v0.6 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-16 — Milestone v0.6 completed and archived
+Status: Defining requirements
+Last activity: 2026-08-16 — Milestone v1.0 started
 
 ## Performance Metrics
 
