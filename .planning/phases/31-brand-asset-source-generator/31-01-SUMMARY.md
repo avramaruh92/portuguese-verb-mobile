@@ -113,3 +113,10 @@ None - no external service configuration required.
 ---
 *Phase: 31-brand-asset-source-generator*
 *Completed: 2026-08-16*
+
+## Self-Check: PASSED
+
+- FOUND: `assets/brand/lafa-icon.svg`
+- FOUND: `e929b69` (Task 2 commit)
+- FOUND: `3d9d208` (Task 3 commit)
+- FOUND: `d52460c` (SUMMARY commit)
