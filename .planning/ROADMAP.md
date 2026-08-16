@@ -216,7 +216,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 33-01-PLAN.md — Add the neutral `colors.choicePressed` (`#E3DFDA`) token, extract
+- [x] 33-01-PLAN.md — Add the neutral `colors.choicePressed` (`#E3DFDA`) token, extract
   `app/quiz.tsx`'s split locked-state/pressed-state logic into a pure
   `src/quiz/choiceStyle.ts` with unit tests proving locked correct/incorrect coloring
   always beats the pressed color, and rewire the answer-choice `Pressable`
@@ -289,7 +289,7 @@ Plans:
 | 30. Build Pipeline Hardening | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 31. Brand Asset Source & Generator | v1.0 | 3/3 | Complete    | 2026-08-16 |
 | 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
-| 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
+| 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete   | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 0/? | Not started | - |
 | 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
 

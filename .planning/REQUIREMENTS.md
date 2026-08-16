@@ -29,9 +29,9 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 ### Quiz Interaction Polish
 
-- [ ] **UX-01**: `colors.choicePressed` is added to `src/theme/tokens.ts`, scoped only to unsubmitted quiz answer-option press/hold states
-- [ ] **UX-02**: `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
-- [ ] **UX-03**: Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
+- [x] **UX-01**: `colors.choicePressed` is added to `src/theme/tokens.ts`, scoped only to unsubmitted quiz answer-option press/hold states
+- [x] **UX-02**: `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
+- [x] **UX-03**: Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
 
 ### Brand Validation
 
@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LOCKUP-01 | Phase 32 | Complete |
 | LOCKUP-02 | Phase 32 | Complete |
 | LOCKUP-03 | Phase 32 | Complete |
-| UX-01 | Phase 33 | Pending |
-| UX-02 | Phase 33 | Pending |
-| UX-03 | Phase 33 | Pending |
+| UX-01 | Phase 33 | Complete |
+| UX-02 | Phase 33 | Complete |
+| UX-03 | Phase 33 | Complete |
 | VALID-01 | Phase 34 | Pending |
 | VALID-02 | Phase 34 | Pending |
 | VALID-03 | Phase 34 | Pending |
