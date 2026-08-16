@@ -1,233 +1,295 @@
 # Architecture Research
 
-**Domain:** iOS TestFlight release readiness for a managed Expo Router / React Native app
-**Researched:** 2026-07-22
-**Confidence:** HIGH (Context7/official docs) with MEDIUM/LOW flags noted inline
-
-> Supersedes the previous v0.1-scoped revision of this file (dated 2026-07-13, covering
-> async remote-content fetch / quiz abandonment / safe-area wiring). This revision is scoped
-> entirely to v0.5's release-config work (`eas.json`, `app.json` identity fields, icon/splash
-> asset pipeline, EAS build/submit) and does not restate the app's product architecture, which
-> is unchanged this milestone. See git history for the prior revision if that context is needed.
+**Domain:** Expo/React Native app — brand-asset generation pipeline, homepage image lockup, design-token pressed-state fix, App Store submission readiness
+**Researched:** 2026-08-16
+**Confidence:** HIGH (all findings verified by reading the actual current source files, not training-data assumption)
 
 ## Standard Architecture
 
 ### System Overview
 
 ```
-┌───────────────────────────────────────────────────────────────────────┐
-│                     Repo root (existing, v0.4 shipped)                 │
-├───────────────────────────────────────────────────────────────────────┤
-│  app.json          — Expo config, SOURCE OF TRUTH for release identity │
-│  eas.json          — NEW: EAS Build + Submit profiles (sibling of      │
-│                       app.json/package.json, repo root, tracked in git)│
-│  package.json       — scripts, deps (eas-cli NOT currently a devDep)   │
-├───────────────────────────────────────────────────────────────────────┤
-│                    Source assets (tracked, hand-authored)              │
-│  assets/brand/lafa-logo-v2.svg        — brand source (untracked→ track)│
-│  assets/brand/lafa-logo-v2-concept.png — concept reference (untracked) │
-├───────────────────────────────────────────────────────────────────────┤
-│                 Generated release assets (tracked, derived)            │
-│  assets/images/icon.png               — 1024x1024, no-alpha, PNG       │
-│                                          (top-level `expo.icon`)        │
-│  assets/expo.icon/  (icon.json +      — SDK54+ Icon Composer format,   │
-│    Assets/*.svg,*.png)                  CURRENTLY the Expo template    │
-│                                          default — overrides `icon.png`│
-│                                          for iOS via `ios.icon` key     │
-│  assets/images/splash-icon.png        — splash foreground image        │
-│  assets/images/android-icon-*.png     — Android adaptive icon layers   │
-├───────────────────────────────────────────────────────────────────────┤
-│              Native build output (NEVER commit, git-ignored)           │
-│  ios/  (already in .gitignore)        — prebuild output, EAS Build     │
-│                                          regenerates from app.json      │
-│  .expo/, dist/                        — already git-ignored            │
-└───────────────────────────────────────────────────────────────────────┘
-                          │
-                          ▼  `eas build` reads app.json + eas.json,
-                             runs a cloud prebuild, produces .ipa
-                          ▼  `eas submit` reads eas.json `submit` profile,
-                             uploads .ipa to App Store Connect → TestFlight
+┌──────────────────────────────────────────────────────────────────────────┐
+│  BRAND SOURCE (new, this milestone)                                       │
+│  assets/brand/candidates/lafa-icon-warm-bold.svg   (icon/splash source)   │
+│  assets/brand/candidates/lafa-homepage-lockup.svg  (lockup source)        │
+│  → promoted to: assets/brand/lafa-icon.svg (icon)                         │
+│                 assets/brand/lafa-homepage-lockup.svg (lockup, new file)  │
+│  Both need STABLE <g id="..."> layer ids added during promotion —         │
+│  neither candidate SVG currently has them (verified: only <clipPath id>,  │
+│  <title id>, <desc id> exist today, zero <g id="mark"> anywhere)          │
+├──────────────────────────────────────────────────────────────────────────┤
+│  GENERATOR (scripts/generate-brand-assets.ts — single script, extended)   │
+│  reads lafa-icon.svg          → icon.png / favicon.png / splash-icon.png/ │
+│                                   android-icon-foreground.png/monochrome  │
+│  reads lafa-homepage-lockup.svg → lafa-homepage-lockup.png (NEW output)   │
+├──────────────────────────────────────────────────────────────────────────┤
+│  VALIDATOR (scripts/validate-brand.ts — extended, same standalone shape)  │
+│  checks: warm-bold source is canonical, all PNG dims/alpha, lockup PNG    │
+│  exists, forbidden-hex absence — independent literal list, does NOT       │
+│  import from generate-brand-assets.ts (existing convention)               │
+├──────────────────────────────────────────────────────────────────────────┤
+│  CONSUMPTION                                                              │
+│  app.json → assets/images/{icon,splash-icon,favicon,android-*}.png        │
+│  app/index.tsx → assets/images/lafa-homepage-lockup.png (NEW, replaces    │
+│    the plain <Text>Lafa</Text> heading) via an <Image>/expo-image         │
+├──────────────────────────────────────────────────────────────────────────┤
+│  TOKENS (src/theme/tokens.ts — one new key)                               │
+│  colors.choicePressed = "#E7DFDA"  → consumed by ONE call site:           │
+│  app/quiz.tsx's answer-choice Pressable (line ~148), NOT the Next/primary │
+│  buttons which keep colors.pressed                                       │
+├──────────────────────────────────────────────────────────────────────────┤
+│  STORE SUBMISSION ARTIFACTS (new, outside src/app, versioned separately)  │
+│  eas.json → new/extended profile for store-ready production build         │
+│  store/ or .planning/store/ → metadata, review notes, screenshot manifest │
+│  (no code integration — pure repo/process artifacts, gh/EAS CLI driven)   │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Component Responsibilities
 
 | Component | Responsibility | Typical Implementation |
 |-----------|----------------|------------------------|
-| `app.json` (`expo` block) | Single source of truth for app identity: name, slug, version, `ios.bundleIdentifier`, `ios.buildNumber`, icon/splash references | Already exists, needs new fields (`ios.bundleIdentifier`, `ios.buildNumber`, `scheme`) added, not restructured |
-| `eas.json` | Declares EAS Build profiles (`development`/`preview`/`production`) and EAS Submit profiles (`production`) | New file at repo root, JSON, versioned in git alongside `app.json` |
-| `assets/images/icon.png` | Fallback/base app icon referenced by top-level `expo.icon` | 1024x1024 PNG, fully opaque (no alpha channel), no rounded corners — OS applies masking |
-| `assets/expo.icon/` | SDK 54+ "Icon Composer" Liquid Glass icon bundle, referenced by `ios.icon` — **takes precedence over `icon.png` on iOS** | Directory containing `icon.json` (layer/fill/translucency descriptor) + `Assets/` (SVG/PNG layers); authored via the macOS-only Icon Composer app, or removed to fall back to `icon.png` |
-| `assets/images/splash-icon.png` | Splash screen foreground image, sized via `expo-splash-screen` plugin's `imageWidth` | PNG, transparent background allowed (unlike the app icon) |
-| EAS Build cloud service | Runs a cloud prebuild (generates the native `ios/` project transiently) and compiles the app | Triggered via `eas build --platform ios --profile production` |
-| EAS Submit cloud service | Uploads the built `.ipa` to App Store Connect, which triggers TestFlight processing | Triggered via `eas submit --platform ios --profile production` |
+| `assets/brand/lafa-icon.svg` (replaced) | Canonical icon/splash/Android source | Single SVG, promoted from `candidates/lafa-icon-warm-bold.svg`, background rect + one or more `<g id="mark">` groups |
+| `assets/brand/lafa-homepage-lockup.svg` (new) | Canonical Setup-screen lockup source | Single SVG, promoted from `candidates/lafa-homepage-lockup.svg` (mark + wordmark `<text>` + accent dot + tagline `<text>`), needs its own stable ids if the generator needs to isolate/recolor sub-parts (it doesn't currently — the whole lockup rasterizes as one flat image) |
+| `scripts/generate-brand-assets.ts` (extended) | Deterministic, idempotent SVG→PNG asset generation, single source of truth for all shipped brand PNGs | Same script, additional `SOURCE_LOCKUP_SVG_PATH`/`LOCKUP_OUTPUT_PATH` constants + one new render step at the end of `main()`; icon-extraction logic rewritten to use `querySelector`-style id lookup instead of fill-string counting |
+| `scripts/validate-brand.ts` (extended) | Permanent regression gate on brand-asset correctness | Same script, additional checks appended to the `results` array in `main()`; independent literal list (does not import generator constants) |
+| `app/index.tsx` (modified) | Setup screen — currently renders `<Text style={styles.heading}>Lafa</Text>`; swaps to an `<Image>` lockup | Static `require("../assets/images/lafa-homepage-lockup.png")`, `resizeMode="contain"`/`contentFit="contain"`, no dynamic sizing logic needed (fixed aspect ratio from a 1600×520 source) |
+| `src/theme/tokens.ts` (modified) | Design tokens — flat `colors` export, no ThemeProvider | Add one key, `choicePressed`, alongside existing `pressed`/`success`/`error`; `tokens.test.ts` must be updated for its exhaustive `toEqual()` assertion |
+| `app/quiz.tsx` (modified) | Owns the answer-choice `Pressable` press-state branching | The array-form `style` prop at the choice `Pressable` (`lockedChoice === null && pressed && {...}`) swaps `colors.pressed` → `colors.choicePressed`; the `Next` button `Pressable` (separate element, same file) is untouched |
+| `eas.json` (possibly extended) | Build/submit profile source of truth | Existing `production` build+submit profile likely reusable as-is for the store submission; verify whether Apple requires anything eas.json-level beyond what's already configured (it does not — screenshots/metadata are ASC-side, not eas.json-side) |
+| Store metadata files (new) | Human-authored App Store Connect copy, versioned for review/history | New `store/` (or `.planning/store/`) directory: `description.md`, `keywords.txt`, `review-notes.md`, `privacy-answers.md`, screenshot source list — **not consumed by any build tool**, purely documentation/authoring convenience unless `eas metadata`/`fastlane`-style tooling is deliberately adopted (out of scope per this milestone's stated constraints — no fastlane) |
 
 ## Recommended Project Structure
 
 ```
-portuguese-verb-mobile/
-├── app.json                    # MODIFIED — add ios.bundleIdentifier, ios.buildNumber,
-│                                #   update slug/scheme if renaming to "lafa"
-├── eas.json                    # NEW — build + submit profiles
-├── package.json                # MODIFIED — add eas-cli as a devDependency (optional but
-│                                #   recommended for reproducible local `eas` invocations)
-├── assets/
-│   ├── brand/
-│   │   ├── lafa-logo-v2.svg           # source of truth, ADD to git (currently untracked)
-│   │   └── lafa-logo-v2-concept.png   # reference only, ADD to git (currently untracked)
-│   ├── images/
-│   │   ├── icon.png                   # REPLACED — regenerated 1024x1024 no-alpha PNG
-│   │   ├── splash-icon.png            # possibly REPLACED (Lafa mark on existing blue bg)
-│   │   ├── favicon.png                # unaffected (web-only, out of scope for TestFlight)
-│   │   └── android-icon-*.png         # unaffected this milestone (iOS-only scope)
-│   └── expo.icon/                     # DECISION NEEDED — see Anti-Pattern below:
-│       ├── icon.json                  #   either regenerate via Icon Composer with the
-│       └── Assets/                    #   Lafa mark, or delete + remove `ios.icon` key
-├── ios/                         # NEVER commit — already git-ignored, EAS Build
-│                                #   regenerates it from app.json on every cloud build
-└── .expo/, dist/                # NEVER commit — already git-ignored
+assets/
+├── brand/
+│   ├── lafa-icon.svg                  # REPLACED: promoted warm-bold source (add stable <g id> layers)
+│   ├── lafa-homepage-lockup.svg       # NEW: promoted lockup source
+│   └── candidates/                    # existing exploration dir — stays untracked/reference-only,
+│                                       #   NOT read by generate-brand-assets.ts (avoid a second source of truth)
+├── images/
+│   ├── icon.png                       # unchanged output path, new pixel content
+│   ├── favicon.png                    # unchanged output path, new pixel content
+│   ├── splash-icon.png                # unchanged output path, new pixel content
+│   ├── android-icon-foreground.png    # unchanged output path, new pixel content
+│   ├── android-icon-monochrome.png    # unchanged output path, new pixel content
+│   └── lafa-homepage-lockup.png       # NEW output, consumed by app/index.tsx
+scripts/
+├── generate-brand-assets.ts           # EXTENDED — same file, id-based extraction + lockup render step
+├── validate-brand.ts                  # EXTENDED — same file, new checks appended
+└── preflight.ts                       # unchanged, unrelated to this milestone
+app/
+├── index.tsx                          # MODIFIED — Text heading → Image lockup
+└── quiz.tsx                           # MODIFIED — one Pressable style branch: colors.pressed → colors.choicePressed
+src/theme/
+├── tokens.ts                          # MODIFIED — + colors.choicePressed
+└── tokens.test.ts                     # MODIFIED — assert new key
+store/                                  # NEW, top-level, not under src/ or app/ (not app runtime code)
+├── metadata/
+│   ├── description.md
+│   ├── keywords.txt
+│   ├── support-privacy-urls.md
+│   └── review-notes.md
+├── privacy/
+│   └── nutrition-label-answers.md
+└── screenshots/                       # source PNGs or a capture script's output dir, gitignored if large
 ```
 
 ### Structure Rationale
 
-- **`eas.json` lives at repo root, sibling to `app.json`/`package.json`:** this is the fixed, non-configurable location EAS CLI looks for — no alternate path is supported.
-- **`assets/brand/` stays separate from `assets/images/`:** brand source files (SVG, concept PNG) are *inputs* to the icon pipeline, not release-consumable assets themselves — app.json never references files in `assets/brand/` directly. Keeping them separate and tracked preserves provenance (so a future rebrand or splash update can re-derive from the same source) without polluting the files Expo actually reads at build time.
-- **`assets/expo.icon/` is a directory, not a single file:** this is new in SDK 54+ (Icon Composer / Liquid Glass format) and is easy to mistake for a stray folder. It must be evaluated explicitly rather than left as-is, because it currently silently overrides `icon.png` on iOS with the unmodified Expo template default (see Anti-Pattern below).
-- **`ios/` must never be committed:** EAS Build's cloud infrastructure runs `expo prebuild` internally as part of every build, regenerating a fresh native project from `app.json` each time. A locally-generated `ios/` directory checked into git would create two competing sources of truth and is explicitly the failure mode Expo's managed-workflow model is designed to avoid. It is already correctly listed in `.gitignore` — no action needed there, just confirm no one runs `git add -f ios/` during this milestone.
+- **One generator script, not two:** the existing script is already structured as "read one SVG source, produce N outputs" — the lockup is just another output driven by another (single) source SVG at the same trust level as the icon source. Splitting into a second script would duplicate the Resvg/sharp boilerplate (canvas setup, PNG writing, error-message conventions) for no isolation benefit — `validate-brand.ts` already treats "the generator" as one unit to audit.
+- **`candidates/` is exploration-only, never a build input:** promoting means *copying/renaming* the chosen SVG into `assets/brand/` as the new canonical file (matching the exact pattern the v0.6 rebrand already used — `lafa-icon.svg` fully replaced prior AI-concept sources, zero dual-source ambiguity). `generate-brand-assets.ts` must only ever read from `assets/brand/*.svg` at fixed, hardcoded paths — never from `candidates/`.
+- **`store/` sits outside `src/`/`app/`/`assets/`:** it is not consumed by Metro, TypeScript, or any runtime code — it's pure documentation/process artifact, same tier as `.planning/`. Putting it under `.planning/` (e.g. `.planning/store/`) is equally valid and arguably more consistent with this repo's existing convention of keeping non-shipped planning/process docs under `.planning/`; either location works as long as it's excluded from anything bundled into the app binary (it already would be — Metro only bundles what's imported).
 
 ## Architectural Patterns
 
-### Pattern 1: Config-as-code release identity (no Xcode project editing)
+### Pattern 1: Stable-id SVG extraction (replaces fill-count parsing)
 
-**What:** All release-identity fields (`ios.bundleIdentifier`, `ios.buildNumber`, `version`, `name`, `slug`, `scheme`, `icon`, splash) live exclusively in `app.json`. There is no native `ios/*.xcodeproj` to hand-edit because none is checked in.
-**When to use:** Always, for a managed-workflow Expo project. This project is already fully managed (no `ios/` in git) — do not introduce native project files as part of this milestone.
-**Trade-offs:** Simpler, single source of truth, fully reproducible builds. Downside: any iOS-native customization not expressible in `app.json`/config plugins would require an `expo prebuild` + native edit + re-check-in `ios/`, which this project is explicitly avoiding — not needed for this milestone's scope.
+**What:** `extractMarkOnly()` currently identifies "the mark" by counting occurrences of the literal string `fill="#F2643E"` (`MARK_FILL`, `EXPECTED_MARK_PATH_COUNT = 2`) and stripping a hardcoded `BACKGROUND_RECT` string. This is brittle by the milestone's own framing — it breaks the instant path count, fill color, or exact rect markup changes, and it cannot generalize to a second source file (the lockup) which has a *different* internal structure (mark + text + circle, not just 2 fill paths).
 
-**Example (`app.json` additions needed):**
-```json
-{
-  "expo": {
-    "name": "Lafa",
-    "slug": "portuguese-verb-mobile",
-    "scheme": "lafa",
-    "version": "1.0.0",
-    "ios": {
-      "bundleIdentifier": "com.avram.aruh.lafa",
-      "buildNumber": "1",
-      "icon": "./assets/images/icon.png"
+**When to use:** Any time a generator needs to reliably re-extract a named sub-part of a hand-authored/design-tool-exported SVG across future edits.
+
+**Trade-offs:** Requires the SVG source itself to carry semantic `id`s (a one-time manual edit to `lafa-icon.svg`/`lafa-homepage-lockup.svg` during promotion — neither candidate file has any `<g id>` today, confirmed by grep). Slightly more parsing code (a real SVG/XML parse or regex-based `<g id="...">...</g>` extraction) than pure string search, but decouples correctness from incidental formatting (fill hex, path count, whitespace).
+
+**Example (regex-based `<g id="...">` extraction, no new dependency needed):**
+```typescript
+function extractGroupById(svg: string, id: string): string {
+  const openTagPattern = new RegExp(`<g[^>]*\\bid="${id}"[^>]*>`);
+  const openMatch = svg.match(openTagPattern);
+  if (!openMatch || openMatch.index === undefined) {
+    throw new Error(`${SOURCE_SVG_PATH} is missing <g id="${id}"> — source may have changed shape`);
+  }
+  // naive depth-tracking to find this group's matching closing </g>,
+  // since nested <g> groups (e.g. background/mark siblings) are expected
+  let depth = 1;
+  let i = openMatch.index + openMatch[0].length;
+  const rest = svg.slice(i);
+  const tagPattern = /<g\b[^>]*>|<\/g>/g;
+  let m: RegExpExecArray | null;
+  let endOffset = -1;
+  while ((m = tagPattern.exec(rest))) {
+    if (m[0].startsWith("</g>")) {
+      depth--;
+      if (depth === 0) { endOffset = m.index; break; }
+    } else {
+      depth++;
     }
   }
+  if (endOffset === -1) {
+    throw new Error(`${SOURCE_SVG_PATH}'s <g id="${id}"> has no matching </g> — malformed source`);
+  }
+  return rest.slice(0, endOffset);
 }
 ```
-Note: the milestone's target bundle id is `com.avram.aruh.lafa`; slug/scheme target `lafa` per PROJECT.md — both are currently `portuguese-verb-mobile`/unset in the live `app.json`, confirming this field is not yet added.
+Apply this the same way `extractMarkOnly()` is applied today: call once for `id="mark"` (icon) and, if the icon source keeps a separate background group, once for `id="background"`. The rest of the pipeline (`getMarkBBox`, `renderCenteredOnSafeZone`, `toMonochromeSilhouette`) is agnostic to *how* the mark markup was extracted and needs no changes — only `extractMarkOnly()`'s internals change, keeping the function's return contract (`innerMarkup: string`) identical so every downstream call site in `main()` is untouched.
 
-### Pattern 2: `eas.json` build/submit profile split
+### Pattern 2: Second single-source render step in the same `main()`
 
-**What:** EAS separates *build* configuration (what gets compiled, credentials source, resource class) from *submit* configuration (where the built artifact is uploaded) into two top-level keys, each keyed by named profile.
-**When to use:** Any EAS-based release pipeline. A minimal viable `eas.json` for this milestone needs exactly one build profile (`production`) and one submit profile (`production`).
-**Trade-offs:** Named profiles let `development`/`preview` be added later without disrupting the `production` path already in use for TestFlight — worth stubbing even if only `production` is exercised this milestone, since it costs nothing and matches Expo's own scaffolded default.
+**What:** Add a second, independent block inside `generate-brand-assets.ts`'s existing `main()` (or a small `generateLockup()` helper called from `main()`) that reads `assets/brand/lafa-homepage-lockup.svg`, rasterizes it at a fixed target width (e.g. 2x the largest on-screen render size for Retina sharpness — the source is already 1600×520, a 3.08:1 aspect ratio well suited to direct `Resvg` rendering with `fitTo: { mode: "width", value: N }`), and writes `assets/images/lafa-homepage-lockup.png`.
+
+**When to use:** Whenever a second, structurally unrelated brand asset needs generating from a *different* SVG than the icon — the lockup has no safe-zone/monochrome/adaptive-icon requirements the icon pipeline was built around, so it doesn't need to route through `renderCenteredOnSafeZone` or `toMonochromeSilhouette` at all; it's a much simpler "render this whole SVG to a PNG" step.
+
+**Trade-offs:** Because the lockup SVG already bakes in its own background rect + full composition (mark, wordmark text, accent dot, tagline), unlike the icon it does **not** need mark-only extraction, bbox-centering, or a separate transparent/opaque variant — a single `Resvg(...).render().asPng()` call suffices. This is simpler than the icon path, not more complex — no id-extraction is strictly required for the lockup unless a future requirement demands recoloring/reflowing sub-parts of it independently.
 
 **Example:**
-```json
-{
-  "cli": {
-    "version": ">= 16.0.0",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "production": {
-      "autoIncrement": true,
-      "ios": {
-        "resourceClass": "m-medium"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {}
-    }
-  }
+```typescript
+const LOCKUP_SOURCE_SVG_PATH = "assets/brand/lafa-homepage-lockup.svg";
+const LOCKUP_OUTPUT_PATH = "assets/images/lafa-homepage-lockup.png";
+const LOCKUP_RENDER_WIDTH_PX = 960; // 2x a ~480pt on-screen width, tune to actual layout
+
+async function generateLockup(): Promise<void> {
+  const sourceSvg = readFileSync(LOCKUP_SOURCE_SVG_PATH, "utf-8");
+  const rendered = new Resvg(sourceSvg, {
+    fitTo: { mode: "width", value: LOCKUP_RENDER_WIDTH_PX },
+  }).render();
+  const png = await sharp(rendered.asPng()).png().toBuffer();
+  writeFileSync(LOCKUP_OUTPUT_PATH, png);
 }
 ```
-Leaving `submit.production.ios` empty and using EAS-managed Apple credentials (via `eas credentials` / interactive `eas submit` prompts) matches the milestone's stated "EAS-managed Apple credentials" decision — do not hardcode `ascApiKeyPath`/`appleId` unless the user explicitly wants a non-interactive CI submit path, which is out of scope here.
+Call `await generateLockup();` as the last step inside the existing `main()`, after the icon/splash/Android outputs — keeps one script, one `npm run generate-assets` invocation, one exit code.
 
-### Pattern 3: Source-to-production icon pipeline (SVG → 1024×1024 no-alpha PNG)
+### Pattern 3: Scoped pressed-color token (not a new pattern, a targeted key addition)
 
-**What:** Expo's app icon requirement is a single flat, fully-opaque, exactly-square 1024×1024 PNG (no transparency, no pre-rounded corners — the OS applies platform-specific masking). The brand source is a vector SVG (`lafa-logo-v2.svg`), which must be rasterized, padded/composed onto a solid background if the mark itself isn't full-bleed, and alpha-flattened before it becomes `assets/images/icon.png`.
-**When to use:** Any time a vector brand asset is the source of truth and Expo needs a raster app icon.
-**Trade-offs:** Manual rasterization (e.g. `rsvg-convert`/`sharp`/Figma export) gives full control over padding and background color but must be re-run by hand on every brand update; there is no EAS-side re-rasterization step for the top-level `icon.png` — EAS Build only generates the *various OS-required intermediate sizes* from your one 1024×1024 source, it does not fix alpha-channel or squareness problems in that source.
+**What:** `src/theme/tokens.ts`'s `colors` object stays a flat, ungrouped map (established v0.6 convention — no nested `colors.quiz.choicePressed`). Add `choicePressed: "#E7DFDA"` as a sibling to `pressed`, `success`, `error`. The *only* consumer is `app/quiz.tsx`'s answer-choice `Pressable` (line ~148 of the current file), which today reads:
+```typescript
+style={({ pressed }) => [
+  styles.choice,
+  style.container,
+  lockedChoice === null && pressed && { backgroundColor: colors.pressed },
+]}
+```
+This is the exact component/line that "owns" choice-button press state — confirmed as the only `Pressable` in the codebase wrapping the 4 answer choices, gated by `lockedChoice === null` so the press overlay can never render once an answer is locked (at which point `style.container` — `choiceCorrect`/`choiceWrong`, driven by `choiceStyle()` — takes over and must keep winning). The fix is a one-line value swap: `colors.pressed` → `colors.choicePressed`.
 
-**Pipeline steps:**
-1. Rasterize `assets/brand/lafa-logo-v2.svg` at 1024×1024 (or higher, then downscale) — mark-only per PROJECT.md, not the full wordmark.
-2. Compose onto a solid (non-transparent) background if the SVG has transparency — matches the existing splash `backgroundColor` (`#208AEF`) unless visual QA picks a different fill.
-3. Flatten/remove the alpha channel entirely (validate with a tool like `identify -format '%A' file.png` → must report `False`/`Off`, or via `sharp`'s `.flatten()`).
-4. Verify exact squareness (1024×1024, not 1023×1024 or similar) — Expo's own docs call out this exact off-by-one as an invalid-icon failure mode.
-5. Write to `assets/images/icon.png`, replacing the current placeholder in place (same filename, `app.json` reference unchanged).
-6. Decide on `assets/expo.icon/` (see Anti-Pattern below) — do not leave it as the still-active iOS icon override while `icon.png` gets updated, or the new Lafa icon will silently not appear on iOS builds.
+**Why it doesn't collide with correct/incorrect coloring:** `choiceStyle()` (lines 82-98 of `app/quiz.tsx`) computes `style.container` from `lockedChoice`/`correctAnswer`, completely independent of the `Pressable`'s function-form `pressed` state. The array-form `style` prop's press overlay is only appended `lockedChoice === null && pressed && {...}` — i.e. only *before* any answer is locked, so it can structurally never appear at the same time as `choiceCorrect`/`choiceWrong` backgrounds (which only render *after* `lockedChoice !== null`). The bug being fixed is purely a color-*choice* problem (deep-orange `colors.pressed` reads as "this might be wrong" mid-press, before the user even releases), not a logic/precedence bug — no branching/gating code changes, only the color value at that one call site.
+
+**When to use:** Exactly this kind of narrow, semantically distinct pressed-state — a new token key is the right call whenever an existing shared key (`colors.pressed`) is being reused across UI elements with genuinely different meaning (primary-action affordance vs. neutral answer-option affordance) and a future palette change to one shouldn't silently affect the other.
+
+**Trade-offs:** `tokens.test.ts` uses an exhaustive `toEqual()` on the full `colors` object (per CONVENTIONS.md/ARCHITECTURE.md's documented pattern) — adding `choicePressed` requires updating that test in the same change, or it fails immediately (this is the intended regression-catching behavior, not a gotcha to work around).
 
 ## Data Flow
 
-### Release Config Flow
+### Brand Asset Generation Flow (build-time, not runtime)
 
 ```
-assets/brand/lafa-logo-v2.svg   (hand-authored, tracked, source of truth)
-    ↓  rasterize + flatten alpha + verify 1024x1024 square
-assets/images/icon.png          (generated, tracked, checked in)
-    ↓  referenced by app.json `expo.icon`
-    ↓  (only used on iOS if `ios.icon` is removed/absent — see Anti-Pattern)
-app.json                        (release identity: bundleIdentifier, buildNumber,
-                                  version, icon, splash — single source of truth)
-    ↓  read by EAS CLI at build time
-eas.json                        (build profile selects credentials source + resource
-                                  class; submit profile selects ASC destination)
-    ↓  `eas build --profile production --platform ios`
-EAS cloud build                 (transient `expo prebuild` generates a native `ios/`
-                                  project in the cloud only — never touches the repo's
-                                  git-ignored local `ios/`)
-    ↓  produces signed .ipa
-    ↓  `eas submit --profile production --platform ios`
-App Store Connect → TestFlight  (processing ~10-15 min, then available to testers)
+assets/brand/candidates/lafa-icon-warm-bold.svg  (chosen candidate)
+    ↓ (manual promotion: copy + add stable <g id> layers)
+assets/brand/lafa-icon.svg  (new canonical source, replaces v0.6's source)
+    ↓ npm run generate-assets  (scripts/generate-brand-assets.ts)
+    ├→ assets/images/icon.png                     (id-based extraction, opaque, 1024x1024)
+    ├→ assets/images/favicon.png                  (downscaled from icon.png buffer)
+    ├→ assets/images/splash-icon.png              (transparent, full-canvas mark)
+    ├→ assets/images/android-icon-foreground.png  (safe-zone centered)
+    └→ assets/images/android-icon-monochrome.png  (safe-zone centered, white silhouette)
+
+assets/brand/candidates/lafa-homepage-lockup.svg
+    ↓ (manual promotion: copy, corrected per this milestone's "corrected lockup image" note)
+assets/brand/lafa-homepage-lockup.svg  (new canonical source, new file)
+    ↓ npm run generate-assets  (same script, new render step)
+    └→ assets/images/lafa-homepage-lockup.png
+
+    ↓ npm run validate-brand  (scripts/validate-brand.ts, extended)
+    checks: warm-bold source is canonical (not a stale/wrong candidate),
+            all 6 PNGs exist at expected dimensions, icon.png has no alpha,
+            lockup PNG exists, app.json references are intact
+
+    ↓ consumed by:
+    app.json  (icon/splash/android-* — unchanged reference paths, new pixel content)
+    app/index.tsx  (NEW: <Image source={require(".../lafa-homepage-lockup.png")} />)
 ```
 
-### Key Data Flows
+### Quiz Press-State Fix Flow (runtime, no new data flow — a value swap)
 
-1. **Identity flow:** `app.json`'s `ios.bundleIdentifier` must be set and stable *before* the first `eas build` — EAS registers/associates the bundle id with the Apple Developer account and an App Store Connect app record on first build+submit. Changing it after registration means creating a new ASC app record, not editing the existing one.
-2. **Icon override flow:** iOS icon resolution has two competing paths in this specific project's `app.json` today — `expo.icon` (`assets/images/icon.png`) and `expo.ios.icon` (`assets/expo.icon/`, currently the unmodified Expo template default). `ios.icon` wins on iOS. Regenerating only `icon.png` without addressing `assets/expo.icon/` will ship the generic Expo template icon to TestFlight, not the Lafa mark.
-3. **Native output flow:** No locally-generated `ios/` should ever reach git. `eas build` runs its own cloud-side `expo prebuild`; a local `npx expo prebuild` run for icon-preview purposes (if used for visual QA) must not be committed — it's already covered by the existing `.gitignore` entry, but this is worth an explicit `git status` check before the first commit of this milestone's work.
+```
+User touches an answer-choice Pressable (lockedChoice === null)
+    ↓
+Pressable's function-form style callback fires with { pressed: true }
+    ↓
+style array evaluates: lockedChoice === null && pressed && { backgroundColor: colors.choicePressed }
+    (was colors.pressed — only this token reference changes)
+    ↓
+User releases / selectAnswer(choice) fires → lockedChoice becomes non-null
+    ↓
+choiceStyle(choice, correctAnswer) now drives style.container (choiceCorrect/choiceWrong)
+    — the pressed-overlay branch's `lockedChoice === null` guard is now false,
+      so colors.choicePressed can never render simultaneously with success/error colors
+```
+
+### Store Submission Flow (process, not app data flow)
+
+```
+store/metadata/*.md (authored)  ─┐
+store/screenshots/*.png (captured) ─┼→ manually entered/uploaded into App Store Connect (web UI)
+store/privacy/*.md (authored)   ─┘        — no CLI/script currently automates this transfer;
+                                              `eas metadata`/fastlane-style automation is explicitly
+                                              out of scope this milestone (matches the existing
+                                              "no fastlane" constraint already locked in PROJECT.md)
+
+eas.json production profile (existing, verified sufficient) ──→ eas build --profile production
+                                                              ──→ eas submit --profile production
+                                                                    (submits the .ipa; does NOT
+                                                                     touch metadata/screenshots —
+                                                                     those are ASC-web-UI-only
+                                                                     unless `eas metadata` is
+                                                                     deliberately adopted)
+```
 
 ## Scaling Considerations
 
-Not applicable in the traditional sense (this is a release-pipeline, not a runtime-scaling, concern) — reframed as build/release cadence:
+Not applicable in the traditional sense (this is a build-time asset pipeline and a single-screen UI change, not a runtime service). The relevant "scale" axis here is **number of brand-asset source files and derived outputs over time**:
 
-| Stage | Approach |
+| Scale | Approach |
 |-------|----------|
-| First TestFlight build (this milestone) | Single `production` build+submit profile, EAS-managed Apple credentials, manual `eas build`/`eas submit` invocation |
-| Repeated internal TestFlight builds | `autoIncrement: true` in the build profile (auto-bumps `ios.buildNumber` per build) so manual bumping of `app.json` isn't required every time |
-| Eventual public App Store release | Same pipeline, no architecture change — only ASC app-record metadata (screenshots, description, review info) differs, which is outside `eas.json`/`app.json` scope entirely |
-
-### Scaling Priorities
-
-1. **First blocker:** bundle identifier + first `eas build` establishes the Apple-side app record — this must happen once, correctly, before repeated builds are useful. Get identity fields right before the first build, not iteratively.
-2. **Second blocker (not this milestone):** if Android release work is later added, `eas.json` build profiles gain an `android` sibling key alongside `ios` in the same `production` profile — no restructuring needed, purely additive.
+| 2 sources (icon + lockup), current milestone | Single script, two source constants, two render code paths inside one `main()` — exactly what's proposed above |
+| 3+ sources (e.g. a future dark-mode icon variant, a social-share card image) | Still one script is fine as long as each new output is a simple additive function call in `main()`; only refactor into per-asset-type modules (e.g. `scripts/brand/icon.ts`, `scripts/brand/lockup.ts` imported by a thin `generate-brand-assets.ts` orchestrator) if `main()` itself becomes hard to read — not needed yet |
+| Many designers/frequent re-promotion cycles | Consider formalizing the "promotion" step (candidate → canonical + id-adding) as its own small script rather than a manual copy-and-hand-edit, to reduce the chance of a promoted SVG silently missing a required `<g id>`. Not warranted for a single one-time promotion this milestone. |
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Regenerating `assets/images/icon.png` while leaving `assets/expo.icon/` untouched
+### Anti-Pattern 1: Reading directly from `assets/brand/candidates/` in the generator
 
-**What people do:** Focus icon-pipeline work only on the top-level `icon`/`assets/images/icon.png` field because it's the more familiar/older Expo convention, not realizing `ios.icon` (SDK 54+ Icon Composer format) is already present in this project's `app.json` and takes precedence on iOS.
-**Why it's wrong:** The current `assets/expo.icon/` directory still contains the unmodified Expo template's default "expo-symbol" grid icon (confirmed via `assets/expo.icon/icon.json` — `image-name: "expo-symbol 2.svg"`, `grid.png`). If left as-is, the first TestFlight build ships the generic Expo template icon on iOS home screens regardless of how well `icon.png` is redone, because `ios.icon` silently wins.
-**Do this instead:** Either (a) regenerate `assets/expo.icon/` with the Lafa mark using Apple's Icon Composer app (macOS-only, produces the `.icon` bundle/layers format), or (b) the simpler path for this milestone — delete `assets/expo.icon/` and remove the `ios.icon` key from `app.json` entirely, letting the top-level `expo.icon` (`assets/images/icon.png`) apply uniformly to iOS as a plain flat icon with automatic OS-side Liquid Glass fallback treatment. Given the milestone scope ("mark-only, not full wordmark," no mention of Icon Composer tooling or macOS design tooling access), option (b) is very likely the pragmatic choice — flag this as an explicit decision point for the build-order plan, not an assumption to silently resolve.
+**What people do:** Point `generate-brand-assets.ts` at `assets/brand/candidates/lafa-icon-warm-bold.svg` directly instead of promoting/copying it into `assets/brand/lafa-icon.svg`, to "save a step."
+**Why it's wrong:** `candidates/` is explicitly described in the milestone context as untracked exploration output (confirmed: `git status` shows `assets/brand/candidates/` as untracked). `validate-brand.ts`'s existing convention is to assert the generator references one single, specific, tracked canonical source path (`checkGeneratorSource()` checks for `ALLOWED_SVG_SOURCE = "assets/brand/lafa-icon.svg"` literally). Pointing at `candidates/` breaks that invariant, risks the source silently changing/disappearing (untracked files aren't guaranteed to survive a clean checkout), and reintroduces the exact "which file is canonical" ambiguity the v0.6 rebrand deliberately eliminated.
+**Do this instead:** Copy the chosen candidate into `assets/brand/` under its permanent name, add the required stable ids, delete/ignore `candidates/` from the generator's concern entirely (it can stay on disk for historical reference, untracked, but the generator and validator should never reference it).
 
-### Anti-Pattern 2: Committing a locally-run `expo prebuild` output
+### Anti-Pattern 2: A second brand-asset generator script
 
-**What people do:** Run `npx expo prebuild` locally to preview native icon/splash rendering before a cloud build, then forget to discard the generated `ios/` directory, and it gets swept into a broad `git add -A`/`git add .` commit.
-**Why it's wrong:** Creates a second, divergent source of truth for native config alongside `app.json`; EAS Build's cloud-side prebuild would silently ignore or conflict with a committed native project, and it violates this project's explicit "keep ignored native `ios/` prebuild output out of source control" constraint (PROJECT.md, v0.5 Key context).
-**Do this instead:** `ios/` is already correctly listed in `.gitignore` — trust it, but verify with `git status` after any local prebuild/build-preview step during this milestone, and never use `git add -f` on it.
+**What people do:** Create `scripts/generate-homepage-lockup.ts` as a standalone sibling script because "it's a different asset type."
+**Why it's wrong:** Duplicates all the Resvg/sharp setup boilerplate and error-handling conventions already established in `generate-brand-assets.ts`; forces `validate-brand.ts` (and any future CI step) to know about and invoke two scripts instead of one; breaks the single `npm run generate-assets` → "all brand PNGs are fresh" mental model this project has relied on since v0.6.
+**Do this instead:** One additional render step inside the existing script's `main()`, as shown in Pattern 2 above.
 
-### Anti-Pattern 3: Treating `eas.json`'s `cli.version` as optional boilerplate
+### Anti-Pattern 3: Reusing `colors.pressed` for both primary-button and choice-button press states "because it already exists"
 
-**What people do:** Skip the `cli` block in `eas.json`, assuming whatever `eas-cli` version is globally/npx-installed is fine.
-**Why it's wrong:** Without a pinned/floor `cli.version`, a future contributor (or CI) running an older/newer `eas-cli` could produce a build with different default behavior (e.g. credential handling, `autoIncrement` semantics) than what was verified during this milestone's first successful TestFlight build.
-**Do this instead:** Include a `cli.version` constraint (e.g. `">= 16.0.0"`, matching or exceeding the locally verified `eas-cli/20.0.0` found in this environment) in the new `eas.json`.
+**What people do:** Skip adding a new token and just conditionally pick a color inline in `app/quiz.tsx` (e.g. `pressed && { backgroundColor: "#E7DFDA" }` as a raw hex literal at the call site) to avoid touching `tokens.ts`.
+**Why it's wrong:** Every other pressed-state/color value in this codebase is sourced from `src/theme/tokens.ts` — the project's own Anti-Patterns section (`ARCHITECTURE.md`) already calls out `ReportFeedbackModal.tsx`'s hardcoded hex as the one exception to avoid repeating. A raw hex literal at the `quiz.tsx` call site would reintroduce exactly that anti-pattern in a *new* location, and `tokens.test.ts`'s exhaustive assertion would give zero regression coverage for it.
+**Do this instead:** Add `colors.choicePressed` to `tokens.ts`, update `tokens.test.ts`, import and reference it in `quiz.tsx` like every other token.
+
+### Anti-Pattern 4: Store metadata/screenshots committed as binary blobs without a manifest
+
+**What people do:** Drop final screenshot PNGs straight into a `store/` folder with no record of which screen/state/device size each one represents, or author App Store description text ad hoc in the App Store Connect web UI with no versioned source of truth in the repo.
+**Why it's wrong:** Makes review-note/description iteration unreviewable (no diff, no history), and makes it easy to accidentally submit a stale screenshot after a UI change. This project's existing convention (PROJECT.md's Key Decisions table, `.planning/milestones/*-MILESTONE-AUDIT.md`) is to keep an auditable record of what shipped and why.
+**Do this instead:** Keep authored text (`description.md`, `keywords.txt`, `review-notes.md`, privacy answers) as versioned files in `store/` (or `.planning/store/`), and either (a) keep only a lightweight manifest of expected screenshot filenames/sizes in the repo with the actual PNGs generated fresh right before submission (recommended, avoids binary bloat), or (b) commit final screenshots directly if the team wants full reproducibility — either is fine as long as it's a deliberate choice, not an ad-hoc one.
 
 ## Integration Points
 
@@ -235,26 +297,44 @@ Not applicable in the traditional sense (this is a release-pipeline, not a runti
 
 | Service | Integration Pattern | Notes |
 |---------|---------------------|-------|
-| EAS Build (Expo Application Services) | `eas build --platform ios --profile production`, reads `app.json` + `eas.json` | Requires `eas login` (Expo account) and, on first run for this project, `eas init`/build will prompt to link the project to an EAS project id (written to `app.json`'s `extra.eas.projectId` — a new field, not yet present) |
-| App Store Connect (Apple) | `eas submit --platform ios --profile production`, reads `eas.json`'s `submit.production.ios` | Requires the operator's Apple Developer Program membership (confirmed available per PROJECT.md) and an App Store Connect app record — PROJECT.md states the operator will create/approve this manually, not automated by this milestone's config work |
-| `portuguese-verb-api` backend (existing) | Unchanged — `GET /health`, `GET /content/verbs`, `POST /feedback`, `POST /product-feedback` smoke-checked live before tester invites | Not a build-time integration; a manual/scripted preflight step, orthogonal to the `eas.json`/`app.json` work covered here |
+| App Store Connect (metadata, screenshots, privacy nutrition label, age rating) | Manual web-UI entry, no CLI integration in this repo today | `eas.json` has no `metadata` field/profile in the current config and none is required for `eas build`/`eas submit` to function — ASC metadata is entered separately via App Store Connect's website (or optionally via EAS's `eas metadata` subcommand + an `eas.json` `submit` app-config, which is a **new, optional integration** not currently present; adopting it is a build-order decision, see below) |
+| EAS Build/Submit (`eas.json`) | Already fully configured — `production` build profile (`autoIncrement: true`) + `submit.production.ios.ascAppId` | Proven end-to-end in v0.5 (one internal TestFlight build). For a *full store submission* (not just TestFlight), the same `production` profile is reusable as-is — Apple distinguishes internal/external testing vs. public release at the ASC review-submission step, not at the `eas build`/`eas submit` CLI level. No new `eas.json` profile is strictly required unless the team wants a distinct build number/versioning lane for store-submission builds vs. ongoing TestFlight builds (optional hygiene, not a hard requirement) |
+| Screenshot capture | No existing tooling in this repo (`scripts/` has no screenshot script) | Apple requires device-accurate screenshots at specific size buckets (e.g. 6.9"/6.5" iPhone). Options: (a) manual Simulator/device screenshots + Preview crop, (b) a small Detox/Maestro/`expo-cli` UI-driven capture script (new tooling, adds a testing-framework dependency this project has deliberately avoided — no `@testing-library/react-native` currently), (c) a documented manual checklist in `store/screenshots/README.md`. Given this project's established preference for minimal added dependencies (CONVENTIONS.md, STACK.md), (a)/(c) — manual capture with a documented checklist — is the lower-friction fit; a capture-automation script is a candidate for a *future* milestone once a second release cycle makes the manual process's repetition cost apparent |
 
 ### Internal Boundaries
 
 | Boundary | Communication | Notes |
 |----------|---------------|-------|
-| `app.json` ↔ `eas.json` | `eas.json` build profiles implicitly read release identity (bundle id, version) from `app.json` — no field duplication needed except `appVersionSource: "remote"` opting into EAS-side version/build-number tracking instead of `app.json`-only | Set identity fields in `app.json` *before* the first `eas build`, since that build registers them with Apple |
-| `assets/brand/` ↔ `assets/images/`, `assets/expo.icon/` | One-way, manual/scripted rasterization — no automated watch/rebuild pipeline exists or is being added this milestone | Re-run the rasterize step by hand on any future brand-asset update; document the exact command used for reproducibility (not currently captured anywhere in the repo) |
-| `eslint.config.js` lint failures ↔ release readiness | Two pre-existing `react-hooks/set-state-in-effect` errors in `ReportFeedbackModal.tsx`/`ProductFeedbackModal.tsx` (confirmed live via `npm run lint`) block a clean `npm run lint` pass | Independent of `eas.json`/icon work but explicitly in this milestone's scope — fix before or in parallel with release-config work, not blocking it structurally (no code dependency between the two) |
+| `assets/brand/*.svg` ↔ `scripts/generate-brand-assets.ts` | File read at script-run time (`readFileSync`), no import | One-directional; the generator never writes back to the SVG source |
+| `scripts/generate-brand-assets.ts` ↔ `scripts/validate-brand.ts` | Deliberately **no** shared code/imports (existing v0.6 decision, confirmed in PROJECT.md Key Decisions: "declares its forbidden-hex/retired-asset literals independently rather than importing them from `generate-brand-assets.ts`") | Preserve this independence when extending both scripts for the lockup/warm-bold work — do not introduce a shared `scripts/brand-constants.ts` that both import, or the validator stops being an independent check |
+| `assets/images/lafa-homepage-lockup.png` ↔ `app/index.tsx` | Static `require()`/import, bundled by Metro like `app.json`'s icon/splash references already are | New integration point — this is the first place `app/` code directly imports a generated brand PNG (today only `app.json`, a config file outside the JS bundle, references them) |
+| `src/theme/tokens.ts` ↔ `app/quiz.tsx` | Named import (`colors.choicePressed`), existing pattern | No new boundary type, just one more key flowing through the already-established tokens-consumed-directly-by-screens pattern |
+| `store/` ↔ rest of repo | None — zero code imports, zero build-time coupling | Confirms this is documentation/process, not runtime integration; safe to add without touching `tsconfig.json` includes, Jest config, or Metro resolution |
+
+## Suggested Build Order (dependency-aware)
+
+1. **Promote the warm-bold source + add stable ids** — must happen first; every downstream step (generator rewrite, validator extension, icon regeneration) depends on `assets/brand/lafa-icon.svg` existing in its final, id-bearing form. Doing the id-based generator rewrite *before* the source has ids would leave nothing to test it against.
+2. **Rewrite `extractMarkOnly()`/generator internals to consume ids** — depends on step 1. Verify against the *existing* icon output shape first (icon/splash/Android outputs must still validate identically in dimensions/alpha) before adding the lockup as a second concern, to isolate any regression to one variable at a time.
+3. **Promote the lockup source + add the lockup render step to the same script** — depends on step 2 only insofar as it reuses the same script; the lockup's own rendering (Pattern 2) doesn't need id-based extraction at all, so this can technically happen in parallel with step 1/2, but sequencing it after keeps the generator's `main()` diff reviewable as two clear, separable additions rather than one large rewrite.
+4. **Extend `scripts/validate-brand.ts`** — depends on steps 1-3 producing real output files to assert against; extending the validator before the generator produces the new outputs means the new checks would fail by construction (acceptable briefly during TDD-style development, but the validator should not be considered "done" until it passes against real generated output).
+5. **Wire `app/index.tsx`'s Image lockup** — depends on step 3's PNG existing on disk; independent of steps 4/6/7, can happen any time after step 3.
+6. **Add `colors.choicePressed` + fix `app/quiz.tsx`'s choice-button color** — fully independent of all brand-asset work (different files, different token, no shared dependency); can be done in parallel with 1-5, or sequenced anywhere convenient.
+7. **App Store submission artifacts (`store/` metadata, privacy answers, screenshots, production build+submit)** — **should come last**, after steps 1-6 land, because: (a) screenshots must reflect the *final* homepage lockup and any other shipped UI, so capturing them before step 5 lands means recapturing later; (b) the production build submitted for review should be the one actually carrying the finished brand assets and press-state fix, not an intermediate state. `eas.json` itself needs no changes ahead of this step (already sufficient), so this step is pure sequencing, not a technical blocker.
 
 ## Sources
 
-- [Splash screen and app icon - Expo Documentation](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/) — icon size/alpha requirements, config hierarchy, EAS Build's role generating intermediate sizes
-- [eas.json - Expo Documentation](https://docs.expo.dev/build/eas-json/) — build profile structure, platform-specific fields, resourceClass
-- [Submit to the Apple App Store - Expo Documentation](https://docs.expo.dev/submit/ios/) — submit profile fields, Apple credentials handling, TestFlight processing flow
-- [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54) — introduction of Icon Composer `.icon` format for Liquid Glass icons (confirms `assets/expo.icon/` is this SDK 54+ format, in-repo verified via `assets/expo.icon/icon.json`)
-- In-repo verification: `app.json` (current `expo.icon`/`ios.icon` split), `assets/expo.icon/icon.json` (confirms still-default Expo template content), `.gitignore` (confirms `ios/` already excluded), `npm run lint` output (confirms the exact 2 pre-existing lint failures named in PROJECT.md's v0.5 scope), `npx eas --version` (confirms `eas-cli` is available via `npx`, not yet a `package.json` devDependency)
+- Direct source inspection (HIGH confidence, current-state verified, not training-data assumption):
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/scripts/generate-brand-assets.ts` (current fill-count-based `extractMarkOnly()`)
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/scripts/validate-brand.ts` (current check list, independent-literal convention)
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/src/theme/tokens.ts` (current `colors` shape, confirms no `choicePressed` key yet)
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/app/index.tsx` (confirms plain-text `<Text style={styles.heading}>Lafa</Text>` heading, no image usage anywhere in this file)
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/app/quiz.tsx` (confirms the exact `Pressable` + `choiceStyle()` structure and the 9-call-site `colors.pressed` pattern, grep-verified: `app/index.tsx`, `app/results.tsx` (x2), `app/quiz.tsx` (x2), `src/feedback/ReportFeedbackModal.tsx` (x2), `src/productFeedback/ProductFeedbackModal.tsx` (x2))
+  - `/Users/avi/portuguese-verb/portuguese-verb-mobile/app.json`, `/Users/avi/portuguese-verb/portuguese-verb-mobile/eas.json` (confirms current build/submit config has no metadata-specific profile, `production` build+submit already proven)
+  - `assets/brand/candidates/lafa-icon-warm-bold.svg`, `assets/brand/candidates/lafa-homepage-lockup.svg` (grep-verified: zero `<g id="mark">`-style semantic ids present in either candidate today — only `<clipPath id>`/`<title id>`/`<desc id>`; the lockup SVG's structure is a mark `<g transform=...>` (no id) + two `<text>` elements + one `<circle>`, all flat/unlabeled)
+  - `package.json` (confirms `npm run generate-assets`/`validate-brand` script names, no existing screenshot/metadata tooling)
+  - `.planning/PROJECT.md` (v1.0 milestone goal/target-features section, Key Decisions table for existing generator/validator independence conventions, Out of Scope section confirming no fastlane/automated CI pipeline)
+- No external/Context7/WebSearch lookups were needed — this is entirely an integration-with-existing-codebase question, answerable authoritatively from the repo's own current state.
 
 ---
-*Architecture research for: iOS TestFlight release readiness (Expo managed workflow)*
-*Researched: 2026-07-22*
+*Architecture research for: Lafa mobile app — v1.0 warm-brand-polish + App Store submission-readiness milestone*
+*Researched: 2026-08-16*
