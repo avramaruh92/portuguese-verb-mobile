@@ -132,7 +132,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 Plans:
 **Wave 1**
 
-- [ ] 30-01-PLAN.md — Pin Node exactly in `.nvmrc`/`engines.node`/`eas.json` and regenerate the lockfile clean under it (wave 1, autonomous)
+- [x] 30-01-PLAN.md — Pin Node exactly in `.nvmrc`/`engines.node`/`eas.json` and regenerate the lockfile clean under it (wave 1, autonomous)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -244,7 +244,7 @@ Plans:
 | 27. Expo Config & Startup Flash Fix | v0.6 | 1/1 | Complete | 2026-08-13 |
 | 28. UI Token Application | v0.6 | 3/3 | Complete | 2026-08-14 |
 | 29. Brand Validation & Release Verification | v0.6 | 2/2 | Complete | 2026-08-15 |
-| 30. Build Pipeline Hardening | v1.0 | 0/? | Not started | - |
+| 30. Build Pipeline Hardening | v1.0 | 1/2 | In Progress|  |
 | 31. Brand Asset Source & Generator | v1.0 | 0/? | Not started | - |
 | 32. Homepage Lockup | v1.0 | 0/? | Not started | - |
 | 33. Quiz Press-State Color Fix | v1.0 | 0/? | Not started | - |
