@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   lockup: {
     height: 84,
     aspectRatio: 1600 / 520,
-    alignSelf: "center",
+    alignSelf: "flex-start",
     marginBottom: spacing.lg,
   },
   section: {
