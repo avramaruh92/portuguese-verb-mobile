@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
 import { Resvg } from "@resvg/resvg-js";
+import { DOMParser } from "linkedom";
 import sharp from "sharp";
 
 const SOURCE_SVG_PATH = "assets/brand/lafa-icon.svg";
@@ -18,47 +19,116 @@ const SAFE_ZONE_PX = Math.round(CANVAS_PX * SAFE_ZONE_RATIO); // 676
 
 const ICON_BACKGROUND_HEX = "#FFF9F6";
 const TRANSPARENT_BACKGROUND = "rgba(0,0,0,0)";
-const MARK_FILL = 'fill="#F2643E"';
 const MONOCHROME_FILL = 'fill="#FFFFFF"';
-const EXPECTED_MARK_PATH_COUNT = 2;
+const ORANGE_FILL_HEX = "#F2643E";
+const DEPTH_FILL_HEX = "#C94A2D";
 
-const BACKGROUND_RECT = `<rect width="${CANVAS_PX}" height="${CANVAS_PX}" rx="230" fill="${ICON_BACKGROUND_HEX}"/>`;
+const MARK_DEPTH_ID = "mark-depth";
+const MARK_FILL_ID = "mark-fill";
+const MARK_HIGHLIGHT_ID = "mark-highlight";
+const EXPECTED_MARK_IDS = [MARK_DEPTH_ID, MARK_FILL_ID, MARK_HIGHLIGHT_ID] as const;
+const COLOR_OUTPUT_LAYER_IDS = EXPECTED_MARK_IDS; // D-06: depth renders in icon, splash, Android foreground
+const MONOCHROME_LAYER_IDS = [MARK_FILL_ID, MARK_HIGHLIGHT_ID] as const; // D-07: depth dropped
+
 // No `rx` — the flattened square is deliberate so the OS-level icon mask does not
 // double-round on top of a pre-baked rounded-rect background (D-03).
 const FLAT_BACKGROUND_RECT = `<rect width="${CANVAS_PX}" height="${CANVAS_PX}" fill="${ICON_BACKGROUND_HEX}"/>`;
 
-function extractMarkOnly(svg: string): string {
-  if (!svg.includes(BACKGROUND_RECT)) {
-    throw new Error(
-      `${SOURCE_SVG_PATH} is missing the expected background rect — source may have changed shape`,
-    );
-  }
+type MarkLayerId = (typeof EXPECTED_MARK_IDS)[number];
 
-  const markFillCount = svg.split(MARK_FILL).length - 1;
-  if (markFillCount !== EXPECTED_MARK_PATH_COUNT) {
-    throw new Error(
-      `${SOURCE_SVG_PATH} has ${markFillCount} mark paths, expected ${EXPECTED_MARK_PATH_COUNT} — source may have changed shape`,
-    );
-  }
+interface ExtractedMark {
+  /** transform attribute of the unnamed <g> that parents all three layers,
+   *  i.e. "translate(512 512) scale(0.96) translate(-512 -512)" */
+  groupTransform: string;
+  /** serialized outerHTML of each ided layer element, keyed by id */
+  layers: Record<MarkLayerId, string>;
+}
 
-  const svgTagStart = svg.indexOf("<svg");
-  const rootTagEnd = svgTagStart === -1 ? -1 : svg.indexOf(">", svgTagStart);
-  const svgCloseIndex = svg.lastIndexOf("</svg>");
-  if (svgTagStart === -1 || rootTagEnd === -1 || svgCloseIndex === -1) {
+function extractMarkOnly(svg: string): ExtractedMark {
+  let doc: Document;
+  try {
+    doc = new DOMParser().parseFromString(svg, "image/svg+xml") as unknown as Document;
+  } catch {
     throw new Error(
       `${SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
     );
   }
 
-  const innerMarkup = svg.slice(rootTagEnd + 1, svgCloseIndex).replace(BACKGROUND_RECT, "");
-
-  if (innerMarkup.trim().length === 0 || !innerMarkup.includes('clip-path="url(')) {
+  const root = doc.querySelector("svg");
+  if (!root) {
     throw new Error(
-      `${SOURCE_SVG_PATH} mark markup is missing the expected clip-path reference (or <defs> was lost) — source may have changed shape`,
+      `${SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
     );
   }
 
-  return innerMarkup;
+  const layerElements: Partial<Record<MarkLayerId, Element>> = {};
+  for (const id of EXPECTED_MARK_IDS) {
+    const element = doc.querySelector(`[id="${id}"]`);
+    if (!element) {
+      throw new Error(
+        `${SOURCE_SVG_PATH} is missing the layer with id="${id}" — source may have changed shape`,
+      );
+    }
+    layerElements[id] = element;
+  }
+
+  const allIdedElements = Array.from(doc.querySelectorAll("[id]"));
+  const actualIds = allIdedElements.map((el) => el.getAttribute("id")).sort();
+  const expectedIdsSorted = [...EXPECTED_MARK_IDS].sort();
+  if (
+    actualIds.length !== expectedIdsSorted.length ||
+    actualIds.some((id, i) => id !== expectedIdsSorted[i])
+  ) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} has an unexpected set of ided elements (${JSON.stringify(
+        actualIds,
+      )}), expected exactly ${JSON.stringify(expectedIdsSorted)} — source may have changed shape`,
+    );
+  }
+
+  const depthEl = layerElements[MARK_DEPTH_ID]!;
+  const fillEl = layerElements[MARK_FILL_ID]!;
+  const highlightEl = layerElements[MARK_HIGHLIGHT_ID]!;
+
+  const parent = fillEl.parentElement;
+  if (!parent || parent.tagName.toLowerCase() !== "g") {
+    throw new Error(
+      `${SOURCE_SVG_PATH} mark-fill's parent is not a <g> — source may have changed shape`,
+    );
+  }
+  const groupTransform = parent.getAttribute("transform");
+  if (!groupTransform) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} mark layer wrapper <g> has no transform attribute — source may have changed shape`,
+    );
+  }
+  if (depthEl.parentElement !== parent || highlightEl.parentElement !== parent) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} mark layers do not share the same parent <g> — source may have changed shape`,
+    );
+  }
+
+  const layers: Partial<Record<MarkLayerId, string>> = {};
+  for (const [id, element] of Object.entries(layerElements) as [MarkLayerId, Element][]) {
+    const markup = element.outerHTML;
+    if (!markup || !markup.includes("fill=")) {
+      throw new Error(
+        `${SOURCE_SVG_PATH} layer with id="${id}" serialized without a fill attribute — source may have changed shape`,
+      );
+    }
+    layers[id] = markup;
+  }
+
+  return { groupTransform, layers: layers as Record<MarkLayerId, string> };
+}
+
+/** Re-wraps the requested layers in the parent group so the 0.96 scale is preserved. */
+function composeMark(mark: ExtractedMark, ids: readonly MarkLayerId[]): string {
+  if (ids.length === 0) {
+    throw new Error("composeMark requires at least one layer id");
+  }
+  const layerMarkup = ids.map((id) => mark.layers[id]).join("");
+  return `<g transform="${mark.groupTransform}">${layerMarkup}</g>`;
 }
 
 function wrapMarkDoc(markMarkup: string, viewBox: string): string {
@@ -118,10 +188,17 @@ async function renderCenteredOnSafeZone(
     .toBuffer();
 }
 
-function toMonochromeSilhouette(markDoc: string): string {
-  const recolored = markDoc.replaceAll(MARK_FILL, MONOCHROME_FILL);
+// Changed input contract: receives fill+highlight markup only, never depth (D-07).
+function toMonochromeSilhouette(markMarkup: string): string {
+  if (markMarkup.includes(`id="${MARK_DEPTH_ID}"`) || markMarkup.includes(DEPTH_FILL_HEX)) {
+    throw new Error(
+      `${SOURCE_SVG_PATH} monochrome input includes the depth layer — depth must never reach the monochrome silhouette (it would read as a smudge/ghosting artefact once colour contrast is removed by the themed-icon treatment)`,
+    );
+  }
 
-  if (recolored.includes(MARK_FILL) || recolored.includes("#F2643E")) {
+  const recolored = markMarkup.replaceAll(`fill="${ORANGE_FILL_HEX}"`, MONOCHROME_FILL);
+
+  if (recolored.includes(ORANGE_FILL_HEX) || recolored.includes(DEPTH_FILL_HEX)) {
     throw new Error(
       `${SOURCE_SVG_PATH} monochrome recolor left an orange fill behind — partial recolour must never ship as a themed icon`,
     );
@@ -134,12 +211,25 @@ async function main(): Promise<void> {
   const sourceSvg = readFileSync(SOURCE_SVG_PATH, "utf-8");
   const mark = extractMarkOnly(sourceSvg);
 
-  const fullCanvasMarkDoc = wrapMarkDoc(mark, `0 0 ${CANVAS_PX} ${CANVAS_PX}`);
+  const colorMarkup = composeMark(mark, COLOR_OUTPUT_LAYER_IDS);
+  const monoMarkup = composeMark(mark, MONOCHROME_LAYER_IDS);
+
+  // Colour bbox intentionally includes mark-depth's translate(18 22) offset (D-08) —
+  // the colour outputs render depth as part of one composition.
+  const fullCanvasMarkDoc = wrapMarkDoc(colorMarkup, `0 0 ${CANVAS_PX} ${CANVAS_PX}`);
   const bbox = getMarkBBox(fullCanvasMarkDoc);
-  const croppedMarkDoc = wrapMarkDoc(mark, `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+  const croppedMarkDoc = wrapMarkDoc(colorMarkup, `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+
+  // Monochrome bbox is genuinely different (D-08) — depth is not rendered in this variant.
+  const fullCanvasMonoDoc = wrapMarkDoc(monoMarkup, `0 0 ${CANVAS_PX} ${CANVAS_PX}`);
+  const monoBBox = getMarkBBox(fullCanvasMonoDoc);
+  const croppedMonoDoc = wrapMarkDoc(
+    toMonochromeSilhouette(monoMarkup),
+    `${monoBBox.x} ${monoBBox.y} ${monoBBox.width} ${monoBBox.height}`,
+  );
 
   // icon.png — full-bleed flat #FFF9F6 background, no baked-in rounding (D-03).
-  const iconRender = new Resvg(buildFullIconDoc(mark), {
+  const iconRender = new Resvg(buildFullIconDoc(colorMarkup), {
     fitTo: { mode: "width", value: CANVAS_PX },
     background: ICON_BACKGROUND_HEX,
   }).render();
@@ -177,11 +267,8 @@ async function main(): Promise<void> {
   const foregroundPng = await renderCenteredOnSafeZone(croppedMarkDoc, bbox);
   writeFileSync(ANDROID_FOREGROUND_OUTPUT_PATH, foregroundPng);
 
-  // android-icon-monochrome.png — same centering/scale, solid white silhouette (D-06).
-  const monochromePng = await renderCenteredOnSafeZone(
-    toMonochromeSilhouette(croppedMarkDoc),
-    bbox,
-  );
+  // android-icon-monochrome.png — same centering, solid white silhouette, no depth layer (D-07).
+  const monochromePng = await renderCenteredOnSafeZone(croppedMonoDoc, monoBBox);
   writeFileSync(ANDROID_MONOCHROME_OUTPUT_PATH, monochromePng);
 }
 
