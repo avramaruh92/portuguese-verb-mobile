@@ -124,7 +124,11 @@ Full phase details, plan breakdowns, and success criteria archived in
   2. `package.json`'s `engines.node` field matches the pinned version
   3. `eas.json`'s production build profile declares a `node` field matching the pinned version
   4. A freshly regenerated `package-lock.json`, built under the pinned Node/npm version, produces a clean `npm ci` and a real EAS production build succeeds with no lockfile-drift error
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 30-01-PLAN.md — Pin Node exactly in `.nvmrc`/`engines.node`/`eas.json` and regenerate the lockfile clean under it (wave 1, autonomous)
+- [ ] 30-02-PLAN.md — Prove and reconcile the pin against a real `eas build --profile production` build log (wave 2, checkpoints)
 
 ### Phase 31: Brand Asset Source & Generator
 **Goal**: The Warm Bold Mark is the canonical production brand-asset source, extracted via a robust id-based lookup instead of brittle fill-count parsing
