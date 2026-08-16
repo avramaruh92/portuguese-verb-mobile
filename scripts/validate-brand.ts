@@ -10,9 +10,12 @@ const FAVICON_PATH = "assets/images/favicon.png";
 const SPLASH_PATH = "assets/images/splash-icon.png";
 const ANDROID_FOREGROUND_PATH = "assets/images/android-icon-foreground.png";
 const ANDROID_MONOCHROME_PATH = "assets/images/android-icon-monochrome.png";
+const LOCKUP_PATH = "assets/images/lafa-homepage-lockup.png";
 
 const CANVAS_PX = 1024;
 const FAVICON_PX = 48;
+const LOCKUP_WIDTH_PX = 3200; // mirrors scripts/generate-brand-assets.ts
+const LOCKUP_HEIGHT_PX = 1040;
 
 const EXPECTED_BRAND_BG_HEX = "#FFF9F6";
 
@@ -216,6 +219,12 @@ async function main(): Promise<void> {
       ANDROID_MONOCHROME_PATH,
       CANVAS_PX,
       CANVAS_PX,
+    ),
+    await checkPngDimensions(
+      "lafa-homepage-lockup.png dimensions",
+      LOCKUP_PATH,
+      LOCKUP_WIDTH_PX,
+      LOCKUP_HEIGHT_PX,
     ),
     checkForbiddenHexAbsent(),
     checkAdaptiveBackground(),
