@@ -148,7 +148,7 @@ Plans:
   1. `assets/brand/lafa-icon.svg` is the promoted Warm Bold Mark candidate, with stable `<g id="...">` layers added to the source
   2. `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` selects layers by id, not by counting `fill` occurrences
   3. Regenerated icon, splash, favicon, and Android foreground/monochrome assets exist at the same dimensions as the pre-refactor baseline
-  4. `icon.png` has no alpha channel, re-confirmed against a real EAS build (not just local validation)
+  4. `icon.png` has no alpha channel, verified locally via `sharp`/`sips` metadata and `npm run validate-brand` (D-10: the real-EAS-build re-confirmation is deferred to Phase 35, where a real production build already occurs)
 
 **Plans**: 3 plans
 **UI hint**: yes *(generic flag — this phase is a build-script/asset-pipeline refactor with no
@@ -226,6 +226,7 @@ Plans:
   3. The age rating questionnaire is completed under Apple's 2026 tier system, and `ios.supportsTablet` is explicitly confirmed and locked to `false`
   4. 3-5 alpha-free 6.9" iPhone screenshots (1320×2868), captured from the final branded build, cover Setup/Quiz/Results, and export compliance is re-verified unchanged
   5. A production `eas build` + `eas submit` completes with an incremented build number, and "Submit for Review" is manually completed in App Store Connect
+  6. `icon.png` is re-confirmed alpha-free on the real production EAS build used for the App Store submission — the deferred real-build half of Phase 31 criterion 4 (BRAND-04, D-10)
 
 **Plans**: TBD
 
