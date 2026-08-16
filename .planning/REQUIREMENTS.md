@@ -1,0 +1,120 @@
+# Requirements: Lafa — Portuguese Verb Conjugation App (Mobile)
+
+**Defined:** 2026-08-16
+**Core Value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
+
+## v1 Requirements
+
+Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readiness). Each maps to roadmap phases.
+
+### Build Pipeline Hardening
+
+- [ ] **BUILD-01**: A `.nvmrc` pins the Node version to match the real EAS build image (verified from actual build logs, not assumed from the local dev machine)
+- [ ] **BUILD-02**: `package.json`'s `engines.node` field matches the pinned version
+- [ ] **BUILD-03**: `eas.json`'s production build profile sets a `node` field matching the pinned version
+- [ ] **BUILD-04**: `package-lock.json` is regenerated clean under the pinned Node/npm version and proven via a real EAS build (closing the lockfile-drift bug that has recurred 3 times: v0.5 Phase 20, Phase 24, v0.6 Phase 29)
+
+### Brand Asset Source & Generator
+
+- [ ] **BRAND-01**: `assets/brand/lafa-icon.svg` is promoted from the Warm Bold Mark candidate (`assets/brand/candidates/lafa-icon-warm-bold.svg`), with stable `<g id="...">` layers added
+- [ ] **BRAND-02**: `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` is rewritten to use id-based layer lookup instead of brittle fill-count string parsing
+- [ ] **BRAND-03**: Icon, splash, favicon, and Android foreground/monochrome assets are regenerated from the new source, with dimensions unchanged from the pre-refactor baseline
+- [ ] **BRAND-04**: `icon.png` remains fully opaque (no alpha channel) after regeneration, re-verified against a real EAS build (not just local validation)
+
+### Homepage Lockup
+
+- [ ] **LOCKUP-01**: `assets/brand/lafa-homepage-lockup.svg` is promoted as the canonical homepage lockup source
+- [ ] **LOCKUP-02**: `scripts/generate-brand-assets.ts` adds a lockup render step producing `assets/images/lafa-homepage-lockup.png`
+- [ ] **LOCKUP-03**: `app/index.tsx`'s plain `Text` title is replaced with a responsive `Image` lockup
+
+### Quiz Interaction Polish
+
+- [ ] **UX-01**: `colors.choicePressed` is added to `src/theme/tokens.ts`, scoped only to unsubmitted quiz answer-option press/hold states
+- [ ] **UX-02**: `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
+- [ ] **UX-03**: Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
+
+### Brand Validation
+
+- [ ] **VALID-01**: `scripts/validate-brand.ts` checks that the Warm Bold Mark source is canonical
+- [ ] **VALID-02**: `scripts/validate-brand.ts` checks generated assets exist at expected dimensions
+- [ ] **VALID-03**: `scripts/validate-brand.ts` checks `icon.png` has no alpha channel
+- [ ] **VALID-04**: `scripts/validate-brand.ts` checks the homepage lockup output is present
+
+### App Store Connect Readiness
+
+- [ ] **STORE-01**: `store/` holds versioned App Store Connect metadata (description, subtitle, keywords, category, review notes)
+- [ ] **STORE-02**: A live, reachable Support URL and Privacy Policy URL are hosted
+- [ ] **STORE-03**: App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows, cross-checked against the backend's actual retention/IP-logging behavior
+- [ ] **STORE-04**: Age rating questionnaire is completed under Apple's 2026 tier system (4+/9+/13+/16+/18+)
+- [ ] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
+- [ ] **STORE-06**: 3-5 alpha-free 6.9" iPhone screenshots (1320×2868) are captured from the final branded build, covering Setup/Quiz/Results
+- [ ] **STORE-07**: Export compliance declaration is re-verified unchanged
+- [ ] **STORE-08**: A production `eas build` + `eas submit` completes with an incremented build number
+- [ ] **STORE-09**: Manual "Submit for Review" is completed in App Store Connect
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Release Engineering
+
+- **RELEASE-04**: Additional device-size screenshot sets if Apple's auto-downscaling from the 6.9" master set looks poor on review
+- **RELEASE-05**: Localized App Store listing copy (e.g., Portuguese)
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| Fastlane `snapshot`/`frameit` automated screenshot pipeline | Disproportionate for a one-time, 3-screen capture; manual/lightly-scripted Simulator capture is sufficient |
+| Full marketing website | A single static page satisfies Support/Privacy URL requirements; matches the app's minimal-infrastructure philosophy elsewhere |
+| External TestFlight beta group population | Already explicitly deferred twice (v0.5, and again here) — Beta App Review adds unpredictable timeline |
+| iPad support/screenshots | No signal this app needs it; `ios.supportsTablet` locked to `false` (STORE-05) keeps Apple's review scope iPhone-only |
+| Analytics/crash reporting SDKs | Would reopen the privacy nutrition label and contradicts the app's zero-analytics premise |
+| `.eas/workflows/` CI automation | Already tracked as deferred v2 candidate `RELEASE-01` from v0.5 |
+| Android release work | Platform enum stays compatible but no Android build/release effort this milestone |
+| Backend API contract changes | Out of scope unless v1.0 QA exposes a release-blocking issue |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| BUILD-01 | — | Pending |
+| BUILD-02 | — | Pending |
+| BUILD-03 | — | Pending |
+| BUILD-04 | — | Pending |
+| BRAND-01 | — | Pending |
+| BRAND-02 | — | Pending |
+| BRAND-03 | — | Pending |
+| BRAND-04 | — | Pending |
+| LOCKUP-01 | — | Pending |
+| LOCKUP-02 | — | Pending |
+| LOCKUP-03 | — | Pending |
+| UX-01 | — | Pending |
+| UX-02 | — | Pending |
+| UX-03 | — | Pending |
+| VALID-01 | — | Pending |
+| VALID-02 | — | Pending |
+| VALID-03 | — | Pending |
+| VALID-04 | — | Pending |
+| STORE-01 | — | Pending |
+| STORE-02 | — | Pending |
+| STORE-03 | — | Pending |
+| STORE-04 | — | Pending |
+| STORE-05 | — | Pending |
+| STORE-06 | — | Pending |
+| STORE-07 | — | Pending |
+| STORE-08 | — | Pending |
+| STORE-09 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 27 total
+- Mapped to phases: 0 (pending roadmap creation)
+- Unmapped: 27 ⚠️ (expected — roadmap not yet created)
+
+---
+*Requirements defined: 2026-08-16*
+*Last updated: 2026-08-16 after initial v1.0 definition*
