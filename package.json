@@ -36,7 +36,6 @@
     "@resvg/resvg-js": "^2.6.2",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
-    "eas-cli": "^21.1.0",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.0",
     "jest-expo": "~57.0.2",
@@ -51,7 +50,6 @@
     "lint": "expo lint",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "eas": "eas",
     "generate-assets": "node scripts/generate-brand-assets.ts",
     "preflight": "node scripts/preflight.ts",
     "validate-brand": "node scripts/validate-brand.ts"
