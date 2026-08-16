@@ -10,12 +10,17 @@ const FAVICON_OUTPUT_PATH = "assets/images/favicon.png";
 const SPLASH_OUTPUT_PATH = "assets/images/splash-icon.png";
 const ANDROID_FOREGROUND_OUTPUT_PATH = "assets/images/android-icon-foreground.png";
 const ANDROID_MONOCHROME_OUTPUT_PATH = "assets/images/android-icon-monochrome.png";
+const LOCKUP_SOURCE_SVG_PATH = "assets/brand/lafa-homepage-lockup.svg";
+const LOCKUP_OUTPUT_PATH = "assets/images/lafa-homepage-lockup.png";
+const LOCKUP_MARK_SLOT_ID = "lockup-mark-slot";
 
 const CANVAS_PX = 1024;
 const SPLASH_WIDTH_PX = 1024;
 const FAVICON_PX = 48;
 const SAFE_ZONE_RATIO = 0.66;
 const SAFE_ZONE_PX = Math.round(CANVAS_PX * SAFE_ZONE_RATIO); // 676
+const LOCKUP_WIDTH_PX = 3200; // 2x the 1600x520 source (D-03: single high-res PNG, no @1x/@2x/@3x variants)
+const LOCKUP_HEIGHT_PX = 1040;
 
 const ICON_BACKGROUND_HEX = "#FFF9F6";
 const TRANSPARENT_BACKGROUND = "rgba(0,0,0,0)";
@@ -137,6 +142,51 @@ function wrapMarkDoc(markMarkup: string, viewBox: string): string {
 
 function buildFullIconDoc(markMarkup: string): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_PX} ${CANVAS_PX}">${FLAT_BACKGROUND_RECT}${markMarkup}</svg>`;
+}
+
+/** Injects the canonical composed mark into the lockup source's mark slot at render time (D-02). */
+function buildLockupDoc(lockupSvg: string, colorMarkup: string): string {
+  let doc: Document;
+  try {
+    doc = new DOMParser().parseFromString(lockupSvg, "image/svg+xml") as unknown as Document;
+  } catch {
+    throw new Error(
+      `${LOCKUP_SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
+    );
+  }
+
+  const root = doc.querySelector("svg");
+  if (!root) {
+    throw new Error(
+      `${LOCKUP_SOURCE_SVG_PATH} does not look like a well-formed SVG document — source may have changed shape`,
+    );
+  }
+
+  const slot = doc.querySelector(`[id="${LOCKUP_MARK_SLOT_ID}"]`);
+  if (!slot) {
+    throw new Error(
+      `${LOCKUP_SOURCE_SVG_PATH} is missing the mark slot with id="${LOCKUP_MARK_SLOT_ID}" — source may have changed shape`,
+    );
+  }
+
+  if (slot.children.length === 0) {
+    throw new Error(
+      `${LOCKUP_SOURCE_SVG_PATH} mark slot id="${LOCKUP_MARK_SLOT_ID}" has no element children — source may have changed shape`,
+    );
+  }
+
+  slot.innerHTML = colorMarkup;
+
+  const serialized = root.outerHTML;
+  for (const id of EXPECTED_MARK_IDS) {
+    if (!serialized.includes(`id="${id}"`)) {
+      throw new Error(
+        `${LOCKUP_SOURCE_SVG_PATH} mark injection did not produce a layer with id="${id}" — source may have changed shape`,
+      );
+    }
+  }
+
+  return serialized;
 }
 
 function getMarkBBox(markOnlyDoc: string): { x: number; y: number; width: number; height: number } {
@@ -270,6 +320,24 @@ async function main(): Promise<void> {
   // android-icon-monochrome.png — same centering, solid white silhouette, no depth layer (D-07).
   const monochromePng = await renderCenteredOnSafeZone(croppedMonoDoc, monoBBox);
   writeFileSync(ANDROID_MONOCHROME_OUTPUT_PATH, monochromePng);
+
+  // lafa-homepage-lockup.png — the lockup's own baked-in #FFF9F6 rounded-rect background
+  // already paints the canvas; the mark is injected from the canonical icon source at
+  // render time (D-02) so an icon change propagates here automatically.
+  const lockupSvg = readFileSync(LOCKUP_SOURCE_SVG_PATH, "utf-8");
+  const lockupDoc = buildLockupDoc(lockupSvg, colorMarkup);
+  const lockupRender = new Resvg(lockupDoc, {
+    fitTo: { mode: "width", value: LOCKUP_WIDTH_PX },
+    background: TRANSPARENT_BACKGROUND,
+  }).render();
+
+  if (lockupRender.width !== LOCKUP_WIDTH_PX || lockupRender.height !== LOCKUP_HEIGHT_PX) {
+    throw new Error(
+      `rendered lockup is ${lockupRender.width}x${lockupRender.height}, expected ${LOCKUP_WIDTH_PX}x${LOCKUP_HEIGHT_PX} — check fitTo/viewBox config`,
+    );
+  }
+
+  writeFileSync(LOCKUP_OUTPUT_PATH, lockupRender.asPng());
 }
 
 main();
