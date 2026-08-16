@@ -13,7 +13,7 @@
 
 ## Phases
 
-- [ ] **Phase 30: Build Pipeline Hardening** - Node/npm version drift between local dev and the EAS build image is closed for good with a durable pin
+- [x] **Phase 30: Build Pipeline Hardening** - Node/npm version drift between local dev and the EAS build image is closed for good with a durable pin
 - [ ] **Phase 31: Brand Asset Source & Generator** - The Warm Bold Mark becomes the canonical, id-based-extracted production icon source
 - [ ] **Phase 32: Homepage Lockup** - Setup screen's plain-text title is replaced with the branded image lockup
 - [ ] **Phase 33: Quiz Press-State Color Fix** - Unsubmitted answer-option presses no longer read as a wrong answer

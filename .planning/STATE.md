@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: executing
+status: completed
 stopped_at: Phase 30 context gathered
-last_updated: "2026-08-16T12:52:39.959Z"
-last_activity: 2026-08-16 -- Phase 30 execution started
+last_updated: "2026-08-16T13:59:28.477Z"
+last_activity: 2026-08-16 -- Phase 30 marked complete
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_plans: 2
+  percent: 17
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-08-16)
 
 ## Current Position
 
-Phase: 30 (build-pipeline-hardening) — EXECUTING
+Phase: 30 — COMPLETE
 Plan: 1 of 2
-Status: Executing Phase 30
-Last activity: 2026-08-16 -- Phase 30 execution started
+Status: Phase 30 complete
+Last activity: 2026-08-16 -- Phase 30 marked complete
 
 ## Performance Metrics
 
@@ -94,15 +94,20 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 - No durable Node-version pin existed prior to v1.0 — npm-version lockfile drift recurred 3 times (v0.5 Phase 20, Phase 24, v0.6 Phase 29); this is now Phase 30's primary deliverable, not deferred further.
 - Locked Lafa palette computed below WCAG AA 4.5:1 contrast on several text/background pairings (pre-v0.6, not independently re-audited for the v0.6 replacement palette) — not in v1.0 scope, spot-check candidate for a future milestone.
 - Cross-verb distractor `formIndex`-miss gap (v0.3) — explanation coverage uneven across distractor tiers, fail-closed, explicitly deferred, not in v1.0 scope.
-- `npx expo-doctor` 2 advisory failures (`eas` npm script, `eas-cli` devDependency) — deliberate v0.5 Phase 20 tradeoff (D-04), not a regression, not in v1.0 scope.
+- ~~`npx expo-doctor` 2 advisory failures (`eas` npm script, `eas-cli` devDependency) — deliberate v0.5 Phase 20 tradeoff (D-04)~~ — **resolved** via quick task 260816-k8y (2026-08-16): global `eas-cli@21.2.0` now satisfies `eas.json`'s `cli.version: ">= 21.1.0"` requirement, so the local devDependency and its shadowing script were removed. `npx expo-doctor` now passes 21/21 checks.
+
+## Quick Tasks Completed
+
+| ID | Description | Date | Commit | Directory |
+|----|--------------|------|--------|-----------|
+| 260816-k8y | Remove eas-cli devDependency and redundant eas script | 2026-08-16 | b537116 | [260816-k8y-remove-eas-cli-from-devdependencies-and-](./quick/260816-k8y-remove-eas-cli-from-devdependencies-and-/) |
 
 ## Session Continuity
 
-Last session: 2026-08-16T11:58:41.813Z
-Stopped at: Phase 30 context gathered
-Resume file: .planning/phases/30-build-pipeline-hardening/30-CONTEXT.md
+Last session: 2026-08-16T13:59:28.477Z
+Stopped at: Phase 30 complete; quick task 260816-k8y (eas-cli cleanup) complete
+Resume file: none — ready to plan Phase 31
 
 ## Operator Next Steps
 
-- Review and approve the v1.0 roadmap
-- Run `/gsd:plan-phase 30` to begin Phase 30 (Build Pipeline Hardening)
+- Run `/gsd:plan-phase 31` to begin Phase 31 (Brand Asset Source & Generator)
