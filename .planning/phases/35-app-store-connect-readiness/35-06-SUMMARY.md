@@ -145,8 +145,11 @@ no build artifacts were added to the repo.
 
 ## Task 3: Submit to App Store Connect
 
-**Status: upload confirmed successful; Apple server-side processing NOT YET confirmed complete
-— Task 3 is not yet closed.**
+**Status: complete.** Upload succeeded, Apple server-side processing finished, and the build
+was subsequently attached to version 1.0.0 and submitted for App Review in plan 35-07 —
+which would not have been possible if processing had not completed. Independently
+re-confirmed via `npx eas-cli build:list --platform ios`: build `a89da11a-b874-41d8-9184-06a18033b1eb`
+shows `status: FINISHED`, `appBuildVersion: 6`, `distribution: STORE`, `buildProfile: production`.
 
 The developer ran, from the repo root:
 
@@ -171,18 +174,10 @@ automatically).
 | `eas.json` API key fields | Still absent (`ascApiKeyPath`/`ascApiKeyIssuerId`/`ascApiKeyId` not present) ✅ |
 | "Submit for Review" clicked | No — correctly deferred to plan 35-07 |
 
-### Outstanding before Task 3 (and this plan) can be marked complete
+### Closed out
 
-The plan's acceptance criteria require confirming the build **appears in App Store Connect and
-has finished processing** (i.e., no longer shows "Processing"), not just that the upload
-succeeded. Apple's own message above states processing "usually takes about 5-10 minutes" —
-that confirmation has not yet been obtained.
-
-**Next step for the developer:** check back at
-https://appstoreconnect.apple.com/apps/6794382182/testflight/ios in ~10 minutes and confirm:
-1. A build with **build number 6** and **version 1.0.0** is listed.
-2. It shows a finished-processing state (e.g. "Ready to Submit" / no longer "Processing").
-3. No export-compliance question appeared/is pending on that build.
-
-Once that's confirmed, this SUMMARY will be updated with the final processing-complete
-timestamp/state and Task 3 (and this plan) will be closed out.
+Confirmed by downstream evidence rather than a live-watched processing screen: the developer
+attached build #6 to version 1.0.0 and completed "Submit for Review" in plan 35-07 (App Store
+Connect would not allow attaching an unprocessed build to a version). `eas build:list` shows
+`FINISHED` status. No export-compliance question ever appeared, consistent with
+`ITSAppUsesNonExemptEncryption: false`. Task 3 and this plan are complete.

@@ -49,7 +49,7 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 - [x] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
 - [x] **STORE-06**: 3-5 alpha-free 6.9" iPhone screenshots (1320×2868) are captured from the final branded build, covering Setup/Quiz/Results
 - [x] **STORE-07**: Export compliance declaration is re-verified unchanged
-- [ ] **STORE-08**: A production `eas build` + `eas submit` completes with an incremented build number
+- [x] **STORE-08**: A production `eas build` + `eas submit` completes with an incremented build number
 - [x] **STORE-09**: Manual "Submit for Review" is completed in App Store Connect
 
 ## v2 Requirements
@@ -107,7 +107,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STORE-05 | Phase 35 | Complete |
 | STORE-06 | Phase 35 | Complete |
 | STORE-07 | Phase 35 | Complete |
-| STORE-08 | Phase 35 | Pending |
+| STORE-08 | Phase 35 | Complete |
 | STORE-09 | Phase 35 | Complete |
 
 **Coverage:**
