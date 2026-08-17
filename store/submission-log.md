@@ -93,18 +93,17 @@ this is a gap against the plan's acceptance criteria, which requires the resulti
 be recorded in this log. No unusual or higher-than-expected question was reported, but that
 has also not been explicitly confirmed either way.
 
-**Action item:** confirm and record the resulting age rating tier (expected 4+) before Task 2
-can be considered fully closed and before proceeding to Task 3.
+**Resulting tier:** **4+** — confirmed by the developer, matching the expected outcome. No
+question drove a higher tier; no unusual question was reported.
 
 ## Export Compliance
 
-**Status:** Not yet explicitly reported by the developer. `app.json` still contains
-`"ITSAppUsesNonExemptEncryption": false`, so App Store Connect should either show no prompt
-(reading the value from the Info.plist automatically) or, if prompted, the correct answer is
-"No" to using non-exempt encryption.
+**Result:** No prompt appeared for this version. Apple auto-resolved the export compliance
+answer from `expo.ios.infoPlist.ITSAppUsesNonExemptEncryption: false` in `app.json`,
+consistent with expectations — no manual "No" answer was required.
 
-**Action item:** confirm and record whether a prompt appeared and what was answered, or that
-no prompt appeared, before Task 2 can be considered fully closed.
+**Task 2 status: COMPLETE.** App Privacy, Age Rating (4+), and Export Compliance are all
+recorded and confirmed by the developer.
 
 ## Submitted for Review
 

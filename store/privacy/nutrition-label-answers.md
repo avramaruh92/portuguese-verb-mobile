@@ -35,11 +35,14 @@ One row per outbound network call the app makes. There are exactly three. Reused
 - **Data type:** User Content -> **Customer Support** — this is the recommended selection
   for both `POST /feedback` and `POST /product-feedback` (both are user-initiated
   free-text problem reports).
-  - **Alternative:** User Content -> **Other User Content** is an acceptable substitute if
-    "Customer Support" is not offered as an option, or reads wrong, in the live App Store
-    Connect UI at entry time (both live under the same "User Content" group). Record
-    whichever is actually selected at entry time in the Live log verification section below
-    or in a follow-up note.
+  - **Correction (live-verified at execution time, plan 35-07):** the live App Store
+    Connect questionnaire does **not** present "Customer Support" and "Other User Content"
+    as an either/or choice as originally assumed above. It presents **both** as separate
+    sequential sub-type/purpose screens under the "User Content" group. Both were answered
+    identically: **Purpose: App Functionality only** (Third-Party Advertising, Developer's
+    Advertising/Marketing, Analytics, Product Personalization, and Other Purposes all left
+    unchecked on both screens). See `store/submission-log.md` `## App Privacy` for the
+    live-entry record.
   - **Collected:** Yes
   - **Purpose:** App Functionality
   - **Linked to the user's identity:** No
