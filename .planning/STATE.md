@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: executing
-stopped_at: Phase 35 context gathered
-last_updated: "2026-08-17T08:23:45.036Z"
-last_activity: 2026-08-17 -- Phase 35 planning complete
+stopped_at: Completed 35-03-PLAN.md
+last_updated: "2026-08-17T10:36:19.868Z"
+last_activity: 2026-08-17
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 16
-  completed_plans: 9
-  percent: 56
+  completed_plans: 11
+  percent: 69
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-16)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 35 — app store connect readiness
+**Current focus:** Phase 35 — app-store-connect-readiness
 
 ## Current Position
 
-Phase: 35
-Plan: Not started
+Phase: 35 (app-store-connect-readiness) — EXECUTING
+Plan: 3 of 7
 Status: Ready to execute
-Last activity: 2026-08-17 -- Phase 35 planning complete
+Last activity: 2026-08-17
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Last activity: 2026-08-17 -- Phase 35 planning complete
 | Phase 31 P03 | 15min | 3 tasks | 2 files |
 | Phase 32 P02 | ~2h | 2 tasks | 1 files |
 | Phase 33 P01 | 35min | 2 tasks | 5 files |
+| Phase 35-app-store-connect-readiness P03 | 12min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,7 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 31]: Combined generator extraction rewrite and main() rewiring into a single Task 1 commit; Task 2's commit scoped to regenerated PNG binaries
 - [Phase 31]: Checkpoint (31-03 Task 2) approved with 5 of 6 checks passing; check 5 (native icon after delete+reinstall) deferred to Phase 35 per D-10 since no dev-client/EAS build was available to test against
 - [Phase 32]: Task 2 checkpoint required 5 rounds of on-device iteration on lockup sizing/alignment before developer approval; final approach crops the rendered PNG to its measured non-background content bounding box rather than aligning the full 1600x520 canvas
+- [Phase 35-app-store-connect-readiness]: Review notes enumerate all three real network calls, correcting CLAUDE.md's stale two-endpoint framing — Under-counting network calls in App Review notes contradicts the privacy label and risks reviewer rejection
 
 ### Pending Todos
 
@@ -117,9 +119,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-16T22:35:12.443Z
-Stopped at: Phase 35 context gathered
-Resume file: .planning/phases/35-app-store-connect-readiness/35-CONTEXT.md
+Last session: 2026-08-17T10:36:19.860Z
+Stopped at: Completed 35-03-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 
