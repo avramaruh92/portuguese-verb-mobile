@@ -145,6 +145,33 @@ Connect App Privacy questionnaire before the next submission:
 
 ## 6. Live log verification
 
-_Appended after Task 2's checkpoint is confirmed by the developer against the live Render
-log stream. Until this section exists, the backend-fix claim in §4 is source-level only,
-not production-verified._
+**Date checked:** 2026-08-17 (test window `2026-08-17T12:26:37Z`)
+
+**Deployed commit SHA observed:** `f06c46b` — production `HEAD` on the `portuguese-verb-api`
+Render service was confirmed to match this SHA (deployed, not just committed to
+`origin/main`).
+
+**Health check:** `GET https://portuguese-verb-api.onrender.com/health` returned `200`.
+
+**Requests issued during the verification window:**
+- `GET /content/verbs` -> `200`
+- `POST /feedback` -> `201` (created record `id: cmsx7k5k200001sfier4671f3`)
+
+**Observed result:** Render's live log stream for that window shows no Fastify
+`"incoming request"` / `"request completed"` lines and no `remoteAddress`/`ip` field
+anywhere. The one curated application log line emitted for the `POST /feedback` call
+contains only the documented non-identifying field set
+(`id`/`verb`/`tense`/`subject`/`platform`/`appVersion`/`outcome`) — no IP, no user agent,
+no other client identifier.
+
+**Conclusion:** The Option A fix (`disableRequestLogging: true`,
+`portuguese-verb-backend/src/app.ts`, commit `f06c46b`) is confirmed live in production, not
+just in source. The D-09 claim in §4 is now production-verified, not source-level only.
+
+**Non-blocking observation:** Render's logs for this window also show a Fastify
+deprecation warning stating that the top-level `disableRequestLogging` option is deprecated
+in favor of `logController`/`isLogDisabled` and will be removed in Fastify 6. The option is
+still fully functional today and this does not affect the verification above; it is worth
+migrating to the newer API before any future Fastify 6 upgrade, but is not a blocker for
+this nutrition-label claim (consistent with the same observation already recorded in
+`35-01-SUMMARY.md`).
