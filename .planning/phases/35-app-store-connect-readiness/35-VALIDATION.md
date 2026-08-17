@@ -2,8 +2,8 @@
 phase: 35
 slug: app-store-connect-readiness
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-17
 ---
 
@@ -36,13 +36,27 @@ created: 2026-08-17
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 35-01-0X | 01 | 1 | STORE-05 | — | `app.json` `ios.supportsTablet` is explicitly `false` | source assertion | `grep '"supportsTablet": false' app.json` | ✅ | ⬜ pending |
-| 35-0X-0X | TBD | TBD | STORE-06 | — | Sibling backend no longer logs `req.ip` on request | source assertion | `grep disableRequestLogging ../portuguese-verb-backend/src/app.ts` | ✅ | ⬜ pending |
-| 35-0X-0X | TBD | TBD | STORE-01..09 | — | Brand regression gate stays green before production build | automated | `npm run validate-brand` | ✅ | ⬜ pending |
+| Task ID | Plan | Wave | Requirement | Type | Secure/Correct Behavior | Automated Command | Status |
+|---------|------|------|-------------|------|--------------------------|--------------------|--------|
+| 35-01-01 | 01 | 1 | STORE-05, STORE-07 | auto | `supportsTablet: false`, export compliance unchanged, typecheck/test green | `grep -q '"supportsTablet": false' app.json && grep -q '"ITSAppUsesNonExemptEncryption": false' app.json && npm run typecheck && npm test` | ⬜ pending |
+| 35-01-02 | 01 | 1 | STORE-03 (D-13) | auto | Sibling backend `disableRequestLogging: true` set, backend build/test/lint green, committed | `grep -q "disableRequestLogging: true" ../portuguese-verb-backend/src/app.ts && (cd ../portuguese-verb-backend && npm run build && npm test && npm run lint)` | ⬜ pending |
+| 35-02-01 | 02 | 1 | STORE-02 | auto | `docs/index.html`, `support.html`, `privacy.html` exist, contact + 3-endpoint disclosure present, no external scripts | `test -f docs/support.html && grep -q 'mailto:aruhicen@gmail.com' docs/support.html && grep -q '/product-feedback' docs/privacy.html` | ⬜ pending |
+| 35-02-02 | 02 | 1 | STORE-02 | checkpoint:human-verify | GitHub Pages enabled and live | `curl` 200 on both `github.io` URLs + `gh api .../pages` status `built` | ⬜ pending |
+| 35-03-01 | 03 | 1 | STORE-01 | auto | Subtitle ≤30 chars, keywords ≤100 chars comma-free, description covers free/no-account/European Portuguese | `test "$(tr -d '\n' < store/metadata/subtitle.txt | wc -m)" -le 30 && grep -qi 'European Portuguese' store/metadata/description.md` | ⬜ pending |
+| 35-03-02 | 03 | 1 | STORE-01 | auto | Review notes cover all 3 endpoints + contact, no TestFlight mention | `grep -q '/content/verbs' store/metadata/review-notes.md && grep -q '/product-feedback' store/metadata/review-notes.md` | ⬜ pending |
+| 35-04-01 | 04 | 2 | STORE-03 | auto | Nutrition-label doc covers all 3 endpoints, cites D-13/Option A, Prisma schema evidence | `grep -q '/product-feedback' store/privacy/nutrition-label-answers.md && grep -q 'disableRequestLogging' store/privacy/nutrition-label-answers.md` | ⬜ pending |
+| 35-04-02 | 04 | 2 | STORE-03 | checkpoint:human-verify | Deployed backend confirmed no longer logging `req.ip` | `grep -q "Live log verification" store/privacy/nutrition-label-answers.md && grep -q "disableRequestLogging" ../portuguese-verb-backend/src/app.ts` | ⬜ pending |
+| 35-05-01 | 05 | 1 | STORE-06 | auto | Screenshot capture instructions documented (dimensions, alpha check, filenames) | `grep -q '1320' store/screenshots/README.md && grep -q '2868' store/screenshots/README.md` | ⬜ pending |
+| 35-05-02 | 05 | 1 | STORE-06 | checkpoint:human-verify | 3 PNGs captured at 1320×2868, brand-valid | `sips -g pixelWidth/pixelHeight` on each PNG + `npm run validate-brand` | ⬜ pending |
+| 35-05-03 | 05 | 1 | STORE-06 | auto | All 3 PNGs alpha-free at correct dimensions | `sips -g hasAlpha` == "no" for each PNG | ⬜ pending |
+| 35-06-01 | 06 | 2 | STORE-08 | auto | All local gates green (typecheck/test/lint/validate-brand/expo-doctor), `supportsTablet`/export-compliance locked | `npm run typecheck && npm test && npm run lint && npm run validate-brand && npx expo-doctor` | ⬜ pending |
+| 35-06-02 | 06 | 2 | STORE-08, STORE-09 | checkpoint:human-verify | Production EAS build finishes, icon alpha-free on real build | `eas build:list --platform ios --limit 1 --json` shows `status: FINISHED` | ⬜ pending |
+| 35-06-03 | 06 | 2 | STORE-08 | checkpoint:human-verify | Build submitted to App Store Connect, recorded in SUMMARY | `grep -qi "submission" 35-06-SUMMARY.md && grep -qi "build number" 35-06-SUMMARY.md` | ⬜ pending |
+| 35-07-01 | 07 | 3 | STORE-01, STORE-02, STORE-06, STORE-07 | checkpoint:human-verify | Listing copy/URLs/screenshots entered in App Store Connect matching `store/` | `curl` 200 on both URLs + subtitle/keywords length checks + submission-log entries | ⬜ pending |
+| 35-07-02 | 07 | 3 | STORE-03, STORE-04, STORE-07 | checkpoint:human-verify | Nutrition label, age rating, export compliance answered live and logged | `grep -q '## App Privacy' store/submission-log.md && grep -q '## Age Rating' store/submission-log.md` | ⬜ pending |
+| 35-07-03 | 07 | 3 | STORE-01..09 | checkpoint:human-verify | "Submit for Review" clicked, version 1.0.0 in review | `grep -q '## Submitted for Review' store/submission-log.md && grep -qi 'in review' store/submission-log.md` | ⬜ pending |
 
-*Full per-task mapping to be finalized by the planner once tasks are broken out — most of this phase's verification is manual (see below), not automated test coverage.*
+All 17 tasks across the 7 plans carry a concrete `<automated>` verify command (even `checkpoint:human-verify` tasks resolve to a scripted post-condition check) — no task relies on subjective/unverifiable language.
 
 ---
 
@@ -70,11 +84,11 @@ created: 2026-08-17
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies, or are explicitly marked manual-only per the table above
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify (where automation is possible)
-- [ ] Wave 0 covers all MISSING references — N/A, no Wave 0 needed
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter once planner finalizes the per-task map
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies, or are explicitly marked manual-only per the table above
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify (where automation is possible)
+- [x] Wave 0 covers all MISSING references — N/A, no Wave 0 needed
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-08-17 (via gsd-plan-checker, 0 blockers)

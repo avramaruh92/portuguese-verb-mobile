@@ -360,17 +360,15 @@ grep -rn "crypto\|CryptoKit\|encryption" src app --include="*.ts" --include="*.t
 | A2 | Render's free-plan platform log retention is short/rolling rather than a permanent queryable store (exact day-count not published by Render) | Backend Data-Retention Investigation | LOW-MEDIUM — affects the precision of the D-09 rationale text, not the recommended action (Option A eliminates the ambiguity regardless of exact retention length) |
 | A3 | `expo-web-browser`'s presence in dependencies doesn't expose an open/arbitrary browsing surface relevant to age rating | Age Rating Questionnaire | LOW — worth a 30-second grep/UI check at execution time to confirm it's not used for open web browsing (mailto/external links only, if used at all) |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should the backend `disableRequestLogging` fix (Option A) be made before this phase's submission, and if so, who executes it?**
+1. **Should the backend `disableRequestLogging` fix (Option A) be made before this phase's submission, and if so, who executes it?** — RESOLVED
    - What we know: It's a one-line, low-risk change in a separate repo (`portuguese-verb-api`), not part of this phase's own file scope.
-   - What's unclear: Whether the user wants to treat this as a blocking pre-submission step in the sibling repo, or accept Option B's documented-judgment-call fallback for this v1.0 release.
-   - Recommendation: Surface this explicitly during planning/discuss-phase follow-up (or as a `checkpoint:human-verify` in the plan) rather than silently picking one — this is a legitimate judgment call, not a pure research fact.
+   - Resolution: User selected Option A during plan-phase (2026-08-16), captured as D-13 in `35-CONTEXT.md`. Plan `35-01` executes the sibling-repo fix; plan `35-04` verifies the deployed backend no longer emits `req.ip` in its live log stream before the nutrition-label answers are finalized.
 
-2. **Exact final wording of the 2026 age rating questionnaire's new question categories** (medical/wellness, violent themes, in-app controls, social media) — cannot be verified without live access to App Store Connect's UI in this research session.
+2. **Exact final wording of the 2026 age rating questionnaire's new question categories** (medical/wellness, violent themes, in-app controls, social media) — RESOLVED (deferred by design)
    - What we know: The categories exist and are mandatory as of 2026 (Apple's own announcement).
-   - What's unclear: The precise phrasing/branching logic of each new question.
-   - Recommendation: Walk live at execution time, as already flagged in CONTEXT.md.
+   - Resolution: Not resolvable outside App Store Connect's live UI. Plan `35-07` Task 2 walks the questionnaire live at execution time, as flagged in CONTEXT.md.
 
 ## Environment Availability
 
