@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: executing
 stopped_at: Completed 35-03-PLAN.md
-last_updated: "2026-08-17T10:37:04.640Z"
+last_updated: "2026-08-17T12:05:28.151Z"
 last_activity: 2026-08-17
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 16
-  completed_plans: 12
-  percent: 75
+  completed_plans: 13
+  percent: 81
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-16)
 ## Current Position
 
 Phase: 35 (app-store-connect-readiness) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-08-17
 
@@ -53,6 +53,7 @@ Last activity: 2026-08-17
 | Phase 32 P02 | ~2h | 2 tasks | 1 files |
 | Phase 33 P01 | 35min | 2 tasks | 5 files |
 | Phase 35-app-store-connect-readiness P03 | 12min | 2 tasks | 6 files |
+| Phase 35 P05 | 55min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 31]: Checkpoint (31-03 Task 2) approved with 5 of 6 checks passing; check 5 (native icon after delete+reinstall) deferred to Phase 35 per D-10 since no dev-client/EAS build was available to test against
 - [Phase 32]: Task 2 checkpoint required 5 rounds of on-device iteration on lockup sizing/alignment before developer approval; final approach crops the rendered PNG to its measured non-background content bounding box rather than aligning the full 1600x520 canvas
 - [Phase 35-app-store-connect-readiness]: Review notes enumerate all three real network calls, correcting CLAUDE.md's stale two-endpoint framing — Under-counting network calls in App Review notes contradicts the privacy label and risks reviewer rejection
+- [Phase 35]: Substituted iPhone 17 Pro Max simulator for the plan's iPhone 16 Pro Max reference (unavailable locally), after verifying identical 1320x2868 capture resolution. — Plan explicitly frames dimension, not device name, as the contract for the 6.9-inch bucket.
+- [Phase 35]: Screenshots captured via the Simulator app's Cmd+S tool (developer-driven) rather than xcrun simctl io booted screenshot; alpha channel added by that tool was stripped via sharp's removeAlpha() per the plan's own remediation path. — Both capture paths produce equivalent-resolution PNGs; the plan pre-defined alpha remediation for exactly this kind of source discrepancy.
 
 ### Pending Todos
 
@@ -119,7 +122,7 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-17T10:37:04.632Z
+Last session: 2026-08-17T12:04:07.052Z
 Stopped at: Completed 35-03-PLAN.md
 Resume file: None
 
