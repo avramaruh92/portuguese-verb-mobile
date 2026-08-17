@@ -80,18 +80,14 @@ score text — there is no in-app redistribution, feed, or content-discovery sur
 
 **Developer confirmed:** saved in App Store Connect.
 
-**Follow-up needed:** `store/privacy/nutrition-label-answers.md` §3 should be updated to
-reflect that the live UI presents both User Content sub-type screens (not an either/or) —
-noted here as an action item, not yet applied to that file.
+**Follow-up applied:** `store/privacy/nutrition-label-answers.md` §3 was corrected to reflect
+that the live UI presents both User Content sub-type screens in sequence (not an either/or) —
+see that file's "Correction (live-verified at execution time, plan 35-07)" note.
 
 ## Age Rating
 
-**Status:** Developer reports the age rating questionnaire was completed and saved
-("finished the age rating setup"), walked live question by question per plan instructions
-(no shortcuts reported). **The resulting tier has not yet been explicitly reported back** —
-this is a gap against the plan's acceptance criteria, which requires the resulting tier to
-be recorded in this log. No unusual or higher-than-expected question was reported, but that
-has also not been explicitly confirmed either way.
+Questionnaire completed and saved, walked live question by question per plan instructions
+(no shortcuts reported).
 
 **Resulting tier:** **4+** — confirmed by the developer, matching the expected outcome. No
 question drove a higher tier; no unusual question was reported.
