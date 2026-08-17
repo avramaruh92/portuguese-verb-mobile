@@ -85,6 +85,22 @@ per `.planning/research/FEATURES.md`.
   against the final branded production/preview build — not a real device,
   not scripted automation.
 
+### Backend request-logging fix (D-09 resolution)
+- **D-13 (resolved via phase research, 2026-08-16):** Phase research confirmed
+  the backend (`portuguese-verb-api`) does not persist IPs/identifiers to its
+  database, but Fastify's default logger (`Fastify({ logger: true })` in
+  `src/app.ts`, no `disableRequestLogging` override) writes `remoteAddress`
+  to Render's transient platform log stream on every request, including
+  `/feedback`, `/product-feedback`, and `/content/verbs`. User decision:
+  **include a task in this phase to fix the sibling repo**
+  (`portuguese-verb-backend` / `portuguese-verb-api`) — set
+  `disableRequestLogging: true` (or a custom pino serializer that omits/
+  redacts `req.ip`) in `src/app.ts` — so the D-07 ("Data Not Linked to You")
+  and D-08 ("Data Not Collected") nutrition-label classifications are
+  unambiguous before the real App Store Connect submission. This is a
+  cross-repo change; the planner must scope it as a task touching the
+  sibling repo path, not this repo's `src/`.
+
 ### Claude's Discretion
 - Exact GitHub Pages folder structure (`/docs` vs a dedicated branch) and
   exact HTML/markdown wording for the Support/Privacy pages, as long as

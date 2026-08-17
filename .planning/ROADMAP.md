@@ -258,7 +258,7 @@ Plans:
   5. A production `eas build` + `eas submit` completes with an incremented build number, and "Submit for Review" is manually completed in App Store Connect
   6. `icon.png` is re-confirmed alpha-free on the real production EAS build used for the App Store submission — the deferred real-build half of Phase 31 criterion 4 (BRAND-04, D-10)
 
-**Plans**: TBD
+**Plans**: 35-01, 35-02, 35-03, 35-04, 35-05, 35-06, 35-07
 
 ## Progress
 
@@ -299,7 +299,7 @@ Plans:
 | 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete    | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete    | 2026-08-16 |
-| 35. App Store Connect Readiness | v1.0 | 0/? | Not started | - |
+| 35. App Store Connect Readiness | v1.0 | 0/7 | Planned | - |
 
 ---
 
