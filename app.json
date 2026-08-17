@@ -10,6 +10,7 @@
     "ios": {
       "bundleIdentifier": "com.avram.aruh.lafa",
       "buildNumber": "1",
+      "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
