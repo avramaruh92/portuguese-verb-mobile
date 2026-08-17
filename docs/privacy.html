@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lafa - Privacy Policy</title>
+  <style>
+    body {
+      background: #FFF9F6;
+      color: #24201E;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      line-height: 1.5;
+    }
+    a { color: #F2643E; }
+    h1 { font-size: 32px; }
+    h2 { font-size: 20px; margin-top: 40px; }
+    code { background: #F1EFED; padding: 2px 4px; border-radius: 4px; }
+    footer { margin-top: 48px; color: #746D69; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Lafa Privacy Policy</h1>
+  <p>Last updated: 2026-08-17</p>
+
+  <h2>Summary</h2>
+  <p>
+    Lafa has no accounts, collects no personal information, and uses no
+    analytics, advertising, or tracking SDKs. Lafa does not track users
+    across other apps or websites.
+  </p>
+
+  <h2>What Lafa sends to its server</h2>
+  <p>Lafa's server-side network calls are limited to the following three:</p>
+  <ul>
+    <li>
+      <code>POST /feedback</code> &mdash; sent only when you submit a
+      "Report a problem" for a quiz question. Fields:
+      <code>message, verb, tense, subject, correctAnswer, selectedAnswer,
+      appVersion, platform</code>.
+    </li>
+    <li>
+      <code>POST /product-feedback</code> &mdash; sent only when you
+      submit general in-app feedback. Fields:
+      <code>category, message, screen, appVersion, platform</code>.
+    </li>
+    <li>
+      <code>GET /content/verbs</code> &mdash; fetches quiz content on
+      startup. No body, no authentication, and no identifiers are sent.
+    </li>
+  </ul>
+  <p>
+    The two feedback calls only ever happen when you actively choose to
+    submit a report or feedback message.
+  </p>
+
+  <h2>What is stored</h2>
+  <p>
+    For the two feedback calls, only the submitted fields listed above are
+    stored, along with a generated id and a timestamp. No IP address, user
+    agent, or device identifier is stored. Your quiz answers and scores
+    stay on your device in memory only and are never uploaded.
+  </p>
+
+  <h2>What Lafa does NOT collect</h2>
+  <p>
+    Lafa does not collect your name, email address, contacts, location,
+    photos, health data, advertising identifiers, device identifiers,
+    purchase history, or browsing history.
+  </p>
+
+  <h2>Free-text feedback</h2>
+  <p>
+    The feedback <code>message</code> field is text you type yourself.
+    Please avoid including personal information in it.
+  </p>
+
+  <h2>Third parties</h2>
+  <p>
+    Lafa's backend runs on Render and stores data in a Supabase-hosted
+    Postgres database, used only as infrastructure providers. Lafa does
+    not sell data, share data for advertising, or use data for profiling.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    Lafa is suitable for all ages and collects no personal data from
+    anyone, including children.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>Any changes to this policy will be published on this page.</p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about this policy can be sent to
+    <a href="mailto:aruhicen@gmail.com">aruhicen@gmail.com</a>.
+  </p>
+
+  <footer>
+    See also <a href="support.html">Support</a>.
+  </footer>
+</body>
+</html>
