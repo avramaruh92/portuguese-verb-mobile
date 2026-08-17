@@ -145,11 +145,44 @@ no build artifacts were added to the repo.
 
 ## Task 3: Submit to App Store Connect
 
-**Status: not started — this is the next blocking checkpoint.**
+**Status: upload confirmed successful; Apple server-side processing NOT YET confirmed complete
+— Task 3 is not yet closed.**
 
-Per the plan, `eas submit --platform ios --profile production --id a89da11a-b874-41d8-9184-06a18033b1eb`
-must be run next, explicitly pinning the build id recorded above so the correct build is
-submitted. This requires interactive Apple ID authentication with 2FA (no App Store Connect
-API key is configured in `eas.json` by design — only `ascAppId: "6794382182"`), so this step
-requires the developer to run the command and complete the Apple ID / 2FA prompt themselves.
-This agent will not attempt to run `eas submit` automatically.
+The developer ran, from the repo root:
+
+```bash
+npx eas-cli submit --platform ios --profile production --id a89da11a-b874-41d8-9184-06a18033b1eb
+```
+
+explicitly pinned to the Task 2 build id, completing the interactive Apple ID authentication
+themselves (no App Store Connect API key is configured in `eas.json` by design — only
+`ascAppId: "6794382182"`; this agent did not and will not attempt to run `eas submit`
+automatically).
+
+### Submission record
+
+| Field | Value |
+|---|---|
+| Command | `npx eas-cli submit --platform ios --profile production --id a89da11a-b874-41d8-9184-06a18033b1eb` |
+| Result | Success — "Submitted your app to Apple App Store Connect! Your binary has been successfully uploaded... It is now being processed by Apple - you will receive an email when the processing finishes. It usually takes about 5-10 minutes." |
+| Build submitted | `a89da11a-b874-41d8-9184-06a18033b1eb` (build #6, v1.0.0) |
+| App Store Connect builds page | https://appstoreconnect.apple.com/apps/6794382182/testflight/ios |
+| Export-compliance prompt | **None encountered during submit** — consistent with `ITSAppUsesNonExemptEncryption: false` baked into `app.json`'s `ios.infoPlist`; no re-examination of STORE-07 needed |
+| `eas.json` API key fields | Still absent (`ascApiKeyPath`/`ascApiKeyIssuerId`/`ascApiKeyId` not present) ✅ |
+| "Submit for Review" clicked | No — correctly deferred to plan 35-07 |
+
+### Outstanding before Task 3 (and this plan) can be marked complete
+
+The plan's acceptance criteria require confirming the build **appears in App Store Connect and
+has finished processing** (i.e., no longer shows "Processing"), not just that the upload
+succeeded. Apple's own message above states processing "usually takes about 5-10 minutes" —
+that confirmation has not yet been obtained.
+
+**Next step for the developer:** check back at
+https://appstoreconnect.apple.com/apps/6794382182/testflight/ios in ~10 minutes and confirm:
+1. A build with **build number 6** and **version 1.0.0** is listed.
+2. It shows a finished-processing state (e.g. "Ready to Submit" / no longer "Processing").
+3. No export-compliance question appeared/is pending on that build.
+
+Once that's confirmed, this SUMMARY will be updated with the final processing-complete
+timestamp/state and Task 3 (and this plan) will be closed out.
