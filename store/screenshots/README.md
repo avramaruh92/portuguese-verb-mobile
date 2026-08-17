@@ -100,3 +100,28 @@ transformation, and the pixel dimensions must remain 1320x2868 afterward.
 
 These files are uploaded by hand into App Store Connect's 6.9-inch bucket in
 plan 35-07. The set must be recaptured if any screen's visuals change.
+
+## Verified capture record
+
+Captured 2026-08-17. `npm run validate-brand` passed 21/21 before capture.
+`iPhone 16 Pro Max` was not available as a simulator runtime on the capture
+machine, so `iPhone 17 Pro Max` was used instead — its capture resolution
+was verified as exactly 1320x2868 before use, satisfying "the dimension is
+the contract, not the device name" above. Captures were taken with the
+Simulator app's own screenshot feature (Cmd+S / hardware menu) rather than
+`xcrun simctl io booted screenshot`; both write an identical PNG, but the
+Simulator app's own tool adds an alpha channel that `xcrun simctl io ...
+screenshot` does not — all three files required the alpha-remediation step
+below as a result.
+
+| File | Simulator device | pixelWidth | pixelHeight | hasAlpha | Alpha remediation applied? |
+|------|-------------------|------------|-------------|----------|------------------------------|
+| `01-setup.png` | iPhone 17 Pro Max | 1320 | 2868 | no | Yes — re-saved via `sharp`'s `removeAlpha()` |
+| `02-quiz-locked.png` | iPhone 17 Pro Max | 1320 | 2868 | no | Yes — re-saved via `sharp`'s `removeAlpha()` |
+| `03-results.png` | iPhone 17 Pro Max | 1320 | 2868 | no | Yes — re-saved via `sharp`'s `removeAlpha()` |
+
+States captured: `01-setup.png` — Setup screen with "Completed past" and
+"Imperfect past" tenses selected, Mixed verb mode, Start Quiz enabled.
+`02-quiz-locked.png` — quiz question 1/10, a locked-in incorrect answer
+(red) with the correct answer highlighted (green) and the explanation
+panel visible. `03-results.png` — Results screen showing a 9/10 score.
