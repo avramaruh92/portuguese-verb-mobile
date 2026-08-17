@@ -44,11 +44,11 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 - [x] **STORE-01**: `store/` holds versioned App Store Connect metadata (description, subtitle, keywords, category, review notes)
 - [ ] **STORE-02**: A live, reachable Support URL and Privacy Policy URL are hosted
-- [ ] **STORE-03**: App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows, cross-checked against the backend's actual retention/IP-logging behavior
+- [x] **STORE-03**: App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows, cross-checked against the backend's actual retention/IP-logging behavior
 - [ ] **STORE-04**: Age rating questionnaire is completed under Apple's 2026 tier system (4+/9+/13+/16+/18+)
-- [ ] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
+- [x] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
 - [ ] **STORE-06**: 3-5 alpha-free 6.9" iPhone screenshots (1320×2868) are captured from the final branded build, covering Setup/Quiz/Results
-- [ ] **STORE-07**: Export compliance declaration is re-verified unchanged
+- [x] **STORE-07**: Export compliance declaration is re-verified unchanged
 - [ ] **STORE-08**: A production `eas build` + `eas submit` completes with an incremented build number
 - [ ] **STORE-09**: Manual "Submit for Review" is completed in App Store Connect
 
@@ -102,11 +102,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VALID-04 | Phase 34 | Complete |
 | STORE-01 | Phase 35 | Complete |
 | STORE-02 | Phase 35 | Pending |
-| STORE-03 | Phase 35 | Pending |
+| STORE-03 | Phase 35 | Complete |
 | STORE-04 | Phase 35 | Pending |
-| STORE-05 | Phase 35 | Pending |
+| STORE-05 | Phase 35 | Complete |
 | STORE-06 | Phase 35 | Pending |
-| STORE-07 | Phase 35 | Pending |
+| STORE-07 | Phase 35 | Complete |
 | STORE-08 | Phase 35 | Pending |
 | STORE-09 | Phase 35 | Pending |
 
