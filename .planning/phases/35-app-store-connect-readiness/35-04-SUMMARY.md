@@ -86,3 +86,9 @@ None.
 ---
 *Phase: 35-app-store-connect-readiness*
 *Completed: 2026-08-17*
+
+## Self-Check: PASSED
+
+- `store/privacy/nutrition-label-answers.md` — FOUND
+- Commit `5782c08` (Task 1) — FOUND in `git log`
+- Commit `46c919d` (Task 2) — FOUND in `git log`
