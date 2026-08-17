@@ -49,15 +49,62 @@ entered and saved in App Store Connect. "Submit for Review" was NOT clicked.
 
 ## App Privacy
 
-_Pending Task 2._
+**Date entered:** 2026-08-17
+
+**Data Collection screen:** "Yes, we collect data from this app"
+
+**Data type declared:** User Content only. No other Apple data type category checked.
+
+**Discrepancy from `store/privacy/nutrition-label-answers.md` §3 (recorded, not a divergence
+in the actual answer — a discrepancy in the *sheet's assumed UI flow*):** the sheet assumed
+a single either/or choice between "User Content -> Customer Support" and
+"User Content -> Other User Content." The live App Store Connect questionnaire instead
+presented **both** sub-type screens in sequence (Customer Support, then Other User Content)
+rather than one exclusive choice. For each screen entered:
+
+| Sub-type screen | Purpose selected | Other purposes |
+|---|---|---|
+| Customer Support | App Functionality | Third-Party Advertising, Developer's Advertising/Marketing, Analytics, Product Personalization, Other Purposes — all left unchecked |
+| Other User Content | App Functionality | Same as above — all left unchecked |
+
+**Linked to identity:** "Data Not Linked to You" (no login, no accounts, no device ID, no IP
+collected or retained anywhere — consistent with `CLAUDE.md` "Auth Model: None" and the D-13
+backend fix recorded in the answer sheet §4).
+
+**Tracking:** "No, we do not use other user content for tracking purposes" (answered on the
+final Other User Content tracking screen).
+
+**User-Generated Content / Social Media question:** answered **No** to both parts. Rationale
+given: the app's Share button only invokes the native OS share sheet with the user's own
+score text — there is no in-app redistribution, feed, or content-discovery surface.
+
+**Developer confirmed:** saved in App Store Connect.
+
+**Follow-up needed:** `store/privacy/nutrition-label-answers.md` §3 should be updated to
+reflect that the live UI presents both User Content sub-type screens (not an either/or) —
+noted here as an action item, not yet applied to that file.
 
 ## Age Rating
 
-_Pending Task 2._
+**Status:** Developer reports the age rating questionnaire was completed and saved
+("finished the age rating setup"), walked live question by question per plan instructions
+(no shortcuts reported). **The resulting tier has not yet been explicitly reported back** —
+this is a gap against the plan's acceptance criteria, which requires the resulting tier to
+be recorded in this log. No unusual or higher-than-expected question was reported, but that
+has also not been explicitly confirmed either way.
+
+**Action item:** confirm and record the resulting age rating tier (expected 4+) before Task 2
+can be considered fully closed and before proceeding to Task 3.
 
 ## Export Compliance
 
-_Pending Task 2._
+**Status:** Not yet explicitly reported by the developer. `app.json` still contains
+`"ITSAppUsesNonExemptEncryption": false`, so App Store Connect should either show no prompt
+(reading the value from the Info.plist automatically) or, if prompted, the correct answer is
+"No" to using non-exempt encryption.
+
+**Action item:** confirm and record whether a prompt appeared and what was answered, or that
+no prompt appeared, before Task 2 can be considered fully closed.
 
 ## Submitted for Review
 
