@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: executing
-stopped_at: Completed 35-03-PLAN.md
-last_updated: "2026-08-17T12:05:28.151Z"
+stopped_at: Completed 35-02-PLAN.md
+last_updated: "2026-08-17T12:14:54.351Z"
 last_activity: 2026-08-17
 progress:
   total_phases: 6
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-16)
 ## Current Position
 
 Phase: 35 (app-store-connect-readiness) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-08-17
 
@@ -54,6 +54,7 @@ Last activity: 2026-08-17
 | Phase 33 P01 | 35min | 2 tasks | 5 files |
 | Phase 35-app-store-connect-readiness P03 | 12min | 2 tasks | 6 files |
 | Phase 35 P05 | 55min | 3 tasks | 4 files |
+| Phase 35-app-store-connect-readiness P02 | 40min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,7 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 35-app-store-connect-readiness]: Review notes enumerate all three real network calls, correcting CLAUDE.md's stale two-endpoint framing — Under-counting network calls in App Review notes contradicts the privacy label and risks reviewer rejection
 - [Phase 35]: Substituted iPhone 17 Pro Max simulator for the plan's iPhone 16 Pro Max reference (unavailable locally), after verifying identical 1320x2868 capture resolution. — Plan explicitly frames dimension, not device name, as the contract for the 6.9-inch bucket.
 - [Phase 35]: Screenshots captured via the Simulator app's Cmd+S tool (developer-driven) rather than xcrun simctl io booted screenshot; alpha channel added by that tool was stripped via sharp's removeAlpha() per the plan's own remediation path. — Both capture paths produce equivalent-resolution PNGs; the plan pre-defined alpha remediation for exactly this kind of source discrepancy.
+- [Phase 35]: GitHub Pages required a public repo (free plan does not support Pages on private repos); avramaruh92/portuguese-verb-mobile was made public to unblock STORE-02, accepting full source visibility. — Avoided paying for GitHub Pro or standing up separate hosting infra that would contradict D-01's no-new-repo constraint. Two mutating actions (repo visibility, Pages source) were blocked by the Claude Code platform's own permission classifier and had to be performed manually by the developer.
 
 ### Pending Todos
 
@@ -122,8 +124,8 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-17T12:04:07.052Z
-Stopped at: Completed 35-03-PLAN.md
+Last session: 2026-08-17T12:14:54.341Z
+Stopped at: Completed 35-02-PLAN.md
 Resume file: None
 
 ## Operator Next Steps

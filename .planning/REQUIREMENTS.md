@@ -43,7 +43,7 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 ### App Store Connect Readiness
 
 - [x] **STORE-01**: `store/` holds versioned App Store Connect metadata (description, subtitle, keywords, category, review notes)
-- [ ] **STORE-02**: A live, reachable Support URL and Privacy Policy URL are hosted
+- [x] **STORE-02**: A live, reachable Support URL and Privacy Policy URL are hosted
 - [x] **STORE-03**: App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows, cross-checked against the backend's actual retention/IP-logging behavior
 - [ ] **STORE-04**: Age rating questionnaire is completed under Apple's 2026 tier system (4+/9+/13+/16+/18+)
 - [x] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
@@ -101,7 +101,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VALID-03 | Phase 34 | Complete |
 | VALID-04 | Phase 34 | Complete |
 | STORE-01 | Phase 35 | Complete |
-| STORE-02 | Phase 35 | Pending |
+| STORE-02 | Phase 35 | Complete |
 | STORE-03 | Phase 35 | Complete |
 | STORE-04 | Phase 35 | Pending |
 | STORE-05 | Phase 35 | Complete |
