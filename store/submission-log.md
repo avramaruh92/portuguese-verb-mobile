@@ -103,4 +103,31 @@ recorded and confirmed by the developer.
 
 ## Submitted for Review
 
-_Pending Task 3._
+**Confirmed:** the developer clicked "Submit for Review" and Lafa v1.0.0 (build #6, EAS build
+id `a89da11a-b874-41d8-9184-06a18033b1eb`) is now submitted to Apple App Review.
+
+**Not explicitly captured:** the exact App Store Connect status string (e.g. "Waiting for
+Review" vs "In Review"), the precise submission timestamp, and which release option (manual
+release after approval vs automatic release) was chosen were not reported back verbatim by
+the developer/coordinator. Recorded here as a minor gap rather than assumed — if this needs
+closing out precisely, re-check the version's status page in App Store Connect.
+
+**Two blockers encountered and resolved immediately before the successful submit:**
+
+1. **App Privacy not "Published."** ASC initially blocked submission with: "Before you can
+   submit this app for review, an Admin must provide information about the app's privacy
+   practices in the App Privacy section." Root cause: the App Privacy questionnaire
+   sub-screens (data type, purpose, linkage, tracking — see `## App Privacy` above) had all
+   been filled out and saved, but never explicitly "Published" via the separate top-level
+   App Information -> App Privacy tab's **Publish** button, which is a distinct action from
+   saving the individual questionnaire screens. **Fix:** the developer went back to that tab
+   and clicked Publish, which resolved the block.
+2. **Pricing not set.** Price was set to **$0.00 (Free)** at the same time — a required
+   field that had not yet been addressed by any prior task in this plan.
+
+**Content Rights:** answered **"No, it does not contain, show, or access third-party
+content"** — the verb dataset is hand-authored by the project, not third-party or licensed
+content.
+
+**Task 3 status: COMPLETE.** Lafa v1.0.0 is submitted for App Review. This is the terminal
+action of the v1.0 milestone and of Phase 35.
