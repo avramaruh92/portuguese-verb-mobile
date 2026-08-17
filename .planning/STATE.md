@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: executing
+status: verifying
 stopped_at: Completed 35-02-PLAN.md
-last_updated: "2026-08-17T12:39:40.875Z"
+last_updated: "2026-08-17T16:30:22.666Z"
 last_activity: 2026-08-17
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 16
-  completed_plans: 15
-  percent: 83
+  completed_plans: 16
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-08-16)
 
 Phase: 35 (app-store-connect-readiness) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-08-17
 
 ## Performance Metrics
@@ -56,6 +56,7 @@ Last activity: 2026-08-17
 | Phase 35 P05 | 55min | 3 tasks | 4 files |
 | Phase 35-app-store-connect-readiness P02 | 40min | 2 tasks | 3 files |
 | Phase 35-app-store-connect-readiness P04 | 35min | 2 tasks | 1 files |
+| Phase 35 P07 | ~60min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 35]: GitHub Pages required a public repo (free plan does not support Pages on private repos); avramaruh92/portuguese-verb-mobile was made public to unblock STORE-02, accepting full source visibility. — Avoided paying for GitHub Pro or standing up separate hosting infra that would contradict D-01's no-new-repo constraint. Two mutating actions (repo visibility, Pages source) were blocked by the Claude Code platform's own permission classifier and had to be performed manually by the developer.
 - [Phase 35-04]: D-09 closed: Option A taken (backend disableRequestLogging fix, commit f06c46b), production-verified against live Render log stream, no client IPs logged
 - [Phase 35-04]: Task 2 live-log checkpoint satisfied via coordinator-relayed production verification (deployed SHA match, live GET/POST requests, log-stream inspection) rather than direct in-session Render dashboard access
+- [Phase 35-07]: App Store Connect requires a separate top-level 'Publish' action on the App Privacy tab beyond saving individual questionnaire screens — discovered live during Task 3 submit-blocking; fixed by clicking Publish
+- [Phase 35-07]: Corrected nutrition-label-answers.md: live ASC UI presents Customer Support and Other User Content as sequential screens, not an either/or choice — both answered App Functionality only; sheet's assumed UI flow was wrong, not the intended answer
 
 ### Pending Todos
 
@@ -127,7 +130,7 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-17T12:37:14.223Z
+Last session: 2026-08-17T16:28:19.251Z
 Stopped at: Completed 35-02-PLAN.md
 Resume file: None
 
