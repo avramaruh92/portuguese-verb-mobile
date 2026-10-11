@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: Frankfurt API Cutover
 status: executing
 stopped_at: v1.1 roadmap created; Phase 36 ready to plan
-last_updated: "2026-10-11T12:12:02.560Z"
-last_activity: 2026-10-11 -- Phase 36 planning complete
+last_updated: "2026-10-11T12:32:25.468Z"
+last_activity: 2026-10-11
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 36 — API Base-URL Cutover & Timeouts (hard stop 2026-11-01)
+**Current focus:** Phase 36 — api-base-url-cutover-timeouts
 
 ## Current Position
 
-Phase: 36 of 39 (API Base-URL Cutover & Timeouts)
-Plan: —
+Phase: 36 (api-base-url-cutover-timeouts) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-10-11 -- Phase 36 planning complete
+Last activity: 2026-10-11
 
 ## Performance Metrics
 

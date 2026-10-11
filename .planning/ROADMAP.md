@@ -154,7 +154,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 Plans:
 **Wave 1**
 
-- [ ] 36-01-PLAN.md — Shared API_BASE_URL (Frankfurt), 15s/45s timeouts, preflight literal, Oregon-host guard test, NET-03 + timeout-boundary tests
+- [x] 36-01-PLAN.md — Shared API_BASE_URL (Frankfurt), 15s/45s timeouts, preflight literal, Oregon-host guard test, NET-03 + timeout-boundary tests
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -253,7 +253,7 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 7/7 | Complete | 2026-10-11 |
-| 36. API Base-URL Cutover & Timeouts | v1.1 | 0/TBD | Not started | - |
+| 36. API Base-URL Cutover & Timeouts | v1.1 | 1/2 | In Progress|  |
 | 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 0/TBD | Not started | - |
 | 38. App Store Release & Oregon Gate Hand-back | v1.1 | 0/TBD | Not started | - |
 | 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 0/TBD | Not started | - |
