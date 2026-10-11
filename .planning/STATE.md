@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: milestone_complete
-stopped_at: Phase 35 complete (final phase); milestone close pending merge to main + audit
-last_updated: 2026-10-11T11:05:39.217Z
+status: "Milestone v1.0 shipped — PR #1 open (plan/phase-20 → main)"
+stopped_at: Phase 35 complete (UAT + security + transition); v1.0 close pending merge to main and milestone audit
+last_updated: "2026-10-11T11:41:49.003Z"
 last_activity: 2026-10-11
 progress:
   total_phases: 6
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-10-11)
 
 Phase: 35 (final phase) complete
 Plan: 7 of 7
-Status: All phases complete; milestone close pending (see Pending Todos)
+Status: Milestone v1.0 shipped — PR #1 open (plan/phase-20 → main)
 Last activity: 2026-10-11
 
 ## Performance Metrics
