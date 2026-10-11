@@ -398,6 +398,11 @@ no blockers, 12 non-blocking debt items) — see
 - ✓ Content fetch aborts at 15s, both feedback POSTs at 45s; content fetch
   proven to send no cache-busting and to fall back on any non-200 incl. 304
   — v1.1 (NET-01..03). Validated in Phase 36.
+- ✓ Lafa 1.0.1 (EAS build 8) built, installed from TestFlight and verified on
+  a real iPhone against Frankfurt (online content + both feedback 201s;
+  airplane-mode fallback with pill, quiz, graceful Retry); backend handoff
+  status line committed — v1.1 (REL-01/02, E2E-01..04, HAND-01). Validated in
+  Phase 37.
 
 ### Active
 
@@ -405,8 +410,9 @@ Scoped in `.planning/REQUIREMENTS.md` (milestone v1.1).
 
 - [ ] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
   "Current Milestone" below. Blocks the backend's Oregon-service deletion
-  (REGION-05). Phase 36 (code + docs cutover) complete 2026-10-11; 1.0.1
-  build/TestFlight (37) and App Store release (38) remain.
+  (REGION-05). Phase 36 (code + docs cutover) and Phase 37 (1.0.1
+  build 8 on TestFlight, device-verified) complete 2026-10-11; App Store
+  release (38) remains.
 - [ ] Analytics SDK for usage metrics — backlog item 999.1 (not in v1.1).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` …
@@ -647,4 +653,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-11 — Phase 36 (API base-URL cutover & timeouts) complete*
+*Last updated: 2026-10-11 — Phase 37 (1.0.1 build, TestFlight & device verification) complete*
