@@ -287,6 +287,49 @@
 
 ---
 
+## Milestone: v1.0 — Warm Brand Polish + App Store Submission Readiness
+
+**Shipped:** 2026-10-11
+**Phases:** 6 (30, 31, 32, 33, 34, 35) | **Plans:** 16 | **Sessions:** ~4-5. Phases 30-34 ran in one long session on 2026-08-16. Phase 35 was spread across the submission (2026-08-17), Apple's Guideline 2.1 info request and the resubmission (2026-08-18), and a close-out session on 2026-10-11 (UAT, security, Phase 30/32 verification backfill, PR, audit, milestone close).
+
+### What Was Built
+- A durable Node 22.23.2 pin in `.nvmrc`, `engines.node` and `eas.json` `build.production.node`. This finally closes the npm lockfile drift that hit three times in v0.5 and v0.6.
+- The Warm Bold Mark became the official brand source. The asset generator now picks layers by stable id (via `linkedom`), fails loudly if an id is missing, and keeps the icon opaque. The icon was later checked on the real `.ipa`.
+- A branded image lockup replaced the Setup screen's plain-text title. It is generated from a single SVG source using the same composed mark as the icon.
+- A neutral `choicePressed` colour for answers that are pressed but not yet submitted. The rule that locked answer colours win lives in a pure, unit-tested `resolveChoiceStyle`.
+- `validate-brand` extended to check the lockup (21 checks). We confirmed it fails when the lockup asset is missing.
+- The full App Store Connect submission, with listing text, privacy answers, screenshots and a field-by-field submission log in `store/`, plus Support and Privacy pages on GitHub Pages. Apple raised a Guideline 2.1 info request; after resubmission, Lafa 1.0.0 is Ready for Distribution.
+
+### What Worked
+- **Fixing the drift with a durable artifact instead of another note.** Making the Node pin Phase 30, and a prerequisite for the phases that produce builds, meant the lockfile bug did not come back. That bug had been "recommended for later" three times before.
+- **Pushing the real-build checks to the phase that makes a real build.** Phase 31 checked the icon's alpha locally. The check on the real `.ipa` was explicitly deferred to Phase 35 (D-10), and Phase 35 closed it by inspecting the actual build. Nothing was claimed before it could be shown.
+- **Checking the live production state instead of reading planning docs.** Phase 30 was confirmed from the downloaded EAS build #6 log. That surfaced a factual error in the SUMMARY: the image's own Node was 22.23.1, not 22.23.2. The pin was still correct, but the documented reason for it was wrong.
+- **Writing the privacy label from the code and the backend.** All three `fetch` call sites were listed, and the backend stopped logging IPs (`disableRequestLogging`) before the label went in. Apple's review accepted the label without questions.
+
+### What Was Inefficient
+- **Phases 30 and 32 had no VERIFICATION.md until milestone close.** Both were caught by downstream gates: `/gsd:ship` stopped on Phase 32, and progress/STATE flagged Phase 30. Each was backfilled with a gsd-verifier run. This is the same lesson as v0.5 (#13): skipping verification at phase close only moves the cost to the end of the milestone.
+- **The requirements doc fell out of sync again.** BUILD-01..04 were still unchecked at close, and STORE-08 was "Pending" while STORE-09, which depends on it, was checked. Also, 11 REQ-IDs were missing from the SUMMARY `requirements-completed` frontmatter. This is the fifth or sixth milestone in a row with this gap.
+- **`main` was left behind for four milestones.** `main` stopped at v0.2. All of v0.3–v1.0 (434 commits) was on `plan/phase-20` until a single PR at v1.0 close. A backlog commit made directly on `main` in the meantime caused a ROADMAP merge conflict.
+- **The open-artifact audit gave a false positive again.** The cached `gsd-sdk` copy reported quick task 260816-k8y as "missing" because it doesn't recognise `<id>-SUMMARY.md` files. The local `gsd-tools.cjs` reported all clear. The auto-generated MILESTONES entry also picked up "Task 1 —" lines as accomplishments, counted the 999.1 backlog item as a phase, and had to be rewritten by hand.
+
+### Patterns Established
+- **Enforce environment pins at the build system, not only locally.** `eas.json` `node` is the field that actually controls what EAS runs. `.nvmrc` and `engines` only document and guard local machines.
+- **Keep style rules that need a precedence order in a pure function with explicit tests**, not in style-array ordering where the last entry wins. This is now the pattern for any multi-state interactive styling.
+- **Keep store submission material in the repo** (`store/`, plus `docs/` for public pages). Listing text, privacy answers and a submission log next to the code make the next App Store update a matter of comparing what changed, not redoing the work.
+
+### Key Lessons
+1. A recurring tooling bug stopped recurring as soon as it became a scheduled phase with a required artifact. Three earlier "recommend fixing later" notes did nothing. Lesson #14 is now confirmed by its own fix.
+2. Run gsd-verifier at phase close for every phase, including config-only and asset-only phases. Both v1.0 phases that skipped it needed backfilling at milestone close, and one of them blocked `/gsd:ship`.
+3. Merge to `main` at every milestone close, not once every several milestones. A branch that runs four milestones ahead turns one PR into a 434-commit review and invites conflicts with anything committed directly to `main`.
+4. When a time-critical requirement appears near the end of a milestone (here, the Frankfurt API base-URL switch with a 2026-11-01 hard stop), record it with its deadline in PROJECT.md Active and STATE.md Pending Todos right away, so it leads the next milestone instead of being found late.
+
+### Cost Observations
+- Model mix: opus for planning, orchestration and audit; sonnet for execution, verification and integration checks.
+- Sessions: ~4-5. Phases 30-34 were very fast (one day). Phase 35's calendar time was dominated by Apple's review cycle and the 2.1 info request, not engineering.
+- Notable: the most expensive avoidable work was bookkeeping at milestone close (verification backfill, requirement checkboxes, rewriting the MILESTONES entry), not engineering.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -300,6 +343,7 @@
 | v0.4 | ~2 | 3 | First milestone where a phase's own pre-registered threat model (STRIDE register) directly named the exact human-verify failure mode that occurred, cutting a cross-repo-blocker diagnosis to a single `curl` call; requirements-doc-sync staleness recurred for the 4th consecutive milestone |
 | v0.5 | ~3 | 5 | First pure release-engineering milestone (zero new product code); first to have an entire phase (24-03) run conversationally as human-only checkpoints rather than any subagent dispatch; first to retroactively backfill VERIFICATION.md files during milestone audit to close a `gaps_found` status; a tooling-version bug (npm lockfile drift) recurred despite being explicitly flagged as a recurrence risk when first fixed |
 | v0.6 | ~2-3 | 5 | First pure brand/visual milestone (zero product/UX-flow changes); first use of `Pressable`'s function-form `style` prop for pressed-state visuals; first milestone-close pre-flight audit to flag a false-positive gap (stale `human_needed`/`unknown` status vs. an already-approved HUMAN-UAT.md) rather than a real one; the npm lockfile-drift tooling bug recurred a third time despite being flagged as a fix candidate twice before |
+| v1.0 | ~4-5 | 6 | First public App Store release (Ready for Distribution). First milestone where a recurring tooling bug was fixed by a durable artifact (Node pin) rather than re-flagged. First single-PR merge to `main` after four milestones off-main. Verification backfill again needed at close (Phases 30, 32) |
 
 ### Cumulative Quality
 
@@ -312,6 +356,7 @@
 | v0.4 | 251 | Not measured via coverage tool this milestone | 0 (new `src/productFeedback/` module built entirely on existing Zod/TypeScript stack, no new npm packages) |
 | v0.5 | 251 | Not measured via coverage tool this milestone | 2 devDependencies (`@resvg/resvg-js`, `sharp` for the icon pipeline) + `eas-cli` pinned as a devDependency (deliberate tradeoff, D-04) — zero application-code dependency changes, release-engineering only |
 | v0.6 | 251 | Not measured via coverage tool this milestone | 0 (new `scripts/validate-brand.ts` built entirely on existing `sharp`/TypeScript stack, no new npm packages; `package-lock.json` regenerated to fix drift, not to add a dependency) |
+| v1.0 | 261 | Not measured via coverage tool this milestone | 1 build-time devDependency (`linkedom`, approved for id-based SVG parsing); `eas-cli` devDependency removed (quick task 260816-k8y). No application-code dependency changes |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -330,3 +375,5 @@
 13. Skipping a phase's formal `gsd-verifier` pass at close time (even for release-engineering phases with no application code) doesn't remove the need for verification — it just relocates the cost to milestone-audit time, where a `gaps_found` status requires explicit user sign-off to resolve even when the underlying work is solid (confirmed in v0.5, Phases 20/22).
 14. A tooling/environment bug flagged as a "recommend fixing later" item is not self-enforcing — the npm lockfile-drift bug recurred a third time in v0.6 despite being written down twice in v0.5. If a recurring bug's fix requires a durable artifact (a `.nvmrc`, a CI guard), track it as a scheduled backlog item with an owner and a milestone target, not a passive footnote that gets re-flagged and re-deferred indefinitely.
 15. A milestone-close pre-flight audit's structured status flags (`human_needed`, `unknown`) can themselves be stale — always read the actual referenced artifact's content before treating a flagged item as a real open gap; the fix for a false positive is a one-line metadata correction, not a blocker (confirmed in v0.6, where both Phase 28 and 29's HUMAN-UAT.md were already dated-approved despite the audit's status field disagreeing).
+16. A recurring tooling bug is fixed when it becomes a scheduled phase with a required artifact, not when it is written down again. The npm lockfile drift recurred 3 times as a footnote and 0 times after v1.0 Phase 30 pinned Node durably (confirmed in v1.0).
+17. Merge to `main` at every milestone close. Letting a planning branch run several milestones ahead turns the eventual PR into a huge review and invites conflicts with anything committed directly to `main` (confirmed in v1.0: 434 commits, ROADMAP conflict from a backlog commit).
