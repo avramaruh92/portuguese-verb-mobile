@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../src/config/api";
 import { submitProductFeedback } from "../src/productFeedback/submit";
 import type { ProductFeedbackPayload } from "../src/productFeedback/types";
 
@@ -71,12 +72,14 @@ describe("submitProductFeedback", () => {
     expect(result).toEqual({ status: "network-error" });
   });
 
-  it("returns network-error when the request never resolves and the 90s timeout fires", async () => {
+  it("returns network-error when the request never resolves and the 45s timeout fires", async () => {
     jest.useFakeTimers();
 
+    let capturedSignal: AbortSignal | undefined;
     globalThis.fetch = jest.fn().mockImplementation(
       (_url: string, options?: { signal?: AbortSignal }) =>
         new Promise((_resolve, reject) => {
+          capturedSignal = options?.signal;
           options?.signal?.addEventListener("abort", () => {
             reject(new Error("AbortError"));
           });
@@ -85,7 +88,10 @@ describe("submitProductFeedback", () => {
 
     const resultPromise = submitProductFeedback(samplePayload);
 
-    jest.advanceTimersByTime(90_000);
+    jest.advanceTimersByTime(44_999);
+    expect(capturedSignal?.aborted).toBe(false);
+
+    jest.advanceTimersByTime(1);
 
     const result = await resultPromise;
 
@@ -101,7 +107,7 @@ describe("submitProductFeedback", () => {
     await submitProductFeedback(samplePayload);
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/product-feedback"),
+      `${API_BASE_URL}/product-feedback`,
       expect.objectContaining({
         method: "POST",
         headers: { "Content-Type": "application/json" },
