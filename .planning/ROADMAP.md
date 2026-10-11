@@ -128,7 +128,7 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 **Target dates:** TestFlight ~2026-10-13 | App Store live ~2026-10-17 | Oregon deletion no later than 2026-10-30.
 
-- [ ] **Phase 36: API Base-URL Cutover & Timeouts** - All requests use one Frankfurt base URL; timeouts tightened; Oregon-host guard test
+- [x] **Phase 36: API Base-URL Cutover & Timeouts** - All requests use one Frankfurt base URL; timeouts tightened; Oregon-host guard test
 - [ ] **Phase 37: 1.0.1 Build, TestFlight & Device Verification** - EAS build, TestFlight install, real-device E2E against Frankfurt, status line to backend handoff
 - [ ] **Phase 38: App Store Release & Oregon Gate Hand-back** - Submit 1.0.1 after E2E passes, release automatically, hand Oregon-deletion recommendation to backend
 - [ ] **Phase 39: v1.0 Tech-Debt Cleanup** - Droppable; brand-validation hardening and doc fixes, run during App Review wait

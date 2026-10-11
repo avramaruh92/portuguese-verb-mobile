@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Frankfurt API Cutover
 status: ready_to_plan
-stopped_at: Phase 36 complete (2/2) — ready to discuss Phase 999.1
+stopped_at: Phase 36 complete (2/2) — ready to plan Phase 37
 last_updated: 2026-10-11T12:36:27.001Z
 last_activity: 2026-10-11
 progress:
-  total_phases: 5
+  total_phases: 4
   completed_phases: 1
   total_plans: 2
   completed_plans: 2
-  percent: 20
+  percent: 25
 ---
 
 # Project State
@@ -21,11 +21,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 999.1 — add analytics sdk for usage metrics
+**Current focus:** Phase 37 — 1.0.1 Build, TestFlight & Device Verification
 
 ## Current Position
 
-Phase: 999.1
+Phase: 37
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-10-11
@@ -85,9 +85,9 @@ Known non-blocking tech debt: see PROJECT.md "Next Milestone" and `.planning/mil
 ## Session Continuity
 
 Last session: 2026-10-11
-Stopped at: v1.1 roadmap created; Phase 36 ready to plan
+Stopped at: Phase 36 complete (verified 9/9, live preflight 4/4); Phase 37 ready to plan
 Resume file: None
 
 ## Operator Next Steps
 
-- Run /gsd:plan-phase 36
+- Run /gsd:plan-phase 37
