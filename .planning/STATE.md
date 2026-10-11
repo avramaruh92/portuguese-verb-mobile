@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: "Milestone v1.0 shipped — PR #1 open (plan/phase-20 → main)"
-stopped_at: Phase 35 complete (UAT + security + transition); v1.0 close pending merge to main and milestone audit
-last_updated: "2026-10-11T11:41:49.003Z"
-last_activity: 2026-10-11
+status: Awaiting next milestone
+stopped_at: v1.0 milestone complete, archived and tagged
+last_updated: "2026-10-11T11:52:20.542Z"
+last_activity: 2026-10-11 — Milestone v1.0 completed and archived
 progress:
   total_phases: 6
   completed_phases: 6
@@ -21,42 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** v1.0 close-out: merge to main, milestone audit
+**Current focus:** Planning next milestone — lead with the Frankfurt API base-URL switch (hard stop 2026-11-01)
 
 ## Current Position
 
-Phase: 35 (final phase) complete
-Plan: 7 of 7
-Status: Milestone v1.0 shipped — PR #1 open (plan/phase-20 → main)
-Last activity: 2026-10-11
+Phase: Milestone v1.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-10-11 — Milestone v1.0 completed and archived
 
 ## Performance Metrics
 
-**Velocity (v0.0-v0.6, shipped):**
+**Velocity (v0.0-v1.0, shipped):**
 
-- Total plans completed: 93 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
-- Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days, v0.6 ~3 days (kickoff to ship)
-
-**v1.0 phases:**
-
-| Phase | Requirements | Status |
-|-------|--------------|--------|
-| 30. Build Pipeline Hardening | BUILD-01, BUILD-02, BUILD-03, BUILD-04 | Complete |
-| 31. Brand Asset Source & Generator | BRAND-01, BRAND-02, BRAND-03, BRAND-04 | Complete |
-| 32. Homepage Lockup | LOCKUP-01, LOCKUP-02, LOCKUP-03 | Complete |
-| 33. Quiz Press-State Color Fix | UX-01, UX-02, UX-03 | Complete |
-| 34. Brand Validation Extension | VALID-01, VALID-02, VALID-03, VALID-04 | Complete |
-| 35. App Store Connect Readiness | STORE-01 through STORE-09 | Complete |
-| Phase 31 P01 | 25min | 3 tasks | 3 files |
-| Phase 31 P02 | 20min | 2 tasks | 6 files |
-| Phase 31 P03 | 15min | 3 tasks | 2 files |
-| Phase 32 P02 | ~2h | 2 tasks | 1 files |
-| Phase 33 P01 | 35min | 2 tasks | 5 files |
-| Phase 35-app-store-connect-readiness P03 | 12min | 2 tasks | 6 files |
-| Phase 35 P05 | 55min | 3 tasks | 4 files |
-| Phase 35-app-store-connect-readiness P02 | 40min | 2 tasks | 3 files |
-| Phase 35-app-store-connect-readiness P04 | 35min | 2 tasks | 1 files |
-| Phase 35 P07 | ~60min | 3 tasks | 2 files |
+- Plans per milestone: v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, v1.0: 16
+- Kickoff to ship: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days, v0.6 ~3 days, v1.0 56 days (phases 30-34 in 1 day; Phase 35 spanned Apple review + an info-request resubmission)
 
 ## Accumulated Context
 
@@ -67,42 +46,19 @@ Last activity: 2026-10-11
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all show final outcomes). No new v1.0 decisions logged yet — roadmap creation only.
-
-- [Phase 31]: linkedom package legitimacy approved for build-time devDependency install (T-31-SC mitigation satisfied)
-- [Phase 31]: Worktree isolation failed to provision for plan 31-01; coordinator authorized sequential execution on plan/phase-20 instead
-- [Phase 31]: Combined generator extraction rewrite and main() rewiring into a single Task 1 commit; Task 2's commit scoped to regenerated PNG binaries
-- [Phase 31]: Checkpoint (31-03 Task 2) approved with 5 of 6 checks passing; check 5 (native icon after delete+reinstall) deferred to Phase 35 per D-10 since no dev-client/EAS build was available to test against
-- [Phase 32]: Task 2 checkpoint required 5 rounds of on-device iteration on lockup sizing/alignment before developer approval; final approach crops the rendered PNG to its measured non-background content bounding box rather than aligning the full 1600x520 canvas
-- [Phase 35-app-store-connect-readiness]: Review notes enumerate all three real network calls, correcting CLAUDE.md's stale two-endpoint framing — Under-counting network calls in App Review notes contradicts the privacy label and risks reviewer rejection
-- [Phase 35]: Substituted iPhone 17 Pro Max simulator for the plan's iPhone 16 Pro Max reference (unavailable locally), after verifying identical 1320x2868 capture resolution. — Plan explicitly frames dimension, not device name, as the contract for the 6.9-inch bucket.
-- [Phase 35]: Screenshots captured via the Simulator app's Cmd+S tool (developer-driven) rather than xcrun simctl io booted screenshot; alpha channel added by that tool was stripped via sharp's removeAlpha() per the plan's own remediation path. — Both capture paths produce equivalent-resolution PNGs; the plan pre-defined alpha remediation for exactly this kind of source discrepancy.
-- [Phase 35]: GitHub Pages required a public repo (free plan does not support Pages on private repos); avramaruh92/portuguese-verb-mobile was made public to unblock STORE-02, accepting full source visibility. — Avoided paying for GitHub Pro or standing up separate hosting infra that would contradict D-01's no-new-repo constraint. Two mutating actions (repo visibility, Pages source) were blocked by the Claude Code platform's own permission classifier and had to be performed manually by the developer.
-- [Phase 35-04]: D-09 closed: Option A taken (backend disableRequestLogging fix, commit f06c46b), production-verified against live Render log stream, no client IPs logged
-- [Phase 35-04]: Task 2 live-log checkpoint satisfied via coordinator-relayed production verification (deployed SHA match, live GET/POST requests, log-stream inspection) rather than direct in-session Render dashboard access
-- [Phase 35-07]: App Store Connect requires a separate top-level 'Publish' action on the App Privacy tab beyond saving individual questionnaire screens — discovered live during Task 3 submit-blocking; fixed by clicking Publish
-- [Phase 35]: 2026-10-11 close-out: Lafa 1.0.0 is Ready for Distribution in App Store Connect (approved after a 2026-08-18 Guideline 2.1 info request and resubmission); UAT 4/4 passed; 35-SECURITY.md threats_open 0 with 2 documentation gaps accepted (T-35-16, T-35-19)
-- [Phase 35-07]: Corrected nutrition-label-answers.md: live ASC UI presents Customer Support and Other User Content as sequential screens, not an either/or choice — both answered App Functionality only; sheet's assumed UI flow was wrong, not the intended answer
+Full decision log in PROJECT.md Key Decisions (v0.0-v1.0, all with outcomes). No decisions yet for the next milestone.
 
 ### Pending Todos
 
-- `plan/phase-20` holds all v0.5-v1.0 work (290+ commits not on `main`). Merge to `main` via PR before `/gsd:complete-milestone`.
-- Then run `/gsd:audit-milestone` and `/gsd:complete-milestone`.
+- **Frankfurt API base-URL switch — hard stop 2026-11-01.** Update `src/dataset/remote.ts`, `src/feedback/submit.ts`, `src/productFeedback/submit.ts` and the App Review notes to `https://portuguese-verb-api-fra.onrender.com`, then ship an App Store update. Blocks backend REGION-05 (Oregon deletion).
 
 ### Blockers/Concerns
 
-- [Phase 34]: Decision coverage gate flagged D-01–D-04 as "uncovered" (literal `D-NN:` string not present in 34-01-PLAN.md's `must_haves`), overridden as "Proceed anyway" — gsd-plan-checker independently confirmed all four decisions are substantively honored in the plan body (explicit "do NOT" clauses, exact reused-helper approach, unchanged output contract). Labeling gap only, not a scope/behavior gap.
-
-None open yet otherwise. Flagged from research for phase-planning attention:
-
-- Phase 30 must confirm the exact EAS build-image Node version from real build logs, not assumed from the local dev machine, before pinning `.nvmrc`/`engines.node`/`eas.json`'s `node` field.
-- Phase 31's generator rewrite must include an explicit alpha-channel re-verification against a real EAS build (not just local `sharp`/`resvg` output) — this is the exact code path that produced the currently-solved opaque-icon invariant.
-- Phase 33 needs an explicit precedence check (locked+correct → locked+incorrect → pressed → default), not just the new token's existence, to avoid a last-writer-wins style bug.
-- Phase 35 needs the backend's actual data-retention/IP-logging behavior confirmed with the sibling `portuguese-verb-api` repo before finalizing the privacy nutrition label, and Apple's exact 2026 age-rating/screenshot-dimension specifics should be spot-checked live in App Store Connect at execution time.
+None open.
 
 ## Deferred Items
 
-Items acknowledged and carried forward (unchanged by v1.0 roadmap creation):
+Items acknowledged and carried forward (unchanged at v1.0 close):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -117,12 +73,7 @@ Items acknowledged and carried forward (unchanged by v1.0 roadmap creation):
 | v2 | RELEASE-05 Localized App Store listing copy | Deferred | v1.0 requirements definition |
 | v2 | External (non-team) TestFlight testers — triggers Apple Beta App Review | Deferred | v0.5, Phase 24 checkpoint |
 
-Known non-blocking tech debt carried from prior milestone audits — none block v1.0's roadmap, but relevant context for planning:
-
-- No durable Node-version pin existed prior to v1.0 — npm-version lockfile drift recurred 3 times (v0.5 Phase 20, Phase 24, v0.6 Phase 29); this is now Phase 30's primary deliverable, not deferred further.
-- Locked Lafa palette computed below WCAG AA 4.5:1 contrast on several text/background pairings (pre-v0.6, not independently re-audited for the v0.6 replacement palette) — not in v1.0 scope, spot-check candidate for a future milestone.
-- Cross-verb distractor `formIndex`-miss gap (v0.3) — explanation coverage uneven across distractor tiers, fail-closed, explicitly deferred, not in v1.0 scope.
-- ~~`npx expo-doctor` 2 advisory failures (`eas` npm script, `eas-cli` devDependency) — deliberate v0.5 Phase 20 tradeoff (D-04)~~ — **resolved** via quick task 260816-k8y (2026-08-16): global `eas-cli@21.2.0` now satisfies `eas.json`'s `cli.version: ">= 21.1.0"` requirement, so the local devDependency and its shadowing script were removed. `npx expo-doctor` now passes 21/21 checks.
+Known non-blocking tech debt: see PROJECT.md "Next Milestone" and `.planning/milestones/v1.0-MILESTONE-AUDIT.md` (validate-brand colour/cwd robustness and ungated lockup crop constants, Fastify 6 `disableRequestLogging` deprecation, `ios/` README reference, WCAG palette spot-check, v0.3 distractor `formIndex` gap).
 
 ## Quick Tasks Completed
 
@@ -133,12 +84,9 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 ## Session Continuity
 
 Last session: 2026-10-11
-Stopped at: Phase 35 complete (UAT + security + transition); v1.0 close pending merge to main and milestone audit
+Stopped at: v1.0 milestone complete, archived and tagged
 Resume file: None
 
 ## Operator Next Steps
 
-- `/gsd:verify-work 30` to verify Phase 30 and tick BUILD-01..04
-- Open a PR merging `plan/phase-20` into `main`
-- `/gsd:audit-milestone`, then `/gsd:complete-milestone`
-- Carry forward: switch API base URL to `https://portuguese-verb-api-fra.onrender.com` (3 hardcoded endpoints + `store/metadata/review-notes.md`); blocks backend REGION-05, backend hard stop 2026-11-01
+- Start the next milestone with /gsd-new-milestone

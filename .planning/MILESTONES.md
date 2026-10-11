@@ -1,5 +1,26 @@
 # Milestones
 
+## v1.0 Warm Brand Polish + App Store Submission Readiness (Shipped: 2026-10-11)
+
+**Phases completed:** 6 phases (30-35), 16 plans, 29 tasks, 27/27 requirements
+**Timeline:** 2026-08-16 → 2026-10-11 · 131 commits · app/src/scripts/tests: 8 files, +393/−73
+**Audit:** tech_debt. 27/27 requirements and 8/8 integration links met, no blockers; 12 non-blocking debt items accepted (see `milestones/v1.0-MILESTONE-AUDIT.md`)
+
+**Key accomplishments:**
+
+- Closed the Node/npm drift that had recurred 3 times. Node 22.23.2 is pinned in `.nvmrc`, `engines.node` and `eas.json` `build.production.node`, the lockfile was regenerated clean, and real EAS production build #6 proved it. The EAS image's default is 22.23.1, so the `eas.json` pin is what enforces the match (Phase 30).
+- Promoted the Warm Bold Mark to the official `assets/brand/lafa-icon.svg` with stable layer ids. The asset generator now selects layers by id (via `linkedom`), and all five brand PNGs were regenerated. The icon stays opaque, which was confirmed on the real `.ipa` in Phase 35 (Phase 31).
+- Replaced the Setup screen's plain-text title with a branded lockup image, produced by the asset generator from a single SVG source (Phase 32).
+- Added a `choicePressed` colour token so pressing and holding an answer no longer looks like a wrong answer. The correct/wrong colours for a submitted answer always win, and unit tests cover this (Phase 33).
+- Extended `validate-brand` to check the lockup PNG as well (21/21 checks). It is proven to fail when the asset is missing (Phase 34).
+- Submitted Lafa 1.0.0 (build #6) to App Store Connect with:
+  - listing text, screenshots and a privacy label versioned in `store/`
+  - Support and Privacy pages on GitHub Pages
+  - a 4+ age rating and an export-compliance declaration
+  The app was approved after a Guideline 2.1 info request and resubmission, and is now **Ready for Distribution** (Phase 35).
+
+---
+
 ## v0.6 Lafa Branding + Expo Splash Cleanup (Shipped: 2026-08-16)
 
 **Phases completed:** 5 phases, 8 plans, 14 requirements

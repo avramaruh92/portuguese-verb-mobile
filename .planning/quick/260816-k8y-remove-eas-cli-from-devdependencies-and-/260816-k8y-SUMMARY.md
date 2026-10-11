@@ -1,6 +1,7 @@
 ---
 phase: quick
 plan: 260816-k8y
+status: complete
 subsystem: build-tooling
 tags: [eas-cli, devDependencies, expo-doctor, node-pin]
 dependency-graph:
