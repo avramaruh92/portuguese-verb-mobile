@@ -1,10 +1,11 @@
+import { API_BASE_URL } from "../config/api";
 import type { Verb } from "./types";
 import { validateDataset } from "./validate";
 import { LearningContentSchema } from "../learning/schema";
 import type { LearningContent } from "../learning/types";
 
-const CONTENT_ENDPOINT = "https://portuguese-verb-api.onrender.com/content/verbs";
-const TIMEOUT_MS = 90_000;
+const CONTENT_ENDPOINT = `${API_BASE_URL}/content/verbs`;
+const TIMEOUT_MS = 15_000;
 
 export async function fetchRemoteVerbs(): Promise<{
   verbs: Verb[];
