@@ -160,11 +160,22 @@ action of the v1.0 milestone and of Phase 35.
 
 ## Fields entered (1.0.1)
 
-_Pending: filled in after the operator checkpoint (Task 2)._
+| Field | Value |
+|-------|-------|
+| What's New | "Faster, more reliable loading of quiz content. Small stability improvements." (matches `store/metadata/whats-new.txt`, pasted unchanged) |
+| App Review Notes | Full text of `store/metadata/review-notes.md` (device line updated per D-03). Entered after submit, while "Waiting for Review", ~2026-10-11T19:10Z; the 1.0.0 notes were still attached at the moment of submit |
+| Attached build | 1.0.1 (8), EAS build id `c5c481e4-4ebe-49ea-a32a-7ef76ca87563` |
+| Version release | Automatically release this version |
+| Phased release | OFF (initially unchecked at submit; developer re-checked at ~2026-10-11T19:10Z and confirmed OFF) |
+| Other listing fields | unchanged from 1.0.0 (subtitle, keywords, description, category, support/privacy URLs, screenshots, App Privacy, age rating, pricing, App Review contact) |
+
+Blockers at submit: "Add for Review" was inactive until the developer clicked Save on the version page (no ASC error message shown). No other blockers.
+
 
 ## Status history
 
 | Status (verbatim) | Observed (UTC) | Observed (local) | Note |
 |-------------------|----------------|------------------|------|
-
-_Pending: filled in after the operator checkpoint (Task 2)._
+| "Prepare for Submission" | not noted | not noted (observed shortly before submit) | version ready, before Add for Review |
+| "Waiting for Review" | ~2026-10-11T19:05Z | ~20:05 WEST | after Submit for Review |
+| "Waiting for Review" | ~2026-10-11T19:10Z | ~20:10 WEST | post-submit: review notes pasted and saved; phased release confirmed OFF |
