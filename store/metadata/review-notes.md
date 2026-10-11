@@ -1,5 +1,5 @@
-Devices/OS tested before submission: iPhone 13 Pro (iOS 26.6) and iPhone 14
-Pro (iOS 26.6). Screenshots were additionally captured on the iOS
+Devices/OS tested before submission: iPhone 14 Pro (iOS 27.0.1), running the
+1.0.1 build submitted here. Screenshots were additionally captured on the iOS
 Simulator (iPhone 17 Pro Max).
 
 App description and target audience: Lafa is a verb-conjugation quiz app

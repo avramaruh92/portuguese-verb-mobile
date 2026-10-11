@@ -12,3 +12,4 @@ into the App Store Connect web UI at submission time.
 | `metadata/category.md` | App Information -> Category (primary/secondary) |
 | `metadata/description.md` | Version Information -> Description |
 | `metadata/review-notes.md` | App Review Information -> Notes |
+| `metadata/whats-new.txt` | Version Information -> What's New in This Version |

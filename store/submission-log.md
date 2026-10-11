@@ -1,4 +1,8 @@
-# Submission Log — Lafa v1.0.0
+# Submission Log — Lafa
+
+Multi-version audit trail of every value and status entered or observed in App Store Connect. Newest version last. Must contain no Apple ID, tester email, UDID, credentials or API keys.
+
+# Lafa v1.0.0
 
 Record of every value entered in App Store Connect for version 1.0.0, per plan 35-07. This
 log is the audit trail tying the live listing back to the reviewed `store/` artifacts.
@@ -131,3 +135,36 @@ content.
 
 **Task 3 status: COMPLETE.** Lafa v1.0.0 is submitted for App Review. This is the terminal
 action of the v1.0 milestone and of Phase 35.
+
+# Lafa v1.0.1
+
+## Pre-entry local verification
+
+- Checked: 2026-10-11T18:58Z
+- `store/metadata/whats-new.txt`: 76 characters (limit 4000), text: "Faster, more reliable loading of quiz content. Small stability improvements."
+- `store/metadata/review-notes.md`: device line updated per D-03 (iPhone 14 Pro, iOS 27.0.1). `grep -c "portuguese-verb-api-fra.onrender.com"` = 4; `grep -c "portuguese-verb-api.onrender.com"` = 0.
+- `npm run preflight` (Frankfurt host): 4/4 checks passed, exit 0
+  - PASS /health -> 200 in 248ms
+  - PASS /content/verbs -> 200 in 360ms
+  - PASS /feedback -> 201 in 206ms
+  - PASS /product-feedback -> 201 in 12316ms
+
+## Build
+
+| Item | Value |
+|------|-------|
+| Version | 1.0.1 |
+| Build number | 8 |
+| EAS build id | `c5c481e4-4ebe-49ea-a32a-7ef76ca87563` |
+| ASC build status before submission | "Ready to Submit" (37-EVIDENCE.md REL-02) |
+
+## Fields entered (1.0.1)
+
+_Pending: filled in after the operator checkpoint (Task 2)._
+
+## Status history
+
+| Status (verbatim) | Observed (UTC) | Observed (local) | Note |
+|-------------------|----------------|------------------|------|
+
+_Pending: filled in after the operator checkpoint (Task 2)._
