@@ -183,7 +183,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 37-02-PLAN.md — EAS production build #7+, TestFlight submit and internal-tester install (REL-01, REL-02)
+- [x] 37-02-PLAN.md — EAS production build #7+, TestFlight submit and internal-tester install (REL-01, REL-02)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -272,7 +272,7 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 7/7 | Complete | 2026-10-11 |
 | 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete    | 2026-10-11 |
-| 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 1/4 | In Progress|  |
+| 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 2/4 | In Progress|  |
 | 38. App Store Release & Oregon Gate Hand-back | v1.1 | 0/TBD | Not started | - |
 | 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 0/TBD | Not started | - |
 
