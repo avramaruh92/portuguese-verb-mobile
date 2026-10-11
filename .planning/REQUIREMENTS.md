@@ -17,7 +17,7 @@
 ### NET — Timeouts & caching
 
 - [x] **NET-01**: The content fetch aborts after 15s (was 90s) and falls back to the bundled dataset
-- [x] **NET-02**: Quiz feedback and product feedback submissions abort after 45s (was 90s) and return `network-error`. 45s covers a ~40s Render cold boot and the ~11s product-feedback latency observed in the backend's Frankfurt verification
+- [x] **NET-02**: Quiz feedback and product feedback submissions abort after 45s (was 90s) and return `network-error`. 45s covers a ~40s Render cold boot or the ~11s warm product-feedback latency observed in the backend's Frankfurt verification, but not both together (~51s worst case). Accepted risk (Phase 36 review WR-02, 2026-10-11): a submit that times out on a cold boot may still be persisted server-side, so tapping Retry can create a duplicate feedback row. Feedback is non-critical; no timeout change or idempotency key
 - [x] **NET-03**: A test proves the content fetch sends no cache-busting headers or query parameters (no hand-sent `If-None-Match`; iOS `NSURLCache` handles ETag/304 revalidation), and that any non-200 response (including a raw 304) falls back to the local dataset. No production behaviour change
 
 ### REL — Release 1.0.1

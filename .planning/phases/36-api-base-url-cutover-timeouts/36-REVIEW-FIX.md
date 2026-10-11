@@ -77,6 +77,8 @@ FETCH-04 still holds: the store snapshots verbs, learning and `source` at `start
 I found no client-only mitigation that prevents a duplicate row without changing the payload or the timeout. Aborting on the client cannot cancel the server-side insert. The NET-02 rationale in REQUIREMENTS.md (45s "covers" 40s cold boot + 11s latency) is still arithmetically wrong. Correcting that wording, or raising the timeout or adding idempotency, needs a product or requirements decision.
 **Original issue:** A submit that lands on a cold instance can abort on the client after 45s while the server still inserts the row. Retry then posts the same payload again and creates a duplicate row.
 
+**Resolution (2026-10-11, user decision):** Accepted risk. The timeouts stay at 45s and there is no idempotency key. The NET-02 rationale in REQUIREMENTS.md and PROJECT.md now says 45s covers a cold boot *or* the warm latency, not both, and records the duplicate-on-Retry risk as accepted.
+
 ---
 
 _Fixed: 2026-10-11T14:00:00Z_

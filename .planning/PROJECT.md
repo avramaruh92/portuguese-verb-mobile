@@ -427,8 +427,9 @@ gate.
   `store/metadata/review-notes.md`, `store/privacy/nutrition-label-answers.md`,
   `CLAUDE.md`, `AGENTS.md`
 - Timeouts lowered: content fetch 90s → 15s, quiz feedback and product
-  feedback 90s → 45s (covers a ~40s Render cold boot and the observed ~11s
-  product-feedback latency)
+  feedback 90s → 45s (covers a ~40s Render cold boot or the observed ~11s
+  product-feedback latency, not both; the rare cold-boot duplicate row on
+  Retry is an accepted risk — Phase 36 review WR-02)
 - HTTP revalidation (ETag/304): no behaviour change — a guard test proves
   the content fetch sends no cache headers/query params and any non-200
   (incl. a raw 304) falls back to the local dataset
