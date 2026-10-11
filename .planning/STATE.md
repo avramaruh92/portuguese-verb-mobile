@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
 status: milestone_complete
-stopped_at: Phase 35 complete (final phase); milestone close pending Phase 30 verification
+stopped_at: Phase 35 complete (final phase); milestone close pending merge to main + audit
 last_updated: 2026-10-11T11:05:39.217Z
 last_activity: 2026-10-11
 progress:
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** v1.0 close-out: Phase 30 verification, merge to main, milestone audit
+**Current focus:** v1.0 close-out: merge to main, milestone audit
 
 ## Current Position
 
@@ -86,7 +86,6 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 
 ### Pending Todos
 
-- Phase 30 has no 30-VERIFICATION.md and BUILD-01..04 are still unchecked in REQUIREMENTS.md, although `.nvmrc`, `engines.node` and `eas.json` all pin 22.23.2. Run `/gsd:verify-work 30` before closing v1.0.
 - `plan/phase-20` holds all v0.5-v1.0 work (290+ commits not on `main`). Merge to `main` via PR before `/gsd:complete-milestone`.
 - Then run `/gsd:audit-milestone` and `/gsd:complete-milestone`.
 

@@ -9,10 +9,10 @@ Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readin
 
 ### Build Pipeline Hardening
 
-- [ ] **BUILD-01**: A `.nvmrc` pins the Node version to match the real EAS build image (verified from actual build logs, not assumed from the local dev machine)
-- [ ] **BUILD-02**: `package.json`'s `engines.node` field matches the pinned version
-- [ ] **BUILD-03**: `eas.json`'s production build profile sets a `node` field matching the pinned version
-- [ ] **BUILD-04**: `package-lock.json` is regenerated clean under the pinned Node/npm version and proven via a real EAS build (closing the lockfile-drift bug that has recurred 3 times: v0.5 Phase 20, Phase 24, v0.6 Phase 29)
+- [x] **BUILD-01**: A `.nvmrc` pins the Node version to match the real EAS build image (verified from actual build logs, not assumed from the local dev machine)
+- [x] **BUILD-02**: `package.json`'s `engines.node` field matches the pinned version
+- [x] **BUILD-03**: `eas.json`'s production build profile sets a `node` field matching the pinned version
+- [x] **BUILD-04**: `package-lock.json` is regenerated clean under the pinned Node/npm version and proven via a real EAS build (closing the lockfile-drift bug that has recurred 3 times: v0.5 Phase 20, Phase 24, v0.6 Phase 29)
 
 ### Brand Asset Source & Generator
 
@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | Phase 30 | Pending |
-| BUILD-02 | Phase 30 | Pending |
-| BUILD-03 | Phase 30 | Pending |
-| BUILD-04 | Phase 30 | Pending |
+| BUILD-01 | Phase 30 | Complete |
+| BUILD-02 | Phase 30 | Complete |
+| BUILD-03 | Phase 30 | Complete |
+| BUILD-04 | Phase 30 | Complete |
 | BRAND-01 | Phase 31 | Complete |
 | BRAND-02 | Phase 31 | Complete |
 | BRAND-03 | Phase 31 | Complete |
