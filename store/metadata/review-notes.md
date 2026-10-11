@@ -26,21 +26,21 @@ any of the 10 multiple-choice questions (an explanation appears after each
 answer); reach the Results screen for the score.
 
 External services used: the app calls exactly one backend, an API the
-developer operates, hosted on Render (https://portuguese-verb-api.onrender.com).
+developer operates, hosted on Render (https://portuguese-verb-api-fra.onrender.com).
 No third-party authentication, payment, analytics, advertising, tracking,
 AI, or crash-reporting service is used anywhere in the app. The app makes
 exactly three outbound calls, all to that one backend:
 
-- GET https://portuguese-verb-api.onrender.com/content/verbs - fired once
+- GET https://portuguese-verb-api-fra.onrender.com/content/verbs - fired once
   at launch to fetch quiz content. Sends no body, no credentials, no
   identifiers. If it fails or times out, the app silently falls back to a
   bundled offline dataset and shows a small "using saved content"
   indicator, so the app is fully usable with no connectivity.
-- POST https://portuguese-verb-api.onrender.com/feedback - fired only when
+- POST https://portuguese-verb-api-fra.onrender.com/feedback - fired only when
   the user taps "Report a problem" on a quiz question and submits. Sends
   message, verb, tense, subject, correctAnswer, selectedAnswer, appVersion,
   platform.
-- POST https://portuguese-verb-api.onrender.com/product-feedback - fired
+- POST https://portuguese-verb-api-fra.onrender.com/product-feedback - fired
   only when the user submits general product feedback. Sends category,
   message, screen, appVersion, platform.
 

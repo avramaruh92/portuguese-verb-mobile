@@ -34,7 +34,9 @@ These are locked by the backend's already-shipped v0.0 milestone
 - The mobile app **never writes to the database directly** and never
   holds Supabase credentials. The only backend interaction is submitting
   in-app feedback via `POST /feedback` on the live API
-  (`https://portuguese-verb-api.onrender.com`).
+  (`https://portuguese-verb-api-fra.onrender.com`). The base URL lives in
+  `src/config/api.ts` (`API_BASE_URL`); the former Oregon host is guarded
+  against by `__tests__/api-host-guard.test.ts`.
 - `POST /feedback` request contract (Zod-validated, locked by the backend):
   `message`, `verb`, `tense`, `subject`, `correctAnswer`, `selectedAnswer`,
   `appVersion`, `platform`.

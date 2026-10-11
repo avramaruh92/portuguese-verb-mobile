@@ -154,7 +154,7 @@ Connect App Privacy questionnaire before the next submission:
 Render service was confirmed to match this SHA (deployed, not just committed to
 `origin/main`).
 
-**Health check:** `GET https://portuguese-verb-api.onrender.com/health` returned `200`.
+**Health check:** `GET /health` returned `200` on the former Oregon service (the API host at the time of this 2026-08-17 check). The API has since moved to `https://portuguese-verb-api-fra.onrender.com` (v1.1, Phase 36); this record was not re-run against the new host.
 
 **Requests issued during the verification window:**
 - `GET /content/verbs` -> `200`
