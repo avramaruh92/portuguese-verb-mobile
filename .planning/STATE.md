@@ -1,17 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: Awaiting next milestone
-stopped_at: v1.0 milestone complete, archived and tagged
-last_updated: "2026-10-11T11:52:20.542Z"
-last_activity: 2026-10-11 — Milestone v1.0 completed and archived
+milestone: v1.1
+milestone_name: Frankfurt API Cutover
+status: planning
+last_updated: "2026-10-11T12:02:15.954Z"
+last_activity: 2026-10-11
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-10-11)
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-10-11 — Milestone v1.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-10-11 — Milestone v1.1 started
 
 ## Performance Metrics
 

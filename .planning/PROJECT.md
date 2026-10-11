@@ -393,40 +393,73 @@ no blockers, 12 non-blocking debt items) — see
 
 ### Active
 
-To be defined in `.planning/REQUIREMENTS.md` by `/gsd:new-milestone`.
+Scoped in `.planning/REQUIREMENTS.md` (milestone v1.1).
 
-- [ ] **Time-critical (hard stop 2026-11-01):** switch the hardcoded API base
-  URL to the backend's Frankfurt service
-  (`https://portuguese-verb-api-fra.onrender.com`) in `src/dataset/remote.ts`,
-  `src/feedback/submit.ts`, `src/productFeedback/submit.ts` and the App
-  Review notes, then ship an App Store update. Emerged 2026-10-11 from
-  backend v0.6.1 Phase 28; blocks the backend's Oregon-service deletion
+- [ ] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
+  "Current Milestone" below. Blocks the backend's Oregon-service deletion
   (REGION-05).
-- [ ] Analytics SDK for usage metrics — captured as backlog item 999.1
-  (Firebase Analytics without IDFA recommended; requires App Privacy label
-  update at next submission).
+- [ ] Analytics SDK for usage metrics — backlog item 999.1 (not in v1.1).
 
-Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
-`.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
-`.planning/milestones/v0.4-REQUIREMENTS.md`, `.planning/milestones/v0.5-REQUIREMENTS.md`,
-`.planning/milestones/v0.6-REQUIREMENTS.md`, and `.planning/milestones/v1.0-REQUIREMENTS.md`.
+Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` …
+`.planning/milestones/v1.0-REQUIREMENTS.md`.
 
-## Next Milestone
+## Current Milestone: v1.1 Frankfurt API Cutover
 
-To be defined via `/gsd:new-milestone`. **The Frankfurt API base-URL switch
-(see Active) has a 2026-11-01 hard stop and should lead it.**
+**Goal:** Ship Lafa 1.0.1 pointing at the Frankfurt API
+(`https://portuguese-verb-api-fra.onrender.com`) to TestFlight and the App
+Store before **2026-11-01**, and hand the backend a clear Oregon-deletion
+gate.
 
-Non-blocking tech debt carried forward (see `milestones/v1.0-MILESTONE-AUDIT.md`
-and prior audits for full detail):
-- `validate-brand` robustness: checks dimensions/alpha but not pixel color
-  (WR-01, a wrong-color icon would pass), uses cwd-relative paths (WR-02),
-  and does not gate the hand-measured Setup lockup crop constants in
-  `app/index.tsx` (must be re-measured if the lockup SVG geometry changes) (v1.0).
+**Target features:**
+- One shared API base-URL constant used by `src/dataset/remote.ts`,
+  `src/feedback/submit.ts` and `src/productFeedback/submit.ts`; a guard test
+  that fails if the Oregon host (`portuguese-verb-api.onrender.com`) appears
+  in `src/` or `scripts/`; Oregon references updated in `scripts/preflight.ts`,
+  `store/metadata/review-notes.md`, `store/privacy/nutrition-label-answers.md`,
+  `CLAUDE.md`, `AGENTS.md`
+- Timeouts lowered: content fetch 90s → 15s, quiz feedback and product
+  feedback 90s → 45s (covers a ~40s Render cold boot and the observed ~11s
+  product-feedback latency)
+- HTTP revalidation (ETag/304): no behaviour change — a guard test proves
+  the content fetch sends no cache headers/query params and any non-200
+  (incl. a raw 304) falls back to the local dataset
+- Release 1.0.1 (build #7+, remote autoIncrement) via EAS → TestFlight →
+  App Store, automatic release on approval; build number, dates, status
+  strings and release option recorded verbatim in `store/submission-log.md`
+- Real-device E2E against Frankfurt on the TestFlight build: content from
+  API (no offline pill), quiz feedback 201, product feedback 201,
+  airplane-mode/timeout fallback intact
+- Hand-back: status line + Oregon-deletion gate recommendation appended to
+  `../portuguese-verb-backend/docs/mobile-handoff.md`
+- Droppable tech-debt phase (runs during App Review wait, never blocks the
+  release): buildNumber-drift note, validate-brand WR-01/WR-02 + lockup crop
+  gating, doc fixes (30-02 Node claim, 35-06 ending, `ios/` README)
+
+**Key context:**
+- Lafa 1.0.0 build #6 is **live on the App Store** (confirmed 2026-10-11) and
+  calls Oregon. Once 1.0.1 is live, all new downloads get Frankfurt; only
+  existing 1.0.0 installs keep hitting Oregon until iOS auto-updates them.
+- **Oregon-deletion gate recommendation:** delete Oregon once 1.0.1 is live
+  on the App Store AND (≈48h of no real Oregon requests OR 2026-10-30),
+  whichever comes first. Rationale: a 1.0.0 straggler after deletion still
+  gets a fully working quiz (bundled dataset + offline pill) and only loses
+  feedback submission (error + Retry), whereas missing 1 Nov returns
+  Frankfurt to cold starts for *every* user. The date clause replaces a
+  "48h quiet" condition that 1.0.0 users could block indefinitely.
+- Contract and response bodies unchanged; no API contract change in scope.
+
+**Later-milestone candidates (not v1.1):** `POST /events` quiz-completion
+tracking (backend supports it; relates to backlog 999.1), a custom API
+domain so future host moves need no app release, a minimum-version /
+update prompt.
+
+## Carried-forward tech debt
+
+Not in v1.1 unless listed under Current Milestone (see
+`milestones/v1.0-MILESTONE-AUDIT.md` and prior audits):
 - Backend `disableRequestLogging` (which the privacy label's "no IPs
   logged" claim relies on) is deprecated in Fastify 6 — re-verify the label
   claim on that upgrade (v1.0).
-- `store/screenshots/README.md` references a checked-in `ios/` project;
-  `ios/` is gitignored, so a fresh checkout needs `npx expo prebuild` (v1.0).
 - SUMMARY `requirements-completed` frontmatter and per-phase `VALIDATION.md`
   files are inconsistently maintained (v1.0 Phases 30-34 have none) — a
   recurring documentation-habit gap (v0.3/v0.4/v1.0).
@@ -435,12 +468,6 @@ and prior audits for full detail):
   placeholder for either would render un-replaced rather than fail closed (v0.4).
 - The Lafa palette was not independently WCAG-AA contrast-audited after the
   v0.6 replacement — spot-check if accessibility becomes a priority (v0.2/v0.6).
-
-Resolved in v1.0: the 3x-recurring Node/npm lockfile drift (durable pin) and
-the `expo-doctor` `eas-cli` advisories (quick task 260816-k8y).
-
-Full v0.3–v1.0 goal/scope detail archived under `.planning/milestones/`
-(`v0.3-ROADMAP.md` … `v1.0-ROADMAP.md`).
 
 ### Out of Scope
 
@@ -610,4 +637,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-11 after v1.0 milestone — Lafa 1.0.0 Ready for Distribution*
+*Last updated: 2026-10-11 — milestone v1.1 Frankfurt API Cutover started*
