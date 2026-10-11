@@ -304,6 +304,31 @@ Plans:
 ---
 
 *Milestones v0.0, v0.1, v0.2, v0.3, v0.4, v0.5, and v0.6 shipped. v1.0
-(Warm Brand Polish + App Store Submission Readiness) roadmap created
-2026-08-16 — 6 phases (30-35), 27/27 requirements mapped, awaiting
-approval. Run `/gsd:plan-phase 30` to begin.*
+(Warm Brand Polish + App Store Submission Readiness) — all 6 phases (30-35)
+complete; Lafa 1.0.0 Ready for Distribution. Run `/gsd:audit-milestone`, then
+`/gsd:complete-milestone`.*
+
+## Backlog
+
+### Phase 999.1: Add analytics SDK for usage metrics (BACKLOG)
+
+**Goal:** [Captured for future planning] Wire up an analytics SDK (Firebase
+Analytics recommended, based on 2026-08-28 research) to track basic internal
+usage events (e.g. "quiz completed" counts) for internal product reporting.
+Currently no analytics SDK is wired in the mobile app.
+
+Research findings (2026-08-28): Firebase Analytics, configured with
+`GoogleAppMeasurementWithoutAdIdSupport` and Google Signals/ad-personalization
+disabled, avoids IDFA access and the ATT prompt, and has an official Apple
+data-mapping doc (`firebase.google.com/docs/ios/app-store-data-collection`).
+PostHog is a viable alternative (also no default IDFA use, `personProfiles`
+defaults to `.identifiedOnly`) but lacks an official Apple-facing mapping doc.
+Either requires declaring Usage Data + Device ID in the App Privacy Nutrition
+Label (not linked to identity/tracking) and updating App Privacy answers at
+the next version submission.
+
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
