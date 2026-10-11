@@ -53,19 +53,57 @@ Notes:
 
 ## E2E-01 — Content from Frankfurt
 
-_Pending — filled by plan 37-03._
+Build: 1.0.1 (8), device: iPhone 14 Pro, iOS 27.0.1 (OS update completed before E2E; REL-02 recorded 26.6.1 at install time), date: 2026-10-11
+
+Render times were reported in local WEST (UTC+1); UTC in brackets.
+
+- Cold start (online): ~17:29 WEST.
+- "Using saved content" pill: absent (stayed hidden on the setup screen and during the quiz).
+- Render service: `portuguese-verb-api-fra`. Frankfurt log stream line "content cache filled" at 17:29:10 WEST (16:29:10Z). No HTTP status code was reported for GET /content/verbs.
+- Corroboration: the pill staying hidden only happens (per `src/components/OfflinePill.tsx` and `src/dataset/source.ts`) when the remote GET /content/verbs succeeded and validated.
+- Frankfurt log line for POST /product-feedback ("product feedback submitted"): 17:29:32 WEST (16:29:32Z).
+- Frankfurt log line for POST /feedback ("feedback submitted"): 17:30:06 WEST (16:30:06Z).
+- Both submitted rows persisted with appVersion 1.0.1 (see E2E-02 and E2E-03).
+
+Content evidence method: Render log stream (application info line "content cache filled"), NOT the HTTP request log view or the Metrics graph. Known limitation: no HTTP status code was captured for GET /content/verbs, because the backend sets disableRequestLogging and the content route does not log per request; the "content cache filled" app line plus the hidden pill is the evidence.
+
+Informational (not part of verdict): Oregon service (`portuguese-verb-api`) observation: not checked.
+
+**Verdict:** PASS
 
 ## E2E-02 — Report a problem (quiz feedback)
 
-_Pending — filled by plan 37-03._
+Build: 1.0.1 (8), device: iPhone 14 Pro, iOS 27.0.1, date: 2026-10-11
+
+- Success state shown (only appears on HTTP 201).
+- feedback_reports row id: `cmv41h59s000529axhhzuj7bd`
+- appVersion: 1.0.1
+- createdAt: 2026-10-11 16:30:06.832 (UTC)
+
+**Verdict:** PASS
 
 ## E2E-03 — Help us improve (product feedback)
 
-_Pending — filled by plan 37-03._
+Build: 1.0.1 (8), device: iPhone 14 Pro, iOS 27.0.1, date: 2026-10-11
+
+- Success state shown (only appears on HTTP 201).
+- product_feedback_reports row id: `cmv41gegh000429axzhemkcte`
+- appVersion: 1.0.1
+- createdAt: 2026-10-11 16:29:32.081 (UTC)
+
+**Verdict:** PASS
 
 ## E2E-04 — Airplane mode
 
-_Pending — filled by plan 37-03._
+Build: 1.0.1 (8), device: iPhone 14 Pro, iOS 27.0.1, date: 2026-10-11
+
+- First attempt: the "Using saved content" pill did NOT appear. Likely test-setup issue: the app was not fully swiped away so the in-memory remote result from the online run was reused, and/or Wi-Fi was still on. Not treated as an app defect.
+- Clean retest: airplane mode on, Wi-Fi verified off, Lafa swiped away and reopened, waited ~20s. The "Using saved content" pill APPEARED. The verdict is based on this clean retest.
+- A full 10-question quiz was completed offline; the results screen showed 10/10.
+- Offline submissions: the developer gave a single combined answer covering both "Report a problem" and "Help us improve": an error state with "Retry submission" appeared fast (under 1 second), with no crash or freeze. Recorded as reported for both modals; it was one combined answer, not separate per-modal timings.
+- Anecdotal only (not evidence): online the app "works perfectly with almost no waiting".
+
+**Verdict:** PASS
 
 ## HAND-01 — Backend handoff status line
 
