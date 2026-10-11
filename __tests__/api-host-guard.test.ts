@@ -13,7 +13,12 @@ function walk(dir: string): string[] {
   const out: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
+    // Dirent.isDirectory() is false for symlinks, so resolve them explicitly
+    // instead of handing a symlinked directory to readFileSync (EISDIR).
+    const isDir = entry.isSymbolicLink()
+      ? fs.statSync(full).isDirectory()
+      : entry.isDirectory();
+    if (isDir) {
       out.push(...walk(full));
     } else {
       out.push(full);
@@ -23,7 +28,7 @@ function walk(dir: string): string[] {
 }
 
 describe("API host guard", () => {
-  it.each(["src", "scripts"])("no Oregon host in %s/", (dir) => {
+  it.each(["src", "scripts", "app"])("no Oregon host in %s/", (dir) => {
     const files = walk(path.join(REPO_ROOT, dir));
     expect(files.length).toBeGreaterThan(0);
     const offenders = files
@@ -31,6 +36,15 @@ describe("API host guard", () => {
       .map((f) => path.relative(REPO_ROOT, f));
     expect(offenders).toEqual([]);
   });
+
+  it.each(["app.json", "package.json", "eas.json"])(
+    "no Oregon host in %s",
+    (file) => {
+      const p = path.join(REPO_ROOT, file);
+      if (!fs.existsSync(p)) return;
+      expect(fs.readFileSync(p, "utf8")).not.toContain(OREGON_HOST);
+    },
+  );
 
   it("API_BASE_URL is the Frankfurt host", () => {
     expect(API_BASE_URL).toBe("https://portuguese-verb-api-fra.onrender.com");
