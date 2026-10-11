@@ -174,7 +174,25 @@ Plans:
   5. In airplane mode a quiz completes on the bundled dataset with the offline pill showing, and feedback fails gracefully with a Retry option
   6. A status line (version, build number, date) is appended to the 2026-10-09 entry in `../portuguese-verb-backend/docs/mobile-handoff.md`
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 37-01-PLAN.md — Bump expo.version to 1.0.1, run pre-build gates, create 37-EVIDENCE.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 37-02-PLAN.md — EAS production build #7+, TestFlight submit and internal-tester install (REL-01, REL-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 37-03-PLAN.md — Real-device E2E against Frankfurt: online, feedback 201s, airplane mode (E2E-01..04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 37-04-PLAN.md — Append 1.0.1 status line to backend mobile-handoff.md 2026-10-09 entry (HAND-01)
+
 **Operator checkpoints**: EAS build/submit credentials, App Store Connect/TestFlight install, on-device testing, backend log/row checks (human-driven)
 
 ### Phase 38: App Store Release & Oregon Gate Hand-back
