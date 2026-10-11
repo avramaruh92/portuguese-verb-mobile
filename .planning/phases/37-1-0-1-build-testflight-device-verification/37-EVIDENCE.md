@@ -107,4 +107,27 @@ Build: 1.0.1 (8), device: iPhone 14 Pro, iOS 27.0.1, date: 2026-10-11
 
 ## HAND-01 — Backend handoff status line
 
-_Pending — filled by plan 37-04._
+| Field | Value |
+|-------|-------|
+| Backend repo | `portuguese-verb-backend` (branch main) |
+| Backend commit | `eada0fb` |
+| Commit date | 2026-10-11 |
+| File | `docs/mobile-handoff.md` (single-file commit; also bumps `last_updated` to "2026-10-11") |
+
+Status line appended to the 2026-10-09 entry, quoted exactly:
+
+> **Status 2026-10-11 (mobile):** Lafa 1.0.1 (build 8, EAS build c5c481e4-4ebe-49ea-a32a-7ef76ca87563) is live on TestFlight with the Frankfurt base URL, installed 2026-10-11 and verified on a real device (content from Frankfurt, both feedback POSTs 201, offline fallback OK). The REGION-05 deletion clock can start. App Store 1.0.0 installs still call the old URL until 1.0.1 is live on the App Store; mobile will append a second status line then.
+
+Committed locally in portuguese-verb-backend; not pushed by this plan.
+
+## Phase 37 result
+
+| Requirement | Verdict | Section |
+|-------------|---------|---------|
+| REL-01 | PASS | REL-01 — EAS production build |
+| REL-02 | PASS | REL-02 — TestFlight install |
+| E2E-01 | PASS | E2E-01 — Content from Frankfurt |
+| E2E-02 | PASS | E2E-02 — Report a problem (quiz feedback) |
+| E2E-03 | PASS | E2E-03 — Help us improve (product feedback) |
+| E2E-04 | PASS | E2E-04 — Airplane mode |
+| HAND-01 | PASS | HAND-01 — Backend handoff status line |
