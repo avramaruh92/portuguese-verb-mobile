@@ -9,16 +9,16 @@
 
 ### API — Base-URL cutover
 
-- [ ] **API-01**: The content, quiz feedback and product feedback requests all build their URLs from one shared base-URL constant set to `https://portuguese-verb-api-fra.onrender.com` (replaces `src/dataset/remote.ts` `CONTENT_ENDPOINT`, `src/feedback/submit.ts` `FEEDBACK_ENDPOINT`, `src/productFeedback/submit.ts` `PRODUCT_FEEDBACK_ENDPOINT`)
-- [ ] **API-02**: A Jest test fails if the Oregon host `portuguese-verb-api.onrender.com` appears anywhere in `src/` or `scripts/`
-- [ ] **API-03**: `scripts/preflight.ts` targets Frankfurt, and `npm run preflight` passes against it
-- [ ] **API-04**: Nothing in `CLAUDE.md`, `AGENTS.md`, `store/metadata/review-notes.md` or `store/privacy/nutrition-label-answers.md` points at Oregon as the current API
+- [x] **API-01**: The content, quiz feedback and product feedback requests all build their URLs from one shared base-URL constant set to `https://portuguese-verb-api-fra.onrender.com` (replaces `src/dataset/remote.ts` `CONTENT_ENDPOINT`, `src/feedback/submit.ts` `FEEDBACK_ENDPOINT`, `src/productFeedback/submit.ts` `PRODUCT_FEEDBACK_ENDPOINT`)
+- [x] **API-02**: A Jest test fails if the Oregon host `portuguese-verb-api.onrender.com` appears anywhere in `src/` or `scripts/`
+- [x] **API-03**: `scripts/preflight.ts` targets Frankfurt, and `npm run preflight` passes against it
+- [x] **API-04**: Nothing in `CLAUDE.md`, `AGENTS.md`, `store/metadata/review-notes.md` or `store/privacy/nutrition-label-answers.md` points at Oregon as the current API
 
 ### NET — Timeouts & caching
 
-- [ ] **NET-01**: The content fetch aborts after 15s (was 90s) and falls back to the bundled dataset
-- [ ] **NET-02**: Quiz feedback and product feedback submissions abort after 45s (was 90s) and return `network-error`. 45s covers a ~40s Render cold boot and the ~11s product-feedback latency observed in the backend's Frankfurt verification
-- [ ] **NET-03**: A test proves the content fetch sends no cache-busting headers or query parameters (no hand-sent `If-None-Match`; iOS `NSURLCache` handles ETag/304 revalidation), and that any non-200 response (including a raw 304) falls back to the local dataset. No production behaviour change
+- [x] **NET-01**: The content fetch aborts after 15s (was 90s) and falls back to the bundled dataset
+- [x] **NET-02**: Quiz feedback and product feedback submissions abort after 45s (was 90s) and return `network-error`. 45s covers a ~40s Render cold boot and the ~11s product-feedback latency observed in the backend's Frankfurt verification
+- [x] **NET-03**: A test proves the content fetch sends no cache-busting headers or query parameters (no hand-sent `If-None-Match`; iOS `NSURLCache` handles ETag/304 revalidation), and that any non-200 response (including a raw 304) falls back to the local dataset. No production behaviour change
 
 ### REL — Release 1.0.1
 
@@ -69,13 +69,13 @@ Candidates for a later milestone (not v1.1):
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 36 | Pending |
-| API-02 | Phase 36 | Pending |
-| API-03 | Phase 36 | Pending |
-| API-04 | Phase 36 | Pending |
-| NET-01 | Phase 36 | Pending |
-| NET-02 | Phase 36 | Pending |
-| NET-03 | Phase 36 | Pending |
+| API-01 | Phase 36 | Complete |
+| API-02 | Phase 36 | Complete |
+| API-03 | Phase 36 | Complete |
+| API-04 | Phase 36 | Complete |
+| NET-01 | Phase 36 | Complete |
+| NET-02 | Phase 36 | Complete |
+| NET-03 | Phase 36 | Complete |
 | E2E-01 | Phase 37 | Pending |
 | E2E-02 | Phase 37 | Pending |
 | E2E-03 | Phase 37 | Pending |
