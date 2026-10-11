@@ -158,7 +158,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 36-02-PLAN.md — Docs cutover (CLAUDE.md, AGENTS.md, review notes, nutrition label) + live preflight gate (checkpoint)
+- [x] 36-02-PLAN.md — Docs cutover (CLAUDE.md, AGENTS.md, review notes, nutrition label) + live preflight gate (checkpoint)
 
 ### Phase 37: 1.0.1 Build, TestFlight & Device Verification
 
@@ -253,7 +253,7 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 7/7 | Complete | 2026-10-11 |
-| 36. API Base-URL Cutover & Timeouts | v1.1 | 1/2 | In Progress|  |
+| 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete   | 2026-10-11 |
 | 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 0/TBD | Not started | - |
 | 38. App Store Release & Oregon Gate Hand-back | v1.1 | 0/TBD | Not started | - |
 | 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 0/TBD | Not started | - |
