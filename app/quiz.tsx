@@ -23,6 +23,7 @@ export default function Quiz() {
   const status = useQuizStore((s) => s.status);
   const verbs = useQuizStore((s) => s.verbs);
   const learning = useQuizStore((s) => s.learning);
+  const source = useQuizStore((s) => s.source);
   const selectAnswer = useQuizStore((s) => s.selectAnswer);
   const advance = useQuizStore((s) => s.advance);
   const reset = useQuizStore((s) => s.reset);
@@ -97,7 +98,7 @@ export default function Quiz() {
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom }]}
       >
-        <OfflinePill />
+        <OfflinePill source={source} />
         <View style={styles.progressRow}>
           <Text style={styles.progressText}>
             {currentIndex + 1} / {total}

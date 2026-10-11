@@ -88,6 +88,7 @@ describe("useQuizStore", () => {
     expect(state.answers).toEqual([]);
     expect(state.lockedChoice).toBeNull();
     expect(state.errorMessage).toBeNull();
+    expect(state.source).toBeNull();
   });
 
   it("startQuiz returns a Promise that callers can await", () => {
@@ -261,6 +262,19 @@ describe("useQuizStore", () => {
 
       expect(sessionA?.questions).not.toEqual(sessionB?.questions);
       expect(sessionB?.questions.every((q) => q.verb === "beber")).toBe(true);
+    });
+
+    it("snapshots the dataset source at startQuiz so a later resolver switch to remote does not change it", async () => {
+      mockedResolveVerbs.mockResolvedValue({ verbs: localVerbs, source: "local", learning: undefined });
+      await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
+      expect(useQuizStore.getState().source).toBe("local");
+
+      // A background retry succeeding mid-session must not touch the snapshot.
+      mockedResolveVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
+      expect(useQuizStore.getState().source).toBe("local");
+
+      await useQuizStore.getState().startQuiz(ALL_TENSES_OPTIONS);
+      expect(useQuizStore.getState().source).toBe("remote");
     });
   });
 });

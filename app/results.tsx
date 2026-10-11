@@ -18,6 +18,7 @@ export default function Results() {
   const errorMessage = useQuizStore((s) => s.errorMessage);
   const answers = useQuizStore((s) => s.answers);
   const filters = useQuizStore((s) => s.filters);
+  const source = useQuizStore((s) => s.source);
   const startQuiz = useQuizStore((s) => s.startQuiz);
   const [starting, setStarting] = useState(false);
   const [unexpectedError, setUnexpectedError] = useState<string | null>(null);
@@ -91,7 +92,7 @@ export default function Results() {
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
-      <OfflinePill />
+      <OfflinePill source={source} />
       <View style={styles.scoreBlock}>
         <Text style={styles.scoreText}>
           {correct}/{total}

@@ -93,6 +93,76 @@ describe("resolveVerbs / prefetch", () => {
     expect(fetchRemoteVerbs).toHaveBeenCalledTimes(1);
   });
 
+  describe("local-fallback retry (WR-01)", () => {
+    const flush = () => new Promise((r) => setTimeout(r, 0));
+
+    it("returns the cached local result immediately and retries remote in the background on the next call", async () => {
+      const { fetchRemoteVerbs } = require("../src/dataset/remote");
+      fetchRemoteVerbs
+        .mockRejectedValueOnce(new Error("cold boot timeout"))
+        .mockResolvedValueOnce({ verbs: [sampleRemoteVerb], learning: undefined });
+
+      const { resolveVerbs } = require("../src/dataset/source");
+
+      expect((await resolveVerbs()).source).toBe("local");
+
+      // Second call does not block on the retry: still the local snapshot.
+      expect(await resolveVerbs()).toEqual({ verbs: localVerbs, source: "local", learning: undefined });
+      expect(fetchRemoteVerbs).toHaveBeenCalledTimes(2);
+
+      await flush();
+
+      // Once the background retry succeeds, later calls get remote content.
+      expect(await resolveVerbs()).toEqual({ verbs: [sampleRemoteVerb], source: "remote", learning: undefined });
+      await resolveVerbs();
+      expect(fetchRemoteVerbs).toHaveBeenCalledTimes(2);
+    });
+
+    it("runs at most one background retry at a time", async () => {
+      const { fetchRemoteVerbs } = require("../src/dataset/remote");
+      fetchRemoteVerbs.mockRejectedValueOnce(new Error("offline"));
+      fetchRemoteVerbs.mockImplementationOnce(() => new Promise(() => {}));
+
+      const { resolveVerbs } = require("../src/dataset/source");
+
+      await resolveVerbs();
+      await resolveVerbs();
+      await resolveVerbs();
+      await resolveVerbs();
+
+      expect(fetchRemoteVerbs).toHaveBeenCalledTimes(2);
+    });
+
+    it("stays on local when the retry fails and retries again on a later call", async () => {
+      const { fetchRemoteVerbs } = require("../src/dataset/remote");
+      fetchRemoteVerbs.mockRejectedValue(new Error("offline"));
+
+      const { resolveVerbs } = require("../src/dataset/source");
+
+      await resolveVerbs();
+      await resolveVerbs();
+      await flush();
+      expect((await resolveVerbs()).source).toBe("local");
+      await flush();
+
+      expect(fetchRemoteVerbs).toHaveBeenCalledTimes(3);
+    });
+
+    it("never re-fetches once a remote result is cached", async () => {
+      const { fetchRemoteVerbs } = require("../src/dataset/remote");
+      fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: undefined });
+
+      const { resolveVerbs } = require("../src/dataset/source");
+
+      await resolveVerbs();
+      await flush();
+      await resolveVerbs();
+      await flush();
+
+      expect(fetchRemoteVerbs).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("prefetch() triggers resolution once without requiring the caller to await it", async () => {
     const { fetchRemoteVerbs } = require("../src/dataset/remote");
     fetchRemoteVerbs.mockResolvedValue({ verbs: [sampleRemoteVerb], learning: undefined });

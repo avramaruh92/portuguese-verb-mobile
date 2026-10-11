@@ -3,6 +3,7 @@ import { generate } from "../quiz/engine";
 import type { GenerateOptions, QuizSession } from "../quiz/types";
 import { InsufficientVerbsError } from "../quiz/types";
 import { resolveVerbs } from "../dataset/source";
+import type { VerbSource } from "../dataset/source";
 import type { Verb } from "../dataset/types";
 import type { LearningContent } from "../learning/types";
 
@@ -21,6 +22,10 @@ interface QuizStoreState {
   errorMessage: string | null;
   verbs: Verb[];
   learning: LearningContent | undefined;
+  // Dataset source snapshotted at startQuiz, so the OfflinePill on the
+  // quiz/results screens describes the content this session actually uses
+  // even if a background retry later switches resolveVerbs() to remote.
+  source: VerbSource | null;
   startQuiz: (options: GenerateOptions) => Promise<void>;
   selectAnswer: (choice: string) => void;
   advance: () => void;
@@ -37,6 +42,7 @@ const initialState = {
   errorMessage: null,
   verbs: [] as Verb[],
   learning: undefined as LearningContent | undefined,
+  source: null as VerbSource | null,
 };
 
 // Incrementing call token so that a stale (superseded) startQuiz call
@@ -50,7 +56,7 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
   startQuiz: async (options: GenerateOptions) => {
     const token = ++startToken;
     try {
-      const { verbs, learning } = await resolveVerbs();
+      const { verbs, learning, source } = await resolveVerbs();
       if (token !== startToken) return; // superseded by a newer call
       const session = generate(options, undefined, verbs);
       set({
@@ -63,6 +69,7 @@ export const useQuizStore = create<QuizStoreState>((set, get) => ({
         errorMessage: null,
         verbs,
         learning,
+        source,
       });
     } catch (error) {
       if (token !== startToken) return; // superseded by a newer call
