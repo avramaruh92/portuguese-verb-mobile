@@ -18,7 +18,19 @@ Gate time (UTC): 2026-10-11T12:55:45Z
 
 ## REL-01 — EAS production build
 
-_Pending — filled by plan 37-02._
+| Field | Value |
+|-------|-------|
+| EAS build id | `c5c481e4-4ebe-49ea-a32a-7ef76ca87563` |
+| Build number (appBuildVersion) | 8 |
+| Version | 1.0.1 |
+| Profile | production |
+| Status | FINISHED |
+| gitCommitHash | `caa9aa898989bcbae78fc8cfb81c7d49489850eb` |
+| createdAt (UTC) | 2026-10-11T12:57:14Z |
+| completedAt (UTC) | 2026-10-11T13:02:30Z |
+| Build page | https://expo.dev/accounts/avram.aruh/projects/portuguese-verb-mobile/builds/c5c481e4-4ebe-49ea-a32a-7ef76ca87563 |
+
+Provenance: the gate SHA is `1d5fdd1`; the build commit `caa9aa8` differs from it only by `.planning/` commits (`git diff --stat 1d5fdd1 HEAD -- . ':!.planning'` is empty). Build started without `--auto-submit`.
 
 ## REL-02 — TestFlight install
 
