@@ -29,10 +29,10 @@
 
 ### E2E — Real-device verification (TestFlight build, against Frankfurt)
 
-- [ ] **E2E-01**: Content loads from Frankfurt, not the local fallback: the offline pill is absent and the request shows up in the Frankfurt service logs
-- [ ] **E2E-02**: A quiz feedback ("Report a problem") submission returns 201, and the row exists in the backend
-- [ ] **E2E-03**: A product feedback ("Help us improve") submission returns 201, and the row exists in the backend
-- [ ] **E2E-04**: In airplane mode the quiz still completes on the bundled dataset with the offline pill showing, and feedback fails gracefully with a Retry option
+- [x] **E2E-01**: Content loads from Frankfurt, not the local fallback: the offline pill is absent and the request shows up in the Frankfurt service logs
+- [x] **E2E-02**: A quiz feedback ("Report a problem") submission returns 201, and the row exists in the backend
+- [x] **E2E-03**: A product feedback ("Help us improve") submission returns 201, and the row exists in the backend
+- [x] **E2E-04**: In airplane mode the quiz still completes on the bundled dataset with the offline pill showing, and feedback fails gracefully with a Retry option
 
 ### HAND — Backend hand-back
 
@@ -76,10 +76,10 @@ Candidates for a later milestone (not v1.1):
 | NET-01 | Phase 36 | Complete |
 | NET-02 | Phase 36 | Complete |
 | NET-03 | Phase 36 | Complete |
-| E2E-01 | Phase 37 | Pending |
-| E2E-02 | Phase 37 | Pending |
-| E2E-03 | Phase 37 | Pending |
-| E2E-04 | Phase 37 | Pending |
+| E2E-01 | Phase 37 | Complete |
+| E2E-02 | Phase 37 | Complete |
+| E2E-03 | Phase 37 | Complete |
+| E2E-04 | Phase 37 | Complete |
 | HAND-01 | Phase 37 | Pending |
 | REL-01 | Phase 37 | Complete |
 | REL-02 | Phase 37 | Complete |
