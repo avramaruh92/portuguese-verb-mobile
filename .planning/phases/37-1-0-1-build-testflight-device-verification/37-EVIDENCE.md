@@ -4,7 +4,17 @@ This document records the build, TestFlight install, real-device E2E and backend
 
 ## Pre-build gates
 
-_Pending — filled by plan 37-01._
+Gate commit SHA: `1d5fdd1`
+Gate time (UTC): 2026-10-11T12:55:45Z
+
+| Gate | Command | Result |
+|------|---------|--------|
+| typecheck | `npm run typecheck` | exit 0, tsc clean |
+| lint | `npm run lint` | exit 0, 0 warnings |
+| test | `npm test` | exit 0, 23 suites / 277 tests passed (baseline 23 / 268) |
+| expo config | `npx expo config --type public --json` | version 1.0.1, ios.bundleIdentifier com.avram.aruh.lafa |
+| Oregon grep | `grep -rn "portuguese-verb-api.onrender.com" src app scripts app.json eas.json` | exit 1, no matches |
+| preflight | `npm run preflight` (https://portuguese-verb-api-fra.onrender.com) | exit 0, 4/4 passed: /health 200 266ms, /content/verbs 200 247ms, /feedback 201 178ms, /product-feedback 201 74ms |
 
 ## REL-01 — EAS production build
 
