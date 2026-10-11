@@ -1,5 +1,37 @@
 # Milestones
 
+## v0.6 Lafa Branding + Expo Splash Cleanup (Shipped: 2026-08-16)
+
+**Phases completed:** 5 phases, 8 plans, 14 requirements
+
+**Key accomplishments:**
+
+- Rebuilt the brand-asset generation pipeline around the single user-supplied `lafa-icon.svg` source, retiring all AI-concept SVGs and regenerating icon/favicon/splash/Android adaptive assets (Phase 25).
+- Repointed `src/theme/tokens.ts` to the new 10-key Lafa brand palette (primary orange, deep orange, teal, ink, warm background, etc.), with `pressed`/`info` added as new alias keys and an exact `toEqual` test guarding it (Phase 26).
+- Replaced the Expo-blue splash/adaptive-icon backgrounds with the warm Lafa canvas (`#FFF9F6`), locked light appearance, and themed the root layout's headers/status bar/runtime background — eliminating the unbranded flash after splash (Phase 27).
+- Wired the new palette into every screen and shared component (Setup, Quiz, Results, both feedback modals, `OfflinePill`, `ExplanationPanel`), including pressed-state visuals on all primary-action buttons, with a zero-old-hex regression gate (Phase 28).
+- Shipped `scripts/validate-brand.ts` as an automated, exit-code-carrying gate (config hex, PNG dimensions/alpha, generator source hygiene), fixed a `package.json`/lockfile drift blocking EAS builds, and got a dated developer sign-off on a real EAS preview build confirming the rebrand end-to-end (Phase 29).
+
+---
+
+## v0.5 iOS TestFlight Readiness (Shipped: 2026-07-25)
+
+**Phases completed:** 5 phases, 11 plans, 19 tasks
+
+**Key accomplishments:**
+
+- Applied `expo install --fix`'s 7-package SDK 57 version realignment and pinned eas-cli@^21.1.0 with a local-resolving npm script, closing BUILD-01's clean-baseline requirement.
+- Set the final iOS bundle identifier, bootstrapped eas.json via the EAS CLI, diagnosed and fixed a Node/npm-version lockfile mismatch that broke the first cloud build attempt, and confirmed a production iOS build reaches FINISHED status on EAS infrastructure — closing BUILD-02.
+- Locked `app.json`'s release identity (bundle id, slug/scheme, build number) and confirmed via `eas project:info` that the existing EAS project registration still resolves, surfacing a real server-slug/local-slug mismatch (IDENT-04) rather than a research prediction gap.
+- Confirmed no EAS dashboard mechanism exists to rename a project's slug — IDENT-04 closes with the mismatch explicitly documented and handed to Phase 24, not silently accepted or hidden.
+- Node script rasterizes a 1024x1024 alpha-free app icon and a 228px transparent white splash glyph from the Lafa brand SVG using @resvg/resvg-js + sharp, with the source SVG kept byte-for-byte unmodified and committed to git as the pipeline's git-diffable baseline.
+- Deleted the `assets/expo.icon/` Icon Composer bundle and its `ios.icon` app.json reference so the flat `expo.icon` PNG (`./assets/images/icon.png`) is the sole iOS app-icon source.
+- Added an `ascAppId` placeholder to `eas.json`'s submit profile; confirmed EASCFG-01 and EASCFG-03 fields were already satisfied by Phase 20's bootstrap with no edit needed.
+- Replaced effect-based form resets in both feedback modals with render-time `useState`-tracked previous-visible comparisons, eliminating both `react-hooks/set-state-in-effect` lint errors so `npm run lint` exits 0 project-wide.
+- Ran the three operator-only release steps to their conclusion: cold-instance preflight passed, the first real production iOS build was built and submitted (surviving two blocking config bugs surfaced along the way), and an internal TestFlight tester confirmed install — completing the v0.5 milestone's terminal deliverable.
+
+---
+
 ## v0.4 Backend v0.4 Contract Sync + Product Feedback (Shipped: 2026-07-22)
 
 **Phases completed:** 3 phases, 7 plans, 4 tasks

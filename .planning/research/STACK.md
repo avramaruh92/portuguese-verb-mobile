@@ -1,139 +1,95 @@
-# Technology Stack
+# Stack Research
 
-**Domain:** iOS TestFlight release readiness for a managed Expo SDK ~57 app (v0.5 milestone)
-**Researched:** 2026-07-22
-**Confidence:** HIGH (build/submit schema, CLI version, and icon/splash requirements verified against current Expo docs; a couple of narrow field-level nuances flagged MEDIUM below)
-
-> This file replaces the prior (2026-07-13, v0.1-scoped) `STACK.md` content, which
-> covered backend content-fetching/caching — a different, already-shipped milestone.
-> That research is preserved in git history if needed. This file is scoped
-> exclusively to v0.5's iOS release-readiness question: what's needed to take this
-> repo from "no `eas.json`, no bundle id" to "buildable and submittable to
-> TestFlight via `eas build`/`eas submit`."
+**Domain:** Brand-asset pipeline hardening (SVG-by-id parsing) + Apple App Store submission readiness (screenshots, metadata, App Review)
+**Researched:** 2026-08-16
+**Confidence:** MEDIUM-HIGH (Context7 not used — no library-doc lookup needed beyond what's already installed; findings verified via official Apple/Expo docs + multiple current-dated sources)
 
 ## Recommended Stack
 
-### Core Additions
+### Core Technologies (new additions only)
 
 | Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| `eas-cli` | `^21.0.3` (current latest as of 2026-07-22 — re-check `npm view eas-cli version` before running, it ships very frequently) | CLI to run `eas build`, `eas submit`, `eas build:configure` | Official, actively maintained tool required for cloud iOS builds — this project has no native `ios/` directory and isn't switching to bare workflow, so a local Xcode build isn't an option |
-| `eas.json` (new file, repo root, alongside `app.json`) | EAS Build/Submit config schema v1 (no self-versioning field — validated by whichever `eas-cli` runs, pinned via `cli.version` inside the file) | Declares build profiles (e.g. `production`) and submit profiles | Confirmed this file does not exist yet in the repo. This is the single source of truth EAS Build/Submit reads for distribution type, credentials source, channel, and submit ASC identifiers |
-| `app.json` → `expo.ios.bundleIdentifier` | n/a (string) | Apple's unique reverse-DNS app identifier | **Required** — EAS Build refuses App Store-distribution iOS builds without it. Confirmed absent from current `app.json`. Milestone target: `com.avram.aruh.lafa` |
-| `app.json` → `expo.extra.eas.projectId` + `expo.owner` | n/a (UUID string + Expo account/org slug) | Links the local project to an EAS project record on Expo's servers | Written automatically by `eas build:configure` (or `eas init`) on first run — do not hand-author these values |
+|------------|---------|---------|------------------|
+| `linkedom` | `^0.18.x` | Parse `assets/brand/candidates/lafa-icon-warm-bold.svg` as a real DOM so layers can be selected by stable `id`/`data-*` attribute instead of counting `fill="#F2643E"` occurrences | Lightweight (no native deps, pure JS), gives a standard `DOMParser` + `document.getElementById()`/`querySelectorAll()` API that mirrors browser SVG DOM semantics — directly replaces the brittle `svg.split(MARK_FILL).length - 1` counting in `extractMarkOnly()` (`scripts/generate-brand-assets.ts:37`) with `doc.getElementById("mark-shadow")`/`doc.getElementById("mark-primary")` lookups. Actively maintained, used widely for headless SVG/HTML processing in Node build scripts. |
+| Manual `id` attributes on `assets/brand/candidates/lafa-icon-warm-bold.svg`'s `<path>`/`<g>` elements | n/a (source-file convention, not a package) | Give the generator stable anchors to select against | **Verified by reading the actual candidate file**: none of the current SVGs (`lafa-icon-warm-bold.svg`, `lafa-homepage-lockup.svg`) have `id` attributes on their shape layers today — only the root `<svg>` has `id="title"`/`id="desc"` on `<title>`/`<desc>`. "Stable layer ids" is new work this milestone must do to the SVG source itself (e.g. `id="mark-shadow-layer"` on the `opacity="0.18"` drop-shadow `<g>`, `id="mark-primary"` on the `#F2643E` outer path, `id="mark-accent"` on the inner cutout path), not just a parsing-library swap. Do this before wiring the new parser. |
 
-### Supporting Config Fields (app.json)
+### Supporting Libraries
 
-| Field | Purpose | When to Use |
-|-------|---------|-------------|
-| `expo.ios.buildNumber` | Apple's internal build version, distinct from the user-facing `expo.version` | Only relevant if `eas.json`'s `cli.appVersionSource` is `"local"` (EAS reads/writes it directly in `app.json`). If `"remote"` (recommended below, and Expo's current default for new projects), EAS tracks build numbers server-side per bundle identifier and `app.json`'s `ios.buildNumber` is ignored after the first remote-version init — pick one mode, don't maintain both |
-| `expo.version` | User-facing marketing version | Already `1.0.0` and correct per milestone scope — no change needed |
-| `expo.slug` / `expo.scheme` | Project slug (used in EAS API calls, dashboard URL) and deep-link scheme | Milestone changes both to `lafa` — do this change **before** the first `eas build:configure` run, to avoid creating an EAS project record under the old slug |
-| `expo.ios.icon` | iOS-specific icon override; supports Icon Composer `.icon` bundles (SDK 54+) for automatic light/dark/tinted variants | Already set in this repo's `app.json` to `./assets/expo.icon` (an Icon Composer bundle, confirmed present: `assets/expo.icon/icon.json` + `Assets/`) — must be regenerated from the new Lafa mark or replaced by the flat top-level `expo.icon` PNG path; don't leave it pointing at the stale pre-rebrand bundle |
-| `expo.icon` | Fallback/cross-platform 1024x1024 PNG icon | Currently points to `./assets/images/icon.png` (old branding) — regenerate from `assets/brand/lafa-logo-v2.svg`: square, 1024x1024, **no alpha/transparency**, no pre-rounded corners (iOS applies its own corner mask) |
-| `expo-splash-screen` plugin config (`plugins: [["expo-splash-screen", {...}]]`) | Splash screen image/background | Already configured (`backgroundColor: "#208AEF"`, `image: "./assets/images/splash-icon.png"`) — milestone keeps the existing blue background unless visual QA rejects it; splash PNG should be 1024x1024 with a **transparent** background (opposite of the icon's no-alpha rule) |
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `@resvg/resvg-js` | `^2.6.2` (already installed — no change) | Rasterize the id-selected SVG fragment to PNG | Unchanged role — still the rasterizer; only the *upstream string-extraction step* changes, not the render step (`getBBox()`, `render().asPng()` calls stay as-is) |
+| `sharp` | `^0.35.3` (already installed — no change) | Compositing, alpha stripping, resizing (icon/favicon/Android adaptive) | Unchanged role — still handles `removeAlpha()`, `resize()`, `composite()` exactly as today |
 
-## eas.json — Recommended Shape
+### Development Tools (App Store submission)
 
-```json
-{
-  "cli": {
-    "version": ">= 21.0.3",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "autoIncrement": true,
-      "ios": {
-        "credentialsSource": "remote"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {}
-    }
-  }
-}
-```
-
-**Rationale per field:**
-- `cli.version` — pins the minimum `eas-cli` version anyone running builds must use, so the schema stays compatible over time. Use a `>=` range, not an exact pin (matches Expo's own generated default).
-- `cli.appVersionSource: "remote"` — the simpler mode for a project with zero prior `eas.json`/build history: EAS owns build-number incrementing server-side per bundle identifier, so nobody has to remember to bump/commit `app.json` on every build. Docs confirm: "the remote version is initialized with the value from the local project," and thereafter local `ios.buildNumber` edits are ignored. (The only two documented values are `"remote"` and `"local"`; treated as HIGH confidence since no third value appears anywhere in current docs.)
-- `build.production.autoIncrement: true` — with remote versioning, this makes every `production`-profile build automatically bump the remote build number, so repeated TestFlight uploads of the same `1.0.0` don't collide.
-- `build.production.ios.credentialsSource: "remote"` — matches the milestone's explicit choice ("EAS-managed Apple credentials"). EAS generates/stores the distribution certificate + provisioning profile on Expo's servers, prompting interactively the first time `eas build --profile production --platform ios` runs (or via `eas credentials`). No local `.p12`/`.mobileprovision` files needed in a repo that has never had native iOS project files.
-- `submit.production.ios: {}` — the "submit profile placeholder" the milestone asks for, deliberately empty. `eas submit` prompts interactively for Apple ID / App Store Connect App ID (`ascAppId`) / Apple Team ID on first run. Don't hardcode `appleId` (an email) into a committed file unless the team is fine with that being in git history; for later CI automation, prefer an App Store Connect API key (`ascApiKeyPath` + `ascApiKeyId` + `ascApiKeyIssuerId`) supplied via secrets, not committed.
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| `xcrun simctl io booted screenshot <path>.png` | Capture raw screenshots from the iOS Simulator for App Store Connect | No built-in Expo/EAS screenshot tooling exists (confirmed — neither `docs.expo.dev/submit/ios` nor `eas-cli` mentions screenshot generation). This is a platform-level Xcode CLI command, run against a **booted Simulator matching the target device class** (e.g. iPhone 16 Pro Max sim for the 6.9" bucket), not a JS/npm package. Simulator screenshots need no extra scaling step — the simulator renders at native device resolution already (e.g. iPhone 16 Pro Max sim captures at 1320×2868 directly). |
+| App Store Connect API Key (`.p8` + Issuer ID + Key ID) | Auth for `eas submit --platform ios` | **Already proven working in v0.5** — the pinned `eas-cli` has no interactive Apple ID/password path anymore; ASC API Key is the only supported auth method (see Key Decisions in PROJECT.md). No new tooling needed here; this milestone reuses the same credential. Only the App Store Connect **UI steps after upload** (metadata, screenshots, submit-for-review) are new, not the upload mechanism itself. |
+| App Store Connect web UI (manual) | App metadata, privacy nutrition label, screenshot upload, "Submit for Review" | **Not automatable via EAS** — confirmed: `eas submit` only uploads the `.ipa` to App Store Connect / TestFlight processing. Attaching a build to a *version*, filling in description/keywords/support & privacy URLs/age rating/review notes, uploading screenshots, and clicking "Submit for Review" are manual App Store Connect UI steps performed after `eas submit` succeeds. Budget for this as a manual checklist phase, not a script. |
 
 ## Installation
 
 ```bash
-# EAS CLI — as a devDependency so the whole team/any future CI uses a pinned range
-npm install -D eas-cli@^21.0.3
+# Brand-asset pipeline hardening
+npm install linkedom
 
-# One-time login (interactive, human operator — not scriptable without a token)
-npx eas login
-
-# One-time project link — writes app.json's expo.extra.eas.projectId + expo.owner,
-# and can scaffold a starter eas.json if one doesn't exist yet
-npx eas build:configure
+# App Store submission readiness — no new npm packages required.
+# eas-cli is already pinned as a devDependency from v0.5 (D-04); reuse it.
+# Screenshot capture is an Xcode CLI command (xcrun simctl), not an npm package.
 ```
-
-No new *runtime* npm packages are needed — `eas-cli` is a dev/build-time tool only, never imported by app code, and doesn't touch the existing `expo`/`react-native`/`expo-router` dependency graph.
 
 ## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|--------------------------|
-| `eas-cli` as a devDependency, invoked via `npx`/npm script | Global `npm install --global eas-cli` | Fine for a solo operator's machine, but a devDependency is safer here since it guarantees a reproducible, pinned version for anyone else (or CI, if added later) without a manual global-install step |
-| `credentialsSource: "remote"` (EAS-managed Apple credentials) | `credentialsSource: "local"` with a checked-in/encrypted `.p12` + provisioning profile | Only worth it if the team wants full control over signing artifacts outside Expo's servers — not the case here (no existing native project, milestone explicitly asks for EAS-managed credentials) |
-| `appVersionSource: "remote"` | `appVersionSource: "local"` | Use `local` only if the team wants `ios.buildNumber` human-visible and git-tracked on every bump; for a first TestFlight release with no existing versioning discipline, `remote` is simpler and avoids merge conflicts on `app.json` |
-| Managed Expo workflow (no checked-in `ios/`; EAS Build prebuilds natively in the cloud each run) | `npx expo prebuild` to generate and commit a native `ios/` project, building via local Xcode or `eas build --local` | Only needed for custom native modules/config beyond what Expo config plugins support, or if the team wants to inspect/patch native Xcode settings directly — milestone explicitly says keep `ios/` prebuild output out of source control and treat `app.json` as the release source of truth, so managed workflow is correct |
-| Regenerate the Icon Composer `.icon` bundle (`expo.ios.icon`, SDK 54+) for the new mark | Drop `ios.icon`, rely solely on the flat top-level `expo.icon` PNG | Icon Composer bundles give automatic light/dark/tinted iOS icon variants (nicer for a real App Store listing) but require Apple's Icon Composer tool (macOS-only, not a simple PNG export). If that tooling isn't readily usable this milestone, the flat PNG path is lower-friction and fully sufficient for TestFlight |
+| `linkedom` (DOM-style, `getElementById`) | `svgson` (SVG → JSON AST) | If the generator ever needs to *rewrite/restructure* the SVG tree programmatically (not just select-and-extract substrings) — `svgson`'s round-trippable JSON tree is nicer for transforms. For this milestone's scope (select 2-3 named layers, extract their markup as a string, hand off to the existing `Resvg`/`sharp` pipeline unchanged) `linkedom`'s `outerHTML`/`getElementById` API is a more direct drop-in replacement for the current string-slicing approach and requires less rewriting of `extractMarkOnly()`/`toMonochromeSilhouette()`. |
+| `linkedom` | `jsdom` | `jsdom` is the more "complete" browser-DOM emulation (used by Jest's default `jsdom` test environment) but is a much heavier dependency (many transitive deps, native-ish `canvas` integration issues) for a one-off build script that only needs `DOMParser` + `getElementById`/`querySelectorAll` on a small SVG file. `linkedom` is purpose-built for exactly this "headless DOM for build scripts" use case and is already a common `jsdom` swap-in for teams optimizing script cold-start time. |
+| Manual `xcrun simctl` screenshots | Fastlane `snapshot`/`frameit`, Maestro `takeScreenshot`, Detox `device.takeScreenshot()` | Fastlane `snapshot` requires an Xcode UI-test target wired into a real `.xcodeproj`/`.xcworkspace` — this project is a **managed Expo project with no `ios/` directory checked in** (confirmed in `.planning/codebase/STACK.md`), so `snapshot` would require `expo prebuild` first, a meaningfully bigger lift than this milestone's scope (1-10 screenshots, done once). Maestro/Detox are legitimate future automation candidates (tracked already as `RELEASE-01`/`.eas/workflows/` deferred tech debt in PROJECT.md) but are new testing-infra dependencies not currently in this app — out of proportion for a one-time screenshot set. Revisit if a second release cycle makes "regenerate screenshots on every release" worth automating. |
+| App Store Connect API Key (existing) | Interactive Apple ID + password (`eas submit`) | Not available — the currently pinned `eas-cli` version has removed interactive Apple ID auth for iOS submit (confirmed as a v0.5 Key Decision already learned the hard way). No alternative exists; API Key is the only path. |
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|--------------|
-| Hand-generating a native `ios/` directory via `expo prebuild` and committing it | Contradicts the milestone's explicit constraint ("Keep ignored native `ios/` prebuild output out of source control") and reintroduces manual Xcode project maintenance that EAS Build's cloud prebuild already handles from `app.json` | Let `eas build` run its own ephemeral cloud prebuild from `app.json` on every build; keep `ios/` gitignored |
-| Manually bumping `ios.buildNumber` in `app.json` while `eas.json`'s `appVersionSource` is `"remote"` | The two mechanisms conflict — per docs, once remote versioning is active, local `app.json` build-version edits become silent no-ops, misleading anyone reading `app.json` as the source of truth | Pick one mode explicitly in `eas.json` and stick to it; check the current remote value with `eas build:version:get` if ever needed |
-| Checking an Apple ID password or App Store Connect API key `.p8` file into `eas.json`/the repo | Credential leak risk — ASC API keys grant broad account-level access | Leave `submit.production.ios` empty and answer prompts interactively for a first manual submit; for later CI automation, store the `.p8` key + `ascApiKeyId`/`ascApiKeyIssuerId` as CI secrets, never in a committed file |
-| An old/cached `eas-cli` version | Expo iterates the `eas.json` schema and Apple App Store Connect integration frequently (e.g. a mid-2026 release added non-interactive iOS App Store/Enterprise build support via ASC API key) — an old CLI can silently ignore newer schema fields or fail against current Apple tooling requirements | Pin `eas-cli@^21.0.3` (or current) and re-verify the latest version before first use |
+| Continuing brittle `svg.split(MARK_FILL).length - 1` fill-counting to identify layers | Confirmed root cause of this milestone's hardening need — any incidental duplicate `fill="#F2643E"` string (even in an unrelated attribute or a future gradient stop) silently breaks the count-based guard; it also cannot distinguish the shadow layer from the primary layer when both may eventually share a fill color | `id`-based `getElementById()`/`querySelectorAll('[data-layer="..."]')` selection via `linkedom` |
+| `xmldom` / `@xmldom/xmldom` for SVG parsing | Known history of prototype-pollution and XXE-style CVEs in this package family; no `querySelector`/`getElementById` ergonomics beyond raw DOM Level 1 | `linkedom` |
+| Fastlane `snapshot` without first running `expo prebuild` | Requires a native Xcode project this repo does not currently check in; adds an entire new native-tooling surface (Ruby/Fastlane/Xcode UI test target) for a one-time screenshot task | Manual `xcrun simctl io booted screenshot` from the Simulator, once per required device class |
+| Assuming `eas submit` finishes App Store submission | It only uploads the `.ipa` to App Store Connect/TestFlight processing — confirmed via Expo's own docs that App Review submission is a separate, manual App Store Connect step (attach build to version, fill metadata, click Submit for Review) | Treat "App Store Connect metadata + screenshots + Submit for Review" as its own manual checklist phase after `eas submit` succeeds |
+| Uploading screenshots with an alpha channel or non-sRGB color profile | Apple explicitly rejects screenshots with transparency; must be sRGB PNG/JPEG, no alpha | Route Simulator screenshots (or any composited output) through the same `sharp().removeAlpha()` pattern already used for `icon.png` in `generate-brand-assets.ts` before upload, if compositing/framing is added |
 
 ## Stack Patterns by Variant
 
-**If the team wants a fully non-interactive `eas submit` later (CI-driven releases):**
-- Generate an App Store Connect API key in App Store Connect (Users and Access → Integrations → App Store Connect API), download the `.p8` once
-- Populate `submit.production.ios.ascApiKeyPath` / `ascApiKeyId` / `ascApiKeyIssuerId` via CI secrets (not committed values) instead of relying on interactive `appleId`/`ascAppId`/`appleTeamId` prompts
+**If the SVG source is regenerated again by a design tool (e.g. re-exported from Figma) before ids are hand-added:**
+- Re-verify ids survive the export, or add them as a manual post-export step
+- Because Figma/Illustrator SVG exports do not reliably preserve custom ids across re-exports unless the *layer name* in the design tool is used as the id source — confirm with whoever owns the design file that layer names map to the ids `generate-brand-assets.ts` expects, or add an explicit "add stable ids" step to the export checklist
 
-**If a second platform (Android) build is added in a future milestone:**
-- Add a `build.production.android` block and `submit.production.android` block to the same `eas.json` — this milestone is iOS-only per explicit scope, so no Android profile is included here
+**If more than the 6.9" iPhone screenshot bucket is targeted (e.g. iPad):**
+- Capture from an iPad Simulator matching iPad Pro 13" (or whichever bucket is targeted) at its native resolution
+- Because Apple only *requires* one screenshot set per supported device idiom (iPhone vs iPad) that is actually distributed — since this app has no iPad-specific layout work in scope (per PROJECT.md's Out of Scope), iPad screenshots are not needed unless `app.json`'s `ios.supportsTablet`/App Store Connect device-support settings claim iPad support
+
+**If a second release cycle happens and screenshot regeneration becomes a recurring cost:**
+- Revisit Maestro `takeScreenshot` or Detox, wired into `.eas/workflows/` (already tracked as deferred `RELEASE-01` tech debt in PROJECT.md)
+- Because a one-time manual capture is proportionate for the *first* real App Store submission, but repeated manual capture on every release is exactly the kind of recurring toil `.eas/workflows/` automation was deferred to address
 
 ## Version Compatibility
 
-| Package/Field | Compatible With | Notes |
-|----------------|------------------|-------|
-| `eas-cli@^21.0.3` | Expo SDK ~57 | EAS Build auto-selects a cloud build image matching the project's Expo SDK version ("EAS picks a default iOS image that fits the SDK if `ios.image` is not explicitly set") — no manual `ios.image` pin needed |
-| `appVersionSource: "remote"` | First-ever build for the new bundle identifier (`com.avram.aruh.lafa`) | Brand-new bundle ID, no prior build history to reconcile — remote versioning starts clean at whatever `expo.version`/build number the local project reports at first build |
-| Icon Composer `.icon` bundle format | Expo SDK 54+ only | Confirmed compatible with SDK 57 (already referenced in this repo's `app.json`), but the existing bundle's artwork is pre-Lafa and must be regenerated or replaced, not left as-is |
+| Package A | Compatible With | Notes |
+|-----------|------------------|-------|
+| `linkedom@^0.18` | Node.js (any LTS; no native bindings) | Pure JS, no version coupling to `@resvg/resvg-js`/`sharp`/Expo SDK — it only touches the string the generator script reads via `readFileSync`, before that string is ever handed to `Resvg`. Zero interaction with the app's React Native/Expo runtime dependency graph (this is a build-time-only `scripts/` dependency, same category as `@resvg/resvg-js`/`sharp` already are). |
+| `eas-cli >= 21.1.0` (already pinned per `eas.json` `cli.version`) | App Store Connect API Key auth flow | Already verified working end-to-end in v0.5's real submission — no version change needed for App Store (vs. TestFlight) submission; the *upload* mechanism (`eas submit --platform ios`) is identical for both destinations. The difference is entirely on the App Store Connect side (manual metadata + Submit for Review), not in `eas-cli` itself. |
+| iPhone 6.9" screenshot dimensions: `1320x2868`, `1290x2796`, or `1260x2736` | App Store Connect's current minimum-required bucket (2026) | Any one of these three exact pixel sizes is accepted for the 6.9" class; Apple auto-scales down for smaller iPhone display classes from this single upload, so only one device-class screenshot set is strictly required for iPhone-only distribution (this app is iOS-first with no iPad scope). Must be sRGB PNG/JPEG, no alpha channel, 1-10 images. |
 
 ## Sources
 
-- [Configure EAS Build with eas.json — Expo Documentation](https://docs.expo.dev/build/eas-json/) — build profile schema (channel, distribution, credentialsSource, autoIncrement, ios.image); HIGH confidence
-- [Configure EAS Submit with eas.json — Expo Documentation](https://docs.expo.dev/submit/eas-json/) — submit.ios schema (appleId, ascAppId, appleTeamId, ascApiKeyPath/Id/IssuerId); HIGH confidence
-- [App version management — Expo Documentation](https://docs.expo.dev/build-reference/app-versions/) — remote vs local `appVersionSource` semantics; HIGH confidence
-- [EAS JSON reference — Expo Documentation](https://docs.expo.dev/eas/json/) — combined build+submit schema confirmation; HIGH confidence
-- [Set up EAS Build — Expo Documentation](https://docs.expo.dev/build/setup/) — eas-cli install/login/`build:configure` flow; HIGH confidence
-- [Splash screen and app icon — Expo Documentation](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/) — icon requirements (1024x1024, square, no transparency, no pre-rounded corners), splash requirements (1024x1024 PNG, transparent background), `ios.icon`/Icon Composer note (SDK 54+); HIGH confidence, page dated June 2026 per source metadata — current
-- [eas-cli — npm](https://www.npmjs.com/package/eas-cli) — current version 21.0.3 as of 2026-07-22; HIGH confidence (live npm registry check)
-- Direct repo inspection: `app.json` (confirmed no `ios.bundleIdentifier`/`ios.buildNumber`/`extra.eas.projectId`), `assets/expo.icon/` (confirmed pre-existing Icon Composer bundle), `package.json` (confirmed no `eas-cli` dependency), repo root (confirmed no `eas.json`)
+- Direct file reads (this repo): `scripts/generate-brand-assets.ts`, `scripts/validate-brand.ts`, `eas.json`, `package.json`, `assets/brand/candidates/lafa-icon-warm-bold.svg`, `assets/brand/candidates/lafa-homepage-lockup.svg` — HIGH confidence, ground truth for "no ids exist yet" and current dependency versions (`@resvg/resvg-js ^2.6.2`, `sharp ^0.35.3`)
+- [linkedom - npm](https://www.npmjs.com/package/linkedom) / [svgson - npm](https://www.npmjs.com/package/svgson) — MEDIUM confidence (WebSearch-sourced comparison, not Context7-verified; cross-checked against multiple listings agreeing on the DOM-API-vs-JSON-AST distinction)
+- [Submit to the Apple App Store with EAS Submit — Expo Docs](https://docs.expo.dev/submit/ios/) — HIGH confidence, official Expo documentation, fetched directly; confirms no built-in screenshot tooling and that App Review submission is manual
+- [Distribute an iOS app with TestFlight — Expo Docs](https://docs.expo.dev/submit/testflight/) — HIGH confidence, official Expo documentation
+- App Store screenshot size guides (MobileAction, ScreenKit, AppLaunchFlow, others, cross-referenced) — MEDIUM confidence (multiple independent 2026-dated sources agree on `1320x2868`/`1290x2796`/`1260x2736` for the 6.9" bucket and "no alpha channel, sRGB" requirement; not Apple's own page directly fetched, so flagged MEDIUM not HIGH — recommend a final spot-check against `developer.apple.com/help/app-store-connect/reference/screenshot-specifications` at execution time in case Apple has since updated exact dimensions)
+- WebSearch: `xcrun simctl io booted screenshot` as the standard Expo/RN Simulator-screenshot mechanism, no built-in Expo equivalent — MEDIUM confidence, multiple independent sources agree, cross-referenced against the confirmed absence of screenshot tooling in Expo's own submit docs
+- This project's own `PROJECT.md` Key Decisions (v0.5) — HIGH confidence, first-party record confirming ASC API Key is the only supported `eas submit` iOS auth path in the currently pinned `eas-cli` version, and that TestFlight-only distribution was v0.5's deliberate scope boundary now being extended in v1.0
 
 ---
-*Stack research for: iOS TestFlight release readiness (v0.5 milestone)*
-*Researched: 2026-07-22*
+*Stack research for: warm brand-asset pipeline hardening (stable-layer-id SVG parsing) + Apple App Store submission readiness*
+*Researched: 2026-08-16*

@@ -40,7 +40,7 @@ export function OfflinePill() {
 const styles = StyleSheet.create({
   container: {
     alignSelf: "flex-start",
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.infoSoft,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm / 2,
@@ -48,6 +48,6 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.caption,
-    color: colors.primary,
+    color: colors.info,
   },
 });

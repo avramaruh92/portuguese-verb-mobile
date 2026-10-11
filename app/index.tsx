@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,6 +17,35 @@ const VERB_MODE_OPTIONS: { value: VerbMode; label: string }[] = [
   { value: "mixed", label: "Mixed" },
   { value: "irregular_only", label: "Irregular only" },
 ];
+
+// The lockup source (assets/brand/lafa-homepage-lockup.svg, rendered 2x to
+// assets/images/lafa-homepage-lockup.png at 3200x1040) paints its own
+// background rect the same color as the app background, so its 1600x520
+// canvas has a large blank margin to the right of the visible content
+// (mark/wordmark/dot/tagline). Centering or left-aligning the full image's
+// bounding box therefore visually mis-centers the glyphs themselves. These
+// constants crop the rendered PNG down to just its non-background content
+// region so *that* crop box can be centered correctly.
+//
+// Measured (not estimated) via a one-off sharp bounding-box scan of
+// assets/images/lafa-homepage-lockup.png, scanning for pixels differing
+// from background #FFF9F6 (tolerance 6/channel, alpha >= 200 to ignore
+// antialiased edges), then halved to the 1600x520 source coordinate space:
+// { x0: 176, y0: 93, x1: 976.5, y1: 382.5 }. Re-measure if the lockup
+// source SVG ever changes.
+const LOCKUP_CONTENT_X0 = 176;
+const LOCKUP_CONTENT_Y0 = 93;
+const LOCKUP_CONTENT_X1 = 976.5;
+const LOCKUP_CONTENT_Y1 = 382.5;
+const LOCKUP_HEIGHT = 110;
+const LOCKUP_CONTENT_WIDTH = LOCKUP_CONTENT_X1 - LOCKUP_CONTENT_X0;
+const LOCKUP_CONTENT_HEIGHT = LOCKUP_CONTENT_Y1 - LOCKUP_CONTENT_Y0;
+const LOCKUP_SCALE = LOCKUP_HEIGHT / LOCKUP_CONTENT_HEIGHT;
+const LOCKUP_CROP_WIDTH = LOCKUP_CONTENT_WIDTH * LOCKUP_SCALE;
+const LOCKUP_FULL_WIDTH = 1600 * LOCKUP_SCALE;
+const LOCKUP_FULL_HEIGHT = 520 * LOCKUP_SCALE;
+const LOCKUP_OFFSET_X = -LOCKUP_CONTENT_X0 * LOCKUP_SCALE;
+const LOCKUP_OFFSET_Y = -LOCKUP_CONTENT_Y0 * LOCKUP_SCALE;
 
 export default function Index() {
   const router = useRouter();
@@ -71,7 +100,26 @@ export default function Index() {
       <Stack.Screen options={{ headerShown: true, headerTitle: "" }} />
       <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       <OfflinePill />
-      <Text style={styles.heading}>Lafa</Text>
+      <View
+        style={styles.lockupCrop}
+        accessible
+        accessibilityRole="image"
+        accessibilityLabel="Lafa — Learn it. Say it."
+      >
+        <Image
+          source={require("../assets/images/lafa-homepage-lockup.png")}
+          style={{
+            position: "absolute",
+            width: LOCKUP_FULL_WIDTH,
+            height: LOCKUP_FULL_HEIGHT,
+            left: LOCKUP_OFFSET_X,
+            top: LOCKUP_OFFSET_Y,
+          }}
+          resizeMode="stretch"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Select tenses</Text>
@@ -135,7 +183,11 @@ export default function Index() {
       <Pressable
         onPress={handleStartQuiz}
         disabled={!canStart || starting}
-        style={[styles.startButton, (!canStart || starting) && styles.startButtonDisabled]}
+        style={({ pressed }) => [
+          styles.startButton,
+          (!canStart || starting) && styles.startButtonDisabled,
+          pressed && { backgroundColor: colors.pressed },
+        ]}
       >
         {starting ? <ActivityIndicator size="small" color={colors.background} /> : null}
         <Text style={styles.startButtonText}>
@@ -165,15 +217,17 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    paddingTop: spacing.xl2,
     paddingHorizontal: spacing.md,
     backgroundColor: colors.background,
   },
-  heading: {
-    ...typography.heading,
-    color: colors.text,
+  lockupCrop: {
+    width: LOCKUP_CROP_WIDTH,
+    height: LOCKUP_HEIGHT,
+    overflow: "hidden",
+    alignSelf: "center",
     marginBottom: spacing.lg,
-    textAlign: "center",
   },
   section: {
     marginBottom: spacing.lg,

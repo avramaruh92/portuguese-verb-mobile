@@ -1,201 +1,219 @@
 # Pitfalls Research
 
-**Domain:** First-time EAS Build + EAS Submit + TestFlight release for a managed Expo SDK ~57 app (Lafa)
-**Researched:** 2026-07-22
-**Confidence:** MEDIUM — EAS/App Store mechanics verified against Expo docs, GitHub issues, and Apple developer forums; some specifics (exact expo-doctor check list for SDK 57) could not be independently confirmed beyond community reports, so treat those items as MEDIUM/LOW and verify live during the milestone.
+**Domain:** Adding brand-asset polish + a press-state color fix to an existing Expo/EAS app, then taking it through its first full (non-TestFlight) Apple App Store submission
+**Researched:** 2026-08-16
+**Confidence:** MEDIUM-HIGH (icon/alpha-channel and lockfile-drift findings are HIGH — corroborated by this repo's own incident history and multiple independent sources; App Store metadata/screenshot specifics are MEDIUM — Apple's stated specs plus current third-party ASO guidance, not yet exercised by this repo)
 
 ## Critical Pitfalls
 
-### Pitfall 1: iOS icon has an alpha channel / transparency and gets rejected at upload, not at build time
+### Pitfall 1: A FOURTH npm/Node lockfile drift recurrence during the production build
 
 **What goes wrong:**
-The 1024x1024 App Store icon (and the derived asset-catalog icons Xcode generates from it) must be fully opaque. If the source PNG has any alpha channel — even fully-opaque pixels with an alpha channel present — `eas submit` or App Store Connect processing rejects the build with `ITMS-90717: Invalid App Store Icon... can't be transparent nor contain an alpha channel`. This is one of the single most common first-time iOS submission failures and it is **not** caught by `eas build` — it only surfaces at submit/processing time, after a build that can take 10-20+ minutes.
+`package-lock.json` gets regenerated (or a dependency bumped) on the local dev machine under a newer npm major version than the one baked into the EAS build image. The lockfile encodes an `optionalDependencies[].libc`/`os` field shape that the older `npm ci` on EAS rejects, producing a misleading "missing package" error deep into the build — not a clear version-mismatch message.
 
 **Why it happens:**
-Design tools (Figma, Sketch, most SVG-to-PNG converters) export PNGs with an alpha channel by default even when the image is visually fully opaque. `assets/brand/lafa-logo-v2.svg` is the source of truth per the milestone plan — SVG→PNG conversion tools very commonly preserve alpha unless explicitly flattened. This project's icon config is also unusually split: `app.json`'s top-level `icon` points to `./assets/images/icon.png` (used for Android/web/legacy), while `ios.icon` points to `./assets/expo.icon` (Expo's newer platform-specific icon format, SDK 57+). Both paths need to be regenerated and both need alpha stripped — it's easy to fix one and miss the other.
+This repo has hit this exact bug **three times already** (Phase 20, Phase 24, Phase 29 per `.planning/PROJECT.md` Key Decisions) because no durable Node-version pin (`.nvmrc`, `package.json engines`, or `eas.json` build-profile `node` field) has ever been added — each fix was a one-off lockfile regeneration, not a structural guard. Any dependency touch this milestone (`generate-brand-assets.ts` changes, new packages for screenshot tooling, etc.) reintroduces the exact same risk surface.
 
 **How to avoid:**
-- Flatten the icon onto an opaque background (the plan already specifies "no alpha, mark-only") and explicitly verify with a tool (`identify -format '%A' icon.png` via ImageMagick reports `srgb` when no alpha, or `sips -g hasAlpha`) before ever running a build.
-- Regenerate **both** `assets/images/icon.png` (legacy/Android/web path) and whatever `assets/expo.icon` requires (SDK 57's new iOS icon format may be a `.icon` bundle/folder, not a flat PNG — confirm the exact format Expo SDK 57 expects for `ios.icon` before assuming a single PNG swap is sufficient).
-- Do a local `eas build --platform ios --profile production` and inspect the resulting `.ipa`'s asset catalog, or at minimum run `npx expo-doctor` and manually inspect the generated icon, before spending an `eas submit` cycle on it.
+Before this milestone's first real production build:
+1. Pin an explicit Node version in **all three** places that matter for EAS, not just one: `.nvmrc` (for local dev via `nvm use`), `package.json` `engines.node` (documents intent, some tools respect it), and — most importantly — `eas.json`'s build profile `node` field (this is the field EAS Build actually reads to select its build-image Node version; see Expo docs `docs.expo.dev/build/eas-json/`).
+2. Match all three to the **same major/minor** version the EAS build image actually uses (check via a real build's logs, not assumption) — do not just copy the local machine's `node -v`.
+3. Regenerate `package-lock.json` from a clean `node_modules` using that exact pinned Node version (`nvm use && rm -rf node_modules package-lock.json && npm install`), then commit the pristine lockfile.
+4. Add a CI/pre-build check (even a simple `scripts/preflight.ts`-style script, matching this repo's existing pattern) that asserts `process.version` matches `.nvmrc` before running `npm ci`, so drift fails loudly and locally instead of surfacing only inside an EAS build log.
 
-**Warning signs:** Build succeeds but `eas submit` fails with `ITMS-90717`; App Store Connect shows the build stuck in "Invalid Binary" state after processing.
+**Warning signs:**
+- Any `npm install` (not `npm ci`) run locally after adding/bumping a dependency, without immediately re-running under the pinned Node version.
+- `eas build` failing with an `npm ci`/"missing package"/`EUSAGE` error that doesn't obviously match the actual change you made.
+- `git diff package-lock.json` showing large diffs (lockfileVersion bump, `os`/`libc`/`cpu` fields appearing/disappearing) from a routine dependency change.
 
-**Phase to address:** Icon/asset generation phase — verify alpha-free output as an explicit gate before the first real EAS build, not after.
+**Phase to address:**
+Should be its own early phase (before the brand-asset regeneration work touches any dependencies), explicitly closing the "Next Milestone" tech debt item already flagged in `PROJECT.md`.
 
 ---
 
-### Pitfall 2: `eas.json` iOS credentials/bundle identifier drift from the App Store Connect app record
+### Pitfall 2: New/regenerated app icon has an alpha channel or transparency and fails Apple's asset-catalog validation
 
 **What goes wrong:**
-This is the app's **first-ever** release — there is no existing App Store Connect app record, no existing bundle ID registered, and no existing provisioning profile/certificate. The milestone specifies a **new** bundle id `com.avram.aruh.lafa` (this app currently has no `ios.bundleIdentifier` key set in `app.json` at all — confirm this before assuming otherwise). If the bundle ID typed into `app.json`, the one registered in the Apple Developer portal (implicitly, by EAS on first credential creation), and the one used to create the App Store Connect app record ever diverge — even by a stray character — `eas submit` will either register a *new*, wrong bundle ID silently, or fail with a cryptic "no matching app record found."
+Apple's App Store icon validation (`ITMS-90717: "Invalid App Store Icon... can't be transparent nor contain an alpha channel"`) rejects any 1024×1024 App Store icon PNG that has an alpha channel — even fully-opaque pixels with an alpha channel *present* (not just partially transparent pixels) can trigger this. This is a very common Expo/EAS-specific failure mode reported repeatedly against `expo`'s own build tooling.
 
 **Why it happens:**
-EAS-managed credentials will auto-create a new App ID / provisioning profile / distribution certificate for whatever `ios.bundleIdentifier` is in `app.json` at build time if none exists yet — it does not require the App Store Connect app record to exist first for `eas build`, only for `eas submit`. This makes it easy to build successfully, then discover at submit time that the bundle ID doesn't match any app record because the App Store Connect record was created with a typo, or wasn't created at all yet. EAS Submit also reads project/bundle-identifier config from the *local* Expo config at submit time (not from the build artifact itself in older CLI versions) — a documented source of mismatch bugs (expo/eas-cli#2911) when `app.json` changes between build and submit.
+SVG-to-PNG rendering pipelines (Sharp, resvg, rsvg-convert, etc.) default to RGBA output. Swapping the brand source SVG (`lafa-icon-warm-bold.svg`) for a new candidate, or changing layer-id-based parsing in `scripts/generate-brand-assets.ts`, can silently reintroduce an alpha channel if the flattening/background-compositing step is skipped or misconfigured for the new source's layer structure — this repo already had to solve this once for v0.6 (`icon.png` must be fully opaque was already a validated invariant), and the stable-layer-id refactor planned for this milestone is exactly the kind of generator change that could regress it.
 
 **How to avoid:**
-- Set `ios.bundleIdentifier: "com.avram.aruh.lafa"` in `app.json` once, verify it, and do not touch it again for the rest of this milestone.
-- Create the App Store Connect app record (user does this, per milestone context) using the **exact same string**, copy-pasted, before the first `eas submit` attempt — not after.
-- Pre-fill `eas.json`'s `submit.production.ios` block with `ascAppId` (App Store Connect app ID, numeric), `appleTeamId`, and `appleId` ahead of time so `eas submit` doesn't have to interactively guess/create anything.
-- Run `eas credentials` once ahead of the real build to inspect what EAS already knows/has created for this bundle ID, so a mismatch is caught before a submit attempt burns a build.
+- Explicitly flatten/composite onto an opaque background and strip the alpha channel as a distinct, unskippable step in the generator (e.g. Sharp's `.flatten({ background: '#RRGGBB' })` followed by confirming the output has no alpha channel, not just "looks opaque").
+- Keep `scripts/validate-brand.ts`'s existing alpha-channel check and make sure it runs against **every** regenerated icon variant (not just `icon.png` — also check any Android adaptive foreground/monochrome or favicon that Apple/store tooling might independently validate) after the generator refactor lands, before wiring the new production submission steps.
+- Do a real `eas build --platform ios` (not just local generation) at least once with the new assets before the final submission build — icon validation happens at Apple ingestion time via `eas submit`, not at local build time, so a clean local PNG inspection is necessary but not sufficient proof.
 
-**Warning signs:** `eas submit` prompts to "create a new app" unexpectedly, or fails with an App Store Connect API error about the bundle ID/app not being found; Apple Developer portal shows an App ID that doesn't match what's in App Store Connect.
+**Warning signs:**
+- `scripts/validate-brand.ts` passing locally but `eas submit` failing at Apple's asset-catalog validation step (these are two different validation passes — passing one doesn't guarantee the other).
+- Any change to the SVG→PNG rendering library version, layer-id parsing logic, or background-compositing step in `generate-brand-assets.ts`.
+- Inspecting the PNG with `sips -g hasAlpha icon.png` (macOS) or ImageMagick `identify -format '%A' icon.png` shows `true`/anything other than fully opaque, even if the image visually looks solid.
 
-**Phase to address:** Release identity / EAS config phase — lock bundle id + create ASC app record + populate `eas.json` submit fields as one atomic step, before any build is attempted.
+**Phase to address:**
+The brand-asset regeneration phase (promoting the warm-bold-mark SVG + stable-layer-id generator refactor) — must include an explicit alpha-channel re-verification step, not just visual review, before that phase is considered done.
 
 ---
 
-### Pitfall 3: `slug`/`scheme` rename (`portuguese-verb-mobile` → `lafa`) breaks the EAS project link or the app's deep-link scheme silently
+### Pitfall 3: Stale app icon visible on-device after a genuine asset change ("it didn't work" false alarm)
 
 **What goes wrong:**
-The milestone specifies slug/scheme becoming `lafa` while the repo/package name stays `portuguese-verb-mobile`. Expo's `slug` field is tied to the EAS **project id** (`extra.eas.projectId` in `app.json`, created via `eas init`/`eas build:configure`). If this project has never run `eas init` before (likely, since this is the first EAS build ever), the slug can be set freely with no drift risk. But if any earlier exploratory step (e.g. `expo start` telemetry, a stray `eas.json` from template scaffolding, or a previous `npx create-expo-app`) already registered a project id under the old slug `portuguese-verb-mobile`, changing `slug` without updating `extra.eas.projectId` produces the documented "slug for project identified by extra.eas.projectId does not match slug in app config" error.
+After regenerating and shipping a new icon via EAS build, the developer or reviewer sees the *old* icon on a physical device's home screen or in TestFlight and concludes the asset pipeline is broken — when the real cause is iOS's own icon/springboard caching, not a build defect.
 
 **Why it happens:**
-`slug` and `extra.eas.projectId` are two independent identifiers that must stay in sync manually; EAS CLI validates but does not auto-reconcile them. `scheme` is unrelated to EAS (it's the deep-link URL scheme), but changing it silently changes what `expo-router`'s universal links / native `Linking` resolve to — low risk here since the app doesn't use deep links today, but worth a grep to confirm nothing hardcodes the old `portugueseverbmobile://` scheme.
+iOS caches icon/launch-screen assets at the OS level independent of app content; a fresh install over an existing build (same bundle id) doesn't always force a full icon-cache refresh, especially if the build/version number wasn't bumped meaningfully. This is a well-documented Expo/RN community issue distinct from any code bug.
 
 **How to avoid:**
-- Before changing `slug`, check whether `app.json`/`app.config.*` already has an `extra.eas.projectId`. If none exists, this is a non-issue — set `slug: "lafa"` and let `eas init` (or the first `eas build`) create a fresh project id under that slug.
-- If a project id already exists under the old slug, either keep the old slug (cosmetic slug change is optional — bundle id and app name are what actually matter for the store listing) or explicitly run `eas project:info` / re-link deliberately, understanding this creates a new EAS project.
-- Grep the codebase for `portugueseverbmobile` (the current scheme) to confirm nothing else references it before renaming.
+- Always delete-and-reinstall the app (not just "update in place") when visually verifying icon changes on a physical device, and/or fully restart the device once if a stale icon persists after reinstall.
+- Bump `ios.buildNumber` for every new build submitted for visual verification (this repo already does this per its release-identity discipline) — don't rely on `version` alone to force iOS to treat it as a new asset set.
+- Don't treat a stale icon on one already-provisioned test device as proof of a pipeline defect; cross-check against a clean simulator install or a second device before debugging the generator.
 
-**Warning signs:** `eas build` fails immediately with a slug/projectId mismatch error; `eas whoami`/`eas project:info` shows an unexpected or missing project.
+**Warning signs:**
+- Icon "not updating" only on a device that has run several prior builds of this app, but a clean install elsewhere shows the correct icon.
+- Icon mismatch appears only in TestFlight's app list view (which has its own icon-caching quirks) but not in Settings > General > iPhone Storage (which reads the actual bundled asset).
 
-**Phase to address:** Release identity phase, immediately after deciding the new slug/scheme — verify via `eas project:info` before the first build kicks off.
+**Phase to address:**
+The visual sign-off step of the brand-asset phase — document the delete-and-reinstall verification protocol explicitly in that phase's plan so it isn't mistaken for a regression during human-verify.
 
 ---
 
-### Pitfall 4: Missing export compliance / encryption declaration blocks TestFlight distribution to external testers even after a successful build+submit
+### Pitfall 4: Pressed-state color visually wins over locked-in correct/incorrect quiz feedback (state-precedence bug)
 
 **What goes wrong:**
-A build can build successfully, submit successfully, and finish App Store Connect processing (~10-20 min) — and then sit un-distributable in TestFlight because Apple requires an export compliance (encryption usage) answer before the build can be added to a testing group. This is a distinct step from build/submit and easy to miss entirely on a first release since nothing in the EAS CLI flow prompts for it.
+Adding a new `colors.choicePressed` token and wiring it via `Pressable`'s function-form `style` prop can accidentally let the *pressed* visual state override the *locked-answer* success/error visual state if the style-resolution logic doesn't explicitly check "is this choice locked/answered" before applying the pressed-state color. Symptom: tapping-and-holding (or a slow release) on an already-answered (green/red) choice briefly or persistently shows the neutral pressed color instead of — or blended confusingly with — the correct/incorrect color, or a *subsequent* press on a different unanswered choice after an answer is locked shows the pressed color when it should be inert.
 
 **Why it happens:**
-Apple's export compliance question is asked per-build inside App Store Connect (or is skipped if `ITSAppUsesNonExemptEncryption` is set in `Info.plist`/`ios.infoPlist` ahead of time). This app only makes standard HTTPS calls (`fetch` to the backend over TLS) — that qualifies for the standard exemption — but if the question is left unanswered, TestFlight blocks the build from being usable by *external* testers (internal team testers on some plans can sometimes bypass this, external cannot).
+`Pressable`'s `style={({ pressed }) => ...}` callback only knows about the *current gesture's* pressed boolean — it has no inherent awareness of the app's own `lockedChoice`/answered-state. The v0.6 rollout of pressed-state visuals (9 call sites across 5 files, per `PROJECT.md`) already had to solve exactly this precedence problem once for the *existing* `colors.pressed` token on primary buttons; this milestone adds a **second**, semantically-adjacent color (`choicePressed`) into the same answer-choice component that already carries `success`/`error` semantic coloring — two independent conditional-style branches (locked-answer color vs. press color) on the same element is exactly the shape of bug that produces "last-writer-wins" precedence mistakes if the style function's branch order/priority isn't explicit.
 
 **How to avoid:**
-- Set `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` in `app.json` ahead of the first build (standard HTTPS-only apps qualify) so App Store Connect never blocks on this and doesn't ask per-build.
-- If the operator prefers answering manually in App Store Connect instead, budget explicit time for it in the plan — it is not automatic and not part of `eas submit`'s output.
+- Style resolution must be a single deterministic priority chain, evaluated in this order and made explicit in code (e.g. a comment or a small named helper, not inline ternary soup): **locked+correct → locked+incorrect → pressed → default**. Locked states must short-circuit before the pressed check is ever consulted.
+- Once a choice is locked (post-answer), it should arguably not even respond to further press-visual feedback at all — confirm whether the choice `Pressable` is disabled (not just visually overridden) after locking, which sidesteps the precedence question entirely rather than requiring correct branch ordering.
+- Add or extend a unit/regression test (this codebase already grep-regression-tests for `onPressIn`/`onPressOut` absence per `PROJECT.md`) that asserts the resolved style for `{ locked: true, correct: true, pressed: true }` and `{ locked: true, correct: false, pressed: true }` combinations still returns the success/error color, not `choicePressed`.
+- Because this is presentational logic inside a `.tsx` screen component (not this codebase's usual framework-free `src/` domain layer), this is exactly the kind of logic worth pulling into a small pure exported function (`resolveChoiceStyle(state)`) so it can be unit-tested without rendering — consistent with this repo's established "pure function, framework-free, injectable" convention.
 
-**Warning signs:** Build shows "Ready to Submit" or "Missing Compliance" status in App Store Connect's TestFlight tab; external testers report they can't install despite an invite being sent.
+**Warning signs:**
+- Manual QA only exercises "press once, release, see result" — never tests tap-and-hold on an already-answered choice, or rapid double-tap sequences.
+- The new `choicePressed` styling is added as another `pressed ? colors.choicePressed : ...` ternary branch appended *after* existing locked-state branches without re-reading the full conditional to confirm ordering.
+- No test file changes accompany the `choicePressed` token addition (unlike `tokens.test.ts`'s existing exhaustive palette assertion, a *behavioral* precedence test is a different, easy-to-skip category).
 
-**Phase to address:** EAS build config phase — set the `Info.plist` key alongside the rest of `eas.json`/`app.json` release identity work, verified during the first real submit.
+**Phase to address:**
+The quiz press-state color-fix phase — should explicitly include a precedence unit test (or a disabled-after-lock check) as part of its Definition of Done, not just the new token's existence in `tokens.ts`.
 
 ---
 
-### Pitfall 5: `expo-doctor` fails on install-time warnings that don't block `expo start` but do block/degrade `eas build`
+### Pitfall 5: App Store screenshots at the wrong device size, with alpha channel, or showing stale UI
 
 **What goes wrong:**
-This app has never been through a production EAS build. Packages that "work fine" in Expo Go / dev client (e.g. version mismatches against the SDK 57 bundled set, or packages requiring config plugins that were never applied because dev builds don't need them) can cause `npx expo-doctor` to report failures that were previously invisible. Common failure classes: (a) installed package version doesn't match the version Expo SDK 57 expects (`npx expo install --check`/`--fix` needed), (b) a package requires a config plugin listed in `app.json`'s `plugins` array that isn't present, (c) native module version drift between `package.json` and the prebuilt native project if `ios/`/`android/` dirs exist locally (per CLAUDE.md, `ios/` output should stay untracked, but a stale local prebuild folder on the dev machine can still cause local-build-only failures that don't reproduce on EAS's clean cloud build).
+Apple's App Store Connect requires screenshots sized for specific device classes (as of 2026, effectively just the largest device per family — 6.9" iPhone at 1320×2868, since Apple auto-scales down to populate older/smaller device listings) as PNG or JPEG in sRGB with **no alpha channel**, 1-10 images per required size. Common first-submission mistakes: capturing from a simulator/device size that doesn't match a currently-accepted bucket, screenshots with a transparent status bar/notch artifact carrying an alpha channel, or screenshots captured before the final rebrand landed (showing the old Expo-blue splash or pre-warm-palette UI) and never refreshed.
 
 **Why it happens:**
-Managed Expo apps get away with dependency drift during iterative `expo start`/Expo Go development because Metro doesn't validate native compatibility the way a real native build does. The first EAS build is frequently the first time the project's *actual* native dependency graph gets exercised end-to-end.
+Screenshot capture is usually a late, rushed step, often done from whatever simulator happens to be open rather than the exact required device class, and is easy to treat as "done" once uploaded without re-checking against the current build after later polish changes (like this milestone's own brand/color updates) land afterward.
 
 **How to avoid:**
-- Run `npx expo-doctor` and `npx expo install --check` early in this milestone — before touching icons/eas.json — as a standalone gating step, and fix everything it flags, not just what blocks the CLI from exiting non-zero.
-- Do a throwaway `eas build --platform ios --profile production --clear-cache` run early (even before icon/asset work is finalized) purely to surface native-build-only failures with maximum time to fix them, rather than discovering them on the "real" release build.
-- Confirm no stale local `ios/`/`android/` prebuild directories are lingering in the working tree (per CLAUDE.md, these should be gitignored and absent) — if present locally, delete them before relying on EAS's clean cloud build as the source of truth.
+- Capture screenshots **after** all brand-asset and press-state-color work is finalized and verified on a real device/build, not before — this milestone changes visible UI (homepage lockup image, choice press colors), so screenshots taken early in the milestone will be stale by submission time.
+- Capture directly from the 6.9" simulator class (or a real device of that class) at the exact required pixel dimensions; do not manually resize/pad screenshots from a different device size, as this is a common source of rejected or auto-flagged submissions.
+- Explicitly verify exported screenshot PNGs have no alpha channel (same check as the icon) before upload — screenshot export tools (simulator screenshot capture, some third-party framing tools) can embed one even though the visual content looks fully opaque.
+- Since this is a simple utility/education app, plain unframed device screenshots of the actual Setup/Quiz/Results screens are lower-risk than heavily marketing-annotated screenshots — reduces chance of "misleading screenshot" review flags (misleading screenshots are called out in current App Store rejection data as a common first-submission trigger).
 
-**Warning signs:** `expo-doctor` exits non-zero; `eas build` fails at the "Install dependencies" or "Prebuild" step (not the JS bundling step) with native/Gradle/CocoaPods errors; a package that "works in Expo Go" throws a native-module-not-found error only in the EAS build.
+**Warning signs:**
+- Screenshot files still show `#0A7EA4`/Expo-blue or the plain-text homepage title from before this milestone's changes landed.
+- Screenshot dimensions don't exactly match Apple's currently-published required size for the device class selected in App Store Connect (Apple performs pixel-dimension validation on upload).
 
-**Phase to address:** Should be the *first* concrete phase of this milestone (before icon/eas.json work) — a clean `expo-doctor` pass plus one throwaway EAS build is the cheapest way to front-load native-build risk.
+**Phase to address:**
+The App Store Connect readiness phase — screenshots must be the **last** content-producing step in that phase's plan, sequenced strictly after both the brand-asset and press-state phases are verified complete on a real build.
 
 ---
 
-### Pitfall 6: Render free-tier cold start hits testers during their very first onboarding session, right after install — worse timing than any point during normal development
+### Pitfall 6: Privacy nutrition-label answers don't match what the app's actual feedback flows collect
 
 **What goes wrong:**
-The backend's cold-start behavior (verified in Phase 6 of a prior milestone: 45-50s cold start) is already known and the in-app feedback flow already tolerates it gracefully (90s timeout, loading state). But TestFlight testers are a *new* audience with a specific behavior pattern: they install from a push notification/email, open the app once, and if the very first thing they see is a long stall (e.g. `GET /content/verbs` on a cold instance during the dataset prefetch), they may assume the app is broken and abandon before ever reaching a quiz — even though the local-fallback dataset resolves correctly in the background. This is a first-impression risk, not a correctness risk, and it's specific to *this* milestone because it's the first time a wider, less-forgiving audience (testers, not the developer) will hit a cold backend.
+App Store Connect's privacy questionnaire answers are treated as boilerplate ("we don't collect anything") when the app in fact submits two distinct data flows to a live backend (`POST /feedback` with quiz context, `POST /product-feedback` with free-text messages) — both of which include user-authored free text that could contain personal information, plus implicit technical data (IP address logged by the backend HTTP layer, `appVersion`/`platform`). Mislabeling analytics/diagnostic data as "not collected," or omitting IP-address collection that the backend's HTTP layer inherently logs, is called out as a common mistake in current App Store privacy-label guidance.
 
 **Why it happens:**
-Render's free tier spins down services after ~15 minutes of no inbound traffic and takes 30-60s to spin back up on the next request. A TestFlight invite sent hours or days after the last dev/test request will almost certainly hit a cold instance on first tester open. The app's `prefetch()`/`resolveVerbs()` design already handles this *functionally* (silent fallback to local dataset, `OfflinePill` indicator) but the milestone's "live backend preflight" step checks that endpoints eventually succeed — it does not, by itself, prevent testers from perceiving a slow or "broken" first launch if the fallback UX isn't given a moment to actually engage.
+The mobile app's own code never explicitly collects PII (no accounts, no login — confirmed throughout `PROJECT.md`), which makes it tempting to answer "No data collected." But the nutrition label must reflect the full round-trip including what the **backend** does with submitted data, not just what the client-side code touches — and free-text feedback fields are a common blind spot since users can voluntarily type anything (including identifying info) into "message"/"other" fields.
 
 **How to avoid:**
-- Treat this as a UX/timing question, not just an endpoint-reachability check: confirm the setup screen doesn't appear to hang indefinitely waiting on the remote fetch before falling back — the existing zero-blocking guarantee (from `.planning/codebase/ARCHITECTURE.md`) should already cover this, but explicitly re-verify it on a *cold* instance during this milestone's preflight step, not just a warm one.
-- Practically "warm" the Render instance immediately before sending TestFlight invites (a manual `curl` to `/health` a minute or two ahead of an invite round, or a lightweight uptime pinger) so early testers' first impression is a fast, remote-served dataset rather than the local fallback — this is a process step for the operator, not a code change.
-- Do not attempt to "fix" this with a paid Render tier or a keep-alive service as part of this milestone — it's explicitly out of scope (backend feature work is out of scope) but worth flagging to the user as a known operational gotcha for invite timing.
+- Answer the privacy questionnaire based on the actual `POST /feedback` and `POST /product-feedback` payload contracts (already fully documented in this repo's `CLAUDE.md`/`PROJECT.md`) — both include free-text `message` fields, which should be disclosed as potentially containing user-provided content, linked to the app's function ("App Functionality"/"Customer Support" category, not "Analytics" or "Third-Party Advertising").
+- Explicitly account for network-layer metadata (IP address is very commonly logged by any HTTP backend, including Render's default request logging) as "Data Used to Track You" or "Other Data" depending on actual backend retention — coordinate with the `portuguese-verb-api` sibling repo to confirm what's actually logged/retained server-side before answering, rather than guessing from the mobile app's code alone.
+- Because there's no login/accounts/analytics SDK in this app, most categories should legitimately be "No" — but the two feedback flows are real, live, user-data-touching paths and must not be blanket-denied just because the rest of the app is offline-first.
 
-**Warning signs:** Preflight check only tests a single already-warm request; testers report the app feels "stuck" or slow on first open with no visible cause (since the local-fallback UX may only show `OfflinePill` briefly or not at all, depending on timing).
+**Warning signs:**
+- Privacy questionnaire completed by only reading `src/` mobile code, without cross-checking what the backend actually stores/retains from submitted feedback (message text is persisted per `CLAUDE.md`'s "`201` response returns the full persisted row").
+- "Contact Info" or "User Content" categories left at "No" despite `message`/free-text fields existing in both feedback contracts.
 
-**Phase to address:** Live backend preflight phase — explicitly test against a cold (post-15-min-idle) instance at least once, and document the "warm the backend before sending invites" step as an operator runbook note, not just a one-time technical check.
+**Phase to address:**
+The App Store Connect readiness phase — privacy questionnaire answers should be drafted by directly re-reading the two feedback payload contracts and confirming backend retention behavior with the sibling repo, not filled from memory or assumption.
 
 ---
 
 ## Technical Debt Patterns
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|--------------------|-----------------|------------------|
-| Using EAS-managed Apple credentials (vs. manually managed certs/profiles) | Zero manual cert/profile juggling, fastest path to first build | Less control over credential rotation/revocation, harder to reason about when things go wrong first time | Fine, even ideal, for a first release / small team — this milestone's explicit choice |
-| Skipping `eas.json`'s pre-filled `ascAppId`/`appleTeamId` and answering CLI prompts interactively each time | Slightly less upfront config work | Every `eas submit` re-prompts, higher chance of a typo/mismatch on a rushed submit | Never — fill it in once, it's a few minutes and removes an entire class of Pitfall 2 |
-| Leaving `ios.bundleIdentifier` unset until the last moment / iterating on it after the first build | Avoids "locking in" a name early | Bundle identifier changes after the first EAS-managed credential/App ID creation require re-registering everything, effectively starting over | Never once a build has been attempted — decide and lock it before build 1, matches this milestone's explicit plan |
-| Treating a single warm-instance backend preflight check as sufficient | Fast, simple checklist item | Misses the cold-start first-impression risk (Pitfall 6) entirely | Only acceptable if the operator separately commits to a "warm before inviting" runbook step |
+|----------|-------------------|-----------------|------------------|
+| Skip pinning Node version in `eas.json`/`.nvmrc` "just this once more" | Saves ~30 min this milestone | 4th recurrence of the exact same build-breaking bug, at the worst possible time (final submission build) | Never — this repo has direct, repeated evidence it always recurs |
+| Manually resize/pad an existing screenshot instead of recapturing at the exact required simulator size | Faster to produce | Apple's dimension validation can reject at upload, or screenshot looks subtly stretched/cropped in review | Never for the primary/first screenshot set; acceptable only for later cosmetic-only re-crops of an already-correct-size source |
+| Answer privacy questionnaire generically ("no data collected") because the app is "mostly offline" | Fast to fill out | Risk of App Review rejection or post-approval compliance issue once reviewers cross-check against the live `/feedback` endpoints | Never — takes minutes to answer correctly given the contracts are already fully documented in this repo |
+| Reuse the existing `colors.pressed` token for the new quiz-choice press state instead of adding `choicePressed` | Fewer new tokens, less code | Conflates a primary-button semantic with an answer-choice semantic; a future primary-button color change would unintentionally recolor quiz-choice press states too | Never — this milestone's own plan already correctly scopes `choicePressed` separately; don't collapse them under time pressure |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
-|-------------|------------------|--------------------|
-| App Store Connect | Assuming `eas submit` creates the app record automatically | Create the app record manually in App Store Connect first, using the exact bundle id, before the first `eas submit` |
-| EAS-managed Apple credentials | Running `eas build` before deciding the final bundle identifier | Lock `ios.bundleIdentifier` in `app.json` before the first build; treat any change after as a "start over" event |
-| Render backend (free tier) | Preflight-checking only a warm instance | Explicitly test a cold-started request during preflight, and warm the instance operationally before sending TestFlight invites |
-| `expo-splash-screen` / icon plugins | Assuming icon swap is just replacing one PNG file | Regenerate both the legacy `icon` path and the SDK-57-specific `ios.icon` asset; verify neither has an alpha channel |
+|-------------|-----------------|-------------------|
+| EAS Build native image | Assuming EAS build-image Node version matches local dev machine | Read the actual build image's Node version from real build logs and pin `eas.json`'s `node` field + `.nvmrc` to match exactly |
+| Apple App Store Connect asset validation | Trusting local `validate-brand.ts` pass as sufficient proof assets will pass Apple's own ingestion validation | Treat local validation as necessary-but-not-sufficient; only a real `eas submit` (or at minimum a manual Transporter upload) confirms Apple-side acceptance |
+| App Store Connect privacy questionnaire | Answering based only on mobile client code, ignoring backend persistence/logging behavior | Cross-check answers against the sibling `portuguese-verb-api` repo's actual data retention for both feedback endpoints |
+| iOS icon/launch-screen caching | Treating a stale on-device icon after a real asset change as a build-pipeline bug | Delete-and-reinstall (not update-in-place) plus a device restart before concluding the pipeline is broken |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-------------------|
-| Cold Render backend on tester's very first open | Tester perceives app as broken/slow before ever seeing a quiz | Re-verify the zero-blocking fallback UX specifically against a cold instance, and warm the backend before sending invites |
-| Generic/default splash screen background left mismatched against the new Lafa icon | Jarring first-launch visual (icon looks branded, splash looks like the old blue default) | Milestone plan already flags this ("splash updated if needed") — explicitly do a real-device visual QA pass on the splash+icon combo together, not icon alone |
+| Pressed-state color visually reads as "wrong answer" on an unanswered choice (the exact bug this milestone is fixing) | Learner briefly thinks they got it wrong before feedback is even locked in, undermining trust in the scoring feedback | Use a clearly neutral, warm-toned pressed color (`#E7DFDA` per this milestone's plan) visually distinct from both `error`/`success`, and disable further press-visual response once a choice is locked |
+| Homepage lockup image fails to scale gracefully across device widths (new responsive image replacing plain `Text` title) | Cropped/distorted brand image on smaller iPhone SE-class screens | Verify the lockup image component on the smallest supported device width during human-verify, not just a modern large-screen simulator |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Icon regenerated:** Verify with an actual alpha-channel check (`sips -g hasAlpha <file>` or ImageMagick), not just "looks opaque visually" — both `assets/images/icon.png` and the `ios.icon` asset.
-- [ ] **`eas.json` submit profile:** Verify `ascAppId`, `appleTeamId`, and `appleId` are actually populated (not left as placeholders per the milestone's "submit profile placeholder" phrasing) before the real submit attempt — a placeholder that silently works via interactive prompts today can still fail non-interactively in CI later.
-- [ ] **Bundle identifier consistency:** Confirm the same exact string (`com.avram.aruh.lafa`) appears in `app.json`'s `ios.bundleIdentifier`, the Apple Developer portal App ID, and the App Store Connect app record — a byte-for-byte match, not "looks the same."
-- [ ] **Backend preflight:** Confirm the preflight check was run against a cold (>15 min idle) instance at least once, not only immediately after a prior warm request during development.
-- [ ] **Export compliance:** Confirm `ITSAppUsesNonExemptEncryption` is set (or the App Store Connect prompt was explicitly answered) — a build can be fully "submitted" and still be undistributable to external testers without this.
+- [ ] **App icon regeneration:** Passing `scripts/validate-brand.ts` locally is not the same as passing Apple's asset-catalog validation — verify with a real `eas build`/`eas submit` cycle, not just the local script.
+- [ ] **Node version pin:** Adding `.nvmrc` alone is not the same as fixing the drift — the field EAS Build actually reads is `eas.json`'s build-profile `node` field; verify all three locations (`.nvmrc`, `package.json engines`, `eas.json`) agree with the real build image.
+- [ ] **Pressed-state color fix:** Adding the `choicePressed` token to `tokens.ts` (and its palette-completeness test) is not the same as fixing the precedence bug — verify locked-answer states still win over press states with an explicit behavioral test or a disabled-after-lock check.
+- [ ] **Screenshots:** Uploaded screenshots existing in App Store Connect is not the same as them reflecting the shipped build — recapture after all brand/color changes in this milestone are verified on a real build, not earlier in the milestone.
+- [ ] **Privacy nutrition label:** Submitted answers existing is not the same as them being accurate — answers must reflect actual backend persistence of both `/feedback` and `/product-feedback` free-text payloads, not just "no accounts, so no data."
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|-----------------|------------------|
-| Icon rejected for alpha channel after submit | LOW | Re-export icon without alpha, bump `ios.buildNumber`, rebuild + resubmit — no credential/identity impact |
-| Bundle identifier mismatch discovered after first build | MEDIUM | If no App Store Connect record/credentials committed yet, simply correct `app.json` and rebuild; if EAS already created credentials under the wrong id, may need `eas credentials` cleanup before retrying |
-| Slug/EAS project id mismatch | LOW-MEDIUM | Either revert slug to match the existing project id, or accept a fresh EAS project link (re-run `eas init`) — no App Store impact since this is EAS-internal, not Apple-internal |
-| Missing export compliance blocking distribution | LOW | Set the `Info.plist` key or answer the App Store Connect prompt directly on the existing build — no rebuild needed if answered in ASC UI |
-| Cold backend surprises first-wave testers | LOW | Warm the instance, re-send/remind testers; no code or build change needed — purely an operational/timing fix |
+| 4th lockfile drift discovered mid-EAS-build | LOW | Regenerate `package-lock.json` under the correct pinned Node version, re-push, re-run build — same fix as the prior three times, just costs a build cycle |
+| Icon rejected by Apple for alpha channel at submission time | LOW-MEDIUM | Re-run the generator's flatten/strip-alpha step, re-validate with `sips`/ImageMagick, produce a new build, re-submit — costs a build+submit cycle but no code redesign |
+| Pressed-state precedence bug found in App Review or post-ship | MEDIUM | Requires a genuine logic fix (not just a token tweak) plus a new build/submit cycle; better to catch via the unit test before submission |
+| Privacy label found inaccurate after submission | LOW | Privacy answers can be updated in App Store Connect at any time without a new app binary submission |
+| Screenshots stale after later milestone changes | LOW | Screenshots can be replaced in App Store Connect independently of a binary rebuild, at any time before/after release |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
-|---------|--------------------|----------------|
-| Icon alpha channel rejection | Icon/asset generation phase | Programmatic alpha check on both icon assets + one throwaway EAS build/submit cycle before final |
-| Bundle id / credential mismatch | Release identity + EAS config phase | `eas credentials` inspection + manual App Store Connect record cross-check before first real submit |
-| Slug/EAS project id drift | Release identity phase | `eas project:info` confirms expected project/slug pairing before first build |
-| Missing export compliance | EAS build config phase | `Info.plist` key present, or App Store Connect "Missing Compliance" banner absent after first successful submit |
-| expo-doctor / native build drift | First phase of the milestone (before icon/eas.json work) | Clean `npx expo-doctor` run + one throwaway `eas build --profile production --clear-cache` completing successfully |
-| Render cold-start first-impression risk | Live backend preflight phase | Preflight explicitly re-run against a deliberately cold (idle >15 min) instance, plus an operator runbook note about warming before invites |
+|---------|-------------------|----------------|
+| 4th Node/lockfile drift recurrence | Early phase, before any dependency-touching brand-generator work | `eas.json` `node` field + `.nvmrc` + `package.json engines` all agree with the real EAS build image's Node version; a real `eas build` succeeds from a freshly-cloned checkout |
+| Icon alpha-channel regression from generator refactor | Brand-asset regeneration phase | `scripts/validate-brand.ts` alpha-channel check passes AND a real `eas build`+`eas submit` (or manual Transporter check) confirms Apple-side acceptance |
+| Stale on-device icon misread as a bug | Brand-asset visual sign-off step | Delete-and-reinstall verification protocol explicitly followed and documented in that phase's human-verify notes |
+| Pressed-state color precedence bug | Quiz press-state color-fix phase | A behavioral test (or disabled-after-lock check) proving locked success/error states beat the new `choicePressed` token in all combinations |
+| Stale/wrong-size/alpha-bearing screenshots | App Store Connect readiness phase, sequenced last | Screenshots captured from the final verified build, at Apple's currently-required pixel dimensions, with no alpha channel |
+| Inaccurate privacy nutrition label | App Store Connect readiness phase | Answers cross-checked directly against both feedback endpoints' actual payload/retention behavior, not filled from memory |
 
 ## Sources
 
-- [expo/eas-cli#2858 — Testflight Group auto-creating](https://github.com/expo/eas-cli/issues/2858)
-- [Expo Docs — EAS Documentation](https://docs.expo.dev/llms-eas.txt)
-- [Expo Docs — Submit to app stores](https://docs.expo.dev/submit/introduction/)
-- [Expo Docs — Submit to the Apple App Store with EAS Submit](https://docs.expo.dev/submit/ios/)
-- [expo/eas-cli#2911 — EAS Submit reads too much info from local project folder expo config file](https://github.com/expo/eas-cli/issues/2911)
-- [Apple Developer Forums — Bundle identifier error when running EAS build](https://developer.apple.com/forums/thread/720459)
-- [Apple Developer Forums — Failed to register bundle identifier](https://developer.apple.com/forums/thread/717807)
-- [expo/eas-cli#2084 — extra.eas.projectId missing/present mismatch](https://github.com/expo/eas-cli/issues/2084)
-- [expo/eas-cli#1530 — Wrong app slug read from expo config](https://github.com/expo/eas-cli/issues/1530)
-- [expo/expo#3693 — App Store Icon can't be transparent or contain alpha channel](https://github.com/expo/expo/issues/3693)
-- [expo/expo#1086 — ITMS-90717 Invalid App Store Icon alpha channel](https://github.com/expo/expo/issues/1086)
-- [Apple Developer Forums — App Store Connect Upload Fails with Icon Alpha Channel Error](https://developer.apple.com/forums/thread/794410)
-- [Apple Developer Help — Determine and upload export compliance documentation](https://developer.apple.com/help/app-store-connect/manage-app-information/determine-and-upload-export-compliance-documentation/)
-- [DEV Community — Solution to fix the "Missing Compliance" Warning at App Store Connect](https://dev.to/surhidamatya/solution-to-fix-the-missing-compliance-warning-at-app-store-connect-1kb6)
-- [Expo Docs — Troubleshoot build errors and crashes](https://docs.expo.dev/build-reference/troubleshooting/)
-- [ShipNative — Expo EAS App Store Submission 12-Step Checklist](https://www.shipnative.dev/blog/expo-eas-app-store-submission-checklist)
-- [GitHub Community Discussion — Render service goes to sleep after inactivity](https://github.com/orgs/community/discussions/197645)
-- [blog.samkiel.dev — Your Render Free Tier Is Not Broken, It's Just Cold](https://blog.samkiel.dev/your-render-free-tier-is-not-broken-its-just-cold)
-- Project-internal: `.planning/PROJECT.md` (Phase 6 cold-start verification: 45-50s), `.planning/codebase/ARCHITECTURE.md` (zero-blocking fetch/fallback contract), `app.json` (current icon/scheme/slug config, no `ios.bundleIdentifier` currently set)
+- [ERROR ITMS-90717: "Invalid App Store Icon" — expo/expo#1086](https://github.com/expo/expo/issues/1086)
+- [ITMS-90717 fix discussion — Medium](https://medium.com/@barretopetros/error-itms-90717-invalid-app-store-icon-df2216956d32)
+- [Configure EAS Build with eas.json — Expo Documentation](https://docs.expo.dev/build/eas-json/) (build-profile `node` field)
+- [App icon incorrect in TestFlight — expo/expo#11925](https://github.com/expo/expo/issues/11925)
+- [iOS: Why Old Launch Screen & App Icon Persist After TestFlight Update](https://www.codestudy.net/blog/ios-keeping-old-launch-screen-and-app-icon-after-update/)
+- [App Store Screenshot Sizes & Guidelines 2026 — MobileAction](https://www.mobileaction.co/guide/app-screenshot-sizes-and-guidelines-for-the-app-store/)
+- [App Store Rejection Reasons in 2026 — QAwerk](https://qawerk.com/blog/app-store-rejection-reasons/)
+- [Why Apps Get Rejected by the App Store in 2026 — Syngrid](https://syngrid.com/why-apps-get-rejected-by-the-app-store-in-2026/)
+- [App Privacy Details (Nutrition Labels) — Apple Developer](https://developer.apple.com/app-store/app-privacy-details/)
+- [Submitting App Privacy Details to the App Store — Singular Help Center](https://support.singular.net/hc/en-us/articles/360053160271-Submitting-App-Privacy-Details-Nutrition-Labels-to-the-App-Store)
+- [React Native `Pressable` docs](https://reactnative.dev/docs/pressable) (pressed-state callback semantics)
+- This repo's own incident history: `.planning/PROJECT.md` Key Decisions table (Phase 20/24/29 lockfile drift, Phase 20/21/24 slug/identity resolution, v0.6 alpha-channel/pressed-state precedent)
 
 ---
-*Pitfalls research for: First-time iOS EAS Build + EAS Submit + TestFlight release, managed Expo SDK ~57*
-*Researched: 2026-07-22*
+*Pitfalls research for: adding brand-asset finalization + press-state color fix + first full App Store submission to an existing shipped Expo/EAS app*
+*Researched: 2026-08-16*

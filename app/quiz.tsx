@@ -5,6 +5,7 @@ import { Stack, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuizStore } from "../src/store/useQuizStore";
 import { subjectLabels, tenseLabels, tenseGrammarNames } from "../src/quiz/labels";
+import { resolveChoiceStyle } from "../src/quiz/choiceStyle";
 import { ReportFeedbackModal } from "../src/feedback/ReportFeedbackModal";
 import { ProductFeedbackModal } from "../src/productFeedback/ProductFeedbackModal";
 import { colors, spacing, radius, typography } from "../src/theme/tokens";
@@ -79,24 +80,6 @@ export default function Quiz() {
     }
   }
 
-  function choiceStyle(choice: string, correctAnswer: string) {
-    if (lockedChoice === null) {
-      return { container: styles.choiceDefault, text: styles.choiceTextDefault };
-    }
-    const isSelected = choice === lockedChoice;
-    const isCorrect = choice === correctAnswer;
-    if (isSelected && isCorrect) {
-      return { container: styles.choiceCorrect, text: styles.choiceTextOnColor };
-    }
-    if (isSelected && !isCorrect) {
-      return { container: styles.choiceWrong, text: styles.choiceTextOnColor };
-    }
-    if (!isSelected && isCorrect && lockedChoice !== correctAnswer) {
-      return { container: styles.choiceCorrect, text: styles.choiceTextOnColor };
-    }
-    return { container: styles.choiceDefault, text: styles.choiceTextDefault };
-  }
-
   return (
     <>
       <Stack.Screen
@@ -137,14 +120,24 @@ export default function Quiz() {
 
         <View style={styles.choices}>
           {question.choices.map((choice) => {
-            const style = choiceStyle(choice, question.correctAnswer);
+            const base = resolveChoiceStyle(choice, question.correctAnswer, lockedChoice, false);
             return (
               <Pressable
                 key={choice}
                 onPress={() => selectAnswer(choice)}
-                style={[styles.choice, style.container]}
+                style={({ pressed }) => [
+                  styles.choice,
+                  {
+                    backgroundColor: resolveChoiceStyle(
+                      choice,
+                      question.correctAnswer,
+                      lockedChoice,
+                      pressed,
+                    ).backgroundColor,
+                  },
+                ]}
               >
-                <Text style={[styles.choiceText, style.text]}>{choice}</Text>
+                <Text style={[styles.choiceText, { color: base.textColor }]}>{choice}</Text>
               </Pressable>
             );
           })}
@@ -154,7 +147,11 @@ export default function Quiz() {
 
         <Pressable
           onPress={handleAdvance}
-          style={[styles.nextButton, lockedChoice === null && styles.nextButtonHidden]}
+          style={({ pressed }) => [
+            styles.nextButton,
+            lockedChoice === null && styles.nextButtonHidden,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
           pointerEvents={lockedChoice === null ? "none" : "auto"}
         >
           <Text style={styles.nextButtonText}>Next</Text>
@@ -256,23 +253,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.control,
     backgroundColor: colors.surface,
   },
-  choiceDefault: {
-    backgroundColor: colors.surface,
-  },
-  choiceCorrect: {
-    backgroundColor: colors.success,
-  },
-  choiceWrong: {
-    backgroundColor: colors.error,
-  },
   choiceText: {
     ...typography.body,
-  },
-  choiceTextDefault: {
-    color: colors.text,
-  },
-  choiceTextOnColor: {
-    color: colors.background,
   },
   nextButton: {
     minHeight: 44,

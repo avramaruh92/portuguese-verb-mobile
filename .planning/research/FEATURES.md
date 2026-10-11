@@ -1,154 +1,149 @@
 # Feature Research
 
-**Domain:** iOS release engineering — first TestFlight build for a managed Expo Router app
-**Researched:** 2026-07-22
-**Confidence:** HIGH (Expo official docs + Apple developer docs; verified against `app.json`/`CLAUDE.md` current state)
-
-> Note: this file replaces the v0.1-era FEATURES.md (online content fetch, end-quiz-early, UI
-> polish competitor research) with research scoped to the v0.5 milestone: getting the first
-> TestFlight build out for `portuguese-verb-mobile` (Lafa). That prior research is superseded,
-> not merged — it documented a different domain (in-app UX) for a shipped, closed milestone.
+**Domain:** Apple App Store Connect submission readiness for a small, no-login, no-analytics Expo/RN education app (going from internal TestFlight to public App Store release)
+**Researched:** 2026-08-16
+**Confidence:** MEDIUM (Apple's process is well-documented but the specific 2026 age-rating/SDK deadline changes are recent and should be spot-checked live in App Store Connect at execution time)
 
 ## Feature Landscape
 
-### Table Stakes (Users Expect These — "Users" Here Are Testers/Apple Review)
-
-Steps that are non-negotiable to get any build into TestFlight at all. Skipping any one of these blocks the whole pipeline, not just a nice-to-have.
+### Table Stakes (Apple Requires These — Non-Negotiable for Submission)
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Apple Developer Program membership (paid, $99/yr) | Apple hard-requires this before any App Store Connect record or `eas submit` can succeed | LOW (external dependency, not code) | Confirmed already held by the user per `.planning/PROJECT.md` ("Operator has Apple Developer access"). Blocks everything downstream if missing/expired. |
-| App Store Connect app record created (bundle ID registered, app name reserved) | `eas submit` needs an existing ASC app to attach the build to — it does not auto-create one from a bare bundle ID in most flows | LOW-MED (manual, one-time, done in App Store Connect UI, not code) | Must exist **before** the first `eas submit --platform ios`. User will create/approve this per PROJECT.md context. Bundle ID `com.avram.aruh.lafa` must be registered here (and in Apple's identifier registry) and match `app.json`'s `ios.bundleIdentifier` exactly. |
-| `ios.bundleIdentifier` set in `app.json` | EAS Build/Submit require a concrete bundle identifier; current `app.json` has no `ios.bundleIdentifier` key at all (only `ios.icon`) | LOW | Direct gap found in the repo's current `app.json` — must be added as `com.avram.aruh.lafa` per milestone scope. |
-| 1024x1024 opaque (no alpha channel) app icon, square, no transparency | Apple App Store rejects/mishandles icons with alpha channel or non-1024 marketing icon; EAS Build generates all other sizes from this single source | LOW-MED | Current `app.json` points `expo.icon` at `./assets/images/icon.png` and additionally sets `ios.icon` to `./assets/expo.icon` (a separate, iOS-only icon path introduced by Expo SDK 57's newer icon system) — verify which one actually governs the produced App Store icon before assuming a single swap fixes it. Source is `assets/brand/lafa-logo-v2.svg`; must be exported at 1024x1024 PNG, flattened (no alpha), mark-only version. |
-| `eas.json` with a build profile (e.g. `production`) targeting iOS | `eas build` requires a named profile even for a single build; no profile file at all blocks CLI use entirely | LOW | Repo currently has no `eas.json` at all — confirmed not present. Minimal valid shape is `{ "build": { "production": {} } }`; iOS-specific fields (`autoIncrement`, `credentialsSource`) layer on top. |
-| `eas.json` submit profile (`submit.production.ios`) with `ascAppId` | `eas submit` needs to know which App Store Connect app record to attach the build to; without `ascAppId` it prompts interactively every time (workable for a one-off first submit, brittle for repeatability) | LOW | `ascAppId` is the numeric Apple ID found in ASC → App Information, added after the app record exists (hard dependency ordering: ASC record → copy ID → eas.json). |
-| EAS-managed (remote) iOS credentials — distribution certificate + provisioning profile | Apple requires a valid signing identity + provisioning profile for any TestFlight build; EAS can generate/manage these automatically via `eas credentials`, avoiding manual Apple portal work | MEDIUM (mostly automated, but requires an interactive `eas login`/`eas credentials` pass tied to the Apple Developer account) | Milestone scope explicitly calls for "EAS-managed Apple credentials" — this is the standard path for teams without an existing fastlane match repo, which this project doesn't have. |
-| Build number bump (`ios.buildNumber`) distinct from `version` | Apple requires every new binary uploaded to a given App Store Connect app to have a strictly increasing build number even when `version` (e.g. `1.0.0`) stays the same; a duplicate/lower build number is rejected outright by App Store Connect at upload time | LOW | Milestone scope: build number `1`, version stays `1.0.0` — correct for a genuinely first upload. For any *second* TestFlight build later, this must increment (see Dependency Notes below — `appVersionSource: "remote"` + `autoIncrement: true` handles this automatically going forward, or it must be bumped by hand each time). |
-| `npm run lint` and `npm run typecheck` passing before a release build | A release/production build is the wrong place to discover lint/type errors that were previously tolerated in dev; this milestone explicitly calls out 2 known lint failures blocking release | LOW-MED (fix is scoped: `ReportFeedbackModal.tsx` + `ProductFeedbackModal.tsx` modal-reset effect warnings) | Already identified in PROJECT.md milestone scope — no new discovery needed, just execution. Not enforced by EAS itself (EAS Build does not run `lint`/`typecheck` by default), so this is a manual gate the team must run before triggering `eas build`. |
-| `ITSAppUsesNonExemptEncryption` compliance answer | Every App Store Connect build requires an export-compliance answer before it's usable in TestFlight; Apple blocks tester distribution until this is set (either via Info.plist key or answered manually in ASC per build) | LOW | This app uses only standard HTTPS (`fetch` to a Render-hosted backend) — qualifies for the "exempt encryption" answer. EAS's interactive build/submit flow (or `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` in `app.json`) should set this proactively so it doesn't stall the first TestFlight availability after upload. Not mentioned in the milestone scope bullet list — flag as a likely-missed step. |
-| Live-backend smoke check before tester invites | Testers hitting a cold/broken Render backend on first launch would see failures unrelated to any mobile code, poisoning the first impression of the TestFlight build | LOW (no code — a manual/scripted curl pass) | Explicitly in milestone scope: `GET /health`, `GET /content/verbs`, `POST /feedback`, `POST /product-feedback`. This is a pre-invite gate, not a build-time gate — must run against the deployed build's actual target URLs, not local dev. |
-| Internal TestFlight testers added (up to 100, no Apple review) | Fastest path to get the first build in front of real testers — internal testing has **zero** Apple Beta App Review delay, unlike external testing | LOW (manual, ASC UI — add App Store Connect Users and Roles as internal testers) | Not explicit in milestone scope's bullet list, but implied by "TestFlight for external testers" framing — worth clarifying: if "external testers" means people outside the Apple Developer team roster, that specific path requires a first-time Beta App Review (~24-48h) before those testers can install; internal testers (team members) skip review entirely. This distinction changes the realistic timeline and should be surfaced to the user before setting expectations for "first testers see the build." |
+| App Store Connect listing metadata: name, subtitle (30 char), promotional text, description, keywords (100 char, comma-separated) | Apple rejects/blocks submission without a complete listing; keywords drive ASO discoverability | LOW | Pure copywriting — no code changes. Lafa's name is already locked (`app.json` `expo.name: "Lafa"`); subtitle/keywords/description are net-new copy work, not implementation |
+| Primary category (+ optional secondary) | Required field, affects where app surfaces in Store browsing/charts | LOW | "Education" is the obvious primary category for a verb-conjugation quiz app; "Reference" or a language-specific secondary category could be considered but is optional |
+| Support URL (must be a live, reachable page) | Apple validates the URL resolves; users need a way to reach the developer | LOW-MEDIUM | No existing marketing site in this repo — needs a minimal static page (could be a single GitHub Pages / Vercel page, or even a simple hosted markdown-to-HTML page) with contact info or a form. This is new infrastructure, not just copy |
+| Privacy Policy URL (must be live and accurate) | Legally required by Apple for every app, regardless of data collected; must match the App Privacy label answers | LOW-MEDIUM | Same infra gap as Support URL — needs a real hosted page. Content itself is simple given the app's minimal data footprint (no accounts, only free-text feedback submitted to the backend) but still needs drafting + hosting |
+| App Privacy "nutrition label" questionnaire (App Store Connect → App Privacy section) | Mandatory per-app declaration of what data types are collected/linked/used to track; must be re-attested on every listing/major update | LOW-MEDIUM | For this app the honest answer set is narrow: the only data leaving the device is free-text feedback content (`message` field on both `POST /feedback` and `POST /product-feedback`) plus contextual quiz metadata (verb/tense/subject/answers) — this is "User Content" (or "Other User Content"), not linked to an identity, not used for tracking, no third-party SDKs collect anything. Likely resolves to "Data Not Linked to You" for the feedback text, or possibly "Data Not Collected" if the team decides feedback text doesn't count as identifying — needs a deliberate per-field walk-through, not a rubber-stamp "No data collected" |
+| Age rating questionnaire (Apple's 2026-overhauled system: 4+, 9+, 13+, 16+, 18+ — replaces the old 12+/17+ tiers) | Mandatory; blocks submission if incomplete (Apple enforced completion for all developers by 2026-01-31) | LOW | For a verb-quiz education app with no user-generated public content, no ads, no web browser access, this should land at 4+. Must walk the actual questionnaire (now includes new mandatory questions on in-app controls/capabilities) rather than assuming the old rating carries over |
+| iPhone screenshots (2026 minimum: one 6.9-inch iPhone set, 1320×2868px, up to 10 images) | Apple requires at least one device-size screenshot set before submission is possible | MEDIUM | No existing screenshot pipeline in this repo (`eas.json`/EAS Submit does **not** generate or upload screenshots — confirmed: EAS Submit only uploads the binary). Needs a manual or lightly-scripted capture pass (Simulator screenshots of the 3 branded screens: Setup, Quiz, Results) sized/cropped to Apple's exact pixel dimensions, alpha-free. 1-10 images requested by the milestone; 3-5 covering the core loop is likely sufficient for a first release |
+| iPad screenshots — conditionally required | Only required if the app is marked as supporting iPad (`ios.supportsTablet`) | LOW (if avoidable) | **Verify `app.json`'s `ios.supportsTablet` setting first** — it is currently absent from `app.json`, and Expo's default is `false` (iPhone-only) as of recent SDKs, which would make iPad screenshots unnecessary. If it resolves to iPad-supporting, budget for a second screenshot set at iPad Pro 13" dimensions (2064×2752px) |
+| App Review "Notes" field | Not strictly required by Apple, but strongly reduces review friction/rejection risk for atypical apps (no login, free content) | LOW | Should explicitly state: no account/login exists by design, all content is immediately accessible with no gating, the only network calls are quiz-content fetch (`GET /content/verbs`, silently falls back to bundled data) and two feedback-submission POSTs — pre-empts a reviewer flagging "can't find how to sign in" or assuming a hidden paywall |
+| Export compliance declaration | Already answered in `app.json` (`ITSAppUsesNonExemptEncryption: false`) — re-confirmed at each submission | LOW | Already locked from v0.5; no new work, just re-verify it still holds (no new crypto usage added by v1.0's scope) |
+| Production build via `eas build --profile production` + `eas submit` | Only path from source to a reviewable App Store Connect build | LOW-MEDIUM | Direct reuse of the v0.5-proven pipeline (`eas.json` production profile, `ascAppId` already set) — this milestone's risk here is low since the pipeline already succeeded once for TestFlight; the delta is submitting *for App Review* rather than internal TestFlight-only, and manually flipping the build for public release in App Store Connect once approved |
+| Version/build number bump for the new submission | Apple requires a build number higher than any previously uploaded build for the same version | LOW | `eas.json`'s `autoIncrement: true` on the production profile already handles this automatically; `app.json` `version` may need a bump to `1.0.0`→ confirm it's still first-release-appropriate (it already reads `1.0.0`) |
 
-### Differentiators (Nice-to-Haves for a Smoother Repeat-Release Process)
-
-Not required to get the *first* build into TestFlight, but meaningfully reduce friction for build #2 onward. Reasonable to scope in if cheap, otherwise defer.
+### Differentiators (Worth Doing Well, Not Strictly Required)
 
 | Feature | Value Proposition | Complexity | Notes |
-|---------|--------------------|------------|-------|
-| `appVersionSource: "remote"` + `autoIncrement: true` in `eas.json` | Removes the manual "did I bump the build number" failure mode for every subsequent release build — EAS tracks and increments it server-side | LOW | Cheap to set up now even though it only pays off starting with build #2; recommended to include in this milestone's `eas.json` rather than deferred, since it's a few lines and prevents a very common, easy-to-forget mistake later. |
-| EAS internal-distribution / preview build profile alongside `production` | Lets the team sideload an ad-hoc build to a personal device for a final on-device sanity check before spending a TestFlight upload slot | LOW-MED | Genuinely useful given this project's stated pattern of "human-verify on a real device" at nearly every past milestone (see `.planning/PROJECT.md` decision log) — but adds a second profile to configure/maintain. Reasonable differentiator, not required for TestFlight itself. |
-| `eas build:configure` scaffolding instead of hand-writing `eas.json` | Generates a known-good default `eas.json` (development/preview/production) and wires `expo-dev-client` where relevant, reducing hand-authoring mistakes | LOW | Faster/safer starting point than writing `eas.json` from scratch, but the milestone's actual need (one production profile + one submit profile) is small enough that hand-authoring is also fine. |
-| `.eas/workflows/submit-ios.yml` automated build+submit-on-push workflow | Removes the manual `eas build` → wait → `eas submit` two-step dance for future releases | MEDIUM | Explicitly out of scope for a *first* release — this is CI/CD maturity, not a release-readiness blocker. Flag as a natural v0.6+ candidate once the manual flow is proven once. |
-| Splash screen re-export to match the new icon/brand exactly | Visual polish/consistency between icon and splash on the lock/launch screen | LOW | Milestone scope already flags this as conditional ("splash updated if needed... unless visual QA rejects it") — correctly scoped as an if-needed item, not a hard requirement. |
+|---------|-------------------|------------|-------|
+| Warm Bold Mark brand asset finalization (icon + homepage lockup) as the canonical source | A cohesive, polished icon + in-app lockup meaningfully affects App Store conversion (icon is the first thing a browsing user sees) and in-app first impression | MEDIUM | Already scoped in this milestone: promote `assets/brand/candidates/lafa-icon-warm-bold.svg` to canonical, rewrite `scripts/generate-brand-assets.ts` to use stable SVG layer ids (replacing brittle fill-count parsing — a real robustness improvement, not just cosmetic), and add the new `lafa-homepage-lockup.svg` → PNG generation target |
+| Screenshot captions/marketing treatment (not just raw simulator captures) | Apple Store screenshots with captions/context convert meaningfully better than bare screenshots, per general ASO guidance | LOW-MEDIUM | Given the milestone's stated scope (1-10 "alpha-free" screenshots, not "designed marketing screenshots"), plain captioned device-frame screenshots are proportionate; a full Fastlane `frameit` + branded-background pipeline is likely over-engineering for a first release with no growth/marketing budget behind it |
+| `choicePressed` quiz-answer press-state color fix | Fixes a real (if minor) UX misread — users could interpret the pressed-but-unsubmitted state as "wrong answer" | LOW | Small, isolated token addition (`colors.choicePressed = "#E7DFDA"`) scoped only to quiz answer options; low risk given the codebase's existing token-driven styling convention |
+| `validate-brand.ts` extended to cover the new warm-source + homepage lockup outputs | Keeps the existing regression-gate pattern (established v0.6) consistent as new asset outputs are added | LOW-MEDIUM | Direct extension of an existing, proven script — same shape as prior checks (dimensions, alpha, forbidden hex, generator hygiene) |
 
-### Anti-Features (Things That Seem Necessary for "Release Readiness" But Aren't, for This Milestone)
+### Anti-Features (Would Add Scope Without Real Value Here)
 
-| Feature | Why Requested | Why Problematic (For This Milestone) | Alternative |
-|---------|---------------|----------------------------------------|-------------|
-| Local (fastlane match / manual `.p12`+`.mobileprovision`) credential management | Feels more "production-grade" / gives full control over signing identity | Adds real complexity (managing a private Git repo for certs, fastlane setup) that this project has no existing infrastructure for and the milestone scope explicitly says "EAS-managed Apple credentials" | Use EAS-managed (remote) credentials — `eas credentials` — exactly as scoped; revisit local credential management only if the team later needs CI outside EAS or multi-team signing coordination |
-| Full App Store public listing (screenshots, description, keywords, privacy nutrition label, App Review submission for production release) | "Release readiness" sounds like it should mean store-ready | This milestone targets **TestFlight only**, not a public App Store release — a full store listing is unnecessary work with no tester-facing benefit at this stage, and premature per PROJECT.md ("First distribution target is TestFlight, not a public App Store release") | Do the minimum App Store Connect app record needed to attach a TestFlight build (name, bundle ID, primary language, SKU) — defer screenshots/description/privacy nutrition label to whenever an actual public release milestone happens |
-| Android build/Play Console setup alongside the iOS work | Symmetry/completeness instinct — "release readiness" sounds like it should cover both platforms | Explicitly out of scope per PROJECT.md ("no Android build/release effort in this milestone"); would double the credential/store-account surface area for no tester value this cycle | Keep the `platform: ios \| android` enum compatible in code (already true) but do zero Android release infra work this milestone |
-| Push notification capability/entitlement setup | Common "while we're doing release config, let's also wire push" scope creep | App has no push notification feature at all; adding the capability/entitlement without a feature behind it is pure unused surface area and an extra thing Apple/EAS credentials must account for | Skip entirely; add only if/when a push-notification feature is actually scoped |
-| CI/CD pipeline (GitHub Actions triggering EAS builds automatically) | Feels like "doing it right" from day one | Unnecessary process overhead for getting *one* first build out; the milestone is about proving the manual path works at all | Ship the first build via manual `eas build` + `eas submit` from a local machine; automate later once the manual flow is validated at least once |
-| Renaming/changing the bundle identifier after the App Store Connect record is created | "Just in case" — teams sometimes want to tweak the bundle ID mid-setup | Bundle identifiers are effectively permanent once an ASC app record + provisioning profile are tied to them; changing later means creating an entirely new app record and losing any TestFlight build/tester history | Lock `com.avram.aruh.lafa` before creating the ASC record and treat it as immutable going forward, exactly as the milestone scope states |
+| Feature | Why It Might Seem Needed | Why Problematic for This Milestone | Alternative |
+|---------|---------------------------|--------------------------------------|-------------|
+| Fastlane `snapshot` + `frameit` automated screenshot pipeline | "Automate everything" instinct; common in larger app teams | Real setup/maintenance cost (Ruby toolchain, Fastfile, Framefile.json, simulator automation) for a 1-3 screen app that will rarely need re-shooting; the milestone only needs 1-10 static screenshots once | Manual/lightly-scripted Simulator screenshot capture (`xcrun simctl` or Expo's `expo run:ios` on a fixed device + manual crop/export) — one-time effort, revisit only if screenshots need frequent refreshes later |
+| Full marketing website / blog for support+privacy URLs | Feels like "doing it properly" | Disproportionate to a free, no-account education app; a marketing site is a whole separate project | A single static page (even a GitHub Pages markdown render or a one-file Vercel/Netlify deploy) satisfying both the Support URL and Privacy Policy URL requirements is sufficient and matches the app's minimal-infrastructure philosophy elsewhere (no backend DB access, no auth) |
+| External TestFlight Beta App Review before public submission | Feels like a safer staged rollout | Explicitly deferred in v0.5's Out of Scope with the same rationale (~24-48h extra review delay, unpredictable timeline) — re-litigating this now would reopen a decision already made twice | Go straight from internal-only TestFlight (already proven in v0.5) to the real public App Review submission; the milestone's own scope statement confirms this ("not just TestFlight") |
+| iPad-optimized layouts/screenshots | "Might as well support iPad since Expo makes it easy" | Adds a whole additional QA/screenshot surface for a milestone that's explicitly about brand polish + submission, not new platform support; app has never been iPad-tested | Confirm/lock `ios.supportsTablet: false` explicitly in `app.json` (currently unset/ambiguous) so Apple's screenshot requirements and review scope stay iPhone-only, matching "iOS-first" framing in CLAUDE.md |
+| Collecting analytics/crash reporting SDK ahead of submission "to see how the launch goes" | Reasonable growth instinct | Would immediately complicate the privacy nutrition label (introduces "Data Linked to You" / tracking questions), directly contradicts the existing "no analytics SDKs, no ads, no tracking" premise this milestone's research question explicitly assumes, and is out of scope for a brand+submission milestone | Ship with the current zero-analytics footprint; revisit analytics as an explicit, separately-scoped future milestone decision if the team wants launch metrics |
 
 ## Feature Dependencies
 
 ```
-Apple Developer Program membership (external, already held)
-    └──requires (before)──> App Store Connect app record created
-                                 └──requires (before)──> ascAppId known
-                                                              └──requires (before)──> eas.json submit.production.ios.ascAppId set
-                                                                                           └──requires (before)──> eas submit succeeds
+Warm Bold Mark canonical source (SVG, stable layer ids)
+    └──requires──> updated scripts/generate-brand-assets.ts
+                       └──produces──> icon.png, splash icon, favicon, Android foreground/monochrome, homepage lockup PNG
+                                          └──enables──> App Store icon upload (App Store Connect requires the same production icon)
+                                          └──enables──> Homepage lockup UI swap (app/index.tsx Text → Image)
+                                          └──enables──> Accurate, branded App Store screenshots (screenshots should reflect the *final* brand, not pre-v1.0 assets)
 
-ios.bundleIdentifier set in app.json
-    └──requires (before)──> App Store Connect app record created (bundle ID must be registered first/matching)
-    └──requires (before)──> eas build --platform ios succeeds (bundle ID must resolve to a signing identity)
+scripts/validate-brand.ts extension
+    └──requires──> Warm Bold Mark generator changes landing FIRST (validator checks generator output)
 
-1024x1024 opaque icon exported from lafa-logo-v2.svg
-    └──requires (before)──> eas build (icon is baked into the binary at build time, not swappable post-build)
+App Store Connect metadata (description/keywords/category/support+privacy URLs/age rating/privacy label)
+    └──independent of──> brand asset work (can be done in parallel)
+    └──requires──> Support URL + Privacy Policy URL hosting (new, small infra dependency — must exist BEFORE App Store Connect submission, Apple validates the URLs resolve)
 
-eas.json build.production profile (iOS)
-    └──requires (before)──> EAS-managed credentials configured (eas credentials)
-                                 └──requires (before)──> eas build --platform ios --profile production succeeds
-                                                              └──requires (before)──> eas submit --platform ios succeeds
-                                                                                           └──requires (before)──> build appears in TestFlight (10-15 min processing)
-                                                                                                                        └──requires (before)──> internal testers can install immediately
-                                                                                                                        └──requires (before, external only)──> Apple Beta App Review (~24-48h) ──enables──> external testers can install
+Screenshots
+    └──requires──> Final branded build (icon + homepage lockup + choicePressed fix all landed) — screenshots taken from a stale pre-brand-fix build would need to be retaken
+    └──requires──> Production/preview EAS build reachable on a real device or Simulator
 
-npm run lint clean + npm run typecheck clean
-    └──enhances──> eas build reliability (not a hard EAS gate, but a project-level release-quality gate per milestone scope)
+Production EAS build + EAS Submit
+    └──requires──> app.json/eas.json unchanged from the proven v0.5 pipeline (or explicitly re-verified if touched)
+    └──requires──> All App Store Connect metadata + privacy label + age rating + screenshots complete (Apple blocks "Submit for Review" until every required field is filled)
 
-Live backend preflight (GET /health, GET /content/verbs, POST /feedback, POST /product-feedback all succeed)
-    └──requires (before)──> tester invites sent (should not precede this check)
+Public App Review submission
+    └──requires──> ALL of the above (brand assets, metadata, privacy label, age rating, screenshots, build) complete
+    └──enhances──> nothing further; this is the terminal milestone action
 ```
 
 ### Dependency Notes
 
-- **App Store Connect app record must exist before `eas submit`:** this is the single most important ordering constraint in the whole workflow — `eas build` can succeed independently (it only needs valid signing credentials + a bundle ID), but `eas submit` needs a destination ASC app to attach the binary to. Confirmed the user already plans to create this record per PROJECT.md.
-- **Bundle identifier is a hard, early, effectively-irreversible dependency:** `com.avram.aruh.lafa` must be decided and registered (both in Apple's developer portal and in ASC) before the app record is created, and matched exactly in `app.json`. Changing it later means starting over with a new ASC app record.
-- **Icon is baked at build time, not submit time:** the 1024x1024 icon change must land in `app.json`/`assets/` before the `eas build` invocation that produces the binary actually going to TestFlight — a change after building does nothing until the next build.
-- **Lint/typecheck are project-level gates, not EAS-enforced gates:** EAS Build will happily produce a binary with lint errors present; this project's milestone scope treats a clean `npm run lint`/`npm run typecheck` as a manual pre-build checklist item, not something EAS blocks automatically.
-- **Internal vs. external testers materially changes the timeline:** internal testers (Apple Developer team members, up to 100) get the build with zero review delay once TestFlight processing finishes (~10-15 min); external testers require Apple's Beta App Review (typically 24h, sometimes up to 48h) on the *first* build submitted for external testing. If the milestone's "external testers" phrasing means genuinely external people (not team members with Apple IDs on the account), this review step is an unavoidable additional dependency the roadmap should account for.
+- **Brand asset work should land before screenshots are captured.** Retaking screenshots is cheap, but capturing them against a build that still shows the plain-text homepage title or the old brand candidate would waste the screenshot effort — sequence screenshots last.
+- **Support URL / Privacy Policy URL hosting is the one genuinely new piece of infrastructure this milestone needs** (everything else is either copy, existing-pipeline reuse, or asset-generation-script extension). It has no dependency on the brand/UI work and can be built in parallel, but it gates final App Store Connect submission (Apple's URL fields are validated as reachable).
+- **The privacy nutrition label depends on an honest inventory of exactly what data crosses the wire** — this is already fully knowable from the existing codebase (`src/feedback/`, `src/productFeedback/`, `src/dataset/remote.ts`) without any new research; it's a documentation/declaration task, not an implementation task.
+- **EAS build/submit pipeline has no new dependencies** — it was proven end-to-end in v0.5. The only change in v1.0 is what gets bundled into that build (finalized brand assets, UI fix, new token) and that the resulting review status changes from "internal TestFlight" to "submitted for public App Review."
 
 ## MVP Definition
 
-### Launch With (v0.5 — this milestone)
+### Launch With (v1.0 — this milestone)
 
-- [ ] `ios.bundleIdentifier: "com.avram.aruh.lafa"` added to `app.json` — required for any EAS build/submit to resolve credentials
-- [ ] Slug/scheme updated to `lafa` per milestone scope — cosmetic but locked-in identity work, cheap to do alongside the bundle ID change
-- [ ] `ios.buildNumber: "1"`, `version` stays `"1.0.0"` — minimum viable version identity for a genuinely first upload
-- [ ] 1024x1024, alpha-free app icon generated from `assets/brand/lafa-logo-v2.svg`, wired to replace `assets/images/icon.png` (and verify/align whatever `ios.icon` → `./assets/expo.icon` is doing, since SDK 57 has two icon config paths)
-- [ ] `eas.json` created with a `production` build profile (iOS, EAS-managed credentials) and a `submit.production.ios` profile (with `ascAppId` placeholder to fill in once the ASC record exists)
-- [ ] `ITSAppUsesNonExemptEncryption: false` set (via `app.json` `ios.infoPlist` or answered in the interactive EAS/ASC flow) — standard-encryption-only app, avoids a compliance stall before testers can install
-- [ ] Fix the 2 known `npm run lint` failures in `ReportFeedbackModal.tsx`/`ProductFeedbackModal.tsx` (modal reset effects), zero behavior change
-- [ ] Live-backend preflight check (`GET /health`, `GET /content/verbs`, `POST /feedback`, `POST /product-feedback`) run and passing against the deployed Render backend, before any tester invite is sent
+- [ ] Canonical Warm Bold Mark SVG + regenerated icon/splash/favicon/Android assets — brand identity must be final before any App Store asset (icon, screenshots) is created
+- [ ] Homepage lockup (SVG → PNG, responsive `Image` in `app/index.tsx`) — explicitly scoped UI fix
+- [ ] `choicePressed` token fix on quiz answer press states — explicitly scoped UX fix
+- [ ] `scripts/validate-brand.ts` extended for the new source/lockup outputs — matches existing regression-gate pattern, low cost given the script already exists
+- [ ] Complete App Store Connect metadata (description, subtitle, keywords, category, review notes)
+- [ ] Live Support URL + Privacy Policy URL
+- [ ] Honest, field-by-field App Privacy nutrition label matching actual `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows
+- [ ] Age rating questionnaire completed under the new (2026) tier system
+- [ ] 3-5 alpha-free iPhone screenshots at the required 6.9" size (1-10 requested; fewer than 10 is fine for a simple 3-screen app)
+- [ ] Production EAS build + EAS Submit, then manual "Submit for Review" handoff in App Store Connect
 
-### Add After Validation (once the first build is in TestFlight)
+### Add After Validation (post-v1.0, if App Review flags something or the team wants iteration)
 
-- [ ] `appVersionSource: "remote"` + `autoIncrement: true` in `eas.json` — trivial to add now, but only actually exercised starting with the second build; reasonable to include proactively rather than defer, given how cheap it is
-- [ ] A `preview`/internal-distribution EAS profile for local on-device sanity checks before spending TestFlight upload slots — matches this project's established "verify on a real device" pattern from every prior milestone
+- [ ] Additional device-size screenshot sets (e.g., smaller iPhone sizes) if Apple's auto-downscaling from the 6.9" master set looks poor on review
+- [ ] Localized App Store listing copy (e.g., Portuguese) — not requested this milestone, natural next step given the app teaches Portuguese
+- [ ] External TestFlight beta group population — explicitly deferred twice already (v0.5, and implicitly again here)
 
-### Future Consideration (v0.6+)
+### Future Consideration (v2+, explicitly out of this milestone's scope)
 
-- [ ] `.eas/workflows/submit-ios.yml` automated build+submit CI pipeline — defer until the manual flow has been proven at least once
-- [ ] Full public App Store listing (screenshots, description, privacy nutrition label) — only relevant once a public release (not just TestFlight) is actually planned
-- [ ] Android release infrastructure — explicitly out of scope per PROJECT.md, no timeline yet
+- [ ] Fastlane-automated screenshot regeneration pipeline — only worth it once screenshots need frequent refreshing across multiple releases
+- [ ] Analytics/crash reporting integration — would require reopening the privacy nutrition label and is a deliberate non-goal per this milestone's own framing
+- [ ] `.eas/workflows/` CI automation for build+submit — already tracked as a deferred v2 candidate (`RELEASE-01`) from v0.5
+- [ ] iPad support — no current signal this app needs it; would add a whole new screenshot/QA surface
 
 ## Feature Prioritization Matrix
 
 | Feature | User Value | Implementation Cost | Priority |
 |---------|------------|----------------------|----------|
-| Bundle ID + slug/scheme identity in `app.json` | HIGH (blocks everything) | LOW | P1 |
-| 1024x1024 alpha-free icon | HIGH (blocks App Store acceptance) | LOW-MED | P1 |
-| `eas.json` build + submit profiles | HIGH (blocks build/submit entirely) | LOW | P1 |
-| EAS-managed credentials setup | HIGH (blocks build entirely) | MEDIUM | P1 |
-| Build number = 1, version = 1.0.0 | HIGH (blocks upload acceptance) | LOW | P1 |
-| Lint fixes (2 known failures) | MEDIUM (release-quality gate, not an EAS-enforced blocker) | LOW | P1 |
-| Live-backend preflight | HIGH (protects first-tester impression) | LOW | P1 |
-| `ITSAppUsesNonExemptEncryption` compliance answer | MEDIUM (blocks tester install if unset, but easy to fix reactively) | LOW | P1 (flagged as commonly missed) |
-| App Store Connect app record creation | HIGH (blocks `eas submit`) | LOW-MED (manual, by user, not this milestone's code) | P1 (external dependency, tracked not built) |
-| `autoIncrement`/`appVersionSource: remote` | LOW for build #1, HIGH for build #2+ | LOW | P2 |
-| Preview/internal-distribution EAS profile | MEDIUM (dev convenience) | LOW-MED | P2 |
-| Splash screen re-export | LOW-MED (polish) | LOW | P2 (conditional per milestone scope) |
-| Automated EAS Workflows CI | LOW this milestone | MEDIUM | P3 |
-| Full App Store public listing | NONE this milestone (TestFlight-only target) | MEDIUM-HIGH | P3 (anti-feature this cycle) |
+| Warm Bold Mark canonical asset promotion + generator update | HIGH (first impression, App Store icon) | MEDIUM | P1 |
+| Homepage lockup UI swap | MEDIUM | LOW-MEDIUM | P1 |
+| `choicePressed` token fix | LOW-MEDIUM (fixes real confusion) | LOW | P1 |
+| App Store Connect metadata (description/keywords/category) | HIGH (gates submission) | LOW | P1 |
+| Support + Privacy Policy URL hosting | HIGH (gates submission) | LOW-MEDIUM | P1 |
+| App Privacy nutrition label | HIGH (gates submission, legal) | LOW-MEDIUM | P1 |
+| Age rating questionnaire | HIGH (gates submission) | LOW | P1 |
+| iPhone screenshots (6.9") | HIGH (gates submission) | MEDIUM | P1 |
+| Review notes explaining no-login design | MEDIUM (reduces rejection risk) | LOW | P1 |
+| `validate-brand.ts` extension | LOW-MEDIUM (regression safety) | LOW-MEDIUM | P2 |
+| iPad screenshots | LOW (conditional — likely N/A) | LOW if not needed | P3 / N/A pending `supportsTablet` check |
+| Fastlane screenshot automation | LOW for a one-time release | HIGH | P3 (defer) |
+
+**Priority key:**
+- P1: Must have for this milestone's stated goal (submission-ready + brand-final)
+- P2: Should have, low-cost safety net matching existing project conventions
+- P3: Nice to have or explicitly deferred
 
 ## Sources
 
-- [Submit to the Apple App Store with EAS Submit — Expo Docs](https://docs.expo.dev/submit/ios/)
-- [Configure EAS Build with eas.json — Expo Docs](https://docs.expo.dev/build/eas-json/)
-- [Configure EAS Submit with eas.json — Expo Docs](https://docs.expo.dev/submit/eas-json/)
-- [Splash screen and app icon — Expo Docs](https://docs.expo.dev/develop/user-interface/splash-screen-and-app-icon/)
-- [App version management — Expo Docs](https://docs.expo.dev/build-reference/app-versions/)
-- [Manage different app versions — Expo Docs](https://docs.expo.dev/tutorial/eas/manage-app-versions/)
-- [Overview of distributing apps for review — Expo Docs](https://docs.expo.dev/review/overview/)
-- [Create a production build for iOS — Expo Docs](https://docs.expo.dev/tutorial/eas/ios-production-build/)
-- [Invite external testers — App Store Connect Help (Apple)](https://developer.apple.com/help/app-store-connect/test-a-beta-version/invite-external-testers/)
-- [TestFlight — Apple Developer](https://developer.apple.com/testflight/)
-- Local repo verification: `app.json` (current state has no `ios.bundleIdentifier`, no `eas.json` present, existing dual icon config via `expo.icon` + `ios.icon`), `.planning/PROJECT.md` (milestone scope, prior decisions, current shipped state)
+- [App Store submissions now open for the latest OS releases — Apple Developer](https://developer.apple.com/news/?id=6lxhtioi) (MEDIUM confidence — official Apple news page)
+- [Upcoming SDK minimum requirements — Apple Developer](https://developer.apple.com/news/?id=ueeok6yw) (MEDIUM — official)
+- [App Store Connect minimum SDK requirements update — Expo blog](https://expo.dev/blog/app-store-connect-minimum-sdk-26) (MEDIUM — official Expo, directly relevant to this EAS-built app)
+- [App Privacy Details - App Store - Apple Developer](https://developer.apple.com/app-store/app-privacy-details/) (HIGH — official Apple documentation)
+- [Privacy Nutrition Labels in the App Store — Jamf](https://www.jamf.com/blog/privacy-nutrition-labels-in-the-app-store/) (LOW-MEDIUM — third-party explainer, cross-checked against Apple's own page)
+- [Updated age ratings in App Store Connect — Apple Developer](https://developer.apple.com/news/?id=ks775ehf) (HIGH — official Apple news, confirms 2026 tier overhaul and Jan 31 2026 deadline)
+- [Age ratings values and definitions — App Store Connect Help — Apple Developer](https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/) (HIGH — official reference)
+- [The ultimate guide to App Store rejections — RevenueCat](https://www.revenuecat.com/blog/growth/the-ultimate-guide-to-app-store-rejections) (MEDIUM — reputable RN/mobile-focused company, general guidance)
+- [App Store Guideline 4.2 Minimum Functionality — TechNet Experts](https://www.technetexperts.com/guideline-4-2-minimum-functionality/) (LOW-MEDIUM — third-party, consistent with widely-known Apple guideline text)
+- [Expo App Store Screenshots: What EAS Submit Skips — Mokbi](https://mokbi.com/blog/expo-eas-app-store-screenshots) (MEDIUM — directly confirms EAS Submit does not generate/manage screenshots, consistent with this project's `eas.json` contents)
+- [Fastlane + MCP for App Store Screenshots — AppScreenshotStudio](https://appscreenshotstudio.com/blog/how-to-automate-app-store-screenshots-2026) (LOW-MEDIUM — vendor blog, used only for the 2026 screenshot pixel-dimension figures, cross-referenced against general knowledge of Apple's published screenshot spec)
+- Project's own `eas.json`, `app.json`, `.planning/PROJECT.md` (HIGH — primary source, current repo state as of 2026-08-16)
 
 ---
-*Feature research for: iOS TestFlight release readiness (Expo managed workflow)*
-*Researched: 2026-07-22*
+*Feature research for: Apple App Store Connect submission readiness (v1.0 milestone) — small, no-login, no-analytics Expo/RN education app*
+*Researched: 2026-08-16*

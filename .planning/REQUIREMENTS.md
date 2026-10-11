@@ -1,57 +1,65 @@
 # Requirements: Lafa — Portuguese Verb Conjugation App (Mobile)
 
-**Defined:** 2026-07-22
-**Core Value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score. Everything else (sharing, feedback) supports that loop but must never block it.
+**Defined:** 2026-08-16
+**Core Value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
 
-## v0.5 Requirements
+## v1 Requirements
 
-Requirements for milestone v0.5 — iOS TestFlight Readiness. Each maps to roadmap phases. This is a release-engineering milestone (no product/UI features); scope and phase ordering are grounded in `.planning/research/SUMMARY.md`.
+Requirements for milestone v1.0 (Warm Brand Polish + App Store Submission Readiness). Each maps to roadmap phases.
 
-### Native Build Verification
+### Build Pipeline Hardening
 
-- [ ] **BUILD-01**: `npx expo-doctor` and `npx expo install --check` run clean before any release-config polish work begins
-- [ ] **BUILD-02**: A throwaway `eas build --platform ios --profile production --clear-cache` succeeds, proving the native dependency graph builds on EAS's cloud infrastructure (this is the app's first-ever real native build)
+- [x] **BUILD-01**: A `.nvmrc` pins the Node version to match the real EAS build image (verified from actual build logs, not assumed from the local dev machine)
+- [x] **BUILD-02**: `package.json`'s `engines.node` field matches the pinned version
+- [x] **BUILD-03**: `eas.json`'s production build profile sets a `node` field matching the pinned version
+- [x] **BUILD-04**: `package-lock.json` is regenerated clean under the pinned Node/npm version and proven via a real EAS build (closing the lockfile-drift bug that has recurred 3 times: v0.5 Phase 20, Phase 24, v0.6 Phase 29)
 
-### Release Identity
+### Brand Asset Source & Generator
 
-- [ ] **IDENT-01**: `app.json` sets `ios.bundleIdentifier` to `com.avram.aruh.lafa`
-- [ ] **IDENT-02**: `app.json` `slug` and `scheme` updated to `lafa`
-- [ ] **IDENT-03**: `app.json` sets `ios.buildNumber` to `1`; `version` confirmed unchanged at `1.0.0`
-- [ ] **IDENT-04**: `extra.eas.projectId` checked for a pre-existing value under the old slug and reconciled before the first real (non-throwaway) build
+- [x] **BRAND-01**: `assets/brand/lafa-icon.svg` is promoted from the Warm Bold Mark candidate (`assets/brand/candidates/lafa-icon-warm-bold.svg`), with stable `<g id="...">` layers added
+- [x] **BRAND-02**: `scripts/generate-brand-assets.ts`'s `extractMarkOnly()` is rewritten to use id-based layer lookup instead of brittle fill-count string parsing
+- [x] **BRAND-03**: Icon, splash, favicon, and Android foreground/monochrome assets are regenerated from the new source, with dimensions unchanged from the pre-refactor baseline
+- [x] **BRAND-04**: `icon.png` remains fully opaque (no alpha channel) after regeneration, re-verified against a real EAS build (not just local validation) (local verification lands in Phase 31; the real-EAS-build re-confirmation lands in Phase 35, per D-10)
 
-### Icon & Splash Assets
+### Homepage Lockup
 
-- [ ] **ICON-01**: 1024x1024, alpha-free app icon generated from `assets/brand/lafa-logo-v2.svg` (orange mark only, not the full wordmark), replacing `assets/images/icon.png`
-- [ ] **ICON-02**: `ios.icon` Icon Composer bundle (`assets/expo.icon/`) and its `app.json` key removed, so the flat `expo.icon` PNG governs the iOS app icon
-- [ ] **ICON-03**: `splash-icon.png` updated to a Lafa-branded mark if visual QA requires it, existing blue splash background preserved otherwise
-- [ ] **ICON-04**: Original brand source files in `assets/brand` preserved unmodified (not overwritten by the icon-generation pipeline)
+- [x] **LOCKUP-01**: `assets/brand/lafa-homepage-lockup.svg` is promoted as the canonical homepage lockup source
+- [x] **LOCKUP-02**: `scripts/generate-brand-assets.ts` adds a lockup render step producing `assets/images/lafa-homepage-lockup.png`
+- [x] **LOCKUP-03**: `app/index.tsx`'s plain `Text` title is replaced with a responsive `Image` lockup
 
-### EAS Build/Submit Configuration
+### Quiz Interaction Polish
 
-- [ ] **EASCFG-01**: `eas.json` created with a `production` build profile using EAS-managed iOS credentials, `cli.appVersionSource: "remote"`, `build.production.autoIncrement: true`
-- [ ] **EASCFG-02**: `eas.json` `submit.production.ios` profile added with an `ascAppId` placeholder, to be filled once the operator creates the App Store Connect app record
-- [ ] **EASCFG-03**: `app.json` sets `ios.infoPlist.ITSAppUsesNonExemptEncryption: false` (standard-HTTPS-only export-compliance exemption)
+- [x] **UX-01**: `colors.choicePressed` is added to `src/theme/tokens.ts`, scoped only to unsubmitted quiz answer-option press/hold states
+- [x] **UX-02**: `app/quiz.tsx`'s answer-choice `Pressable` uses `colors.choicePressed` instead of `colors.pressed`
+- [x] **UX-03**: Locked correct/incorrect answer coloring always takes precedence over the pressed color in every combination, verified by an explicit behavioral check
 
-### Quality Gates, Preflight & First Submit
+### Brand Validation
 
-- [ ] **SHIP-01**: `npm run lint` passes with zero errors — the two known `react-hooks/set-state-in-effect` failures in `ReportFeedbackModal.tsx` and `ProductFeedbackModal.tsx` fixed without changing user-visible feedback behavior
-- [ ] **SHIP-02**: Live-backend preflight confirms `GET /health`, `GET /content/verbs`, `POST /feedback`, and `POST /product-feedback` all succeed against the deployed Render backend
-- [ ] **SHIP-03**: Preflight explicitly includes a check against a deliberately cold (>15 min idle) Render instance, not only a warm one
-- [ ] **SHIP-04**: First real `eas build --profile production` + `eas submit --profile production` cycle completes, producing a processed TestFlight build
-- [ ] **SHIP-05**: Internal TestFlight testers (Apple Developer team members only — no external/Beta App Review scope this milestone) added and confirmed able to install the build
+- [x] **VALID-01**: `scripts/validate-brand.ts` checks that the Warm Bold Mark source is canonical
+- [x] **VALID-02**: `scripts/validate-brand.ts` checks generated assets exist at expected dimensions
+- [x] **VALID-03**: `scripts/validate-brand.ts` checks `icon.png` has no alpha channel
+- [x] **VALID-04**: `scripts/validate-brand.ts` checks the homepage lockup output is present
+
+### App Store Connect Readiness
+
+- [x] **STORE-01**: `store/` holds versioned App Store Connect metadata (description, subtitle, keywords, category, review notes)
+- [x] **STORE-02**: A live, reachable Support URL and Privacy Policy URL are hosted
+- [x] **STORE-03**: App Privacy nutrition label answers accurately reflect the real `POST /feedback` + `POST /product-feedback` + `GET /content/verbs` data flows, cross-checked against the backend's actual retention/IP-logging behavior
+- [x] **STORE-04**: Age rating questionnaire is completed under Apple's 2026 tier system (4+/9+/13+/16+/18+)
+- [x] **STORE-05**: `ios.supportsTablet` is explicitly confirmed and locked to `false`
+- [x] **STORE-06**: 3-5 alpha-free 6.9" iPhone screenshots (1320×2868) are captured from the final branded build, covering Setup/Quiz/Results
+- [x] **STORE-07**: Export compliance declaration is re-verified unchanged
+- [x] **STORE-08**: A production `eas build` + `eas submit` completes with an incremented build number
+- [x] **STORE-09**: Manual "Submit for Review" is completed in App Store Connect
 
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
 
-### Release Automation
+### Release Engineering
 
-- **RELEASE-01**: `.eas/workflows/` automated build+submit CI pipeline
-- **RELEASE-02**: Full public App Store listing (screenshots, description, privacy nutrition label)
-
-### Platform Expansion
-
-- **RELEASE-03**: Android build/Play Console setup
+- **RELEASE-04**: Additional device-size screenshot sets if Apple's auto-downscaling from the 6.9" master set looks poor on review
+- **RELEASE-05**: Localized App Store listing copy (e.g., Portuguese)
 
 ## Out of Scope
 
@@ -59,14 +67,14 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| External (non-team) TestFlight testers | Triggers Apple's first-time Beta App Review (~24-48h) — explicitly deferred to keep this milestone's timeline predictable; operator chose internal-only for the first build |
-| Full public App Store release/listing | TestFlight-only distribution target this milestone, per the source codex plan |
-| Android build/release work | iOS-only launch focus, matches existing project-wide "Android release work" out-of-scope decision |
-| Backend feature changes | Backend is out of scope; mobile only needs a live-endpoint smoke check (SHIP-02/SHIP-03), not new backend capability |
-| `.eas/workflows/` CI automation | One-shot manual build/submit is sufficient for a first TestFlight release; automation is premature before a second release cycle |
-| Fastlane / manually-managed `.p12` credentials | EAS-managed (remote) Apple credentials chosen — no existing fastlane/match infrastructure to build on |
-| Push notification capability/entitlement setup | Not part of the current app; no push functionality exists to configure |
-| Regenerating `assets/expo.icon/` via macOS-only Icon Composer tooling | Operator chose the simpler path: delete the `ios.icon` key and rely solely on the flat `expo.icon` PNG (ICON-02) |
+| Fastlane `snapshot`/`frameit` automated screenshot pipeline | Disproportionate for a one-time, 3-screen capture; manual/lightly-scripted Simulator capture is sufficient |
+| Full marketing website | A single static page satisfies Support/Privacy URL requirements; matches the app's minimal-infrastructure philosophy elsewhere |
+| External TestFlight beta group population | Already explicitly deferred twice (v0.5, and again here) — Beta App Review adds unpredictable timeline |
+| iPad support/screenshots | No signal this app needs it; `ios.supportsTablet` locked to `false` (STORE-05) keeps Apple's review scope iPhone-only |
+| Analytics/crash reporting SDKs | Would reopen the privacy nutrition label and contradicts the app's zero-analytics premise |
+| `.eas/workflows/` CI automation | Already tracked as deferred v2 candidate `RELEASE-01` from v0.5 |
+| Android release work | Platform enum stays compatible but no Android build/release effort this milestone |
+| Backend API contract changes | Out of scope unless v1.0 QA exposes a release-blocking issue |
 
 ## Traceability
 
@@ -74,30 +82,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | Phase 20 | Pending |
-| BUILD-02 | Phase 20 | Pending |
-| IDENT-01 | Phase 21 | Pending |
-| IDENT-02 | Phase 21 | Pending |
-| IDENT-03 | Phase 21 | Pending |
-| IDENT-04 | Phase 21 | Pending |
-| ICON-01 | Phase 22 | Pending |
-| ICON-02 | Phase 22 | Pending |
-| ICON-03 | Phase 22 | Pending |
-| ICON-04 | Phase 22 | Pending |
-| EASCFG-01 | Phase 23 | Pending |
-| EASCFG-02 | Phase 23 | Pending |
-| EASCFG-03 | Phase 23 | Pending |
-| SHIP-01 | Phase 24 | Pending |
-| SHIP-02 | Phase 24 | Pending |
-| SHIP-03 | Phase 24 | Pending |
-| SHIP-04 | Phase 24 | Pending |
-| SHIP-05 | Phase 24 | Pending |
+| BUILD-01 | Phase 30 | Complete |
+| BUILD-02 | Phase 30 | Complete |
+| BUILD-03 | Phase 30 | Complete |
+| BUILD-04 | Phase 30 | Complete |
+| BRAND-01 | Phase 31 | Complete |
+| BRAND-02 | Phase 31 | Complete |
+| BRAND-03 | Phase 31 | Complete |
+| BRAND-04 | Phase 31 (local), Phase 35 (real-build) | Complete |
+| LOCKUP-01 | Phase 32 | Complete |
+| LOCKUP-02 | Phase 32 | Complete |
+| LOCKUP-03 | Phase 32 | Complete |
+| UX-01 | Phase 33 | Complete |
+| UX-02 | Phase 33 | Complete |
+| UX-03 | Phase 33 | Complete |
+| VALID-01 | Phase 34 | Complete |
+| VALID-02 | Phase 34 | Complete |
+| VALID-03 | Phase 34 | Complete |
+| VALID-04 | Phase 34 | Complete |
+| STORE-01 | Phase 35 | Complete |
+| STORE-02 | Phase 35 | Complete |
+| STORE-03 | Phase 35 | Complete |
+| STORE-04 | Phase 35 | Complete |
+| STORE-05 | Phase 35 | Complete |
+| STORE-06 | Phase 35 | Complete |
+| STORE-07 | Phase 35 | Complete |
+| STORE-08 | Phase 35 | Complete |
+| STORE-09 | Phase 35 | Complete |
 
 **Coverage:**
-- v0.5 requirements: 18 total
-- Mapped to phases: 18/18 ✓
+- v1 requirements: 27 total
+- Mapped to phases: 27/27 ✓
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-07-22*
-*Last updated: 2026-07-22 after v0.5 roadmap creation (Phases 20-24)*
+*Requirements defined: 2026-08-16*
+*Last updated: 2026-08-16 after v1.0 roadmap creation (Phases 30-35, full coverage)*

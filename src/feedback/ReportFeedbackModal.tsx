@@ -49,13 +49,23 @@ export function ReportFeedbackModal({
   );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
+  // NOTE: React Compiler (app.json `experiments.reactCompiler`) forbids
+  // reading/writing a ref's `.current` during render (react-hooks/refs), so
+  // the "previous visible" tracker below uses useState, not useRef, per
+  // React's documented "adjusting state when a prop changes" pattern. This
+  // avoids react-hooks/set-state-in-effect by not resetting from an effect.
+  const [prevVisible, setPrevVisible] = useState(visible);
+  if (visible !== prevVisible) {
+    setPrevVisible(visible);
     if (visible) {
       setReason("wrong_answer");
       setMessage("");
       setState("idle");
       setLastStatus(null);
     }
+  }
+
+  useEffect(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -162,7 +172,11 @@ export function ReportFeedbackModal({
         <Pressable
           onPress={handleSubmit}
           disabled={isSubmitting}
-          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+          style={({ pressed }) => [
+            styles.submitButton,
+            isSubmitting && styles.submitButtonDisabled,
+            pressed && { backgroundColor: colors.pressed },
+          ]}
         >
           {isSubmitting ? (
             <ActivityIndicator color={colors.background} />
@@ -172,7 +186,13 @@ export function ReportFeedbackModal({
         </Pressable>
 
         {showRetry ? (
-          <Pressable onPress={handleSubmit} style={styles.retryButton}>
+          <Pressable
+            onPress={handleSubmit}
+            style={({ pressed }) => [
+              styles.retryButton,
+              pressed && { backgroundColor: colors.pressed },
+            ]}
+          >
             <Text style={styles.retryButtonText}>Retry submission</Text>
           </Pressable>
         ) : null}
