@@ -136,53 +136,74 @@ Full phase details, plan breakdowns, and success criteria archived in
 ## Phase Details
 
 ### Phase 36: API Base-URL Cutover & Timeouts
+
 **Goal**: The app talks only to the Frankfurt API, with timeouts sized for Render cold boots, and nothing can silently reintroduce the Oregon host
 **Depends on**: Nothing (first v1.1 phase; must land first)
 **Requirements**: API-01, API-02, API-03, API-04, NET-01, NET-02, NET-03
 **Success Criteria** (what must be TRUE):
+
   1. Content, quiz feedback and product feedback requests all resolve to `https://portuguese-verb-api-fra.onrender.com` from a single shared base-URL constant
   2. `npm test` fails if `portuguese-verb-api.onrender.com` appears anywhere in `src/` or `scripts/`
   3. `npm run preflight` passes against Frankfurt
   4. Content fetch aborts at 15s and falls back to the bundled dataset; both feedback submissions abort at 45s and return `network-error`
   5. A test proves the content fetch sends no cache-busting headers/params and that any non-200 (including a raw 304) falls back to local data
   6. `CLAUDE.md`, `AGENTS.md`, `store/metadata/review-notes.md` and `store/privacy/nutrition-label-answers.md` no longer present Oregon as the current API
-**Plans**: TBD
+
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 36-01-PLAN.md — Shared API_BASE_URL (Frankfurt), 15s/45s timeouts, preflight literal, Oregon-host guard test, NET-03 + timeout-boundary tests
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 36-02-PLAN.md — Docs cutover (CLAUDE.md, AGENTS.md, review notes, nutrition label) + live preflight gate (checkpoint)
 
 ### Phase 37: 1.0.1 Build, TestFlight & Device Verification
+
 **Goal**: Lafa 1.0.1 is built, installed from TestFlight, and verified on a real device against Frankfurt, and the backend is told it can start its Oregon-deletion gate (target ~2026-10-13)
 **Depends on**: Phase 36
 **Requirements**: REL-01, REL-02, E2E-01, E2E-02, E2E-03, E2E-04, HAND-01
 **Success Criteria** (what must be TRUE):
+
   1. An EAS production build (build #7+) of 1.0.1 exists, with build number and EAS build id recorded
   2. The build is installed on a real device from TestFlight by an internal tester, with the date recorded
   3. On that device content loads with no offline pill and the request appears in the Frankfurt service logs
   4. A "Report a problem" and a "Help us improve" submission each return 201 and the rows exist in the backend
   5. In airplane mode a quiz completes on the bundled dataset with the offline pill showing, and feedback fails gracefully with a Retry option
   6. A status line (version, build number, date) is appended to the 2026-10-09 entry in `../portuguese-verb-backend/docs/mobile-handoff.md`
+
 **Plans**: TBD
 **Operator checkpoints**: EAS build/submit credentials, App Store Connect/TestFlight install, on-device testing, backend log/row checks (human-driven)
 
 ### Phase 38: App Store Release & Oregon Gate Hand-back
+
 **Goal**: 1.0.1 is live on the App Store and the backend has an explicit recommendation for when to delete Oregon (target live ~2026-10-17; Oregon deletion no later than 2026-10-30)
 **Depends on**: Phase 37 (submit only after its E2E passes)
 **Requirements**: REL-03, REL-04, HAND-02
 **Success Criteria** (what must be TRUE):
+
   1. 1.0.1 is submitted to App Review with Frankfurt review notes, "What's New" text and automatic release on approval
   2. ASC status strings, timestamps and release option are recorded verbatim in `store/submission-log.md`
   3. 1.0.1 shows Ready for Distribution on the App Store, with the live date recorded
   4. A status line is appended to the backend handoff with the recommendation: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first
+
 **Plans**: TBD
 **Operator checkpoints**: App Store Connect submission and Apple review wait (human-driven)
 
 ### Phase 39: v1.0 Tech-Debt Cleanup
+
 **Goal**: v1.0 audit tech debt is closed without ever delaying the release. **Droppable**: run during the App Review wait; never blocks Phase 37, Phase 38 or the 2026-11-01 deadline
 **Depends on**: Nothing (independent; Phase 36 preferred only to avoid doc/script conflicts)
 **Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05
 **Success Criteria** (what must be TRUE):
+
   1. `validate-brand` fails when a brand PNG has the wrong pixel colour
   2. `validate-brand` gives the same result when run from any working directory
   3. `validate-brand` fails if the Setup lockup crop constants in `app/index.tsx` drift from the measured values
   4. Docs state that `app.json` `ios.buildNumber` is ignored in favour of `eas.json` remote autoIncrement, and the 30-02-SUMMARY, 35-06-SUMMARY and `store/screenshots/README.md` inaccuracies are corrected
+
 **Plans**: TBD
 
 <details>
@@ -265,4 +286,5 @@ the next version submission.
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (promote with /gsd:review-backlog when ready)

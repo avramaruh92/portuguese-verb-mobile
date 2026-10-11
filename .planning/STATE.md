@@ -2,13 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Frankfurt API Cutover
-status: ready_to_plan
-last_updated: "2026-10-11T12:02:15.954Z"
-last_activity: 2026-10-11
+status: executing
+stopped_at: v1.1 roadmap created; Phase 36 ready to plan
+last_updated: "2026-10-11T12:12:02.560Z"
+last_activity: 2026-10-11 -- Phase 36 planning complete
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 2
   completed_plans: 0
   percent: 0
 ---
@@ -26,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-10-11)
 
 Phase: 36 of 39 (API Base-URL Cutover & Timeouts)
 Plan: —
-Status: Not started — roadmap created, ready to plan
-Last activity: 2026-10-11 — v1.1 roadmap created (Phases 36-39, 22/22 requirements mapped)
+Status: Ready to execute
+Last activity: 2026-10-11 -- Phase 36 planning complete
 
 ## Performance Metrics
 
