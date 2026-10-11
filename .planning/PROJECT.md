@@ -352,6 +352,9 @@ dated developer sign-off on a real EAS preview build — see
 
 To be defined in `.planning/REQUIREMENTS.md` for milestone v1.0 (in progress).
 
+- ✓ Full Apple App Store submission (STORE-01..09) — Phase 35. Lafa 1.0.0 is **Ready for Distribution** in App Store Connect (confirmed 2026-10-11), approved after a Guideline 2.1 info request and resubmission on 2026-08-18.
+- [ ] Switch the hardcoded API base URL to the backend's Frankfurt service (`https://portuguese-verb-api-fra.onrender.com`) in `src/dataset/remote.ts`, `src/feedback/submit.ts`, `src/productFeedback/submit.ts` and the App Review notes. Emerged 2026-10-11 from backend v0.6.1 Phase 28; it blocks the backend's Oregon-service deletion (REGION-05) and has a 2026-11-01 hard stop. Planned for a later milestone.
+
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md`,
 `.planning/milestones/v0.2-REQUIREMENTS.md`, `.planning/milestones/v0.3-REQUIREMENTS.md`,
 `.planning/milestones/v0.4-REQUIREMENTS.md`, `.planning/milestones/v0.5-REQUIREMENTS.md`,
@@ -595,6 +598,7 @@ Full v0.3/v0.4/v0.5/v0.6 goal/scope detail archived at
 | `scripts/validate-brand.ts` built as a standalone node script (mirroring `scripts/preflight.ts`'s shape) rather than a Jest test or a check folded into an existing script | Keeps the fast, dependency-light `node script.js` invocation pattern this project already uses for release-adjacent gates, separate from the unit-test suite's concerns | ✓ Good — 20/20 checks passing, empirically proved to actually gate (forced-failure test confirmed exit 1 + correct FAIL lines before reverting) |
 | `validate-brand.ts` declares its forbidden-hex/retired-asset literals independently rather than importing them from `generate-brand-assets.ts` | A validator that imports its "source of truth" from the same script it's meant to catch regressions in isn't an independent check — a broken generator could ship a broken literal and the validator would agree with it | ✓ Good — deliberate independence, confirmed by design review during Phase 29 planning |
 | `package-lock.json` drift (react-native `0.86.2` in `package.json` vs `0.86.0` locked) fixed via lockfile regeneration, discovered a third time via EAS's `npm ci` failure | Same root cause as the twice-prior v0.5 drift (local npm tolerates mismatches `npm ci` doesn't) — fixed the same way (regenerate against a clean slate), not `--legacy-peer-deps`/`--force` | ✓ Good, but now 3x-recurring — durable Node-version pin is the strongest candidate for the next milestone, flagged explicitly in "Next Milestone" above |
+| App Review notes and privacy label disclose all three network calls, and the backend stops logging client IPs (`disableRequestLogging`, backend `f06c46b`) so the label can truthfully say no identifiers are collected | Under-counting calls or logging IPs would contradict the privacy label and risk rejection or misrepresentation | ✓ Good — approved by Apple; Lafa 1.0.0 Ready for Distribution (2026-10-11). Watch: `disableRequestLogging` is deprecated in Fastify 6 |
 
 ## Evolution
 
@@ -614,4 +618,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-16 — milestone v1.0 (Warm Brand Polish + App Store Submission Readiness) in progress; Phase 34 (Brand Validation Extension) complete*
+*Last updated: 2026-10-11 after Phase 35 — all v1.0 phases complete; Lafa 1.0.0 Ready for Distribution; milestone close pending Phase 30 verification*

@@ -1,8 +1,10 @@
 ---
 phase: 35-app-store-connect-readiness
 verified: 2026-08-17T16:45:00Z
-status: human_needed
-score: 8/9 must-haves verified (1 partially uncertain, App Store Connect UI claims unauditable from repo)
+status: passed
+re_verified: 2026-10-11
+re_verification_note: "All 4 human_verification items passed in 35-UAT.md (2026-10-11). Lafa 1.0.0 is 'Ready for Distribution' in App Store Connect, which also confirms build #6 finished Apple processing (closes the STORE-08 partial). Security: 35-SECURITY.md threats_open 0."
+score: 9/9 must-haves verified (re-verified 2026-10-11 via UAT; originally 8/9)
 overrides_applied: 0
 gaps:
   - truth: "STORE-08: A production `eas build` + `eas submit` completes with an incremented build number"
@@ -118,3 +120,7 @@ Everything independently checkable from the repo (config facts, live URLs, scree
 
 *Verified: 2026-08-17T16:45:00Z*
 *Verifier: Claude (gsd-verifier)*
+
+## Re-verification 2026-10-11
+
+Human verification completed in `35-UAT.md` (4/4 passed). The developer confirmed in App Store Connect that the listing, App Privacy label (published), age rating 4+ and export compliance match the repo, and that Lafa 1.0.0 is **Ready for Distribution**. Approval by Apple implies build #6 finished processing, so the STORE-08 partial above is closed. `35-SECURITY.md`: threats_open 0. Status set to `passed`.

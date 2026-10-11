@@ -16,9 +16,9 @@
 - [x] **Phase 30: Build Pipeline Hardening** - Node/npm version drift between local dev and the EAS build image is closed for good with a durable pin
 - [x] **Phase 31: Brand Asset Source & Generator** - The Warm Bold Mark becomes the canonical, id-based-extracted production icon source
 - [x] **Phase 32: Homepage Lockup** - Setup screen's plain-text title is replaced with the branded image lockup
-- [ ] **Phase 33: Quiz Press-State Color Fix** - Unsubmitted answer-option presses no longer read as a wrong answer
-- [ ] **Phase 34: Brand Validation Extension** - `validate-brand.ts` gates the new source/lockup pipeline outputs
-- [ ] **Phase 35: App Store Connect Readiness** - The app is submitted for Apple App Review with accurate, complete listing
+- [x] **Phase 33: Quiz Press-State Color Fix** - Unsubmitted answer-option presses no longer read as a wrong answer
+- [x] **Phase 34: Brand Validation Extension** - `validate-brand.ts` gates the new source/lockup pipeline outputs
+- [x] **Phase 35: App Store Connect Readiness** - The app is submitted for Apple App Review with accurate, complete listing
 
 <details>
 <summary>✅ v0.0 Offline Quiz MVP (Phases 1-6) — SHIPPED 2026-07-13</summary>
@@ -299,7 +299,7 @@ Plans:
 | 32. Homepage Lockup | v1.0 | 2/2 | Complete   | 2026-08-16 |
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete    | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete    | 2026-08-16 |
-| 35. App Store Connect Readiness | v1.0 | 7/7 | Complete   | 2026-08-17 |
+| 35. App Store Connect Readiness | v1.0 | 7/7 | Complete    | 2026-10-11 |
 
 ---
 

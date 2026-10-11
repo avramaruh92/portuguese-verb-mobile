@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Warm Brand Polish + App Store Submission Readiness
-status: verifying
-stopped_at: Completed 35-02-PLAN.md
-last_updated: "2026-08-17T16:30:22.666Z"
-last_activity: 2026-08-17
+status: milestone_complete
+stopped_at: Phase 35 complete (final phase); milestone close pending Phase 30 verification
+last_updated: 2026-10-11T11:05:39.217Z
+last_activity: 2026-10-11
 progress:
   total_phases: 6
   completed_phases: 6
@@ -18,35 +18,35 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-16)
+See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 35 — app-store-connect-readiness
+**Current focus:** v1.0 close-out: Phase 30 verification, merge to main, milestone audit
 
 ## Current Position
 
-Phase: 35 (app-store-connect-readiness) — EXECUTING
+Phase: 35 (final phase) complete
 Plan: 7 of 7
-Status: Phase complete — ready for verification
-Last activity: 2026-08-17
+Status: All phases complete; milestone close pending (see Pending Todos)
+Last activity: 2026-10-11
 
 ## Performance Metrics
 
 **Velocity (v0.0-v0.6, shipped):**
 
-- Total plans completed: 86 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
+- Total plans completed: 93 (v0.0: 22, v0.1: 13, v0.2: 4, v0.3: 8, v0.4: 7, v0.5: 11, v0.6: 8, +4 counting Phase 10.1... totals reconciled per MILESTONES.md phase-count summaries)
 - Total execution time: v0.0 ~1.3 days, v0.1 ~6 days, v0.2 ~7 days, v0.3 ~1 day, v0.4 ~2 days, v0.5 ~3 days, v0.6 ~3 days (kickoff to ship)
 
-**v1.0 phases (planned, not yet started):**
+**v1.0 phases:**
 
 | Phase | Requirements | Status |
 |-------|--------------|--------|
-| 30. Build Pipeline Hardening | BUILD-01, BUILD-02, BUILD-03, BUILD-04 | Not started |
-| 31. Brand Asset Source & Generator | BRAND-01, BRAND-02, BRAND-03, BRAND-04 | Not started |
-| 32. Homepage Lockup | LOCKUP-01, LOCKUP-02, LOCKUP-03 | Not started |
-| 33. Quiz Press-State Color Fix | UX-01, UX-02, UX-03 | Not started |
-| 34. Brand Validation Extension | VALID-01, VALID-02, VALID-03, VALID-04 | Not started |
-| 35. App Store Connect Readiness | STORE-01 through STORE-09 | Not started |
+| 30. Build Pipeline Hardening | BUILD-01, BUILD-02, BUILD-03, BUILD-04 | Complete |
+| 31. Brand Asset Source & Generator | BRAND-01, BRAND-02, BRAND-03, BRAND-04 | Complete |
+| 32. Homepage Lockup | LOCKUP-01, LOCKUP-02, LOCKUP-03 | Complete |
+| 33. Quiz Press-State Color Fix | UX-01, UX-02, UX-03 | Complete |
+| 34. Brand Validation Extension | VALID-01, VALID-02, VALID-03, VALID-04 | Complete |
+| 35. App Store Connect Readiness | STORE-01 through STORE-09 | Complete |
 | Phase 31 P01 | 25min | 3 tasks | 3 files |
 | Phase 31 P02 | 20min | 2 tasks | 6 files |
 | Phase 31 P03 | 15min | 3 tasks | 2 files |
@@ -81,11 +81,14 @@ Decisions are logged in PROJECT.md Key Decisions table (v0.0-v0.6 decisions all 
 - [Phase 35-04]: D-09 closed: Option A taken (backend disableRequestLogging fix, commit f06c46b), production-verified against live Render log stream, no client IPs logged
 - [Phase 35-04]: Task 2 live-log checkpoint satisfied via coordinator-relayed production verification (deployed SHA match, live GET/POST requests, log-stream inspection) rather than direct in-session Render dashboard access
 - [Phase 35-07]: App Store Connect requires a separate top-level 'Publish' action on the App Privacy tab beyond saving individual questionnaire screens — discovered live during Task 3 submit-blocking; fixed by clicking Publish
+- [Phase 35]: 2026-10-11 close-out: Lafa 1.0.0 is Ready for Distribution in App Store Connect (approved after a 2026-08-18 Guideline 2.1 info request and resubmission); UAT 4/4 passed; 35-SECURITY.md threats_open 0 with 2 documentation gaps accepted (T-35-16, T-35-19)
 - [Phase 35-07]: Corrected nutrition-label-answers.md: live ASC UI presents Customer Support and Other User Content as sequential screens, not an either/or choice — both answered App Functionality only; sheet's assumed UI flow was wrong, not the intended answer
 
 ### Pending Todos
 
-None open.
+- Phase 30 has no 30-VERIFICATION.md and BUILD-01..04 are still unchecked in REQUIREMENTS.md, although `.nvmrc`, `engines.node` and `eas.json` all pin 22.23.2. Run `/gsd:verify-work 30` before closing v1.0.
+- `plan/phase-20` holds all v0.5-v1.0 work (290+ commits not on `main`). Merge to `main` via PR before `/gsd:complete-milestone`.
+- Then run `/gsd:audit-milestone` and `/gsd:complete-milestone`.
 
 ### Blockers/Concerns
 
@@ -130,11 +133,13 @@ Known non-blocking tech debt carried from prior milestone audits — none block 
 
 ## Session Continuity
 
-Last session: 2026-08-17T16:28:19.251Z
-Stopped at: Completed 35-02-PLAN.md
+Last session: 2026-10-11
+Stopped at: Phase 35 complete (UAT + security + transition); v1.0 close pending Phase 30 verification and merge to main
 Resume file: None
 
 ## Operator Next Steps
 
-- Phase 32 (Homepage Lockup) is complete — both plans shipped, LOCKUP-01/02/03 verified.
-- Run `/gsd:execute-phase 33` to continue with Phase 33 (Quiz Press-State Color Fix), which is fully independent and can run in parallel with any remaining brand-asset work.
+- `/gsd:verify-work 30` to verify Phase 30 and tick BUILD-01..04
+- Open a PR merging `plan/phase-20` into `main`
+- `/gsd:audit-milestone`, then `/gsd:complete-milestone`
+- Carry forward: switch API base URL to `https://portuguese-verb-api-fra.onrender.com` (3 hardcoded endpoints + `store/metadata/review-notes.md`); blocks backend REGION-05, backend hard stop 2026-11-01
