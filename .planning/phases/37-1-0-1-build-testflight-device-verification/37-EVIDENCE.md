@@ -34,7 +34,22 @@ Provenance: the gate SHA is `1d5fdd1`; the build commit `caa9aa8` differs from i
 
 ## REL-02 — TestFlight install
 
-_Pending — filled by plan 37-02._
+| Field | Value |
+|-------|-------|
+| Submitted EAS build id | `c5c481e4-4ebe-49ea-a32a-7ef76ca87563` (equals REL-01) |
+| `eas submit` outcome | Succeeded |
+| App Store Connect status (verbatim) | "Ready to Submit" |
+| ASC status observed | 2026-10-11 (before ~15:41Z) |
+| Install date | 2026-10-11 |
+| TestFlight on device shows | 1.0.1 (8) (matches REL-01 build number 8) |
+| Device | iPhone 14 Pro, iOS 26.6.1 at install time |
+
+Installed by an internal tester from TestFlight (not a dev/preview build)
+
+Notes:
+- The ASC status "Ready to Submit" is the App Store Connect build status showing the build was processed and is available; the TestFlight install succeeded.
+- An OS update to iOS 27.0.1 was requested/pending on the device after install. Plan 37-03 must record the iOS version actually used for E2E.
+- The developer subjectively noted the app feels much faster (anecdotal, consistent with the Frankfurt cutover; not evidence).
 
 ## E2E-01 — Content from Frankfurt
 
