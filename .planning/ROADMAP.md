@@ -213,7 +213,7 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 38-01-PLAN.md — whats-new.txt, review-notes device line, multi-version submission log; operator submits 1.0.1 build 8 (auto release, phased off); record submit (checkpoint)
+- [x] 38-01-PLAN.md — whats-new.txt, review-notes device line, multi-version submission log; operator submits 1.0.1 build 8 (auto release, phased off); record submit (checkpoint)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -286,7 +286,7 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 35. App Store Connect Readiness | v1.0 | 7/7 | Complete | 2026-10-11 |
 | 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete    | 2026-10-11 |
 | 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 4/4 | Complete    | 2026-10-11 |
-| 38. App Store Release & Oregon Gate Hand-back | v1.1 | 0/TBD | Not started | - |
+| 38. App Store Release & Oregon Gate Hand-back | v1.1 | 1/3 | In Progress|  |
 | 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 0/TBD | Not started | - |
 
 ---
