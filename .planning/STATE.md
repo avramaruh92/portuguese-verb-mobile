@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Frankfurt API Cutover
-status: verifying
-stopped_at: Phase 36 complete (verified 9/9, live preflight 4/4); Phase 37 ready to plan
-last_updated: "2026-10-11T16:44:54.627Z"
+status: ready_to_plan
+stopped_at: Phase 37 complete (4/4, verified 6/6) — ready to discuss Phase 38
+last_updated: 2026-10-11T16:46:38.098Z
 last_activity: 2026-10-11
 progress:
   total_phases: 5
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 37 — 1-0-1-build-testflight-device-verification
+**Current focus:** Phase 38 — App Store Release & Oregon Gate Hand-back
 
 ## Current Position
 
-Phase: 37 (1-0-1-build-testflight-device-verification) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
+Phase: 38 (App Store Release & Oregon Gate Hand-back)
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-10-11
 
 ## Performance Metrics
