@@ -207,8 +207,21 @@ Plans:
   3. 1.0.1 shows Ready for Distribution on the App Store, with the live date recorded
   4. A status line is appended to the backend handoff with the recommendation: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first
 
-**Plans**: TBD
+**Plans**: 3 plans
 **Operator checkpoints**: App Store Connect submission and Apple review wait (human-driven)
+
+Plans:
+**Wave 1**
+
+- [ ] 38-01-PLAN.md — whats-new.txt, review-notes device line, multi-version submission log; operator submits 1.0.1 build 8 (auto release, phased off); record submit (checkpoint)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 38-02-PLAN.md — App Review wait: verbatim status history, D-06 reply/resubmit path, D-08 2026-10-27 slip warning, live date (checkpoint)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 38-03-PLAN.md — HAND-02 Oregon-deletion recommendation in backend handoff (single-file backend commit) + v1.0.1 result in submission log
 
 ### Phase 39: v1.0 Tech-Debt Cleanup
 
