@@ -22,7 +22,7 @@
 
 ### REL — Release 1.0.1
 
-- [x] **REL-01**: Lafa 1.0.1 is built by EAS production (build #7+, `appVersionSource: remote` autoIncrement); the build number and EAS build id are recorded
+- [ ] **REL-01**: Lafa 1.0.1 is built by EAS production (build #7+, `appVersionSource: remote` autoIncrement); the build number and EAS build id are recorded
 - [ ] **REL-02**: The 1.0.1 build is live on TestFlight and installed by an internal tester; the date is recorded
 - [ ] **REL-03**: 1.0.1 is submitted to App Review with updated review notes (Frankfurt URLs), "What's New" text and automatic release on approval; the ASC status strings, timestamps and release option are recorded verbatim in `store/submission-log.md`
 - [ ] **REL-04**: 1.0.1 is Ready for Distribution on the App Store; the live date is recorded
@@ -81,7 +81,7 @@ Candidates for a later milestone (not v1.1):
 | E2E-03 | Phase 37 | Pending |
 | E2E-04 | Phase 37 | Pending |
 | HAND-01 | Phase 37 | Pending |
-| REL-01 | Phase 37 | Complete |
+| REL-01 | Phase 37 | Pending |
 | REL-02 | Phase 37 | Pending |
 | HAND-02 | Phase 38 | Pending |
 | REL-03 | Phase 38 | Pending |
