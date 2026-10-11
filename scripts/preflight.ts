@@ -1,4 +1,4 @@
-const BASE_URL = "https://portuguese-verb-api.onrender.com";
+const BASE_URL = "https://portuguese-verb-api-fra.onrender.com";
 const HEALTH_ENDPOINT = `${BASE_URL}/health`;
 const CONTENT_ENDPOINT = `${BASE_URL}/content/verbs`;
 const FEEDBACK_ENDPOINT = `${BASE_URL}/feedback`;

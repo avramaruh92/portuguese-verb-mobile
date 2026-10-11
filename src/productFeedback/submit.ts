@@ -1,8 +1,8 @@
+import { API_BASE_URL } from "../config/api";
 import type { ProductFeedbackPayload, SubmitResult } from "./types";
 
-const PRODUCT_FEEDBACK_ENDPOINT =
-  "https://portuguese-verb-api.onrender.com/product-feedback";
-const TIMEOUT_MS = 90_000;
+const PRODUCT_FEEDBACK_ENDPOINT = `${API_BASE_URL}/product-feedback`;
+const TIMEOUT_MS = 45_000;
 
 export async function submitProductFeedback(
   payload: ProductFeedbackPayload,

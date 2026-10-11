@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../src/config/api";
 import { fetchRemoteVerbs } from "../src/dataset/remote";
 import type { Verb } from "../src/dataset/types";
 import type { LearningContent } from "../src/learning/types";
@@ -161,12 +162,14 @@ describe("fetchRemoteVerbs", () => {
     await expect(fetchRemoteVerbs()).rejects.toThrow();
   });
 
-  it("rejects when the 90s timeout fires and the AbortController aborts an unresolved request", async () => {
+  it("rejects when the 15s timeout fires and the AbortController aborts an unresolved request", async () => {
     jest.useFakeTimers();
 
+    let capturedSignal: AbortSignal | undefined;
     globalThis.fetch = jest.fn().mockImplementation(
       (_url: string, options?: { signal?: AbortSignal }) =>
         new Promise((_resolve, reject) => {
+          capturedSignal = options?.signal;
           options?.signal?.addEventListener("abort", () => {
             reject(new Error("AbortError"));
           });
@@ -176,8 +179,45 @@ describe("fetchRemoteVerbs", () => {
     const resultPromise = fetchRemoteVerbs();
     const assertion = expect(resultPromise).rejects.toThrow();
 
-    jest.advanceTimersByTime(90_000);
+    jest.advanceTimersByTime(14_999);
+    expect(capturedSignal?.aborted).toBe(false);
 
+    jest.advanceTimersByTime(1);
     await assertion;
+    expect(capturedSignal?.aborted).toBe(true);
+  });
+
+  // NET-03: iOS NSURLCache handles ETag/304 revalidation; the app must not
+  // hand-send If-None-Match / Cache-Control / Pragma (backend handoff 2026-10-08).
+  it("requests the Frankfurt content endpoint with no cache-busting headers or query params", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ verbs: [sampleVerb] }),
+    }) as unknown as typeof fetch;
+
+    await fetchRemoteVerbs();
+
+    const [url, init] = (globalThis.fetch as jest.Mock).mock.calls[0] as [
+      string,
+      Record<string, unknown>,
+    ];
+    expect(url).toBe(`${API_BASE_URL}/content/verbs`);
+    expect(url).not.toContain("?");
+    expect(Object.keys(init)).toEqual(["signal"]);
+    expect(init.headers).toBeUndefined();
+  });
+
+  // dataset-source.test.ts already proves any rejection resolves source: "local".
+  it("rejects on a raw 304 so the source layer falls back to local data", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 304,
+      json: async () => {
+        throw new Error("no body");
+      },
+    }) as unknown as typeof fetch;
+
+    await expect(fetchRemoteVerbs()).rejects.toThrow();
   });
 });

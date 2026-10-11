@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "../src/config/api";
 import { submitFeedback } from "../src/feedback/submit";
 import type { FeedbackPayload } from "../src/feedback/types";
 
@@ -74,12 +75,14 @@ describe("submitFeedback", () => {
     expect(result).toEqual({ status: "network-error" });
   });
 
-  it("returns network-error when the request never resolves and the 90s timeout fires", async () => {
+  it("returns network-error when the request never resolves and the 45s timeout fires", async () => {
     jest.useFakeTimers();
 
+    let capturedSignal: AbortSignal | undefined;
     globalThis.fetch = jest.fn().mockImplementation(
       (_url: string, options?: { signal?: AbortSignal }) =>
         new Promise((_resolve, reject) => {
+          capturedSignal = options?.signal;
           options?.signal?.addEventListener("abort", () => {
             reject(new Error("AbortError"));
           });
@@ -88,10 +91,32 @@ describe("submitFeedback", () => {
 
     const resultPromise = submitFeedback(samplePayload);
 
-    jest.advanceTimersByTime(90_000);
+    jest.advanceTimersByTime(44_999);
+    expect(capturedSignal?.aborted).toBe(false);
+
+    jest.advanceTimersByTime(1);
 
     const result = await resultPromise;
 
     expect(result).toEqual({ status: "network-error" });
+  });
+
+  it("calls fetch with the Frankfurt /feedback endpoint, POST, JSON headers/body, and abort signal", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      status: 201,
+      json: async () => ({}),
+    }) as unknown as typeof fetch;
+
+    await submitFeedback(samplePayload);
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      `${API_BASE_URL}/feedback`,
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(samplePayload),
+        signal: expect.any(AbortSignal),
+      }),
+    );
   });
 });
