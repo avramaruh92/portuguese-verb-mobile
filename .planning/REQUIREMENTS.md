@@ -69,11 +69,33 @@ Candidates for a later milestone (not v1.1):
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmap) | | |
+| API-01 | Phase 36 | Pending |
+| API-02 | Phase 36 | Pending |
+| API-03 | Phase 36 | Pending |
+| API-04 | Phase 36 | Pending |
+| NET-01 | Phase 36 | Pending |
+| NET-02 | Phase 36 | Pending |
+| NET-03 | Phase 36 | Pending |
+| E2E-01 | Phase 37 | Pending |
+| E2E-02 | Phase 37 | Pending |
+| E2E-03 | Phase 37 | Pending |
+| E2E-04 | Phase 37 | Pending |
+| HAND-01 | Phase 37 | Pending |
+| REL-01 | Phase 37 | Pending |
+| REL-02 | Phase 37 | Pending |
+| HAND-02 | Phase 38 | Pending |
+| REL-03 | Phase 38 | Pending |
+| REL-04 | Phase 38 | Pending |
+| DEBT-01 | Phase 39 | Pending |
+| DEBT-02 | Phase 39 | Pending |
+| DEBT-03 | Phase 39 | Pending |
+| DEBT-04 | Phase 39 | Pending |
+| DEBT-05 | Phase 39 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 22 total
-- Mapped to phases: 0 (pending roadmap)
+- Mapped to phases: 22 (Phase 36: 7, Phase 37: 7, Phase 38: 3, Phase 39: 5)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-10-11*

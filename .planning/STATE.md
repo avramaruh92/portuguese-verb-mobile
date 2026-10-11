@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Frankfurt API Cutover
-status: planning
+status: ready_to_plan
 last_updated: "2026-10-11T12:02:15.954Z"
 last_activity: 2026-10-11
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Planning next milestone — lead with the Frankfurt API base-URL switch (hard stop 2026-11-01)
+**Current focus:** Phase 36 — API Base-URL Cutover & Timeouts (hard stop 2026-11-01)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 36 of 39 (API Base-URL Cutover & Timeouts)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-10-11 — Milestone v1.1 started
+Status: Not started — roadmap created, ready to plan
+Last activity: 2026-10-11 — v1.1 roadmap created (Phases 36-39, 22/22 requirements mapped)
 
 ## Performance Metrics
 
@@ -41,6 +41,7 @@ Last activity: 2026-10-11 — Milestone v1.1 started
 ### Roadmap Evolution
 
 - v1.0 roadmap created 2026-08-16 — 6 phases (30-35) derived from BUILD/BRAND/LOCKUP/UX/VALID/STORE requirement categories, following research/SUMMARY.md's suggested ordering. 27/27 v1.0 requirements mapped, no orphans. Sequencing: 30 (Node/lockfile pin) must lead — prerequisite, not a feature, with 3x prior-incident evidence (v0.5 Phase 20, Phase 24, v0.6 Phase 29). 31 (brand source + generator id-rewrite) depends on 30 since it adds a new build-time dependency and regenerates assets. 32 (homepage lockup) depends on 31 — shares the same generator script, isolates risk to one variable at a time. 33 (quiz press-state fix) is fully independent, can run in parallel with 31-32. 34 (validate-brand.ts extension) depends on 31+32 since it asserts against their real generated output. 35 (App Store Connect submission) is strictly last — terminal action, screenshots/build must reflect the fully finished state.
+- v1.1 roadmap created 2026-10-11 — 4 phases (36-39), 22/22 requirements mapped. 36 (code cutover) leads; 37 (EAS build, TestFlight, real-device E2E, HAND-01) depends on 36; 38 (App Store submit/release, HAND-02) depends on 37 and is terminal; 39 (tech debt) is independent and DROPPABLE, must never block 37/38. Targets: TestFlight ~2026-10-13, App Store live ~2026-10-17, Oregon deletion no later than 2026-10-30; hard deadline 2026-11-01.
 - v0.6 shipped 2026-08-16 — all 5 phases complete, 14/14 requirements verified, 251/251 tests passing, dated developer sign-off on a real EAS preview build, archived to `.planning/milestones/v0.6-*`.
 
 ### Decisions
@@ -49,7 +50,7 @@ Full decision log in PROJECT.md Key Decisions (v0.0-v1.0, all with outcomes). No
 
 ### Pending Todos
 
-- **Frankfurt API base-URL switch — hard stop 2026-11-01.** Update `src/dataset/remote.ts`, `src/feedback/submit.ts`, `src/productFeedback/submit.ts` and the App Review notes to `https://portuguese-verb-api-fra.onrender.com`, then ship an App Store update. Blocks backend REGION-05 (Oregon deletion).
+- Frankfurt API base-URL switch: superseded by milestone v1.1 (Phases 36-38; hard stop 2026-11-01). See ROADMAP.md.
 
 ### Blockers/Concerns
 
@@ -83,9 +84,9 @@ Known non-blocking tech debt: see PROJECT.md "Next Milestone" and `.planning/mil
 ## Session Continuity
 
 Last session: 2026-10-11
-Stopped at: v1.0 milestone complete, archived and tagged
+Stopped at: v1.1 roadmap created; Phase 36 ready to plan
 Resume file: None
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run /gsd:plan-phase 36
