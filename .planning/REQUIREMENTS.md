@@ -37,7 +37,7 @@
 ### HAND — Backend hand-back
 
 - [x] **HAND-01**: Once the TestFlight build is live, a status line (version, build number, date) is appended to `../portuguese-verb-backend/docs/mobile-handoff.md` (2026-10-09 entry) so the backend's REGION-05 gate can start
-- [ ] **HAND-02**: Once 1.0.1 is live on the App Store, a status line with the Oregon-deletion gate recommendation is appended: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first
+- [x] **HAND-02**: Once 1.0.1 is live on the App Store, a status line with the Oregon-deletion gate recommendation is appended: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first
 
 ### DEBT — v1.0 audit tech debt (droppable; must never block the release)
 
@@ -83,7 +83,7 @@ Candidates for a later milestone (not v1.1):
 | HAND-01 | Phase 37 | Complete |
 | REL-01 | Phase 37 | Complete |
 | REL-02 | Phase 37 | Complete |
-| HAND-02 | Phase 38 | Pending |
+| HAND-02 | Phase 38 | Complete |
 | REL-03 | Phase 38 | Complete |
 | REL-04 | Phase 38 | Complete |
 | DEBT-01 | Phase 39 | Pending |
