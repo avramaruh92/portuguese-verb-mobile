@@ -403,16 +403,20 @@ no blockers, 12 non-blocking debt items) — see
   airplane-mode fallback with pill, quiz, graceful Retry); backend handoff
   status line committed — v1.1 (REL-01/02, E2E-01..04, HAND-01). Validated in
   Phase 37.
+- ✓ Lafa 1.0.1 (build 8) submitted to App Review 2026-10-11 with Frankfurt
+  review notes, automatic release, phased release off; Ready for
+  Distribution and live on the App Store 2026-10-12; HAND-02 Oregon-deletion
+  gate line committed to the backend handoff log — v1.1 (REL-03, REL-04,
+  HAND-02). Validated in Phase 38.
 
 ### Active
 
 Scoped in `.planning/REQUIREMENTS.md` (milestone v1.1).
 
-- [ ] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
-  "Current Milestone" below. Blocks the backend's Oregon-service deletion
-  (REGION-05). Phase 36 (code + docs cutover) and Phase 37 (1.0.1
-  build 8 on TestFlight, device-verified) complete 2026-10-11; App Store
-  release (38) remains.
+- [x] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
+  "Current Milestone" below. Phases 36–38 complete; Lafa 1.0.1 live on the
+  App Store 2026-10-12 and the Oregon-deletion gate handed back to the
+  backend 2026-10-13 (REGION-05 now owned by the backend).
 - [ ] Analytics SDK for usage metrics — backlog item 999.1 (not in v1.1).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` …
@@ -653,4 +657,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-11 — Phase 37 (1.0.1 build, TestFlight & device verification) complete*
+*Last updated: 2026-10-13 — Phase 38 (App Store release & Oregon gate hand-back) complete*
