@@ -179,3 +179,22 @@ Blockers at submit: "Add for Review" was inactive until the developer clicked Sa
 | "Prepare for Submission" | not noted | not noted (observed shortly before submit) | version ready, before Add for Review |
 | "Waiting for Review" | ~2026-10-11T19:05Z | ~20:05 WEST | after Submit for Review |
 | "Waiting for Review" | ~2026-10-11T19:10Z | ~20:10 WEST | post-submit: review notes pasted and saved; phased release confirmed OFF |
+| "In Review" | not observed | not observed | developer did not see the transition; occurred between ~2026-10-11T19:05Z and 2026-10-12T15:08Z |
+| "Ready for Distribution" | 2026-10-12T15:08Z | 2026-10-12 16:08 WEST | per Apple acceptance email; release automatic. No Apple messages during review. |
+
+## Live
+
+Live date: 2026-10-12
+
+Release: automatic (phased release OFF), no manual release click. "Pending Developer Release" did not occur.
+
+No Apple messages during review.
+
+Public App Store lookup (checked 2026-10-13T17:24Z, `itunes.apple.com/lookup?bundleId=com.avram.aruh.lafa`):
+
+| Storefront | version | currentVersionReleaseDate |
+|------------|---------|---------------------------|
+| US (default) | 1.0.1 | 2026-10-12T15:13:17Z |
+| pt | 1.0.1 | 2026-10-12T15:13:17Z |
+
+D-08 interim backend line: not triggered (live before 2026-10-27).
