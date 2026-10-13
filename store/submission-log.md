@@ -198,3 +198,25 @@ Public App Store lookup (checked 2026-10-13T17:24Z, `itunes.apple.com/lookup?bun
 | pt | 1.0.1 | 2026-10-12T15:13:17Z |
 
 D-08 interim backend line: not triggered (live before 2026-10-27).
+
+## Backend handoff (HAND-02)
+
+| Item | Value |
+|------|-------|
+| Backend repo | `portuguese-verb-backend` (branch main) |
+| Backend commit | `91c9b51` |
+| Commit date | 2026-10-13 |
+| File | `docs/mobile-handoff.md` (single-file commit, bumps last_updated) |
+
+> **Status 2026-10-11 (mobile):** Lafa 1.0.1 (build 8, EAS build c5c481e4-4ebe-49ea-a32a-7ef76ca87563) is live on TestFlight with the Frankfurt base URL, installed 2026-10-11 and verified on a real device (content from Frankfurt, both feedback POSTs 201, offline fallback OK). The REGION-05 deletion clock can start. App Store 1.0.0 installs still call the old URL until 1.0.1 is live on the App Store; mobile will append a second status line then.
+**Status 2026-10-13 (mobile):** Lafa 1.0.1 (build 8, EAS build c5c481e4-4ebe-49ea-a32a-7ef76ca87563) is live on the App Store with the Frankfurt base URL (Ready for Distribution 2026-10-12, released automatically to all users, phased release off). Recommendation: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first; 1.0.1 is now live, so the backend owns the remaining check (Oregon service logs, excluding its own keep-warm pings) and the deletion clock. Caveat: 1.0.0 installs without auto-update keep calling Oregon until they update, and after deletion they fall back to bundled quiz content while feedback fails gracefully with Retry, as verified offline in mobile Phase 37 E2E-04.
+
+Committed locally in portuguese-verb-backend; not pushed by this plan. Phase 38 closes on this line (D-09); the backend runs the ~48h no-real-requests check and the deletion clock (D-10).
+
+## v1.0.1 result
+
+| Requirement | Verdict | Section |
+|-------------|---------|---------|
+| REL-03 | PASS | "Fields entered (1.0.1)", "Status history" |
+| REL-04 | PASS | "Live" |
+| HAND-02 | PASS | "Backend handoff (HAND-02)" |
