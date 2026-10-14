@@ -408,6 +408,12 @@ no blockers, 12 non-blocking debt items) — see
   Distribution and live on the App Store 2026-10-12; HAND-02 Oregon-deletion
   gate line committed to the backend handoff log — v1.1 (REL-03, REL-04,
   HAND-02). Validated in Phase 38.
+- ✓ v1.0 audit tech debt closed: `validate-brand` now gates pixel colour on
+  all 6 brand PNGs, resolves paths from the repo root, and gates the Setup
+  lockup crop constants (shared via `scripts/brand-colors.ts` and
+  `src/theme/lockup.ts`, 37 checks); ignored `ios.buildNumber` documented;
+  stale 30-02/35-06 SUMMARYs and screenshots README corrected — v1.1
+  (DEBT-01..05). Validated in Phase 39.
 
 ### Active
 
@@ -416,7 +422,8 @@ Scoped in `.planning/REQUIREMENTS.md` (milestone v1.1).
 - [x] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
   "Current Milestone" below. Phases 36–38 complete; Lafa 1.0.1 live on the
   App Store 2026-10-12 and the Oregon-deletion gate handed back to the
-  backend 2026-10-13 (REGION-05 now owned by the backend).
+  backend 2026-10-13 (REGION-05 now owned by the backend). Droppable
+  Phase 39 (v1.0 tech-debt cleanup) also complete 2026-10-14.
 - [ ] Analytics SDK for usage metrics — backlog item 999.1 (not in v1.1).
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` …
@@ -657,4 +664,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-13 — Phase 38 (App Store release & Oregon gate hand-back) complete*
+*Last updated: 2026-10-14 — Phase 39 (v1.0 tech-debt cleanup) complete*
