@@ -10,6 +10,12 @@ git repo/package name, not drift; `package.json`'s `name` field intentionally
 stays `portuguese-verb-mobile`. Check `app.json` directly before assuming
 which values are current.
 
+`app.json`'s `expo.ios.buildNumber` (`"1"`) is ignored and intentionally left
+in place: `eas.json` sets `cli.appVersionSource: "remote"` and
+`build.production.autoIncrement: true`, so EAS owns iOS build numbers remotely
+(1.0.0 shipped as build 6, 1.0.1 as build 8). This is deliberate, not drift —
+do not "fix" it by bumping `app.json`.
+
 This is `apps/mobile`, the companion mobile client to the backend API in
 the sibling repo `portuguese-verb-api` (`avramaruh92/portuguese-verb-backend`).
 It's an Expo React Native app, iOS-first, for beginner (A1-A2) learners of

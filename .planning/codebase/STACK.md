@@ -1,6 +1,7 @@
 # Technology Stack
 
 **Analysis Date:** 2026-07-18
+*Updated: 2026-10-14 (Phase 39, DEBT-01)*
 
 ## Languages
 
@@ -90,7 +91,7 @@ These are part of the default Expo Router template scaffold; confirm before remo
 - Backend endpoints are hardcoded as string constants directly in source (`src/feedback/submit.ts`, `src/dataset/remote.ts`), not sourced from env vars
 
 **Build:**
-- `app.json` - Expo app config: name `"Portuguese Verb Quiz"`, slug `portuguese-verb-mobile`, scheme `portugueseverbmobile`, orientation `portrait`, `userInterfaceStyle: "automatic"`; iOS section only sets a custom `icon`; Android section configures adaptive icon assets and disables predictive back gesture; web output is `"static"`
+- `app.json` - Expo app config: name `"Lafa"`, slug `portuguese-verb-mobile`, scheme `lafa`, orientation `portrait`, `userInterfaceStyle: "light"`; iOS section sets a custom `icon` and `buildNumber: "1"`; Android section configures adaptive icon assets and disables predictive back gesture; web output is `"static"`. `ios.buildNumber` is ignored: `eas.json` sets `cli.appVersionSource: "remote"` + `build.production.autoIncrement: true`, so EAS owns build numbers (1.0.1 = build 8).
 - `tsconfig.json` - extends `expo/tsconfig.base`, with `"strict": true` and `"noUncheckedIndexedAccess": true` explicitly enabled (stricter than Expo's default base config), `"types": ["jest"]` for test globals
 - `package.json` scripts: `start`, `android`, `ios`, `web` (all via `expo start`), `lint` (`expo lint`), `test` (`jest`), `typecheck` (`tsc --noEmit`)
 - No dedicated ESLint config file found at repo root (`eslint.config.js`/`.eslintrc*`) despite the `lint` script calling `expo lint` — `expo lint` may scaffold/use a default config on first run; verify actual lint config before relying on it
@@ -104,7 +105,7 @@ These are part of the default Expo Router template scaffold; confirm before remo
 **Production:**
 - iOS-first (per `app.json` `ios` block and project conventions); Android config present (adaptive icon, predictive back gesture disabled) but iOS is the primary target
 - Web output configured as `static` via `app.json` (`web.output: "static"`), using `react-native-web`
-- No EAS Build configuration (`eas.json`) found in repo root — cloud builds for TestFlight/App Store not yet set up
+- `eas.json` at repo root configures EAS Build/Submit — `production` profile pins Node `22.23.2` with `autoIncrement: true`, `cli.appVersionSource: "remote"`, and `submit.production.ios.ascAppId`; Lafa ships to the App Store through it (1.0.1 live)
 
 ---
 
