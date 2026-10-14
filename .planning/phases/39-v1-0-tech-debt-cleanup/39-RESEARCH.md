@@ -238,9 +238,11 @@ Tooling/docs only; no new network, auth, or input surface. ASVS V5 input validat
 | A2 | Node 22.23.2 behaves like local Node 25.0.0 for type stripping + `import.meta.dirname` | Low; engines pin, existing scripts already rely on stripping |
 | A3 | 35-06 headline (line 38) is the stale item the audit meant, since quoted string no longer exists | Low; planner re-greps |
 
-## Open Questions
+## Open Questions (RESOLVED)
 1. Whether to also fix STACK.md line ~107 ("No `eas.json` found") while adding the buildNumber note — recommend yes (cheap, same file).
+   RESOLVED: yes, done in 39-02 Task 1.
 2. Whether `generate-brand-assets.ts` cwd-relative paths should get the same ROOT fix — out of DEBT scope; optional.
+   RESOLVED: no, out of DEBT scope; the generator's path resolution stays unchanged (39-01 Task 1 only switches it to the shared colour constants).
 
 ## Sources
 - Repo experiments (this session): node scripts/zzexp.ts, tsc, expo lint, jest, sharp raw scans — HIGH
