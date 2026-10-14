@@ -240,8 +240,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 39-01-PLAN.md — validate-brand hardening: shared brand-colors/lockup modules, repo-root paths, pixel-colour samples, lockup crop gate, negative-run proof (DEBT-02/03/04)
-- [ ] 39-02-PLAN.md — Docs: ios.buildNumber note in CLAUDE.md/STACK.md, corrections to 30-02/35-06 summaries and screenshots README (DEBT-01/05)
+- [x] 39-01-PLAN.md — validate-brand hardening: shared brand-colors/lockup modules, repo-root paths, pixel-colour samples, lockup crop gate, negative-run proof (DEBT-02/03/04)
+- [x] 39-02-PLAN.md — Docs: ios.buildNumber note in CLAUDE.md/STACK.md, corrections to 30-02/35-06 summaries and screenshots README (DEBT-01/05)
 
 <details>
 <summary>Prior milestones (retained for reference)</summary>
@@ -293,7 +293,7 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete    | 2026-10-11 |
 | 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 4/4 | Complete    | 2026-10-11 |
 | 38. App Store Release & Oregon Gate Hand-back | v1.1 | 3/3 | Complete    | 2026-10-13 |
-| 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 0/TBD | Not started | - |
+| 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 2/2 | Complete   | 2026-10-14 |
 
 ---
 
