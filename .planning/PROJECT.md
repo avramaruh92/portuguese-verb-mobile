@@ -114,7 +114,16 @@ listing/privacy/screenshots in `store/`, Support + Privacy pages on GitHub
 Pages) and is **Ready for Distribution** after a Guideline 2.1 info request
 and resubmission.
 
-## Current State (v1.0 shipped)
+**Shipped in v1.1 (2026-10-14) — Lafa 1.0.1 is live on the App Store against
+the Frankfurt API:** every request goes through one `API_BASE_URL`
+(`https://portuguese-verb-api-fra.onrender.com`) with a Jest guard against the
+retired Oregon host. Content fetch times out at 15s and feedback POSTs at 45s.
+Build 8 was verified end to end on a real iPhone from TestFlight, then went
+Ready for Distribution on 2026-10-12 with automatic release. The backend has
+an explicit Oregon-deletion gate (HAND-02). `validate-brand` was also hardened
+to 40 checks (pixel colour and lockup crop).
+
+## Current State (v1.1 shipped)
 
 - Setup → Quiz → Results loop, backed by a live-fetched dataset with silent
   local fallback, snapshotted per session (Zustand store) — unchanged since
@@ -193,7 +202,17 @@ and resubmission.
   bundle `com.avram.aruh.lafa`); listing, privacy answers, screenshots and
   submission log versioned in `store/`, public Support/Privacy pages in
   `docs/` (GitHub Pages — repo is now public)
-- 261 tests / 22 suites; typecheck, lint, `validate-brand` all green
+- v1.1: all three network calls use the Frankfurt `API_BASE_URL` from
+  `src/config/api.ts`. Timeouts are 15s for content and 45s for both feedback
+  POSTs. `__tests__/api-host-guard.test.ts` blocks the Oregon host, and
+  `scripts/preflight.ts` keeps its own matching literal
+- **Lafa 1.0.1 (build 8) is live on the App Store** (Ready for Distribution
+  2026-10-12, automatic release, phased release off). Oregon deletion is now
+  the backend's call (REGION-05), under the HAND-02 gate
+- `validate-brand` checks pixel colour on all 6 brand PNGs and the Setup
+  lockup crop constants. Brand hex values live in `scripts/brand-colors.ts`
+  and crop constants in `src/theme/lockup.ts` (40 checks)
+- 277 tests / 23 suites; typecheck, lint, `validate-brand` all green
 
 ## Core Value
 
@@ -228,6 +247,11 @@ instead of Expo Go.
 design, with zero product/UX-flow changes; the core loop is functionally
 identical to what v0.5 shipped, now wearing the correct brand identity
 end-to-end (assets, palette, splash, on-screen tokens).
+
+**Still the right priority after shipping v1.1.** v1.1 was a forced
+infrastructure move with no product or UI changes. The device E2E confirmed
+the loop still degrades gracefully: in airplane mode the quiz ran on bundled
+content with the offline pill showing.
 
 ## Requirements
 
@@ -417,19 +441,29 @@ no blockers, 12 non-blocking debt items) — see
 
 ### Active
 
-Scoped in `.planning/REQUIREMENTS.md` (milestone v1.1).
+No milestone is active. The next one is defined via `/gsd:new-milestone`,
+which creates a fresh `.planning/REQUIREMENTS.md`.
 
-- [x] **Time-critical (hard stop 2026-11-01):** Frankfurt API cutover — see
-  "Current Milestone" below. Phases 36–38 complete; Lafa 1.0.1 live on the
-  App Store 2026-10-12 and the Oregon-deletion gate handed back to the
-  backend 2026-10-13 (REGION-05 now owned by the backend). Droppable
-  Phase 39 (v1.0 tech-debt cleanup) also complete 2026-10-14.
-- [ ] Analytics SDK for usage metrics — backlog item 999.1 (not in v1.1).
+- [ ] Analytics SDK for usage metrics (backlog item 999.1)
 
 Full historical detail in `.planning/milestones/v0.1-REQUIREMENTS.md` …
-`.planning/milestones/v1.0-REQUIREMENTS.md`.
+`.planning/milestones/v1.1-REQUIREMENTS.md`.
 
-## Current Milestone: v1.1 Frankfurt API Cutover
+## Next Milestone Goals
+
+Not yet chosen. Candidates carried out of v1.1:
+- `POST /events` quiz-completion tracking. The backend already supports it,
+  and it relates to backlog 999.1 (analytics)
+- A custom API domain, so a future host move needs no app release (v1.1 was
+  forced into a release purely to change the host)
+- A minimum-version / update prompt, so stragglers like the remaining 1.0.0
+  installs can be nudged off old builds
+- Reconsidering the 45s cold-boot duplicate-feedback risk (NET-02 / WR-02),
+  for example an idempotency key, if duplicates show up in backend data
+
+<details>
+<summary>v1.1 Frankfurt API Cutover — milestone brief (archived)</summary>
+
 
 **Goal:** Ship Lafa 1.0.1 pointing at the Frankfurt API
 (`https://portuguese-verb-api-fra.onrender.com`) to TestFlight and the App
@@ -480,10 +514,24 @@ tracking (backend supports it; relates to backlog 999.1), a custom API
 domain so future host moves need no app release, a minimum-version /
 update prompt.
 
+**Outcome:** Shipped 2026-10-14. Phases 36-39, 11 plans, 22/22 requirements.
+Lafa 1.0.1 went live on 2026-10-12, five days ahead of the ~2026-10-17 target.
+HAND-02 was committed to the backend log on 2026-10-13.
+
+</details>
+
 ## Carried-forward tech debt
 
-Not in v1.1 unless listed under Current Milestone (see
-`milestones/v1.0-MILESTONE-AUDIT.md` and prior audits):
+See `milestones/v1.1-MILESTONE-AUDIT.md`, `milestones/v1.0-MILESTONE-AUDIT.md`
+and prior audits:
+- A 45s feedback timeout during a Render cold boot can create a duplicate
+  feedback row on Retry. Accepted risk (v1.1, NET-02 / WR-02).
+- 39-REVIEW info items IN-01..IN-04 are unfixed: the 1600×520 lockup size is
+  duplicated in `app/index.tsx` and the validator, `main()` rejection is
+  unhandled, and `hexToRgb` accepts malformed input (v1.1).
+- `allowImportingTsExtensions: true` is safe while only `scripts/` uses
+  `.ts`-suffixed imports. Copying that style into `app/`/`src/` could break
+  Metro (v1.1).
 - Backend `disableRequestLogging` (which the privacy label's "no IPs
   logged" claim relies on) is deprecated in Fastify 6 — re-verify the label
   claim on that upgrade (v1.0).
@@ -533,9 +581,10 @@ Not in v1.1 unless listed under Current Milestone (see
 ## Context
 
 - Sibling repo `portuguese-verb-api` (`avramaruh92/portuguese-verb-backend`) is
-  already live at `https://portuguese-verb-api.onrender.com`. Its v0.0 is
-  shipped and closed out; no new backend requirements are expected alongside
-  this milestone.
+  live at `https://portuguese-verb-api-fra.onrender.com` (Frankfurt) since the
+  v1.1 cutover. The old Oregon host (`portuguese-verb-api.onrender.com`) is
+  only called by un-updated 1.0.0 installs and is scheduled for deletion by
+  the backend (HAND-02 gate, no later than 2026-10-30).
 - The backend's `tense`/`subject`/`platform` enum literals were chosen ahead of
   this app's existence and are flagged (backend Phase 3 decisions D-07/D-08) as
   best-guess pending verification against actual app UI. This app's dataset and
@@ -558,40 +607,37 @@ Not in v1.1 unless listed under Current Milestone (see
   the backend now serves `GET /content/verbs` and the app is remote-first with
   local fallback (see "Shipped in v0.1" above and Constraints below).
 
-**Current codebase state (end of v1.0):**
-- ~7.8k LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`,
-  `scripts/`); v1.0 touched only 8 app/src/scripts/test files (+393/−73) —
-  the milestone was mostly brand-pipeline, release-engineering and store work
-- 261 tests passing across 22 suites; `tsc --noEmit`, `npm run lint` and
-  `npm run validate-brand` (21 checks) all clean
-- 35 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
-  v0.3, 3 in v0.4, 5 in v0.5, 5 in v0.6, 6 in v1.0), 85 plans
+**Current codebase state (end of v1.1):**
+- ~8.3k LOC across TypeScript/TSX (`src/`, `app/`, `__tests__/`,
+  `scripts/`). v1.1 touched 22 app/src/scripts/test/config files (+576/−92);
+  the rest of the milestone was release, store and handoff work
+- 277 tests passing across 23 suites; `tsc --noEmit`, `npm run lint` and
+  `npm run validate-brand` (40 checks) all clean
+- 39 phases total (6 in v0.0, 5 in v0.1 incl. inserted 10.1, 2 in v0.2, 4 in
+  v0.3, 3 in v0.4, 5 in v0.5, 5 in v0.6, 6 in v1.0, 4 in v1.1), 96 plans
 - Toolchain pinned: Node 22.23.2 / npm 10.9.8 (`.nvmrc`, `engines.node`,
   `eas.json` `build.production.node`)
-- Brand source `assets/brand/lafa-icon.svg` (Warm Bold Mark, id-tagged
-  layers) and `assets/brand/lafa-homepage-lockup.svg`; both rendered by
-  `scripts/generate-brand-assets.ts` (`linkedom` build-time dependency) and
-  gated by `scripts/validate-brand.ts`
-- Setup screen renders the lockup PNG (hand-measured crop); quiz answer
-  styling resolved by pure `src/quiz/choiceStyle.ts` with locked-state
-  precedence over `colors.choicePressed`
-- `store/` holds versioned App Store Connect metadata, privacy answer sheet,
-  screenshots and a field-by-field submission log; `docs/` serves Support
-  and Privacy pages via GitHub Pages (`gh-pages` branch, public repo)
-- `eas.json`: `appVersionSource: remote` + `autoIncrement`; production
-  build #6 shipped as Lafa 1.0.0 (Ready for Distribution)
-- Network calls unchanged since v0.4: `GET /content/verbs`, `POST /feedback`,
-  `POST /product-feedback` — base URL must move to the Frankfurt backend
-  before 2026-11-01 (see Active)
-- Known non-blocking tech debt: see "Next Milestone" above and
-  `milestones/v1.0-MILESTONE-AUDIT.md`.
+- Brand source `assets/brand/lafa-icon.svg` and
+  `assets/brand/lafa-homepage-lockup.svg`, rendered by
+  `scripts/generate-brand-assets.ts` and gated by `scripts/validate-brand.ts`
+  (shared hex values in `scripts/brand-colors.ts`, crop constants in
+  `src/theme/lockup.ts`)
+- `store/` holds versioned App Store Connect metadata, privacy answers,
+  screenshots and a multi-version submission log (1.0.0 and 1.0.1); `docs/`
+  serves Support and Privacy pages via GitHub Pages
+- `eas.json`: `appVersionSource: remote` + `autoIncrement`. 1.0.0 shipped as
+  build 6 and 1.0.1 as build 8
+- Network calls: `GET /content/verbs`, `POST /feedback`,
+  `POST /product-feedback`, all on the Frankfurt `API_BASE_URL`
+- Known non-blocking tech debt: see "Carried-forward tech debt" above and
+  `milestones/v1.1-MILESTONE-AUDIT.md`.
 
 ## Constraints
 
 - **Tech stack**: Expo (React Native) + TypeScript + Expo Router — iOS-first — locked by CLAUDE.md and confirmed at project setup
 - **State management**: Zustand for quiz session state — chosen over plain React state for nicer ergonomics as quiz logic grows; app remains small so no heavier state library needed
 - **Testing**: Jest with the Expo preset — standard for Expo/RN, works out of the box with TypeScript
-- **Backend contract**: Mobile only ever calls `POST /feedback` (submit) and `GET /content/verbs` (dataset fetch, with local fallback) on the live backend; never connects to Supabase directly or stores credentials — locked cross-repo constraint
+- **Backend contract**: Mobile only ever calls `POST /feedback`, `POST /product-feedback` and `GET /content/verbs` (dataset fetch, with local fallback) on the live backend at `API_BASE_URL` (`src/config/api.ts`); never connects to Supabase directly or stores credentials — locked cross-repo constraint
 - **Dataset authoring**: Full 50-verb target dataset (4 tenses × 6 subjects each) is significant hand-authored content; drafted by the assistant and reviewed by the user for conjugation accuracy before it ships
 
 ## Key Decisions
@@ -645,6 +691,12 @@ Not in v1.1 unless listed under Current Milestone (see
 | Setup lockup rendered in a fixed 304×110pt box cropped to the measured content bounding box, not `width: 100%` + `aspectRatio` (v1.0 Phase 32) | The full 1600×520 canvas carried large empty margins that misaligned the lockup; required 5 on-device iterations to land | ✓ Good, ⚠️ minor debt — crop constants are hand-measured and ungated; must be re-measured if the lockup SVG changes |
 | `colors.choicePressed` scoped only to unsubmitted answer presses, resolved in a pure `resolveChoiceStyle` with locked-state precedence (v1.0 Phase 33) | Red/error must stay reserved for actual wrong-answer feedback; precedence needs an explicit, testable rule rather than style-array last-writer-wins | ✓ Good — 4 explicit precedence tests; `colors.pressed` unchanged for primary buttons |
 | Repo made public so GitHub Pages can host the Support/Privacy URLs on the free plan (v1.0 Phase 35) | Avoided paying for GitHub Pro or standing up separate hosting that would contradict the no-new-repo constraint | ✓ Good — both URLs live (HTTP 200) and accepted by App Review; accepted tradeoff of full source visibility |
+| One `API_BASE_URL` in `src/config/api.ts` for all three network modules, plus a Jest guard that fails on the Oregon host anywhere in code or config (v1.1 Phase 36) | A host move must be a one-line change, and nothing may silently reintroduce Oregon once it is deleted | ✓ Good — 1.0.1 verified hitting Frankfurt on all three calls; `scripts/preflight.ts` keeps its own literal because Node type stripping can't import the RN module |
+| Content timeout 90s → 15s and feedback 90s → 45s, accepting a possible duplicate feedback row on Retry after a slow cold boot (v1.1 Phase 36, WR-02) | 15s keeps the quiz start snappy because the fallback is silent. 45s covers a ~40s Render cold boot or the slow product-feedback path, but not both | ✓ Good, ⚠️ accepted risk — no duplicates observed yet; revisit with an idempotency key if they appear |
+| No ETag/304 handling: a guard test proves the content fetch sends no cache headers and treats any non-200 as fallback (v1.1 Phase 36) | The backend added revalidation, but the app's in-memory, once-per-process fetch gains nothing from it | ✓ Good — zero behaviour change, locked by test |
+| Submit 1.0.1 only after the real-device E2E passed, with automatic release and phased release off (v1.1 Phases 37-38) | The Oregon deadline rewarded getting all new installs onto Frankfurt fast; phased release would have slowed that | ✓ Good — live 2026-10-12, five days early |
+| Oregon-deletion gate: once 1.0.1 is live AND (~48h with no real Oregon requests OR 2026-10-30), whichever comes first (v1.1 HAND-02) | A 1.0.0 straggler after deletion keeps a working quiz (bundled dataset) and only loses feedback, while missing 1 Nov would put every user back on cold starts. The date clause stops stragglers from blocking deletion indefinitely | ✓ Good — handed to the backend 2026-10-13; deletion now owned there (REGION-05) |
+| Tech-debt phase (39) declared droppable and run during the App Review wait (v1.1) | Debt cleanup must never delay a deadline-driven release | ✓ Good — completed in the review window without touching the release path |
 
 ## Evolution
 
@@ -664,4 +716,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-14 — Phase 39 (v1.0 tech-debt cleanup) complete*
+*Last updated: 2026-10-14 after v1.1 milestone*

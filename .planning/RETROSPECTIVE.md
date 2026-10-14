@@ -330,6 +330,50 @@
 
 ---
 
+## Milestone: v1.1 — Frankfurt API Cutover
+
+**Shipped:** 2026-10-14
+**Phases:** 4 (36, 37, 38, 39) | **Plans:** 11 | **Sessions:** ~3. Phases 36-37 and the App Review submission ran on 2026-10-11. The HAND-02 handoff and release record were on 2026-10-13. Phase 39, the audit and the milestone close were on 2026-10-14. The calendar time between sessions was mostly Apple's review.
+
+### What Was Built
+- One `API_BASE_URL` in `src/config/api.ts` for content, quiz feedback and product feedback, plus a Jest guard. The guard fails if the Oregon host appears anywhere in code or config, and asserts that the preflight literal matches.
+- Timeouts sized for Render cold boots: 15s for the content fetch (the fallback is silent, so short is fine) and 45s for both feedback POSTs. A guard test proves the content fetch sends no cache headers and treats a raw 304 as fallback.
+- Lafa 1.0.1 (build 8), built on EAS, installed from TestFlight and verified on a real iPhone: content and both feedback 201s reached Frankfurt, and the airplane-mode fallback worked.
+- App Store release with automatic release and phased release off. It was live on 2026-10-12, five days ahead of target.
+- Two dated handoff lines to the backend. HAND-01 started the deletion clock. HAND-02 set the Oregon-deletion gate: live AND (~48h quiet OR 2026-10-30).
+- The droppable Phase 39 hardened `validate-brand` (pixel colour, lockup crop, repo-root paths, 40 checks) and corrected the v1.0 doc debt.
+
+### What Worked
+- **Recording the deadline at the end of v1.0 (lesson #4) paid off.** The Frankfurt cutover led v1.1 from day one, and 1.0.1 shipped about 2.5 weeks before the 2026-11-01 hard stop.
+- **Gating the submission on the real-device E2E.** Phase 38 could not start until Phase 37's TestFlight E2E passed. The build that went to Apple had already been shown to reach Frankfurt.
+- **Labelling the tech-debt phase as droppable up front.** Phase 39 ran during the App Review wait, used time that would otherwise have been idle, and never competed with the release path.
+- **Working on `main` (lesson #3 applied).** No long-lived branch this milestone, so there was no end-of-milestone mega-PR and no merge conflicts.
+- **Writing evidence verbatim.** Build ids, ASC status strings and backend log timestamps were copied as-is. "In Review" was recorded as "not observed" rather than given an invented timestamp.
+
+### What Was Inefficient
+- **Nyquist validation slipped again.** No phase is Nyquist-compliant: 36 and 39 have draft VALIDATION.md files, and 37 and 38 have none.
+- **Requirements frontmatter drift recurred.** 38-02 has empty `requirements-completed`, and 39-02 uses a `requirements:` key. This is the sixth or seventh milestone with this gap.
+- **The HAND-02 line was dated one day after Ready for Distribution**, missing the D-09 same-day rule. The content was correct.
+- **Milestone-close tooling repeated v1.0's problems.** The open-artifact audit again flagged quick task 260816-k8y as "missing", a false positive. The auto-generated MILESTONES entry again counted backlog 999.1 as a phase and used a "1. Review notes entered after submit." line as the only accomplishment, so it had to be rewritten by hand.
+
+### Patterns Established
+- **Keep the backend host in one constant with a guard test.** Any future host move is a one-line change plus a failing test if the old host is still referenced anywhere.
+- **Hand-back gates need a date clause.** A condition users can block indefinitely ("48h of no traffic") needs a hard backstop date.
+- **Mark tech-debt phases droppable inside deadline milestones**, and schedule them into external wait windows (App Review, builds).
+
+### Key Lessons
+1. Tie the time-sensitive part of a milestone to an external deadline and gate each step on real evidence (device E2E before submit). v1.1 finished early with no rework.
+2. A host change still cost a full App Store release. A custom API domain, or a minimum-version prompt, would turn the next infrastructure move into config only.
+3. The `gsd-sdk` milestone-close helpers are not reliable in this repo: the `audit-open` false positive and the MILESTONES accomplishment extraction failed for the second milestone running. Expect to hand-edit the MILESTONES entry, or fix the tooling, instead of re-discovering this each time.
+4. Nyquist and requirements-frontmatter upkeep need to happen at phase close. Doing it at audit time hasn't worked for several milestones.
+
+### Cost Observations
+- Model mix: opus for planning, orchestration and audit; sonnet for execution and verification.
+- Sessions: ~3. Engineering took under a day (Phase 36). Most of the elapsed time was TestFlight processing and App Review.
+- Notable: the cheapest milestone so far for the risk involved. The expensive parts were external waits, not rework.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -344,6 +388,7 @@
 | v0.5 | ~3 | 5 | First pure release-engineering milestone (zero new product code); first to have an entire phase (24-03) run conversationally as human-only checkpoints rather than any subagent dispatch; first to retroactively backfill VERIFICATION.md files during milestone audit to close a `gaps_found` status; a tooling-version bug (npm lockfile drift) recurred despite being explicitly flagged as a recurrence risk when first fixed |
 | v0.6 | ~2-3 | 5 | First pure brand/visual milestone (zero product/UX-flow changes); first use of `Pressable`'s function-form `style` prop for pressed-state visuals; first milestone-close pre-flight audit to flag a false-positive gap (stale `human_needed`/`unknown` status vs. an already-approved HUMAN-UAT.md) rather than a real one; the npm lockfile-drift tooling bug recurred a third time despite being flagged as a fix candidate twice before |
 | v1.0 | ~4-5 | 6 | First public App Store release (Ready for Distribution). First milestone where a recurring tooling bug was fixed by a durable artifact (Node pin) rather than re-flagged. First single-PR merge to `main` after four milestones off-main. Verification backfill again needed at close (Phases 30, 32) |
+| v1.1 | ~3 | 4 | First deadline-driven infrastructure milestone (forced host move). First App Store update (1.0.1), shipped five days early. First milestone worked directly on `main`. First droppable phase, scheduled into the App Review wait. Nyquist and requirements-frontmatter drift recurred |
 
 ### Cumulative Quality
 
@@ -357,6 +402,7 @@
 | v0.5 | 251 | Not measured via coverage tool this milestone | 2 devDependencies (`@resvg/resvg-js`, `sharp` for the icon pipeline) + `eas-cli` pinned as a devDependency (deliberate tradeoff, D-04) — zero application-code dependency changes, release-engineering only |
 | v0.6 | 251 | Not measured via coverage tool this milestone | 0 (new `scripts/validate-brand.ts` built entirely on existing `sharp`/TypeScript stack, no new npm packages; `package-lock.json` regenerated to fix drift, not to add a dependency) |
 | v1.0 | 261 | Not measured via coverage tool this milestone | 1 build-time devDependency (`linkedom`, approved for id-based SVG parsing); `eas-cli` devDependency removed (quick task 260816-k8y). No application-code dependency changes |
+| v1.1 | 277 | Not measured via coverage tool this milestone | 0 (new `src/config/api.ts` and guard test, `scripts/brand-colors.ts` shared module; no new npm packages) |
 
 ### Top Lessons (Verified Across Milestones)
 

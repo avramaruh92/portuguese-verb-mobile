@@ -10,7 +10,7 @@
 - ✅ **v0.5 iOS TestFlight Readiness** — Phases 20-24 (shipped 2026-07-25)
 - ✅ **v0.6 Lafa Branding + Expo Splash Cleanup** — Phases 25-29 (shipped 2026-08-16)
 - ✅ **v1.0 Warm Brand Polish + App Store Submission Readiness** — Phases 30-35 (shipped 2026-10-11)
-- 🚧 **v1.1 Frankfurt API Cutover** — Phases 36-39 (in progress; hard deadline 2026-11-01)
+- ✅ **v1.1 Frankfurt API Cutover** — Phases 36-39 (shipped 2026-10-14)
 
 ## Phases
 
@@ -122,131 +122,16 @@ Full phase details, plan breakdowns, and success criteria archived in
 
 </details>
 
-### 🚧 v1.1 Frankfurt API Cutover (Phases 36-39) — IN PROGRESS
-
-**Hard deadline: 2026-11-01.** If the Oregon service (`https://portuguese-verb-api.onrender.com`) still exists that day, the backend pauses its keep-warm pingers and Frankfurt returns to cold starts. Source of truth for what changes: `../portuguese-verb-backend/docs/mobile-handoff.md` (2026-10-09 and 2026-10-08 entries).
-
-**Target dates:** TestFlight ~2026-10-13 | App Store live ~2026-10-17 | Oregon deletion no later than 2026-10-30.
-
-- [x] **Phase 36: API Base-URL Cutover & Timeouts** - All requests use one Frankfurt base URL; timeouts tightened; Oregon-host guard test
-- [x] **Phase 37: 1.0.1 Build, TestFlight & Device Verification** - EAS build, TestFlight install, real-device E2E against Frankfurt, status line to backend handoff
-- [x] **Phase 38: App Store Release & Oregon Gate Hand-back** - Submit 1.0.1 after E2E passes, release automatically, hand Oregon-deletion recommendation to backend
-- [x] **Phase 39: v1.0 Tech-Debt Cleanup** - Droppable; brand-validation hardening and doc fixes, run during App Review wait
-
-## Phase Details
-
-### Phase 36: API Base-URL Cutover & Timeouts
-
-**Goal**: The app talks only to the Frankfurt API, with timeouts sized for Render cold boots, and nothing can silently reintroduce the Oregon host
-**Depends on**: Nothing (first v1.1 phase; must land first)
-**Requirements**: API-01, API-02, API-03, API-04, NET-01, NET-02, NET-03
-**Success Criteria** (what must be TRUE):
-
-  1. Content, quiz feedback and product feedback requests all resolve to `https://portuguese-verb-api-fra.onrender.com` from a single shared base-URL constant
-  2. `npm test` fails if `portuguese-verb-api.onrender.com` appears anywhere in `src/` or `scripts/`
-  3. `npm run preflight` passes against Frankfurt
-  4. Content fetch aborts at 15s and falls back to the bundled dataset; both feedback submissions abort at 45s and return `network-error`
-  5. A test proves the content fetch sends no cache-busting headers/params and that any non-200 (including a raw 304) falls back to local data
-  6. `CLAUDE.md`, `AGENTS.md`, `store/metadata/review-notes.md` and `store/privacy/nutrition-label-answers.md` no longer present Oregon as the current API
-
-**Plans**: 2 plans
-
-Plans:
-**Wave 1**
-
-- [x] 36-01-PLAN.md — Shared API_BASE_URL (Frankfurt), 15s/45s timeouts, preflight literal, Oregon-host guard test, NET-03 + timeout-boundary tests
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 36-02-PLAN.md — Docs cutover (CLAUDE.md, AGENTS.md, review notes, nutrition label) + live preflight gate (checkpoint)
-
-### Phase 37: 1.0.1 Build, TestFlight & Device Verification
-
-**Goal**: Lafa 1.0.1 is built, installed from TestFlight, and verified on a real device against Frankfurt, and the backend is told it can start its Oregon-deletion gate (target ~2026-10-13)
-**Depends on**: Phase 36
-**Requirements**: REL-01, REL-02, E2E-01, E2E-02, E2E-03, E2E-04, HAND-01
-**Success Criteria** (what must be TRUE):
-
-  1. An EAS production build (build #7+) of 1.0.1 exists, with build number and EAS build id recorded
-  2. The build is installed on a real device from TestFlight by an internal tester, with the date recorded
-  3. On that device content loads with no offline pill and the request appears in the Frankfurt service logs
-  4. A "Report a problem" and a "Help us improve" submission each return 201 and the rows exist in the backend
-  5. In airplane mode a quiz completes on the bundled dataset with the offline pill showing, and feedback fails gracefully with a Retry option
-  6. A status line (version, build number, date) is appended to the 2026-10-09 entry in `../portuguese-verb-backend/docs/mobile-handoff.md`
-
-**Plans**: 4 plans
-
-Plans:
-**Wave 1**
-
-- [x] 37-01-PLAN.md — Bump expo.version to 1.0.1, run pre-build gates, create 37-EVIDENCE.md
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 37-02-PLAN.md — EAS production build #7+, TestFlight submit and internal-tester install (REL-01, REL-02)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 37-03-PLAN.md — Real-device E2E against Frankfurt: online, feedback 201s, airplane mode (E2E-01..04)
-
-**Wave 4** *(blocked on Wave 3 completion)*
-
-- [x] 37-04-PLAN.md — Append 1.0.1 status line to backend mobile-handoff.md 2026-10-09 entry (HAND-01)
-
-**Operator checkpoints**: EAS build/submit credentials, App Store Connect/TestFlight install, on-device testing, backend log/row checks (human-driven)
-
-### Phase 38: App Store Release & Oregon Gate Hand-back
-
-**Goal**: 1.0.1 is live on the App Store and the backend has an explicit recommendation for when to delete Oregon (target live ~2026-10-17; Oregon deletion no later than 2026-10-30)
-**Depends on**: Phase 37 (submit only after its E2E passes)
-**Requirements**: REL-03, REL-04, HAND-02
-**Success Criteria** (what must be TRUE):
-
-  1. 1.0.1 is submitted to App Review with Frankfurt review notes, "What's New" text and automatic release on approval
-  2. ASC status strings, timestamps and release option are recorded verbatim in `store/submission-log.md`
-  3. 1.0.1 shows Ready for Distribution on the App Store, with the live date recorded
-  4. A status line is appended to the backend handoff with the recommendation: delete Oregon once 1.0.1 is live AND (~48h of no real Oregon requests OR 2026-10-30), whichever comes first
-
-**Plans**: 3 plans
-**Operator checkpoints**: App Store Connect submission and Apple review wait (human-driven)
-
-Plans:
-**Wave 1**
-
-- [x] 38-01-PLAN.md — whats-new.txt, review-notes device line, multi-version submission log; operator submits 1.0.1 build 8 (auto release, phased off); record submit (checkpoint)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 38-02-PLAN.md — App Review wait: verbatim status history, D-06 reply/resubmit path, D-08 2026-10-27 slip warning, live date (checkpoint)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 38-03-PLAN.md — HAND-02 Oregon-deletion recommendation in backend handoff (single-file backend commit) + v1.0.1 result in submission log
-
-### Phase 39: v1.0 Tech-Debt Cleanup
-
-**Goal**: v1.0 audit tech debt is closed without ever delaying the release. **Droppable**: run during the App Review wait; never blocks Phase 37, Phase 38 or the 2026-11-01 deadline
-**Depends on**: Nothing (independent; Phase 36 preferred only to avoid doc/script conflicts)
-**Requirements**: DEBT-01, DEBT-02, DEBT-03, DEBT-04, DEBT-05
-**Success Criteria** (what must be TRUE):
-
-  1. `validate-brand` fails when a brand PNG has the wrong pixel colour
-  2. `validate-brand` gives the same result when run from any working directory
-  3. `validate-brand` fails if the Setup lockup crop constants in `app/index.tsx` drift from the measured values
-  4. Docs state that `app.json` `ios.buildNumber` is ignored in favour of `eas.json` remote autoIncrement, and the 30-02-SUMMARY, 35-06-SUMMARY and `store/screenshots/README.md` inaccuracies are corrected
-
-**Plans**: 2 plans
-
-Plans:
-**Wave 1**
-
-- [x] 39-01-PLAN.md — validate-brand hardening: shared brand-colors/lockup modules, repo-root paths, pixel-colour samples, lockup crop gate, negative-run proof (DEBT-02/03/04)
-- [x] 39-02-PLAN.md — Docs: ios.buildNumber note in CLAUDE.md/STACK.md, corrections to 30-02/35-06 summaries and screenshots README (DEBT-01/05)
-
 <details>
-<summary>Prior milestones (retained for reference)</summary>
+<summary>✅ v1.1 Frankfurt API Cutover (Phases 36-39) — SHIPPED 2026-10-14</summary>
 
-Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
+- [x] Phase 36: API Base-URL Cutover & Timeouts (2/2 plans) — completed 2026-10-11
+- [x] Phase 37: 1.0.1 Build, TestFlight & Device Verification (4/4 plans) — completed 2026-10-11
+- [x] Phase 38: App Store Release & Oregon Gate Hand-back (3/3 plans) — completed 2026-10-13
+- [x] Phase 39: v1.0 Tech-Debt Cleanup (2/2 plans) — completed 2026-10-14
+
+Full phase details, plan breakdowns, and success criteria archived in
+`.planning/milestones/v1.1-ROADMAP.md`.
 
 </details>
 
@@ -290,15 +175,15 @@ Phase details for v0.0-v1.0 are archived under `.planning/milestones/`.
 | 33. Quiz Press-State Color Fix | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 34. Brand Validation Extension | v1.0 | 1/1 | Complete | 2026-08-16 |
 | 35. App Store Connect Readiness | v1.0 | 7/7 | Complete | 2026-10-11 |
-| 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete    | 2026-10-11 |
-| 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 4/4 | Complete    | 2026-10-11 |
-| 38. App Store Release & Oregon Gate Hand-back | v1.1 | 3/3 | Complete    | 2026-10-13 |
-| 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 2/2 | Complete    | 2026-10-14 |
+| 36. API Base-URL Cutover & Timeouts | v1.1 | 2/2 | Complete | 2026-10-11 |
+| 37. 1.0.1 Build, TestFlight & Device Verification | v1.1 | 4/4 | Complete | 2026-10-11 |
+| 38. App Store Release & Oregon Gate Hand-back | v1.1 | 3/3 | Complete | 2026-10-13 |
+| 39. v1.0 Tech-Debt Cleanup (droppable) | v1.1 | 2/2 | Complete | 2026-10-14 |
 
 ---
 
-*Milestones v0.0 through v1.0 shipped (Lafa 1.0.0 Ready for Distribution,
-2026-10-11). v1.1 Frankfurt API Cutover in progress (deadline 2026-11-01).*
+*Milestones v0.0 through v1.1 shipped (Lafa 1.0.1 live on the App Store against
+the Frankfurt API, 2026-10-12). Next milestone not yet defined.*
 
 ## Backlog
 

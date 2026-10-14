@@ -1,5 +1,32 @@
 # Milestones
 
+## v1.1 Frankfurt API Cutover (Shipped: 2026-10-14)
+
+**Phases completed:** 4 phases (36-39), 11 plans, 28 tasks, 22/22 requirements
+**Timeline:** 2026-10-11 → 2026-10-14 · 86 commits · app/src/scripts/tests/config: 22 files, +576/−92
+**Audit:** tech_debt. 22/22 requirements, 22/22 integration links and 4/4 flows met, no blockers; non-blocking debt accepted (see `milestones/v1.1-MILESTONE-AUDIT.md`)
+
+**Delivered:** Lafa 1.0.1 is live on the App Store talking only to the Frankfurt API, and the backend has a dated go-ahead for deleting Oregon.
+
+**Key accomplishments:**
+
+- Moved every app request to `https://portuguese-verb-api-fra.onrender.com` through one `API_BASE_URL` constant in `src/config/api.ts`. Content fetch now times out at 15s and both feedback POSTs at 45s, sized for Render cold boots. A Jest guard fails if the Oregon host reappears in code or config, and the live preflight passed 4/4 against Frankfurt (Phase 36).
+- Built Lafa 1.0.1 (build 8) on EAS and installed it from TestFlight on an iPhone 14 Pro. A real-device E2E passed 4/4: content and both feedback paths reached Frankfurt, and airplane mode fell back to bundled content (Phase 37).
+- Told the backend that 1.0.1 was on TestFlight (HAND-01), so its Oregon-deletion clock could start (Phase 37).
+- Submitted 1.0.1 to App Review with automatic release and phased release off. It went **Ready for Distribution** on 2026-10-12T15:08Z. HAND-02 then gave the backend the rule for deleting Oregon: once 1.0.1 is live and Oregon has had about 48h with no real requests, or on 2026-10-30, whichever comes first (Phase 38).
+- Hardened `validate-brand`. It now checks pixel colour in all 6 brand PNGs and checks the Setup lockup crop against the measured bounding box, and it resolves paths from the repo root. Brand hex values moved to a shared `scripts/brand-colors.ts` (Phase 39).
+- Corrected v1.0 doc debt: `ios.buildNumber` is now documented as ignored because EAS manages build numbers remotely, and stale summary and README text was fixed with dated corrections (Phase 39).
+
+**Accepted debt carried forward:**
+
+- A 45s feedback timeout during a Render cold boot can create a duplicate feedback row on Retry (NET-02, WR-02).
+- Nyquist validation is missing or still in draft for Phases 36-39.
+- 39-REVIEW info items IN-01..IN-04 were not fixed.
+
+**Known deferred items at close:** 0. The open-artifact audit flagged quick task `260816-k8y`, but that was a false positive: its SUMMARY is `status: complete`.
+
+---
+
 ## v1.0 Warm Brand Polish + App Store Submission Readiness (Shipped: 2026-10-11)
 
 **Phases completed:** 6 phases (30-35), 16 plans, 29 tasks, 27/27 requirements
