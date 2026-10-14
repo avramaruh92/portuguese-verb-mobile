@@ -3,12 +3,14 @@
 **Lafa** is the product/brand name, adopted at v0.2 kickoff (2026-07-19). The
 git repo directory name and backend sibling repo name stay
 `portuguese-verb-mobile` / `portuguese-verb-api` — "Lafa" is the user-facing
-identity only. **As of Phase 21 (v0.5, 2026-07-23), `app.json`'s `expo.slug`
-and `expo.scheme` were changed to `lafa`** (release-identity lock ahead of
-the first real EAS build/submit) — this is a deliberate divergence from the
-git repo/package name, not drift; `package.json`'s `name` field intentionally
-stays `portuguese-verb-mobile`. Check `app.json` directly before assuming
-which values are current.
+identity only. **`app.json` has `expo.name: "Lafa"` and `expo.scheme: "lafa"`,
+but `expo.slug` stays `portuguese-verb-mobile`.** Phase 21 (v0.5) changed both
+slug and scheme to `lafa`; Phase 24-03 (commit `cab654b`) reverted the slug
+because `lafa` did not match the existing EAS project's server-side slug and
+broke `eas build`. The slug is deliberate, not drift — do not change it to
+`lafa`. `package.json`'s `name` field also intentionally stays
+`portuguese-verb-mobile`. Check `app.json` directly before assuming which
+values are current.
 
 `app.json`'s `expo.ios.buildNumber` (`"1"`) is ignored and intentionally left
 in place: `eas.json` sets `cli.appVersionSource: "remote"` and
@@ -168,9 +170,8 @@ Full detail: `.planning/codebase/STRUCTURE.md`.
 **Lafa** is the product/brand name for this app (adopted at v0.2 kickoff,
 2026-07-19 — see "Current Milestone" below). The repo, slug, and backend
 sibling repo name remain unchanged (`portuguese-verb-mobile`); "Lafa" is the
-user-facing identity only. **In-app, the display name is still
-"Portuguese Verb Quiz" until Phase 11 ships the rebrand** — do not assume
-`app.json`/UI copy already say "Lafa" until that phase is marked complete.
+user-facing identity only. The rebrand has shipped: `app.json`'s
+`expo.name` is "Lafa".
 
 An iOS-first Expo React Native app (TypeScript, Expo Router) that lets beginner
 (A1-A2) learners of European Portuguese practice verb conjugation through short
