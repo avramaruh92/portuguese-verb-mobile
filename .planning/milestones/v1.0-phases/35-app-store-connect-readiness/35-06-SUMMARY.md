@@ -37,6 +37,8 @@ completed: TBD
 
 **Pre-build gates fixed and verified green; production EAS build and submission are in progress / pending human checkpoints.**
 
+> Correction (2026-10-14, Phase 39): this headline was written mid-plan. The production build (#6, v1.0.0) was uploaded, processed by Apple, attached to version 1.0.0 and submitted for App Review in plan 35-07, and Task 3 is complete (see "Closed out" below). The v1.0 audit's quoted "Task 3 is not yet closed" ending was already superseded by the "Closed out" section.
+
 ## Pre-build gate results (Task 1)
 
 Initial run surfaced one failing gate:

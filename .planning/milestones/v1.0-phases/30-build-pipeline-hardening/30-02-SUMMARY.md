@@ -37,6 +37,8 @@ completed: 2026-08-16
 
 **Real `eas build --profile production --platform ios` confirmed the Node 22.23.2 pin from plan 30-01 exactly matches the EAS build image — no reconciliation needed.**
 
+> Correction (2026-10-14, Phase 39): the EAS SDK-57 base image's default Node was 22.23.1, not 22.23.2. The `eas.json` `build.production.node` pin installs and runs 22.23.2, which is what the build #6 log showed in "Spin up build environment". The pin worked and the outcome is unchanged, but the "exact match with the build image / Case A" framing is wrong; see 30-VERIFICATION.md.
+
 ## Performance
 
 - **Duration:** ~15 min (human-run build + checkpoint confirmation)
@@ -47,6 +49,8 @@ completed: 2026-08-16
 ## Accomplishments
 - Ran a real production EAS build (Build ID `b20e4c67-93e2-4190-885a-661c70545071`, Build number 5, SDK 57.0.0, EAS CLI 21.8.0) from the committed Wave 1 state
 - Build log's "Spin up build environment" step reported Node version **22.23.2** — character-for-character identical to `.nvmrc` / `package.json engines.node` / `eas.json build.production.node`
+
+> Correction (2026-10-14, Phase 39): see the correction under the headline — 22.23.2 is the pinned version, the image default was 22.23.1.
 - Install step (`npm ci`) completed cleanly — no ERESOLVE, no lockfile-mismatch, no missing-package error (the two failure signatures from Phase 24 and Phase 29)
 - Build finished successfully, producing an installable `.ipa` artifact: https://expo.dev/artifacts/eas/IFTiAj-JeyZ9_3T0jHls_sg_XcPG3FSJgB-QGnHdjwE.ipa
 - Confirmed Case A per plan's decision tree — since the build-log version matched the local resolution exactly, Task 2 required no file changes and Task 3 required no second confirming build
@@ -60,6 +64,8 @@ None — the pin from plan 30-01 (`.nvmrc`, `package.json`, `eas.json`, `package
 
 ## Decisions Made
 - Case A confirmed: local `nvm install 22` resolution (22.23.2) matched the EAS build image's Node version exactly at build time. RESEARCH.md Pitfall 1 flagged this as a live, verified-today discrepancy risk (local 22.23.2 vs Expo's documented 22.23.1) — that risk did not materialize in this build, but the plan's Case A/B branching existed specifically to catch it if it had.
+
+> Correction (2026-10-14, Phase 39): see the correction under the headline — 22.23.2 is the pinned version, the image default was 22.23.1.
 
 ## Deviations from Plan
 
