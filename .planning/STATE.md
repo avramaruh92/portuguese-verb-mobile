@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Frankfurt API Cutover
 status: executing
 stopped_at: Phase 39 context gathered
-last_updated: "2026-10-14T19:17:44.382Z"
-last_activity: 2026-10-14 -- Phase 39 planning complete
+last_updated: "2026-10-14T19:19:07.451Z"
+last_activity: 2026-10-14 -- Phase 39 execution started
 progress:
   total_phases: 5
   completed_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-11)
 
 **Core value:** A learner can open the app, pick what to practice, complete a 10-question conjugation quiz entirely offline, and see an accurate score.
-**Current focus:** Phase 999.1 — add analytics sdk for usage metrics
+**Current focus:** Phase 39 — v1-0-tech-debt-cleanup
 
 ## Current Position
 
-Phase: 999.1
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-10-14 -- Phase 39 planning complete
+Phase: 39 (v1-0-tech-debt-cleanup) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 39
+Last activity: 2026-10-14 -- Phase 39 execution started
 
 ## Performance Metrics
 
