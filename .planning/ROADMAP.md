@@ -235,7 +235,13 @@ Plans:
   3. `validate-brand` fails if the Setup lockup crop constants in `app/index.tsx` drift from the measured values
   4. Docs state that `app.json` `ios.buildNumber` is ignored in favour of `eas.json` remote autoIncrement, and the 30-02-SUMMARY, 35-06-SUMMARY and `store/screenshots/README.md` inaccuracies are corrected
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 39-01-PLAN.md — validate-brand hardening: shared brand-colors/lockup modules, repo-root paths, pixel-colour samples, lockup crop gate, negative-run proof (DEBT-02/03/04)
+- [ ] 39-02-PLAN.md — Docs: ios.buildNumber note in CLAUDE.md/STACK.md, corrections to 30-02/35-06 summaries and screenshots README (DEBT-01/05)
 
 <details>
 <summary>Prior milestones (retained for reference)</summary>
