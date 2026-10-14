@@ -1,96 +1,185 @@
+---
+last_mapped_commit: 94ea956
+---
+
 # External Integrations
 
-**Analysis Date:** 2026-07-18
+**Analysis Date:** 2026-10-14
+
+## Summary
+
+The app has exactly one external service: the companion backend `portuguese-verb-api`, hosted on Render (Frankfurt region). It makes three network calls in app code plus one health probe in a dev script. There is no database client, no auth provider, no analytics, no push, and no webhook surface on the device. Everything is plain `fetch` over HTTPS.
 
 ## APIs & External Services
 
-**Feedback submission:**
-- `portuguese-verb-api` backend (live, hosted at `https://portuguese-verb-api.onrender.com`) - the only user-write integration in the app
-  - Endpoint: `POST https://portuguese-verb-api.onrender.com/feedback`
-  - Implementation: `src/feedback/submit.ts` (`submitFeedback` function), invoked from `src/feedback/ReportFeedbackModal.tsx`
-  - Client: native `fetch` (no SDK/client library), wrapped with a 90-second timeout via `AbortController` (`TIMEOUT_MS = 90_000`)
-  - Request body schema mirrored client-side in `src/feedback/schema.ts` (Zod) and built via `src/feedback/payload.ts` (`buildFeedbackPayload`): `message`, `verb`, `tense`, `subject`, `correctAnswer`, `selectedAnswer`, `appVersion`, `platform`
-    - `tense` enum sourced from `TENSES` in `src/dataset/types.ts`
-    - `subject` enum sourced from `SUBJECTS` in `src/dataset/types.ts`
-    - `platform` enum hardcoded as `z.enum(["ios", "android"])` in `src/feedback/schema.ts`
-  - Response handling (`src/feedback/submit.ts`): `201` → `{ status: "success", data }` (parses returned persisted row); `400` → `{ status: "validation-error" }`; any other status → `{ status: "server-error" }`; network/timeout failure (fetch throw) → `{ status: "network-error" }`
-  - Auth: none — endpoint is unauthenticated, no API key or token sent
-  - UI surface: `src/feedback/ReportFeedbackModal.tsx` - a modal presented from the quiz screen (`app/quiz.tsx`) that lets a user pick a feedback reason (`src/feedback/reasons.ts`), add optional free text, and submit; shows submitting/success/error states and offers retry on `server-error`/`network-error`
+**Backend API (companion repo `portuguese-verb-api`, sibling `portuguese-verb-backend` on GitHub):**
+- Base URL: `https://portuguese-verb-api-fra.onrender.com`
+  - Defined once in `src/config/api.ts` as `API_BASE_URL`
+  - `scripts/preflight.ts` repeats the literal (Node type stripping cannot import `src/config/api.ts`)
+  - Former Oregon host (`portuguese-verb-api.onrender.com`) is forbidden. `__tests__/api-host-guard.test.ts` fails if it appears in `src/`, `scripts/`, `app/`, `app.json`, `package.json`, or `eas.json`.
+- SDK/Client: none. Plain `fetch` with `AbortController`.
+- Auth: none. No headers, no tokens, no cookies. No login or accounts.
 
-**Content/dataset fetch:**
-- `portuguese-verb-api` backend - a second, read-only integration used to fetch the verb dataset remotely, with local fallback
-  - Endpoint: `GET https://portuguese-verb-api.onrender.com/content/verbs`
-  - Implementation: `src/dataset/remote.ts` (`fetchRemoteVerbs` function)
-  - Client: native `fetch`, wrapped with the same 90-second `AbortController` timeout pattern as feedback submission
-  - Response is expected to be `{ verbs: Verb[] }`; the `verbs` array is validated at runtime against the same dataset schema used for the bundled local dataset (`src/dataset/validate.ts`'s `validateDataset`) before being accepted
-  - On any failure (non-OK response, malformed payload, validation failure, network error, or timeout), the caller falls back to the bundled local dataset — see `src/dataset/source.ts` (`resolve()` function): tries `fetchRemoteVerbs()` first, catches any error, and falls back to `verbs` from `src/dataset/verbs.ts`
-  - Result is cached in-memory for the app session via `src/dataset/source.ts`'s module-level `cachedResult` promise, with a `prefetch()` call triggered from `app/_layout.tsx` on app start
-  - UI surface: `src/components/OfflinePill.tsx` - reads the resolved dataset source (`"remote"` vs `"local"`) via `resolveVerbs()` and renders a "Using saved content" pill (`OFFLINE_PILL_TEXT`) when the source was `"local"` (i.e., the remote fetch failed and the local bundled dataset was used)
+**Endpoints the app calls:**
 
-**Note on cross-repo assumptions:** `CLAUDE.md` in this repo states the mobile app "holds a local, offline verb dataset for quiz play — it does not fetch quiz content from any backend" and that "there is currently no content-serving API." The actual code in `src/dataset/remote.ts` and `src/dataset/source.ts` contradicts this: the app does attempt a remote `GET /content/verbs` fetch on startup and only falls back to the bundled local dataset if that fetch fails or the response is invalid. Treat the CLAUDE.md description of dataset sourcing as stale relative to the current implementation; `POST /feedback` remains the only integration matching CLAUDE.md's original scope, and `GET /content/verbs` is an additional integration not currently documented at the repo root.
+| Method | Path | Caller | Timeout | Purpose | Success | Failure handling |
+|---|---|---|---|---|---|---|
+| GET | `/content/verbs` | `src/dataset/remote.ts` (`fetchRemoteVerbs`) | 15s | Verb dataset plus optional learning content | `200`, body `{ verbs, learning? }` | Any throw falls back to bundled dataset (see Content Source below) |
+| POST | `/feedback` | `src/feedback/submit.ts` (`submitFeedback`) | 45s | Quiz-question problem report | `201` returns persisted row (`id`, `createdAt` plus payload) | `400` maps to `validation-error`, anything else to `server-error`, thrown/aborted to `network-error`. No retry from the app layer. |
+| POST | `/product-feedback` | `src/productFeedback/submit.ts` (`submitProductFeedback`) | 45s | General bug/idea/other report | `201` returns persisted row | Same mapping as `/feedback` |
+| GET | `/health` | `scripts/preflight.ts` only | 90s overall abort | Dev smoke check; not called by the app | `200` | Script exits `1` on failure |
+
+Note: `CLAUDE.md` says the mobile app calls only `POST /feedback` and `GET /content/verbs`. That is stale. `POST /product-feedback` is live. `src/productFeedback/ProductFeedbackModal.tsx` is mounted on `app/index.tsx`, `app/quiz.tsx`, and `app/results.tsx` (screen values `setup`, `quiz`, `results`).
+
+### `GET /content/verbs` details
+
+- Request: plain `fetch(CONTENT_ENDPOINT, { signal })`, no body, no headers object.
+- Response handling in `src/dataset/remote.ts`:
+  1. `!response.ok` throws `content fetch failed: <status>`
+  2. `payload.verbs` must be an array, else throws
+  3. `validateDataset(payload.verbs)` (`src/dataset/validate.ts`, Zod) must be valid, else throws
+  4. `LearningContentSchema.safeParse(payload.learning)` (`src/learning/schema.ts`). A failure is non-fatal: `learning` becomes `undefined` and the verbs still load.
+- Contract fixture: `__tests__/fixtures/content-verbs-v0.4.sample.json` (50 verbs, `learning.version` 1). Exercised by `__tests__/contract-fixture.test.ts`.
+
+### `POST /feedback` request contract
+
+Built by `src/feedback/payload.ts`, validated by type only in `src/feedback/schema.ts`:
+
+| Field | Type / enum |
+|---|---|
+| `message` | string, min 1 |
+| `verb` | string, min 1 |
+| `tense` | `present_indicative \| preterite \| imperfect \| future` (from `TENSES` in `src/dataset/types.ts`) |
+| `subject` | `eu \| tu \| ele_ela \| nos \| voces \| eles_elas` (from `SUBJECTS` in `src/dataset/types.ts`) |
+| `correctAnswer` | string, min 1 |
+| `selectedAnswer` | string, min 1 |
+| `appVersion` | string, min 1 (from `Constants.expoConfig?.version`) |
+| `platform` | `ios \| android` |
+
+The `tense`/`subject`/`platform` literals were chosen by the backend team. The app reuses the dataset constants, so they match the quiz UI. The backend-side verification is still open per `CLAUDE.md`.
+
+### `POST /product-feedback` request contract
+
+Built by `src/productFeedback/payload.ts` (`message` is trimmed), schema in `src/productFeedback/schema.ts`:
+
+| Field | Type / enum |
+|---|---|
+| `category` | `bug \| idea \| other` (labels in `src/productFeedback/categories.ts`) |
+| `message` | string, 1 to 2000 chars |
+| `screen` | `setup \| quiz \| results` (`SCREENS` in `src/productFeedback/types.ts`) |
+| `appVersion` | string, 1 to 20 chars |
+| `platform` | `ios \| android` |
+
+### Feedback reasons (client-side only)
+
+`src/feedback/reasons.ts` defines the reason picker shown in `src/feedback/ReportFeedbackModal.tsx`: `wrong_answer | typo | confusing | other`. The reason is not a separate field on the wire. `buildFeedbackPayload` in `src/feedback/payload.ts` prefixes the label to the free text (`"<Reason label>: <free text>"`, or the label alone when free text is blank), and that combined string is sent as `message`.
+
+## Content Source (Remote-first, Bundled Fallback)
+
+Not an external service, but it is the app's main data dependency:
+
+- Bundled dataset: `src/dataset/verbs.ts` (hand-authored `Verb[]`, used as the offline fallback and as the default in `src/quiz/engine.ts`). It has no learning block, so `learning` is `undefined` in the local case.
+- Resolver: `src/dataset/source.ts`
+  - `prefetch()` is called once from `app/_layout.tsx` on mount
+  - `resolveVerbs()` returns `{ verbs, source: "remote" | "local", learning }`
+  - Module-level `cachedResult` memoizes the first resolution
+  - When the settled source is `local`, a single background `fetchRemoteVerbs()` retry runs on the next `resolveVerbs()` call (stale-while-revalidate). A remote result is never re-fetched.
+- Snapshot rule: `src/store/useQuizStore.ts` snapshots verbs and source at `startQuiz`, so a mid-session refresh cannot change questions.
+- UI signal: `src/components/OfflinePill.tsx` shows "Using saved content" when `source === "local"`.
 
 ## Data Storage
 
 **Databases:**
-- None — the app holds no database client and no direct database connection. All backend interaction is via the two HTTP endpoints above.
+- None on the device. No ORM, no SQLite, no Realm.
+- Backend persistence is owned by `portuguese-verb-api` (Postgres via Prisma, per `store/privacy/nutrition-label-answers.md`). The mobile app has no connection string and no database credential.
 
 **File Storage:**
-- Local filesystem only (bundled static assets referenced in `app.json`, e.g. `./assets/images/icon.png`, splash images). No cloud file storage integration.
+- Local filesystem only for bundled assets (`assets/`). No upload path. No `expo-file-system` in app code.
 
 **Caching:**
-- In-memory only: `src/dataset/source.ts` caches the resolved verb dataset promise (`cachedResult`) for the lifetime of the app process. No disk-based cache (no AsyncStorage, no `expo-file-system` usage found in `src/`).
+- In-memory only: Zustand `useQuizStore` (`src/store/useQuizStore.ts`) and the module-level dataset promise in `src/dataset/source.ts`.
+- No HTTP cache layer, no persistent cache. The dataset is re-fetched on each cold start.
 
 ## Authentication & Identity
 
-**Auth Provider:**
-- None. No login, accounts, or sessions anywhere in the app (confirmed by absence of any auth-related package, e.g. no Supabase client, no OAuth library, no token storage) and consistent with `CLAUDE.md`'s stated auth model.
+- Auth provider: none. No login, accounts, sessions, or user IDs. Requests carry no identifier.
+- Device identifiers: none collected (`expo-device` is installed but not imported).
 
 ## Monitoring & Observability
 
-**Error Tracking:**
-- None detected — no Sentry, Bugsnag, or similar crash/error reporting SDK in `package.json` dependencies.
-
-**Logs:**
-- No structured logging library found. Error states surface only through in-app UI state (e.g., `ReportFeedbackModal`'s `state === "error"` branch) rather than being sent to any remote logging service.
+- Error tracking: none in the app. No Sentry, Crashlytics, or similar.
+- Analytics: none. No usage telemetry SDK.
+- Logs: none in app code. `console.log` is not used in `src/` or `app/`.
+- Backend logs (cross-repo, for reference): request logs disabled via `disableRequestLogging: true` in `portuguese-verb-backend/src/app.ts` (commit `f06c46b`, per `store/privacy/nutrition-label-answers.md`).
 
 ## CI/CD & Deployment
 
-**Hosting:**
-- Backend API is hosted on Render (`https://portuguese-verb-api.onrender.com`), per the endpoint hostname — this is the sibling `portuguese-verb-api` repo's deployment, not something this mobile repo controls.
-- No `eas.json` found in this repo — no EAS Build/Submit configuration for iOS/Android app store deployment yet.
+**Mobile app build and release:**
+- Expo Application Services (EAS). Project id `88aa092c-033c-4bcc-bf53-450c721977e8` in `app.json` `extra.eas.projectId`.
+- Build profiles in `eas.json`: `development` (dev client, internal), `preview` (internal), `production` (`autoIncrement`, Node 22.23.2).
+- Version source: `appVersionSource: "remote"` (EAS owns the build number).
+- Submit: `submit.production.ios.ascAppId` `6794382182` (App Store Connect app id).
+- Distribution: Apple App Store Connect. `store/submission-log.md` records v1.0.0 (build #6) entered in App Store Connect on 2026-08-17.
+
+**Backend hosting:**
+- Render, Frankfurt region, service host `portuguese-verb-api-fra.onrender.com`. Health endpoint `/health`.
+
+**Static pages:**
+- GitHub Pages under `avramaruh92.github.io/portuguese-verb-mobile/` serving `support.html` and `privacy.html` (sources in `docs/`). These URLs are the App Store Connect support and privacy URLs.
 
 **CI Pipeline:**
-- No CI config directory found (no `.github/workflows/` observed in the file listing) — no automated CI pipeline detected in this repo as of this analysis.
+- None detected. No `.github/workflows/`, no other CI config in the repo root.
 
 ## Environment Configuration
 
 **Required env vars:**
-- None detected. Both backend endpoints (`https://portuguese-verb-api.onrender.com/feedback` and `https://portuguese-verb-api.onrender.com/content/verbs`) are hardcoded string constants in `src/feedback/submit.ts` and `src/dataset/remote.ts` respectively, not read from environment variables or Expo config (`app.json` `extra` field is not used for this).
+- None. No `.env` files exist. No `EXPO_PUBLIC_*` or `process.env` usage in app code.
+
+**Hardcoded configuration:**
+- Backend base URL: `src/config/api.ts`
+- Timeouts: `src/dataset/remote.ts` (15s), `src/feedback/submit.ts` (45s), `src/productFeedback/submit.ts` (45s)
+- Preflight endpoints and budgets: `scripts/preflight.ts` (content budget 15s, feedback budget 45s)
 
 **Secrets location:**
-- Not applicable — the app holds no credentials, API keys, or secrets of any kind (no Supabase keys, no auth tokens). This matches `CLAUDE.md`'s constraint that the app "never embeds Supabase credentials or connection strings."
+- No secrets in the app. The mobile client never holds Supabase credentials or any backend token. Any secret belongs to the backend repo only.
+- EAS credentials (Apple signing) are managed by EAS, not stored in the repo.
+
+## Preflight Smoke Test
+
+`npm run preflight` (`scripts/preflight.ts`) runs four sequential checks against the live backend and exits `1` if any fails:
+
+1. `GET /health` expects `200` within 90s (absorbs a Render cold boot)
+2. `GET /content/verbs` expects `200` within 15s
+3. `POST /feedback` with a dummy payload expects `201` within 45s
+4. `POST /product-feedback` with a dummy payload expects `201` within 45s
+
+The preflight writes to the live backend and creates real rows tagged with the message `preflight smoke test — ignore`.
+
+## Native Platform Integrations (no network)
+
+- Score sharing: React Native `Share` API in `app/results.tsx`, with the message from `src/quiz/share.ts`. Hands off to the OS share sheet. No network from the app.
+- Deep links: URL scheme `lafa` (`app.json` `scheme`). No deep-link handler is implemented in app code, and `expo-linking` is not imported.
+- Status bar and system UI: `expo-status-bar` and `expo-system-ui` in `app/_layout.tsx`.
+- Platform detection: `Platform.OS` in `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`.
+- Native exit confirmation: `Alert` in `app/quiz.tsx`.
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- None — this is a client-only mobile app with no server component receiving callbacks.
+- None. The app exposes no server endpoint and receives no webhooks.
 
 **Outgoing:**
-- None beyond the two direct HTTP calls documented above (`POST /feedback`, `GET /content/verbs`); no webhook-style fire-and-forget notification pattern found.
+- `POST /feedback` and `POST /product-feedback` only, both user-initiated from a modal.
 
-## Native Platform Integrations
+## Data Sent Off-device
 
-**Sharing:**
-- React Native core `Share` API (`import { Share } from "react-native"`) - used in `app/results.tsx` to open the native iOS/Android share sheet with a plain-text score message built by `buildShareMessage` in `src/quiz/share.ts` (e.g. `"I scored 8/10 on Portuguese Verb Quiz!"`)
-- No `expo-sharing` usage found in `src/` or `app/` despite the package convention notes in project docs recommending against it for plain-text use — confirmed not imported anywhere in the current codebase.
+Only the three app-initiated calls above leave the device:
+- `GET /content/verbs`: no payload, no identifiers.
+- `POST /feedback`: the 8 fields listed above.
+- `POST /product-feedback`: the 5 fields listed above.
 
-**App version / device info:**
-- `expo-constants` (`Constants` from `expo-constants`) - imported in `app/quiz.tsx`, used to source the app version value passed as `appVersion` in feedback payloads (via `buildFeedbackPayload`). No other `expo-constants` usage found elsewhere.
-- `expo-device` is present in `package.json` dependencies but not imported anywhere in `src/` or `app/` — installed but currently unused.
-
-**Analytics:**
-- None detected — no analytics SDK (e.g., Amplitude, Mixpanel, Firebase Analytics) present in `package.json` or imported in source.
+No analytics, identifiers, or location are sent. `store/privacy/nutrition-label-answers.md` declares User Content (App Functionality, not linked to user, not used for tracking) as the only collected data type.
 
 ---
 
-*Integration audit: 2026-07-18*
+*Integration audit: 2026-10-14*

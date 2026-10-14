@@ -1,207 +1,290 @@
-<!-- refreshed: 2026-07-18 -->
+---
+last_mapped_commit: 94ea956
+analysis_date: 2026-10-14
+focus: arch
+---
+
+<!-- refreshed: 2026-10-14 -->
 # Architecture
 
-**Analysis Date:** 2026-07-18
+**Analysis Date:** 2026-10-14
 
 ## System Overview
 
 ```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Expo Router screens (`app/`)                      │
-├───────────────┬────────────────────┬──────────────────┬─────────────┤
-│  `index.tsx`  │    `quiz.tsx`      │   `results.tsx`  │ `_layout.tsx`│
-│  (setup form) │  (question loop)   │   (score/share)  │ (root shell) │
-└───────┬───────┴─────────┬──────────┴─────────┬─────────┴─────┬──────┘
-        │                 │                    │               │
-        ▼                 ▼                    ▼               │
-┌─────────────────────────────────────────────────────────────┐│
-│           Zustand store `src/store/useQuizStore.ts`          ││
-│   status / filters / session / currentIndex / answers /      ││
-│   lockedChoice / errorMessage  +  startQuiz/selectAnswer/     ││
-│   advance/reset actions                                       ││
-└───────┬───────────────────────────────┬───────────────────────┘│
-        │ calls generate()               │ calls resolveVerbs()   │
-        ▼                                ▼                        │
-┌──────────────────────────┐   ┌──────────────────────────────┐   │
-│  Quiz engine `src/quiz/`  │   │  Dataset layer `src/dataset/` │   │
-│  engine.ts / random.ts /  │◀──│  types.ts / verbs.ts (local,  │   │
-│  scoring.ts / share.ts /  │   │  1954 lines) / remote.ts /    │◀──┘ prefetch() on app mount
-│  labels.ts / types.ts     │   │  source.ts / validate.ts      │
-└────────────────────────────┘   └───────────────┬──────────────┘
-                                                    │ GET (fetch, 90s timeout)
-                                                    ▼
-                                   https://portuguese-verb-api.onrender.com
-                                              /content/verbs
+┌──────────────────────────────────────────────────────────────────────────┐
+│                  Expo Router screens (`app/`)                            │
+├───────────────────┬────────────────────┬──────────────────┬──────────────┤
+│  `index.tsx`      │   `quiz.tsx`       │  `results.tsx`   │ `_layout.tsx`│
+│  (setup form)     │  (question loop)   │ (score / share)  │ (root Stack, │
+│                   │                    │                  │  prefetch)   │
+└────────┬──────────┴─────────┬──────────┴────────┬─────────┴──────┬───────┘
+         │                    │                   │                │
+         ▼                    ▼                   ▼                │
+┌──────────────────────────────────────────────────────────────┐    │
+│  Zustand store `src/store/useQuizStore.ts`                   │    │
+│  status · filters · session · currentIndex · answers ·       │    │
+│  lockedChoice · errorMessage · verbs · learning · source     │    │
+│  actions: startQuiz · selectAnswer · advance · reset         │    │
+└───────┬───────────────────────────────────────┬──────────────┘    │
+        │ generate(options, Math.random, verbs) │ resolveVerbs()    │ prefetch()
+        ▼                                       ▼                   ▼
+┌──────────────────────────────┐   ┌─────────────────────────────────────────┐
+│ Quiz engine `src/quiz/`      │   │ Dataset source `src/dataset/source.ts`  │
+│ engine · random · scoring ·  │   │   remote-first → local fallback,        │
+│ labels · choiceStyle · share │   │   module-level cache + background retry │
+└──────────────────────────────┘   └───────┬───────────────────────┬─────────┘
+                                           │ fetchRemoteVerbs()    │ fallback
+                                           ▼                       ▼
+                        ┌────────────────────────────┐  ┌──────────────────────┐
+                        │ `src/dataset/remote.ts`    │  │ `src/dataset/verbs.ts`│
+                        │ GET {API_BASE_URL}         │  │ bundled 50 verbs      │
+                        │   /content/verbs  (15s)    │  └──────────────────────┘
+                        │ → validate.ts + learning   │
+                        └─────────────┬──────────────┘
+                                      │ base URL from `src/config/api.ts`
+                                      ▼
+                   https://portuguese-verb-api-fra.onrender.com (Frankfurt)
 
-┌─────────────────────────────────────────────────────────────┐
-│        Feedback flow `src/feedback/`                         │
-│  ReportFeedbackModal.tsx → payload.ts → schema.ts (Zod) →     │
-│  submit.ts  --POST-->  https://portuguese-verb-api            │
-│                          .onrender.com/feedback                │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Feedback submission (two independent modules, same POST shape pattern)   │
+│  `src/feedback/`         ReportFeedbackModal → payload → submit          │
+│                          → POST {API_BASE_URL}/feedback        (45s)     │
+│  `src/productFeedback/`  ProductFeedbackModal → payload → submit         │
+│                          → POST {API_BASE_URL}/product-feedback (45s)    │
+└──────────────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────┐
-│  Shared UI: `src/components/OfflinePill.tsx`,                 │
-│  `src/theme/tokens.ts` (colors/spacing/radius/typography)     │
-│  — imported directly by screens and ReportFeedbackModal       │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Learning layer `src/learning/` (pure): explain.ts selects a template-    │
+│ based explanation for a wrong answer, using remote-only `learning` data  │
+│ and optional `formIndex` on verbs. Rendered via `ExplanationPanel`.      │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Component Responsibilities
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| Root layout | Wraps the app in `SafeAreaProvider`, configures the `Stack` navigator, kicks off dataset prefetch on mount | `app/_layout.tsx` |
-| Setup screen | Lets the learner pick tenses + irregular-verb toggle, calls `startQuiz`, navigates to `/quiz` on success | `app/index.tsx` |
-| Quiz screen | Renders one question at a time from the store, locks the choice on tap, shows correct/incorrect state, hosts the "Report a problem" modal, intercepts back-navigation with a confirm dialog | `app/quiz.tsx` |
-| Results screen | Reads the completed session + answers from the store, computes score via `score()`, offers Share Score (native `Share` API), Try Again (re-runs `startQuiz` with the same filters), and Back to Setup | `app/results.tsx` |
-| Quiz store | Single Zustand store holding all in-memory quiz session state and orchestrating dataset resolution + question generation | `src/store/useQuizStore.ts` |
-| Quiz engine | Pure functions that turn `(tenses, includeIrregular)` + a verb list into a 10-question `QuizSession` with shuffled multiple-choice distractors | `src/quiz/engine.ts` |
-| Random/scoring/share helpers | Injectable Fisher-Yates shuffle (`random.ts`), score tally (`scoring.ts`), share-message text (`share.ts`), UI label lookup tables (`labels.ts`) | `src/quiz/random.ts`, `src/quiz/scoring.ts`, `src/quiz/share.ts`, `src/quiz/labels.ts` |
-| Dataset source resolver | Tries a remote content fetch first, falls back to the bundled local dataset, memoizes the result for the process lifetime | `src/dataset/source.ts` |
-| Remote dataset fetch | `fetch()`-based GET to the backend's `/content/verbs` endpoint with a 90s abort timeout and Zod-validated response shape | `src/dataset/remote.ts` |
-| Local dataset | Hand-authored, hard-coded array of `Verb` objects (50 verbs × 4 tenses × 6 subjects) used as the offline fallback and as `quiz/engine.ts`'s default parameter | `src/dataset/verbs.ts` |
-| Dataset types/validation | `Tense`/`Subject`/`Verb` types and `TENSES`/`SUBJECTS` constants (`types.ts`); Zod schema validating any dataset (local or remote) shape (`validate.ts`) | `src/dataset/types.ts`, `src/dataset/validate.ts` |
-| Feedback modal | Presents a report-a-problem sheet (reason picker + free text), builds the payload, calls `submitFeedback`, shows success/error/retry UI | `src/feedback/ReportFeedbackModal.tsx` |
-| Feedback payload/schema | Maps modal inputs into the exact backend contract shape (`payload.ts`); Zod schema mirroring the backend's `POST /feedback` Zod contract, used both for typing (`z.infer`) and future validation (`schema.ts`) | `src/feedback/payload.ts`, `src/feedback/schema.ts` |
-| Feedback submit | `fetch()` POST to `/feedback` with a 90s abort timeout, branches on `201`/`400`/other/network-error into a `SubmitResult` union | `src/feedback/submit.ts` |
-| Offline indicator | Small pill shown on every screen when the dataset source resolved to `"local"` (i.e. the remote fetch failed) | `src/components/OfflinePill.tsx` |
-| Theme tokens | Flat exports for `colors`, `spacing`, `radius`, `typography` — imported directly (no ThemeProvider/context) by every screen and component | `src/theme/tokens.ts` |
+| Root layout | Wraps app in `SafeAreaProvider`, sets `StatusBar`, configures the native `Stack` (`headerShown: true` default), sets system background, calls `prefetch()` once on mount | `app/_layout.tsx` |
+| Setup screen | Tense multi-select (+ "all" toggle), verb mode (`regular_only` default / `mixed` / `irregular_only`), calls `startQuiz`, `router.replace("/quiz")` on `in-progress`; hosts setup-level `ProductFeedbackModal` | `app/index.tsx` |
+| Quiz screen | Renders one question at a time from the store, locks the choice, shows `ExplanationPanel` on a wrong answer, hosts `ReportFeedbackModal` and `ProductFeedbackModal`, intercepts header Exit and native back (`beforeRemove`) through one confirm dialog | `app/quiz.tsx` |
+| Results screen | Computes `{ correct, total }` via `score()`, Share (RN `Share`), Try Again (re-runs `startQuiz(filters)`), Back to Setup; hosts `ProductFeedbackModal`; renders its own fallback if no session | `app/results.tsx` |
+| Quiz store | Single Zustand store for all quiz session state and the transitions `idle → in-progress → completed` / `error`; orchestrates `resolveVerbs()` and `generate()` | `src/store/useQuizStore.ts` |
+| Quiz engine | Pure: `(options, random, verbs)` → `QuizSession` of 10 questions with 3 distractors each, filtered by verb mode | `src/quiz/engine.ts` |
+| Quiz helpers | Injectable Fisher-Yates `shuffle`; `score`; `buildShareMessage`; tense/subject label tables; per-choice visual state | `src/quiz/random.ts`, `src/quiz/scoring.ts`, `src/quiz/share.ts`, `src/quiz/labels.ts`, `src/quiz/choiceStyle.ts` |
+| Quiz types | `Triple`, `Question`, `QuizSession`, `VerbMode`, `GenerateOptions`, `InsufficientVerbsError` | `src/quiz/types.ts` |
+| Dataset source | `prefetch()` / `resolveVerbs()`: remote-first with local fallback, module-level cache, stale-while-revalidate background retry when the cache is `local` | `src/dataset/source.ts` |
+| Remote fetch | `GET ${API_BASE_URL}/content/verbs` with 15s `AbortController` timeout; throws on non-OK, bad JSON, invalid verbs; parses optional `learning` leniently | `src/dataset/remote.ts` |
+| Local dataset | Hand-authored `verbs: Verb[]` (50 verbs, 4 tenses × 6 subjects); fallback and default for `generate()`. No `formIndex` or `learning` data | `src/dataset/verbs.ts` |
+| Dataset types / validation | `Tense`, `Subject`, `TENSES`, `SUBJECTS`, `Verb` (`src/dataset/types.ts`); Zod `validateDataset` returning `{ valid, errors }` (`src/dataset/validate.ts`) | `src/dataset/types.ts`, `src/dataset/validate.ts` |
+| Learning content | Zod schema for remote `learning` payload (`schema.ts`), its types (`types.ts`), and `selectExplanation` (`explain.ts`) | `src/learning/schema.ts`, `src/learning/types.ts`, `src/learning/explain.ts` |
+| Explanation panel | Presentational view for a wrong-answer explanation string | `src/components/ExplanationPanel.tsx` |
+| Offline pill | Shows "Using saved content" when the source is `local`; takes a snapshotted `source` prop on quiz/results, otherwise resolves live on setup | `src/components/OfflinePill.tsx` |
+| Report feedback (quiz-question) | Modal with reason picker + optional free text; builds `FeedbackPayload`; `submitFeedback` → `POST /feedback` | `src/feedback/ReportFeedbackModal.tsx`, `src/feedback/payload.ts`, `src/feedback/schema.ts`, `src/feedback/submit.ts`, `src/feedback/reasons.ts`, `src/feedback/types.ts` |
+| Product feedback | Modal with category (`bug`/`idea`/`other`) + message, tagged with screen (`setup`/`quiz`/`results`); `POST /product-feedback` | `src/productFeedback/ProductFeedbackModal.tsx`, `src/productFeedback/payload.ts`, `src/productFeedback/schema.ts`, `src/productFeedback/submit.ts`, `src/productFeedback/categories.ts`, `src/productFeedback/types.ts` |
+| Config | Single source of the backend host, `API_BASE_URL = "https://portuguese-verb-api-fra.onrender.com"` | `src/config/api.ts` |
+| Theme | Flat token exports `colors`, `spacing`, `radius`, `typography`; `lockup.ts` holds crop constants for the homepage lockup image | `src/theme/tokens.ts`, `src/theme/lockup.ts` |
 
 ## Pattern Overview
 
-**Overall:** Thin, mostly-presentational Expo Router screens that read/write a single global Zustand store, backed by pure-function modules (`quiz/`, `dataset/`, `feedback/`) with no React or RN imports. There is no client-side routing logic beyond `expo-router`'s file-based `Stack`, no context providers besides `SafeAreaProvider`, and no component library — every screen defines its own `StyleSheet.create` block using shared tokens.
+**Overall:** Thin Expo Router screens over one global Zustand store, backed by framework-free domain modules (`quiz/`, `dataset/`, `learning/`, `feedback/`, `productFeedback/`). Components do not fetch data directly; the store and `dataset/source.ts` own content resolution. Each network surface is a small `submit`/`fetch` module that returns a tagged result or throws in one documented case.
 
 **Key Characteristics:**
-- Single global Zustand store (`useQuizStore`) is the only piece of cross-screen state; screens select individual slices via selector functions (e.g. `useQuizStore((s) => s.session)`)
-- Business logic (question generation, scoring, distractor selection, dataset resolution, feedback payload shaping) lives entirely outside React components in plain `.ts` modules under `src/quiz/`, `src/dataset/`, `src/feedback/` — these are the units covered by Jest tests in `__tests__/`
-- Dependency injection for testability: `generate(options, random, verbs)` and `sampleTriples`/`buildQuestion`/`pickDistractors` all accept an injectable `random: () => number` parameter (defaults to `Math.random`) so tests can supply deterministic sequences
-- "Remote-first, local-fallback" content strategy: `src/dataset/source.ts` always tries the backend's `/content/verbs` endpoint first and silently falls back to the bundled `src/dataset/verbs.ts` array on any failure — the "entirely offline" framing in project docs describes the *worst case*/fallback path, not the only path (see Architectural Constraints)
-- Result-memoization via a module-level `cachedResult` promise in `source.ts`, primed early by `prefetch()` in `app/_layout.tsx` so the setup screen doesn't pay the fetch latency cost
-- No navigation params carry quiz data — screens communicate exclusively through the shared store, not through `expo-router` route params
+- One global store (`useQuizStore`) is the only cross-screen state. Screens subscribe with selectors (`useQuizStore((s) => s.session)`). No route params carry quiz data.
+- Domain logic lives in plain `.ts` files with no React or React Native imports (`src/quiz/*.ts`, `src/dataset/*.ts`, `src/learning/explain.ts`, `src/feedback/payload.ts`, `src/feedback/submit.ts`, `src/productFeedback/*.ts`). These are the units under Jest in `__tests__/`.
+- Dependency injection for determinism: `generate(options, random = Math.random, verbs = localVerbs)` and `sampleTriples` / `buildQuestion` / `pickDistractors` accept a `random` function. Tests supply deterministic sequences.
+- Remote-first, local-fallback content: `src/dataset/source.ts` tries `GET /content/verbs` and silently falls back to the bundled `src/dataset/verbs.ts` on any failure. The fallback path is the worst case, not the only path.
+- Session snapshotting: `startQuiz` copies `verbs`, `learning`, and `source` into the store, so a later background refresh of the dataset cache cannot change questions or the pill mid-session.
+- Two feedback surfaces, both POST-only, both with a 45s abort timeout. Neither reads from the backend.
+- Every network call is wrapped in `AbortController` plus `try { ... } finally { clearTimeout }`.
 
 ## Layers
 
-**Screens (`app/`):**
-- Purpose: Render UI, read/write the Zustand store, handle navigation and user input
-- Location: `app/*.tsx`
-- Contains: React components, `StyleSheet.create` blocks, `Stack.Screen` option overrides
-- Depends on: `src/store/useQuizStore.ts`, `src/quiz/labels.ts`, `src/quiz/scoring.ts`, `src/quiz/share.ts`, `src/dataset/types.ts`, `src/dataset/verbs.ts`, `src/feedback/ReportFeedbackModal.tsx`, `src/theme/tokens.ts`, `src/components/OfflinePill.tsx`
-- Used by: nothing (top of the dependency graph; these are the route entry points Expo Router mounts)
+**Routes / Screens (`app/`):**
+- Purpose: Render UI, read and write the store, perform navigation, host modals.
+- Location: `app/_layout.tsx`, `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`
+- Contains: React components, `StyleSheet.create` blocks, `Stack.Screen` option overrides, `useRouter` / `useNavigation` calls.
+- Depends on: `src/store/useQuizStore.ts`, `src/quiz/*`, `src/dataset/types.ts`, `src/dataset/source.ts` (layout only), `src/learning/explain.ts`, `src/feedback/ReportFeedbackModal.tsx`, `src/productFeedback/ProductFeedbackModal.tsx`, `src/components/*`, `src/theme/*`.
+- Used by: nothing. These are the Expo Router entry points.
 
 **State (`src/store/`):**
-- Purpose: Own all in-memory quiz session state and the transitions between `idle → in-progress → completed`/`error`
-- Location: `src/store/useQuizStore.ts`
-- Contains: One Zustand `create()` store with state fields and action methods
-- Depends on: `src/quiz/engine.ts` (`generate`), `src/quiz/types.ts` (`InsufficientVerbsError`), `src/dataset/source.ts` (`resolveVerbs`)
-- Used by: all three screens in `app/`
+- Purpose: Own all in-memory quiz state and the status transitions.
+- Location: `src/store/useQuizStore.ts` (the only file in the folder).
+- Depends on: `src/quiz/engine.ts`, `src/quiz/types.ts` (`InsufficientVerbsError`), `src/dataset/source.ts` (`resolveVerbs`).
+- Used by: `app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`.
 
-**Domain logic (`src/quiz/`, `src/dataset/`, `src/feedback/`):**
-- Purpose: Pure, framework-free business logic — question generation/scoring, dataset resolution/validation, feedback payload construction/submission
-- Location: `src/quiz/*.ts`, `src/dataset/*.ts`, `src/feedback/*.ts` (`ReportFeedbackModal.tsx` is the one RN component in this layer)
-- Contains: Plain TypeScript functions/types, one Zod schema per external contract (dataset shape, feedback payload shape)
-- Depends on: each other (`quiz/engine.ts` imports `dataset/types.ts` and `dataset/verbs.ts`; `feedback/schema.ts` imports `dataset/types.ts`), plus `zod`
-- Used by: `src/store/useQuizStore.ts` (quiz engine, dataset source), `app/quiz.tsx` and `app/results.tsx` directly (labels, scoring, share, verbs, feedback modal)
+**Quiz domain (`src/quiz/`):**
+- Purpose: Question generation, scoring, labels, per-choice styling, share text.
+- Depends on: `src/dataset/types.ts` and `src/dataset/verbs.ts` (engine default). Otherwise self-contained.
+- Used by: the store (`engine.ts`), screens (`labels`, `scoring`, `share`, `choiceStyle`), and `learning/explain.ts` (`labels.ts`).
 
-**Shared UI primitives (`src/components/`, `src/theme/`):**
-- Purpose: Reusable presentational building blocks and design tokens
-- Location: `src/components/OfflinePill.tsx`, `src/theme/tokens.ts`
-- Contains: One small component, one flat token module (no ThemeProvider)
-- Depends on: `src/dataset/source.ts` (OfflinePill reads `resolveVerbs()` to detect the local-fallback case)
-- Used by: all three screens; `theme/tokens.ts` is also imported by `ReportFeedbackModal.tsx` in some places (note: the modal currently hardcodes its own hex colors/spacing rather than importing tokens — see Anti-Patterns)
+**Dataset domain (`src/dataset/`):**
+- Purpose: Canonical verb types, local dataset, remote fetch, validation, source resolution and caching.
+- Depends on: `src/config/api.ts`, `src/learning/schema.ts` (remote `learning` parse), `src/learning/types.ts` (type only), `zod`.
+- Used by: the store, `OfflinePill`, `app/_layout.tsx` (prefetch), quiz engine.
+
+**Learning domain (`src/learning/`):**
+- Purpose: Turn a wrong answer into a template-based explanation using remote-served `learning` content.
+- Depends on: `src/dataset/types.ts`, `src/quiz/labels.ts`, `zod`.
+- Used by: `app/quiz.tsx` (via `selectExplanation`), and `src/dataset/remote.ts` (schema).
+- Note: `learning` is `undefined` whenever the local fallback is in use, so explanations only appear when the remote payload supplied them. Likewise `formIndex` is optional and is not present in `src/dataset/verbs.ts`.
+
+**Feedback domains (`src/feedback/`, `src/productFeedback/`):**
+- Purpose: Payload construction, Zod contract, POST submission, modal UI.
+- Depends on: `src/config/api.ts`, `src/dataset/types.ts` (feedback only), `zod`, `src/theme/tokens.ts`.
+- Used by: `app/quiz.tsx` (`ReportFeedbackModal`, `ProductFeedbackModal`), `app/index.tsx` and `app/results.tsx` (`ProductFeedbackModal`).
+
+**Shared UI and tokens (`src/components/`, `src/theme/`):**
+- Purpose: Reusable presentational pieces and design tokens. No ThemeProvider or context.
+- Contains: `OfflinePill.tsx` (reads `resolveVerbs()` when no session source is passed), `ExplanationPanel.tsx`, `tokens.ts`, `lockup.ts`.
+
+**Config (`src/config/`):**
+- Purpose: One constant, `API_BASE_URL`. All app network calls derive their URL from it. `scripts/preflight.ts` keeps its own literal, and `__tests__/api-host-guard.test.ts` guards the retired host.
 
 ## Data Flow
 
 ### Primary Request Path (start quiz → answer → results)
 
-1. App mounts, `RootLayout` calls `prefetch()` which fires the remote dataset fetch in the background (`app/_layout.tsx:8`, `src/dataset/source.ts:18-22`)
-2. Learner picks tenses + irregular toggle on the setup screen and taps Start Quiz, calling `startQuiz(options)` on the store (`app/index.tsx:42`)
-3. `startQuiz` awaits `resolveVerbs()` (reuses the prefetch promise if already resolved), then calls `generate(options, undefined, verbs)` from the quiz engine and sets `status: "in-progress"` with the new `session` (`src/store/useQuizStore.ts:44-58`)
-4. `generate()` filters eligible verbs, builds a `(verb, tense, subject)` triple pool, samples 10 via `sampleTriples`, and builds each `Question` (correct answer + 3 shuffled distractors) via `buildQuestion`/`pickDistractors` (`src/quiz/engine.ts:11-25`)
-5. Setup screen sees `status === "in-progress"` and calls `router.replace("/quiz")` (`app/index.tsx:44-46`)
-6. Quiz screen reads `session.questions[currentIndex]` from the store, renders choices; tapping a choice calls `selectAnswer(choice)` which locks it in (`src/store/useQuizStore.ts:77-80`)
-7. Tapping Next calls `advance()`, which appends the locked choice to `answers` and either moves to the next question or sets `status: "completed"` once all 10 are answered (`src/store/useQuizStore.ts:82-95`)
-8. Quiz screen detects `status === "completed"` and calls `router.replace("/results")` (`app/quiz.tsx:67-70`)
-9. Results screen computes `{ correct, total }` via `score(session, answers)` (pure function, no store mutation) and renders Share/Try Again/Back to Setup (`app/results.tsx:46`, `src/quiz/scoring.ts:3-13`)
+1. `RootLayout` mounts and calls `prefetch()`, which starts `fetchRemoteVerbs()` in the background (`app/_layout.tsx`, `src/dataset/source.ts`).
+2. The learner selects tenses and verb mode on the setup screen and taps Start. `handleStartQuiz` calls `startQuiz({ tenses, verbMode })` (`app/index.tsx`).
+3. `startQuiz` increments `startToken`, awaits `resolveVerbs()` (reuses the prefetch promise), and bails out if superseded (`src/store/useQuizStore.ts`).
+4. `generate(options, undefined, verbs)` filters verbs by `verbMode`, builds the `(verb, tense, subject)` pool, samples 10 with `sampleTriples`, and builds each `Question` with `buildQuestion` / `pickDistractors` (`src/quiz/engine.ts`).
+5. The store sets `status: "in-progress"` and snapshots `verbs`, `learning`, `source`. The setup screen calls `router.replace("/quiz")` (`app/index.tsx`).
+6. The quiz screen renders `session.questions[currentIndex]`. Tapping a choice calls `selectAnswer`, which sets `lockedChoice`. On a wrong answer, `selectExplanation` may produce text for `ExplanationPanel` (`app/quiz.tsx`, `src/learning/explain.ts`).
+7. Next calls `advance()`. It appends `lockedChoice` to `answers` and either advances `currentIndex` or sets `status: "completed"` after question 10 (`src/store/useQuizStore.ts`).
+8. The quiz screen sees `completed` and calls `router.replace("/results")` (`app/quiz.tsx`).
+9. Results computes `score(session, answers)` and renders Share, Try Again (`startQuiz(filters)` then `replace("/quiz")`), and Back to Setup (`app/results.tsx`, `src/quiz/scoring.ts`).
 
-### Feedback Submission Flow
+### Dataset Resolution Path
 
-1. On the quiz screen, after locking a choice, the learner taps "Report a problem", opening `ReportFeedbackModal` with the current question's verb/tense/subject/correctAnswer/selectedAnswer plus `appVersion` (from `expo-constants`) and `platform` (from `Platform.OS`) passed as props (`app/quiz.tsx:149-167`)
-2. Modal collects a reason (one of `wrong_answer | typo | confusing | other`) and optional free text, then on submit calls `buildFeedbackPayload(...)` to shape the exact backend contract object (`src/feedback/ReportFeedbackModal.tsx:70-83`, `src/feedback/payload.ts:5-30`)
-3. `submitFeedback(payload)` POSTs JSON to `https://portuguese-verb-api.onrender.com/feedback` with a 90s `AbortController` timeout, mapping HTTP status to a `SubmitResult` union (`201` → success w/ body, `400` → validation-error, anything else → server-error, thrown/aborted → network-error) (`src/feedback/submit.ts:6-35`)
-4. Modal shows success (auto-closes after 1.5s) or error state with a Retry button for `server-error`/`network-error` (not for `validation-error`, which is treated as non-retryable) (`src/feedback/ReportFeedbackModal.tsx:85-97`)
+1. `prefetch()` sets `cachedResult` if empty. `resolveVerbs()` returns the cached promise, or starts one if needed (`src/dataset/source.ts`).
+2. `resolve()` calls `fetchRemoteVerbs()` (15s timeout). Success yields `source: "remote"` with remote verbs and optional `learning`. Any throw yields `source: "local"` with `localVerbs` (`src/dataset/source.ts`, `src/dataset/remote.ts`).
+3. `fetchRemoteVerbs` throws on non-OK status, non-array `payload.verbs`, or failed `validateDataset`. A failed `LearningContentSchema.safeParse` is not fatal. `learning` is just `undefined` (`src/dataset/remote.ts`).
+4. If the cached result is `local` when `resolveVerbs()` is called again, `refreshInBackground()` runs one remote retry. On success, the next `resolveVerbs()` returns `remote`. A remote result is never re-fetched (`src/dataset/source.ts`, Phase 36 WR-01).
+
+### Feedback Submission Path (quiz question report)
+
+1. The learner taps "Report a problem" on the quiz screen. `ReportFeedbackModal` opens with verb, tense, subject, correct and selected answer, `appVersion` (from `expo-constants`), and `platform` (`app/quiz.tsx`).
+2. On submit, `buildFeedbackPayload` maps the reason label and free text into `message` and returns a `FeedbackPayload` (`src/feedback/payload.ts`).
+3. `submitFeedback` POSTs JSON to `${API_BASE_URL}/feedback` and maps the status to a `SubmitResult`: 201 → success, 400 → validation-error, anything else → server-error, thrown or aborted → network-error (`src/feedback/submit.ts`).
+4. The modal shows success (auto-closes) or error. Retry is offered for server and network errors only (`src/feedback/ReportFeedbackModal.tsx`).
+
+### Product Feedback Path
+
+1. Any of the three screens opens `ProductFeedbackModal` with `screen` set to `setup`, `quiz`, or `results` (`app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`).
+2. `buildProductFeedbackPayload` trims the message and attaches category, screen, `appVersion`, and `platform` (`src/productFeedback/payload.ts`).
+3. `submitProductFeedback` POSTs to `${API_BASE_URL}/product-feedback` with the same status mapping as feedback submission, and a 45s timeout (`src/productFeedback/submit.ts`).
 
 **State Management:**
-- All quiz session state lives in one Zustand store (`src/store/useQuizStore.ts`); it is reset to `initialState` on `reset()`, called both from the quiz screen's exit-confirmation flow and implicitly overwritten on every new `startQuiz` call
-- A module-level `startToken` counter in the store guards against race conditions from double-tapped Start/Try Again buttons: only the most recent `startQuiz` call's resolution is allowed to commit state (`src/store/useQuizStore.ts:39,45,48,60`)
-- The dataset resolution result (`{ verbs, source }`) is cached at module scope in `src/dataset/source.ts` for the life of the JS process — it is never re-fetched after the first successful/failed resolution, so a mid-session network recovery does not retroactively switch from local back to remote content
-- No state persists across app restarts; there is no AsyncStorage or any other durable store in the codebase
+- All quiz state lives in one Zustand store. `reset()` restores `initialState`. Quiz exit calls `reset()` and then `router.replace("/")`.
+- `startToken` (module scope in the store) makes only the most recent `startQuiz` call commit. This prevents a double-tap race.
+- `cachedResult`, `settledSource`, and `refreshInFlight` (module scope in `src/dataset/source.ts`) persist for the JS process lifetime. Nothing resets them between sessions.
+- Nothing persists across app restarts. There is no AsyncStorage.
 
 ## Key Abstractions
 
-**QuizSession / Question / Triple:**
-- Purpose: Represent a generated quiz — `Triple` is a `(verb, tense, subject)` combination, `Question` extends it with `choices`/`correctAnswer`, `QuizSession` is `{ questions: Question[] }`
+**`Verb` / `Tense` / `Subject`:**
+- Purpose: The dataset shape shared by local and remote content.
+- Examples: `src/dataset/types.ts`, `src/dataset/verbs.ts`, `src/dataset/validate.ts`
+- Pattern: `Verb = { verb, translation, isIrregular, conjugations: Record<Tense, Record<Subject, string>>, formIndex? }`. `TENSES` and `SUBJECTS` are `readonly` runtime arrays. Zod enums are built from them, so TypeScript and Zod stay in sync.
+
+**`Triple` / `Question` / `QuizSession`:**
+- Purpose: A `(verb, tense, subject)` cell, extended with `choices` and `correctAnswer`, then grouped into a 10-question session.
 - Examples: `src/quiz/types.ts`
-- Pattern: Plain data interfaces, no classes except `InsufficientVerbsError` (thrown when the eligible-triple pool is smaller than the 10-question requirement)
+- Pattern: Plain interfaces. `InsufficientVerbsError` is the only class, and the store catches it by `instanceof`.
 
-**Verb dataset shape:**
-- Purpose: One `Verb` = `{ verb, translation, isIrregular, conjugations: Record<Tense, Record<Subject, string>> }` — the single source of truth for both the local bundled data and any remote payload
-- Examples: `src/dataset/types.ts`, `src/dataset/verbs.ts` (data), `src/dataset/validate.ts` (Zod schema shared by both local test coverage and remote-fetch runtime validation)
-- Pattern: Runtime-validated with Zod (`validateDataset`) before a remote payload is trusted; the local dataset is validated in Jest (`__tests__/dataset.test.ts`) but not re-validated at runtime since it ships in the bundle
+**`LearningContent`:**
+- Purpose: Remote-served templates and per-verb notes that drive wrong-answer explanations.
+- Examples: `src/learning/types.ts`, `src/learning/schema.ts`, `src/learning/explain.ts`
+- Pattern: Zod schema (`LearningContentSchema`, `version: 1`) parsed leniently in `remote.ts`. `selectExplanation` returns `undefined` on any missing piece, so the UI never blocks.
 
-**FeedbackPayload:**
-- Purpose: Exact mirror of the backend's `POST /feedback` Zod contract (`message, verb, tense, subject, correctAnswer, selectedAnswer, appVersion, platform`)
-- Examples: `src/feedback/schema.ts` (Zod schema + `z.infer` type), `src/feedback/payload.ts` (builder function)
-- Pattern: Single schema is the type source (`FeedbackPayload = z.infer<typeof feedbackPayloadSchema>`), enums (`tense`, `subject`, `platform`) reuse the dataset's `TENSES`/`SUBJECTS` constants to avoid literal drift between the two contract halves
+**`ResolvedVerbs` / `VerbSource`:**
+- Purpose: The dataset plus where it came from (`"remote"` or `"local"`).
+- Examples: `src/dataset/source.ts`
+- Pattern: Consumed by the store, which snapshots it into session state. The pill reads it.
+
+**`FeedbackPayload` / `ProductFeedbackPayload`:**
+- Purpose: Exact request bodies for the two POST endpoints.
+- Examples: `src/feedback/schema.ts` + `src/feedback/types.ts`; `src/productFeedback/schema.ts` + `src/productFeedback/types.ts`
+- Pattern: Type is `z.infer<typeof schema>`. The schema is the single source of truth. `FeedbackPayload` reuses `TENSES`/`SUBJECTS`.
+
+**`SubmitResult`:**
+- Purpose: Tagged union from network submit functions, so callers never catch raw errors.
+- Examples: `src/feedback/types.ts`, `src/productFeedback/types.ts` (defined separately in each module)
+- Pattern: `{ status: "success" | "validation-error" | "server-error" | "network-error" }`, plus `data` on success.
 
 ## Entry Points
 
-**`app/_layout.tsx` (root layout):**
+**`app/_layout.tsx`:**
 - Location: `app/_layout.tsx`
-- Triggers: Mounted once by Expo Router at app launch
-- Responsibilities: Wraps the whole app in `SafeAreaProvider`, renders the `Stack` navigator (all screens use native headers, `headerShown: true` by default, overridden per-screen), fires `prefetch()` once on mount to warm the dataset cache before the setup screen needs it
+- Triggers: Expo Router mounts it at app launch.
+- Responsibilities: Calls `prefetch()` in a `useEffect`, sets system background color via `expo-system-ui`, wraps the tree in `SafeAreaProvider`, and renders the `Stack`.
 
-**`app/index.tsx` (`/` route, quiz setup):**
+**`app/index.tsx` (route `/`):**
 - Location: `app/index.tsx`
-- Triggers: Default route on cold start; also the target of "Back to Setup"/quit-quiz navigation from other screens
-- Responsibilities: Tense/irregular-verb filter selection, `startQuiz` invocation, surfaces `InsufficientVerbsError`'s user-facing message
+- Triggers: Cold start. Also the target of `router.replace("/")` from quiz exit and results Back to Setup.
+- Responsibilities: Tense and verb-mode selection, `startQuiz`, `InsufficientVerbsError` message, `ProductFeedbackModal` (`screen: "setup"`), `OfflinePill` (live resolution).
+
+**`app/quiz.tsx` (route `/quiz`):**
+- Location: `app/quiz.tsx`
+- Triggers: `router.replace("/quiz")` once status is `in-progress`.
+- Responsibilities: Question rendering, choice locking, explanation, progress, header Exit and `beforeRemove` guard through one `Alert` confirm, `ReportFeedbackModal`, `ProductFeedbackModal`, `OfflinePill` with session `source`.
+
+**`app/results.tsx` (route `/results`):**
+- Location: `app/results.tsx`
+- Triggers: `router.replace("/results")` once status is `completed`.
+- Responsibilities: Score, share, Try Again (re-`startQuiz(filters)`), Back to Setup, `ProductFeedbackModal` (`screen: "results"`), `OfflinePill` with session `source`.
+
+**Module-level singletons (no entry, but side-effectful at import):**
+- `src/dataset/source.ts`: lazy promise cache, primed by `prefetch()`.
+- `src/store/useQuizStore.ts`: `startToken` counter and the Zustand store.
 
 ## Architectural Constraints
 
-- **Threading:** Single-threaded JS runtime (standard RN/Hermes); no worker threads or background tasks. All async work is `fetch`-based promises (dataset fetch, feedback POST)
-- **Global state:** Two module-level singletons exist outside React: `cachedResult` (dataset resolution promise, `src/dataset/source.ts:7`) and `startToken` (race-guard counter, `src/store/useQuizStore.ts:39`). Both persist for the life of the JS process and are not reset between quiz sessions or on `reset()`
-- **Not fully offline:** Despite the project's "entirely offline" framing in `CLAUDE.md`, `src/dataset/source.ts` actively attempts a network fetch (`https://portuguese-verb-api.onrender.com/content/verbs`) on every cold start before falling back to the bundled dataset. This means the backend now serves quiz content via a `/content/verbs` endpoint that is not documented in `CLAUDE.md`'s "no content-serving API" claim — treat `CLAUDE.md`'s offline description as describing the fallback behavior only, and verify with the backend repo before assuming `/content/verbs` doesn't exist
-- **No circular imports observed:** dependency direction is strictly `app/` → `src/store/` → `src/quiz/` + `src/dataset/`, with `src/feedback/` only depended on by `app/quiz.tsx` and self-contained otherwise
+- **Threading:** Single-threaded JS runtime (Hermes). No workers. All async work is `fetch` promises.
+- **Global state:** Module-level `cachedResult`, `settledSource`, `refreshInFlight` in `src/dataset/source.ts`, and `startToken` in `src/store/useQuizStore.ts`. None are reset by `reset()`.
+- **Network surfaces:** Exactly three endpoints, all on `API_BASE_URL` (`src/config/api.ts`): `GET /content/verbs`, `POST /feedback`, `POST /product-feedback`. `scripts/preflight.ts` also probes `GET /health`. No Supabase or credentials in the client. The app never writes to a database directly.
+- **Timeouts:** Content fetch 15s (`src/dataset/remote.ts`). Both POST submits 45s (`src/feedback/submit.ts`, `src/productFeedback/submit.ts`).
+- **Import direction:** `app/` → `src/store/` → (`src/quiz/`, `src/dataset/`) → (`src/learning/`, `src/config/`). `src/feedback/` and `src/productFeedback/` are used by screens only. `src/learning/explain.ts` imports `src/quiz/labels.ts`. No cycles observed.
+- **Native configuration:** `app.json` `expo.name` is `Lafa` and `expo.scheme` is `lafa`, but `expo.slug` stays `portuguese-verb-mobile` (Phase 24-03 reverted it because `lafa` broke `eas build`; see `CLAUDE.md`). Build and submit config is in `eas.json`. `ios/` exists locally but is git-ignored (managed by Expo prebuild).
 
 ## Anti-Patterns
 
-### Hardcoded style values in `ReportFeedbackModal.tsx`
+### Bypassing the store with `useQuizStore.getState()` for navigation decisions
 
-**What happens:** `src/feedback/ReportFeedbackModal.tsx`'s `StyleSheet.create` block hardcodes hex colors (`#FFFFFF`, `#007AFF`, `#FF3B30`, `#34C759`, `#8E8E93`, `#F2F2F7`) and pixel values (`16`, `24`, `12`) instead of importing `colors`/`spacing`/`radius`/`typography` from `src/theme/tokens.ts`.
-**Why it's wrong:** Every other screen and component (`app/index.tsx`, `app/quiz.tsx`, `app/results.tsx`, `src/components/OfflinePill.tsx`) imports the shared tokens module. The modal's values happen to match the token values today, but any future token change (e.g. a color/spacing rebrand) would silently miss this file.
-**Do this instead:** Import `colors, spacing, radius, typography` from `src/theme/tokens.ts` in `ReportFeedbackModal.tsx` and replace literal values, matching the pattern in `app/results.tsx` or `src/components/OfflinePill.tsx`.
+**What happens:** `app/index.tsx`, `app/results.tsx`, and `app/quiz.tsx` call `useQuizStore.getState().status` right after an awaited store action, then route based on it.
+**Why it's wrong:** It is correct here because it reads the value after the `await`, avoiding a stale closure. It is easy to copy into a context where a subscribed selector would be simpler and reactive.
+**Do this instead:** Use `getState()` only immediately after an awaited action. For rendering, use `useQuizStore((s) => s.field)`.
 
-### Reading store state via `useQuizStore.getState()` inside event handlers
+### Duplicated submit modules with divergent result types
 
-**What happens:** `app/index.tsx:43`, `app/quiz.tsx:67`, and `app/results.tsx:66` call `useQuizStore.getState().status` immediately after an awaited store action, rather than relying on the subscribed `status` value from the top-level selector.
-**Why it's wrong:** This is a deliberate, working pattern here (it avoids a stale-closure read of `status` after an `await`), but it's easy to misapply elsewhere — a new contributor might copy this pattern into a context where the subscribed selector value would have been correct and simpler.
-**Do this instead:** Keep using `getState()` only immediately after an awaited store action to read the freshest value; do not use it as a general substitute for the selector-based `useQuizStore((s) => s.field)` pattern used everywhere else in the same files.
+**What happens:** `src/feedback/submit.ts` and `src/productFeedback/submit.ts` each define their own `SubmitResult` and near-identical fetch logic.
+**Why it's wrong:** Any change to status mapping or timeout has to be made twice. `src/productFeedback/types.ts` duplicates the union from `src/feedback/types.ts`.
+**Do this instead:** When adding a third submit surface, reuse the same status mapping shape, or extract a shared helper, rather than copying a third time.
+
+### Local fallback has no learning or formIndex data
+
+**What happens:** `src/dataset/verbs.ts` contains only `Verb` entries. `learning` is `undefined` on the local path, so `selectExplanation` returns nothing and no explanation shows offline.
+**Why it's wrong:** Offline quiz play gets no wrong-answer teaching, which differs from online play.
+**Do this instead:** When adding learning content for offline use, bundle it through `src/learning/` and feed it into `resolve()` in `src/dataset/source.ts` as the local-side `learning` value.
 
 ## Error Handling
 
-**Strategy:** Every network call (`src/dataset/remote.ts`, `src/feedback/submit.ts`) uses an `AbortController` with a 90s timeout and returns/throws typed results rather than letting fetch errors propagate as generic rejections. Store-level actions (`startQuiz`) catch a specific known error type (`InsufficientVerbsError`) and translate it into a user-facing `errorMessage`; any other thrown error is re-thrown and caught one level up in the screen's `try/catch`, surfaced as `unexpectedError` state rather than becoming an unhandled promise rejection.
+**Strategy:** Network and content failures never reach the user as raw errors. Dataset failures fall back silently to bundled content. Feedback failures show an in-modal state. Domain errors that callers branch on use a dedicated class (`InsufficientVerbsError`).
 
 **Patterns:**
-- Dataset resolution never throws to the caller: `resolveVerbs()`'s internal `resolve()` catches any remote-fetch failure and falls back to `localVerbs` (`src/dataset/source.ts:9-16`)
-- Feedback submission never throws to the caller: `submitFeedback` catches all fetch/network errors internally and returns `{ status: "network-error" }` (`src/feedback/submit.ts:30-31`)
-- Screens defensively check `if (!session) return null;` (`app/quiz.tsx:56,59`) or render an explicit fallback UI with a way back to setup (`app/results.tsx:23-44`) rather than rendering blank/broken screens
+- `resolve()` in `src/dataset/source.ts` catches every failure of `fetchRemoteVerbs` and returns the local fallback.
+- `startQuiz` converts `InsufficientVerbsError` into `status: "error"` plus `errorMessage`. Other errors are rethrown and caught by the screen (`app/index.tsx` `setUnexpectedError`).
+- Submit functions return `{ status }`. They never throw.
+- Screens guard with `if (!session) return null` (`app/quiz.tsx`) or render a fallback with a route back to setup (`app/results.tsx`).
 
 ## Cross-Cutting Concerns
 
-**Logging:** None — no logging library, no `console.log` calls found in `src/` or `app/`.
-**Validation:** Zod schemas at both external boundaries — `src/dataset/validate.ts` validates any remote dataset payload before it's trusted; `src/feedback/schema.ts` validates the feedback payload shape (used for typing via `z.infer`, not yet wired to actually call `.parse`/`.safeParse` before submission — `submitFeedback` sends the payload as constructed by `buildFeedbackPayload` without an explicit runtime `.parse()` call).
-**Authentication:** None — no auth anywhere in the app, matching the "no login, no accounts" product constraint.
+**Logging:** None detected. No logging library and no `console` calls in `src/` or `app/`.
+**Validation:** Zod at each external boundary: `src/dataset/validate.ts` (verbs, remote), `src/learning/schema.ts` (remote learning, lenient), `src/feedback/schema.ts` and `src/productFeedback/schema.ts` (payload types. Runtime `.parse` before submit is not called in the submit path).
+**Authentication:** None. No login, accounts, or sessions, which matches the backend contract.
+**Theming:** `src/theme/tokens.ts` is imported by all screens and by both feedback modals. `ReportFeedbackModal.tsx` uses tokens (no hardcoded hex literals found). Treat `tokens.ts` as the only source of colors and spacing.
 
 ---
 
-*Architecture analysis: 2026-07-18*
+*Architecture analysis: 2026-10-14*
