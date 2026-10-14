@@ -1,10 +1,17 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 import { Resvg } from "@resvg/resvg-js";
 import { DOMParser } from "linkedom";
 import sharp from "sharp";
 
 import { DEPTH_FILL_HEX, ICON_BACKGROUND_HEX, MONOCHROME_FILL_HEX, ORANGE_FILL_HEX } from "./brand-colors.ts";
+
+// Anchor every read/write on the repo root (same as validate-brand.ts), so
+// running the generator from another directory can't write a stray assets/
+// tree that the validator never looks at.
+const ROOT = resolve(import.meta.dirname, "..");
+const abs = (rel: string): string => resolve(ROOT, rel);
 
 const SOURCE_SVG_PATH = "assets/brand/lafa-icon.svg";
 const ICON_OUTPUT_PATH = "assets/images/icon.png";
@@ -257,7 +264,7 @@ function toMonochromeSilhouette(markMarkup: string): string {
 }
 
 async function main(): Promise<void> {
-  const sourceSvg = readFileSync(SOURCE_SVG_PATH, "utf-8");
+  const sourceSvg = readFileSync(abs(SOURCE_SVG_PATH), "utf-8");
   const mark = extractMarkOnly(sourceSvg);
 
   const colorMarkup = composeMark(mark, COLOR_OUTPUT_LAYER_IDS);
@@ -294,7 +301,7 @@ async function main(): Promise<void> {
   // though every pixel is fully opaque. Route through sharp's removeAlpha() to re-encode
   // as a true alpha-free (RGB) PNG.
   const iconPng = await sharp(iconRender.asPng()).removeAlpha().png().toBuffer();
-  writeFileSync(ICON_OUTPUT_PATH, iconPng);
+  writeFileSync(abs(ICON_OUTPUT_PATH), iconPng);
 
   // favicon.png — downscaled from the already-rendered icon buffer so it stays
   // pixel-consistent with icon.png.
@@ -303,27 +310,27 @@ async function main(): Promise<void> {
     .removeAlpha()
     .png()
     .toBuffer();
-  writeFileSync(FAVICON_OUTPUT_PATH, faviconPng);
+  writeFileSync(abs(FAVICON_OUTPUT_PATH), faviconPng);
 
   // splash-icon.png — full-canvas mark composition, transparent, no background rect.
   const splashRender = new Resvg(fullCanvasMarkDoc, {
     fitTo: { mode: "width", value: SPLASH_WIDTH_PX },
     background: TRANSPARENT_BACKGROUND,
   }).render();
-  writeFileSync(SPLASH_OUTPUT_PATH, splashRender.asPng());
+  writeFileSync(abs(SPLASH_OUTPUT_PATH), splashRender.asPng());
 
   // android-icon-foreground.png — mark centered within the ~66% Android safe zone.
   const foregroundPng = await renderCenteredOnSafeZone(croppedMarkDoc, bbox);
-  writeFileSync(ANDROID_FOREGROUND_OUTPUT_PATH, foregroundPng);
+  writeFileSync(abs(ANDROID_FOREGROUND_OUTPUT_PATH), foregroundPng);
 
   // android-icon-monochrome.png — same centering, solid white silhouette, no depth layer (D-07).
   const monochromePng = await renderCenteredOnSafeZone(croppedMonoDoc, monoBBox);
-  writeFileSync(ANDROID_MONOCHROME_OUTPUT_PATH, monochromePng);
+  writeFileSync(abs(ANDROID_MONOCHROME_OUTPUT_PATH), monochromePng);
 
   // lafa-homepage-lockup.png — the lockup's own baked-in #FFF9F6 rounded-rect background
   // already paints the canvas; the mark is injected from the canonical icon source at
   // render time (D-02) so an icon change propagates here automatically.
-  const lockupSvg = readFileSync(LOCKUP_SOURCE_SVG_PATH, "utf-8");
+  const lockupSvg = readFileSync(abs(LOCKUP_SOURCE_SVG_PATH), "utf-8");
   const lockupDoc = buildLockupDoc(lockupSvg, colorMarkup);
   const lockupRender = new Resvg(lockupDoc, {
     fitTo: { mode: "width", value: LOCKUP_WIDTH_PX },
@@ -336,7 +343,7 @@ async function main(): Promise<void> {
     );
   }
 
-  writeFileSync(LOCKUP_OUTPUT_PATH, lockupRender.asPng());
+  writeFileSync(abs(LOCKUP_OUTPUT_PATH), lockupRender.asPng());
 }
 
 main();
