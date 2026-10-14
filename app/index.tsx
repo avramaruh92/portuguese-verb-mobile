@@ -9,6 +9,7 @@ import { TENSES } from "../src/dataset/types";
 import type { Tense } from "../src/dataset/types";
 import type { VerbMode } from "../src/quiz/types";
 import { colors, radius, spacing, typography } from "../src/theme/tokens";
+import { LOCKUP_CONTENT_X0, LOCKUP_CONTENT_X1, LOCKUP_CONTENT_Y0, LOCKUP_CONTENT_Y1 } from "../src/theme/lockup";
 import { OfflinePill } from "../src/components/OfflinePill";
 import { ProductFeedbackModal } from "../src/productFeedback/ProductFeedbackModal";
 
@@ -18,25 +19,6 @@ const VERB_MODE_OPTIONS: { value: VerbMode; label: string }[] = [
   { value: "irregular_only", label: "Irregular only" },
 ];
 
-// The lockup source (assets/brand/lafa-homepage-lockup.svg, rendered 2x to
-// assets/images/lafa-homepage-lockup.png at 3200x1040) paints its own
-// background rect the same color as the app background, so its 1600x520
-// canvas has a large blank margin to the right of the visible content
-// (mark/wordmark/dot/tagline). Centering or left-aligning the full image's
-// bounding box therefore visually mis-centers the glyphs themselves. These
-// constants crop the rendered PNG down to just its non-background content
-// region so *that* crop box can be centered correctly.
-//
-// Measured (not estimated) via a one-off sharp bounding-box scan of
-// assets/images/lafa-homepage-lockup.png, scanning for pixels differing
-// from background #FFF9F6 (tolerance 6/channel, alpha >= 200 to ignore
-// antialiased edges), then halved to the 1600x520 source coordinate space:
-// { x0: 176, y0: 93, x1: 976.5, y1: 382.5 }. Re-measure if the lockup
-// source SVG ever changes.
-const LOCKUP_CONTENT_X0 = 176;
-const LOCKUP_CONTENT_Y0 = 93;
-const LOCKUP_CONTENT_X1 = 976.5;
-const LOCKUP_CONTENT_Y1 = 382.5;
 const LOCKUP_HEIGHT = 110;
 const LOCKUP_CONTENT_WIDTH = LOCKUP_CONTENT_X1 - LOCKUP_CONTENT_X0;
 const LOCKUP_CONTENT_HEIGHT = LOCKUP_CONTENT_Y1 - LOCKUP_CONTENT_Y0;
