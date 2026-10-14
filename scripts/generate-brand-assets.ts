@@ -4,6 +4,8 @@ import { Resvg } from "@resvg/resvg-js";
 import { DOMParser } from "linkedom";
 import sharp from "sharp";
 
+import { DEPTH_FILL_HEX, ICON_BACKGROUND_HEX, MONOCHROME_FILL_HEX, ORANGE_FILL_HEX } from "./brand-colors.ts";
+
 const SOURCE_SVG_PATH = "assets/brand/lafa-icon.svg";
 const ICON_OUTPUT_PATH = "assets/images/icon.png";
 const FAVICON_OUTPUT_PATH = "assets/images/favicon.png";
@@ -22,11 +24,8 @@ const SAFE_ZONE_PX = Math.round(CANVAS_PX * SAFE_ZONE_RATIO); // 676
 const LOCKUP_WIDTH_PX = 3200; // 2x the 1600x520 source (D-03: single high-res PNG, no @1x/@2x/@3x variants)
 const LOCKUP_HEIGHT_PX = 1040;
 
-const ICON_BACKGROUND_HEX = "#FFF9F6";
 const TRANSPARENT_BACKGROUND = "rgba(0,0,0,0)";
-const MONOCHROME_FILL = 'fill="#FFFFFF"';
-const ORANGE_FILL_HEX = "#F2643E";
-const DEPTH_FILL_HEX = "#C94A2D";
+const MONOCHROME_FILL = `fill="${MONOCHROME_FILL_HEX}"`;
 
 const MARK_DEPTH_ID = "mark-depth";
 const MARK_FILL_ID = "mark-fill";
