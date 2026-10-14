@@ -41,11 +41,11 @@
 
 ### DEBT — v1.0 audit tech debt (droppable; must never block the release)
 
-- [ ] **DEBT-01**: Document that `app.json` `ios.buildNumber` "1" is ignored, because `eas.json` remote autoIncrement is the source of truth
-- [ ] **DEBT-02**: `validate-brand` checks pixel colour on the brand PNGs, so a wrong-colour icon fails the gate (audit WR-01)
-- [ ] **DEBT-03**: `validate-brand` resolves its paths from the repo root, not the current directory (audit WR-02)
-- [ ] **DEBT-04**: `validate-brand` gates the hand-measured Setup lockup crop constants in `app/index.tsx`
-- [ ] **DEBT-05**: Fix three documents: the 30-02-SUMMARY Node claim, the 35-06-SUMMARY "not yet closed" ending, and the `ios/` reference in `store/screenshots/README.md`
+- [x] **DEBT-01**: Document that `app.json` `ios.buildNumber` "1" is ignored, because `eas.json` remote autoIncrement is the source of truth
+- [x] **DEBT-02**: `validate-brand` checks pixel colour on the brand PNGs, so a wrong-colour icon fails the gate (audit WR-01)
+- [x] **DEBT-03**: `validate-brand` resolves its paths from the repo root, not the current directory (audit WR-02)
+- [x] **DEBT-04**: `validate-brand` gates the hand-measured Setup lockup crop constants in `app/index.tsx`
+- [x] **DEBT-05**: Fix three documents: the 30-02-SUMMARY Node claim, the 35-06-SUMMARY "not yet closed" ending, and the `ios/` reference in `store/screenshots/README.md`
 
 ## Future Requirements
 
@@ -86,11 +86,11 @@ Candidates for a later milestone (not v1.1):
 | HAND-02 | Phase 38 | Complete |
 | REL-03 | Phase 38 | Complete |
 | REL-04 | Phase 38 | Complete |
-| DEBT-01 | Phase 39 | Pending |
-| DEBT-02 | Phase 39 | Pending |
-| DEBT-03 | Phase 39 | Pending |
-| DEBT-04 | Phase 39 | Pending |
-| DEBT-05 | Phase 39 | Pending |
+| DEBT-01 | Phase 39 | Complete |
+| DEBT-02 | Phase 39 | Complete |
+| DEBT-03 | Phase 39 | Complete |
+| DEBT-04 | Phase 39 | Complete |
+| DEBT-05 | Phase 39 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 22 total
