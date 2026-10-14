@@ -4,7 +4,8 @@ import { resolve } from "node:path";
 import sharp from "sharp";
 
 import { LOCKUP_CONTENT_X0, LOCKUP_CONTENT_X1, LOCKUP_CONTENT_Y0, LOCKUP_CONTENT_Y1 } from "../src/theme/lockup.ts";
-import { ICON_BACKGROUND_HEX, MONOCHROME_FILL_HEX, ORANGE_FILL_HEX } from "./brand-colors.ts";
+import { colors } from "../src/theme/tokens.ts";
+import { DEPTH_FILL_HEX, ICON_BACKGROUND_HEX, MONOCHROME_FILL_HEX, ORANGE_FILL_HEX } from "./brand-colors.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const abs = (rel: string): string => resolve(ROOT, rel);
@@ -353,6 +354,23 @@ async function checkBrandPixels(): Promise<CheckResult[]> {
   ];
 }
 
+// src/theme/tokens.ts is what the app renders with; brand-colors.ts is what the
+// generated PNGs are painted with. The lockup PNG paints its own #FFF9F6
+// background, so a drift between the two would show a visible box on Setup.
+function checkTokensMatchBrandColors(): CheckResult[] {
+  const pairs: [string, string, string][] = [
+    ["tokens.background matches brand background", colors.background, ICON_BACKGROUND_HEX],
+    ["tokens.primary matches brand orange", colors.primary, ORANGE_FILL_HEX],
+    ["tokens.pressed matches brand depth", colors.pressed, DEPTH_FILL_HEX],
+  ];
+  return pairs.map(([label, actual, expected]) => ({
+    label,
+    ok: actual.toUpperCase() === expected.toUpperCase(),
+    actual,
+    expected,
+  }));
+}
+
 async function main(): Promise<void> {
   const results: CheckResult[] = [
     await checkPngDimensions("icon.png dimensions", ICON_PATH, CANVAS_PX, CANVAS_PX),
@@ -385,6 +403,7 @@ async function main(): Promise<void> {
     ...checkGeneratorHasNoRetiredRefs(),
     ...(await checkBrandPixels()),
     ...(await checkLockupCrop()),
+    ...checkTokensMatchBrandColors(),
   ];
 
   for (const result of results) {
